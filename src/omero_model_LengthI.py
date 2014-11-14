@@ -20,14 +20,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-Hand-coded omero.model.TimeI implementation,
+Hand-coded omero.model.LengthI implementation,
 based on omero.model.PermissionsI
 """
 
 
 import Ice
 import IceImport
-IceImport.load("omero_model_Time_ice")
+IceImport.load("omero_model_Length_ice")
 _omero = Ice.openModule("omero")
 _omero_model = Ice.openModule("omero.model")
 __name__ = "omero.model"
@@ -35,7 +35,7 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 
 
-class TimeI(_omero_model.Time, UnitBase):
+class LengthI(_omero_model.Length, UnitBase):
 
     def getUnit(self, current=None):
         return self._unit
@@ -52,4 +52,4 @@ class TimeI(_omero_model.Time, UnitBase):
     def __str__(self):
         return self._base_string(self.getValue(), self.getUnit())
 
-_omero_model.TimeI = TimeI
+_omero_model.LengthI = LengthI
