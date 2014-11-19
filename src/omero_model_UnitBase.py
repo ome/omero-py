@@ -20,36 +20,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-Hand-coded omero.model.TimeI implementation,
-based on omero.model.PermissionsI
+Multiple inheritance class that can be re-used by all of
+the unit implementations.
 """
 
 
-import Ice
-import IceImport
-IceImport.load("omero_model_Time_ice")
-_omero = Ice.openModule("omero")
-_omero_model = Ice.openModule("omero.model")
-__name__ = "omero.model"
+class UnitBase(object):
 
-from omero_model_UnitBase import UnitBase
-
-
-class TimeI(_omero_model.Time, UnitBase):
-
-    def getUnit(self, current=None):
-        return self._unit
-
-    def getValue(self, current=None):
-        return self._value
-
-    def setUnit(self, unit, current=None):
-        self._unit = unit
-
-    def setValue(self, value, current=None):
-        self._value = value
-
-    def __str__(self):
-        return self._base_string(self.getValue(), self.getUnit())
-
-_omero_model.TimeI = TimeI
+    def _base_string(self, v, u):
+        if v is not None:
+            return "%s %s" % (v, str(u))
+        return ""
