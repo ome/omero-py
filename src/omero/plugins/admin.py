@@ -23,7 +23,6 @@ from builtins import object
 import re
 import os
 import sys
-import stat
 import platform
 import datetime
 import time
