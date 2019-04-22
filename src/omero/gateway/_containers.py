@@ -5,11 +5,11 @@ logger = logging.getLogger(__name__)
 import omero
 from omero.rtypes import rint, rlong, unwrap
 from omero.util.decorators import timeit
-from .core import BlitzObjectWrapper
-from .core import OmeroRestrictionWrapper
-from .core import getChannelsQuery
-from .core import getPixelsQuery
-from .core import omero_type
+from ._core import BlitzObjectWrapper
+from ._core import OmeroRestrictionWrapper
+from ._core import getChannelsQuery
+from ._core import getPixelsQuery
+from ._core import omero_type
 
 
 def add_plate_filter(clauses, params, opts):
