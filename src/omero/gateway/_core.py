@@ -142,13 +142,6 @@ def getChannelsQuery():
             ' left outer join fetch logicalChannel.contrastMethod')
 
 
-def add_plate_filter(clauses, params, opts):
-    """Helper for adding 'plate' to filtering clauses and parameters."""
-    if opts is not None and 'plate' in opts:
-        clauses.append('obj.plate.id = :pid')
-        params.add('pid', rlong(opts['plate']))
-
-
 class OmeroRestrictionWrapper (object):
 
     def canDownload(self):
