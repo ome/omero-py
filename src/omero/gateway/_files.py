@@ -3,7 +3,6 @@ import os
 import omero
 from ._core import BlitzObjectWrapper
 from ._core import OmeroRestrictionWrapper
-from ._images import ImageWrapper  # TODO: recursive import!!!
 
 
 class _OriginalFileAsFileObj(object):
@@ -123,6 +122,7 @@ class _FilesetWrapper (BlitzObjectWrapper):
 
     def copyImages(self):
         """ Returns a list of :class:`ImageWrapper` linked to this Fileset """
+        from ._images import ImageWrapper  # TODO: recursive import!!!
         return [ImageWrapper(self._conn, i) for i in self._obj.copyImages()]
 
     def listFiles(self):
