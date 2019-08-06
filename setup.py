@@ -35,20 +35,16 @@ import glob
 import sys
 import os
 
-sys.path.append("src")
-from omero_setup import PyTest
-
 from setuptools import setup, find_packages
-from omero_version import omero_version as ov
 
 from StringIO import StringIO
 from hashlib import md5
+from shutil import copy
 from urllib import urlopen
 from zipfile import ZipFile
 
 blitz_zip = "https://artifacts.openmicroscopy.org/artifactory/ome.releases/org/openmicroscopy/omero-blitz/5.5.3/omero-blitz-5.5.3-python.zip"
 blitz_md5 = "cf9c0cd4b2e499fc3b4b8be8c58ab6cb"
-
 
 if not os.path.exists("target"):
     resp = urlopen(blitz_zip)
@@ -58,9 +54,22 @@ if not os.path.exists("target"):
     zipfile = ZipFile(StringIO(content))
     zipfile.extractall("target")
 
+    for dirpath, dirs, files in os.walk("src"):
+        for filename in files:
+            topath = dirpath.replace("src", "target", 1)
+            if not os.path.exists(topath):
+                os.makedirs(topath)
+            fromfile = os.path.sep.join([dirpath, filename])
+            tofile = os.path.sep.join([topath, filename])
+            copy(fromfile, tofile)
 
-packages = find_packages("target")+[""]
+
+packages = find_packages(where="target")+[""]
 url = 'https://docs.openmicroscopy.org/latest/omero/developers'
+
+sys.path.append("target")
+from omero_setup import PyTest
+from omero_version import omero_version as ov
 
 setup(
     name="omero-py",
@@ -71,7 +80,7 @@ setup(
     author_email="ome-devel@lists.openmicroscopy.org.uk",
     url=url,
     download_url=url,
-    package_dir={"": "target"},
+    package_dir={"": "target/"},
     packages=packages,
     package_data={
         'omero.gateway': ['pilfonts/*'],
