@@ -38,24 +38,32 @@ import os
 sys.path.append("src")
 from omero_setup import PyTest
 
-for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
-    if tools.find(".".join(map(str, sys.version_info[0:2]))) > 0:
-        sys.path.insert(0, os.path.abspath(tools))
-
-from ez_setup import use_setuptools
-use_setuptools(to_dir='../../../lib/repository')
 from setuptools import setup, find_packages
 from omero_version import omero_version as ov
 
-if os.path.exists("target"):
-    packages = find_packages("target")+[""]
-else:
-    packages = [""]
+from StringIO import StringIO
+from hashlib import md5
+from urllib import urlopen
+from zipfile import ZipFile
 
+blitz_zip = "https://artifacts.openmicroscopy.org/artifactory/ome.releases/org/openmicroscopy/omero-blitz/5.5.3/omero-blitz-5.5.3-python.zip"
+blitz_md5 = "cf9c0cd4b2e499fc3b4b8be8c58ab6cb"
+
+
+if not os.path.exists("target"):
+    resp = urlopen(blitz_zip)
+    content = resp.read()
+    md5 = md5(content).hexdigest()
+    assert md5 == blitz_md5
+    zipfile = ZipFile(StringIO(content))
+    zipfile.extractall("target")
+
+
+packages = find_packages("target")+[""]
 url = 'https://docs.openmicroscopy.org/latest/omero/developers'
 
 setup(
-    name="omero_client",
+    name="omero-py",
     version=ov,
     description="Python bindings to the OMERO.blitz server",
     long_description="Python bindings to the OMERO.blitz server.",
