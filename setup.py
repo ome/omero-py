@@ -86,4 +86,5 @@ setup(
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
     cmdclass={'test': PyTest},
+    scripts=glob.glob(os.path.sep.join(["bin", "*"])),
     tests_require=['pytest<3'])

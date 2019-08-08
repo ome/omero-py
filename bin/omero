@@ -80,8 +80,8 @@ lpy = os.path.join(top, "lib","python")
 ipy = os.path.join(top, "lib","fallback")
 var = os.path.join(top, "var")
 vlb = os.path.join(var, "lib")
-sys.path.insert(0,vlb);
-sys.path.insert(0,lpy);
+sys.path.append(lpy);
+sys.path.append(vlb);
 sys.path.append(ipy)
 
 if not os.path.exists(lib):
