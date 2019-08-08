@@ -1,0 +1,19 @@
+sudo: required
+
+language: python
+
+python:
+  - "2.7"
+
+services:
+  - docker
+
+script:
+  - docker build -t omero-py .
+
+deploy:
+  provider: pypi
+  user: $PYPI_USER
+  password: $PYPI_PASSWORD
+  on:
+    tags: true
