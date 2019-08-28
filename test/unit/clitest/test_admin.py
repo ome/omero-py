@@ -34,6 +34,9 @@ ETC_FILES = ["ice.config", "master.cfg", "internal.cfg"]
 MISSING_CONFIGURATION_MSG = "Missing internal configuration."
 REWRITE_MSG = " Run bin/omero admin rewrite."
 FORCE_REWRITE_MSG = " Pass --force-rewrite to the command."
+OMERODIR = False
+if 'OMERODIR' in os.environ:
+    OMERODIR = os.environ.get('OMERODIR')
 
 
 @pytest.fixture(autouse=True)
@@ -46,7 +49,7 @@ def tmpadmindir(tmpdir):
 
     # Need to know where to find OMERO
     assert 'OMERODIR' in os.environ
-    old_etc_dir = os.path.join(os.environ.get('OMERODIR'), "..", "etc")
+    old_etc_dir = os.path.join(OMERODIR, "..", "etc")
     old_templates_dir = os.path.join(old_etc_dir, "templates")
     for f in glob(os.path.join(old_etc_dir, "*.properties")):
         path(f).copy(path(etc_dir))
@@ -59,6 +62,7 @@ def tmpadmindir(tmpdir):
     return path(tmpdir)
 
 
+@pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestAdmin(object):
 
     @pytest.fixture(autouse=True)
@@ -274,6 +278,7 @@ def check_templates_xml(topdir, glacier2props):
         assert expected in s
 
 
+@pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestJvmCfg(object):
     """Test template files regeneration"""
 
@@ -312,6 +317,7 @@ class TestJvmCfg(object):
             self.cli.invoke(self.args, strict=True)
 
 
+@pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestRewrite(object):
     """Test template files regeneration"""
 
