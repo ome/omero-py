@@ -44,7 +44,7 @@ is essential.
 License
 -------
 
-OMERO.py is released under the AGPL.
+OMERO.py is released under the GPL v2.
 
 Copyright
 ---------
