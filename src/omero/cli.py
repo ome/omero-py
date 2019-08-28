@@ -718,7 +718,8 @@ class BaseControl(object):
         """
         err = self.__errors.get(name)
         if err is not None:
-            self.ctx.die(2, "Error already exists: %s (%s)" % (name, err))
+            # self.ctx.die(, "Error already exists: %s (%s)" % (name, err))
+            pass
         self.__errors[name] = Error(self.ctx, rcode, msg)
 
     def get_errors(self):
