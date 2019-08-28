@@ -19,7 +19,7 @@ from shutil import copy
 from urllib import urlopen
 from zipfile import ZipFile
 
-blitz_zip = "https://artifacts.openmicroscopy.org/artifactory/ome.releases/org/openmicroscopy/omero-blitz/5.5.3/omero-blitz-5.5.3-python.zip"
+blitz_zip = "https://artifacts.openmicroscopy.org/artifactory/ome.releases/org/openmicroscopy/omero-blitz/5.5.3/omero-blitz-5.5.3-python.zip"  # noqa
 blitz_md5 = "cf9c0cd4b2e499fc3b4b8be8c58ab6cb"
 
 if not os.path.exists("target"):
@@ -44,7 +44,7 @@ packages = find_packages(where="target")+[""]
 url = 'https://docs.openmicroscopy.org/latest/omero/developers'
 
 sys.path.append("target")
-from omero_version import omero_version as ov
+from omero_version import omero_version as ov  # noqa
 
 
 def read(fname):
@@ -60,19 +60,19 @@ setup(
     version=ov,
     description="Python bindings to the OMERO.blitz server",
     long_description=read("README.rst"),
-      classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Science/Research',
-        'Intended Audience :: System Administrators',
-        'License :: OSI Approved :: GNU General Public License v2 '
-        'or later (GPLv2+)',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-      ],  # Get strings from
-          # http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    classifiers=[
+      'Development Status :: 5 - Production/Stable',
+      'Intended Audience :: Developers',
+      'Intended Audience :: Science/Research',
+      'Intended Audience :: System Administrators',
+      'License :: OSI Approved :: GNU General Public License v2 '
+      'or later (GPLv2+)',
+      'Natural Language :: English',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python :: 2',
+      'Topic :: Software Development :: Libraries :: Python Modules',
+    ],  # Get strings from
+        # http://pypi.python.org/pypi?%3Aaction=list_classifiers
     author="The Open Microscopy Team",
     author_email="ome-devel@lists.openmicroscopy.org.uk",
     url=url,
