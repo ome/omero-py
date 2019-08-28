@@ -3101,7 +3101,7 @@ class _BlitzGateway (object):
 
     def searchObjects(self, obj_types, text, created=None, fields=(),
                       batchSize=1000, page=0, searchGroup=None, ownedBy=None,
-                      useAcquisitionDate=False):
+                      useAcquisitionDate=False, rawQuery=True):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
@@ -3111,6 +3111,8 @@ class _BlitzGateway (object):
         :param created:     :class:`omero.rtime` list or tuple (start, stop)
         :param useAcquisitionDate: if True, then use Image.acquisitionDate
                                    rather than import date for queries.
+        :param rawQuery     If True, text is passed directly to byFullText()
+                            without processing. fields is ignored.
         :return:            List of Object wrappers. E.g. :class:`ImageWrapper`
         """
         if not text:
@@ -3171,10 +3173,15 @@ class _BlitzGateway (object):
             for t in types:
                 def actualSearch():
                     search.onlyType(t().OMERO_CLASS, ctx)
-                    search.byLuceneQueryBuilder(
-                        ",".join(fields),
-                        d_from, d_to, d_type,
-                        text, ctx)
+                    if rawQuery:
+                        if created is not None and len(created) > 1:
+                            search.onlyCreatedBetween(created[0], created[1])
+                        search.byFullText(text, ctx)
+                    else:
+                        search.byLuceneQueryBuilder(
+                            ",".join(fields),
+                            d_from, d_to, d_type,
+                            text, ctx)
 
                 timeit(actualSearch)()
                 # get results
@@ -3695,6 +3702,17 @@ class _RoiWrapper (BlitzObjectWrapper):
             clauses.append('obj.image.id = :image_id')
             params.add('image_id', rlong(opts['image']))
         return (query, clauses, params)
+
+    def getImage(self):
+        """
+        Returns the Image for this ROI.
+
+        :return:    The Image
+        :rtype:     :class:`ImageWrapper`
+        """
+
+        if self._obj.image is not None:
+            return ImageWrapper(self._conn, self._obj.image)
 
 RoiWrapper = _RoiWrapper
 
