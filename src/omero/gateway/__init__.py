@@ -4505,7 +4505,7 @@ class _BlitzGateway (object):
 
     def searchObjects(self, obj_types, text, created=None, fields=(),
                       batchSize=1000, page=0, searchGroup=None, ownedBy=None,
-                      useAcquisitionDate=False, rawQuery=True):
+                      useAcquisitionDate=False):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
@@ -4515,8 +4515,6 @@ class _BlitzGateway (object):
         :param created:     :class:`omero.rtime` list or tuple (start, stop)
         :param useAcquisitionDate: if True, then use Image.acquisitionDate
                                    rather than import date for queries.
-        :param rawQuery     If True, text is passed directly to byFullText()
-                            without processing. fields is ignored.
         :return:            List of Object wrappers. E.g. :class:`ImageWrapper`
         """
         if not text:
@@ -4577,15 +4575,10 @@ class _BlitzGateway (object):
             for t in types:
                 def actualSearch():
                     search.onlyType(t().OMERO_CLASS, ctx)
-                    if rawQuery:
-                        if created is not None and len(created) > 1:
-                            search.onlyCreatedBetween(created[0], created[1])
-                        search.byFullText(text, ctx)
-                    else:
-                        search.byLuceneQueryBuilder(
-                            ",".join(fields),
-                            d_from, d_to, d_type,
-                            text, ctx)
+                    search.byLuceneQueryBuilder(
+                        ",".join(fields),
+                        d_from, d_to, d_type,
+                        text, ctx)
 
                 timeit(actualSearch)()
                 # get results
@@ -5795,17 +5788,6 @@ class _RoiWrapper (BlitzObjectWrapper):
             clauses.append('obj.image.id = :image_id')
             params.add('image_id', rlong(opts['image']))
         return (query, clauses, params)
-
-    def getImage(self):
-        """
-        Returns the Image for this ROI.
-
-        :return:    The Image
-        :rtype:     :class:`ImageWrapper`
-        """
-
-        if self._obj.image is not None:
-            return ImageWrapper(self._conn, self._obj.image)
 
 RoiWrapper = _RoiWrapper
 
@@ -8579,38 +8561,35 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
     @assert_re()
     def set_active_channels(self, channels, windows=None, colors=None,
-                            invertMaps=None, reverseMaps=None, noRE=False,
-                            set_inactive=False):
+                            invertMaps=None, reverseMaps=None, noRE=False):
         """
-        Sets the active channels on the rendering engine. Also sets rendering
-        windows and channel colors
+        Sets the active channels on the rendering engine.
+        Also sets rendering windows and channel colors
+        (for channels that are active)
 
         Examples:
         # Turn first channel ON, others OFF
         image.setActiveChannels([1])
-        # First OFF, second ON, windows and colors for the active channel
+        # First OFF, second ON, windows and colors for both
         image.setActiveChannels(
-            [-1, 2], windows=[[20, 300], [50, 500]],
-            colors=['00FF00', 'FF0000'])
+            [-1, 2], [[20, 300], [50, 500]], ['00FF00', 'FF0000'])
         # Second Channel ON with windows. All others OFF
         image.setActiveChannels([2], [[20, 300]])
 
-        :param channels:     List of active channel indexes ** 1-based index **
-        :type channels:      List of int
-        :param windows:      Start and stop values for active channel rendering
-                             settings
-        :type windows:       List of [start, stop].
-                             [[20, 300], [None, None], [50, 500]].
-                             Must be list for each channel
-        :param colors:       List of colors. ['F00', None, '00FF00'].
-                             Must be item for each channel
-        :param invertMaps:   List of boolean (or None). If True/False then
-                             set/remove reverseIntensityMap on channel
-        :param noRE:         If True Channels will not have rendering engine
-                             enabled. In this case, calling channel.getColor()
-                             or getWindowStart() etc. will return None.
-        :param set_inactive: If True, deactivated channels will have windows,
-                             colors and reverse maps settings applied.
+        :param channels:    List of active channel indexes ** 1-based index **
+        :type channels:     List of int
+        :param windows:     Start and stop values for active channel rendering
+                            settings
+        :type windows:      List of [start, stop].
+                            [[20, 300], [None, None], [50, 500]].
+                            Must be list for each channel
+        :param colors:      List of colors. ['F00', None, '00FF00'].
+                            Must be item for each channel
+        :param invertMaps:  List of boolean (or None). If True/False then
+                            set/remove reverseIntensityMap on channel
+        :param noRE:        If True Channels will not have rendering engine
+                            enabled. In this case, calling channel.getColor()
+                            or getWindowStart() etc. will return None.
         """
         if reverseMaps is not None:
             warnings.warn(
@@ -8623,11 +8602,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         idx = 0     # index of windows/colors args above
         for c in range(len(self.getChannels(noRE=noRE))):
             self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
-            if set_inactive:
-                update_channel = ((c + 1) in abs_channels)
-            else:
-                update_channel = ((c + 1) in channels)
-            if update_channel:
+            if (c+1) in channels:
                 if (invertMaps is not None and
                         invertMaps[idx] is not None):
                     self.setReverseIntensity(c, invertMaps[idx])
