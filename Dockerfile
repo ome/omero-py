@@ -12,3 +12,5 @@ RUN /v/bin/python -c "import omero_version; print omero_version.omero_version"
 # More to be added here
 RUN python setup.py test -t test/unit/clitest/
 RUN python setup.py test -t test/unit/fstest/
+RUN python setup.py test -t test/unit/gatewaytest/
+RUN python setup.py test -t test/unit/scriptstest/
