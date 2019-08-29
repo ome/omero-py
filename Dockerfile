@@ -1,5 +1,5 @@
 FROM centos:centos7
-RUN yum install -y python-setuptools python-virtualenv git
+RUN yum install -y python-setuptools python-virtualenv git python-yaml
 RUN echo git clean -dfx
 RUN virtualenv /v && /v/bin/pip install twine
 RUN /v/bin/pip install https://github.com/ome/zeroc-ice-py-centos7/releases/download/0.1.0/zeroc_ice-3.6.4-cp27-cp27mu-linux_x86_64.whl
@@ -19,3 +19,4 @@ RUN python setup.py test -t test/unit/clitest/test_export.py
 RUN python setup.py test -t test/unit/clitest/test_fs.py
 RUN python setup.py test -t test/unit/clitest/test_group.py
 RUN python setup.py test -t test/unit/clitest/test_hql.py
+RUN python setup.py test -t test/unit/clitest/test_import.py
