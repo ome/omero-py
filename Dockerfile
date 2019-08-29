@@ -8,3 +8,9 @@ WORKDIR /src
 RUN python setup.py sdist
 RUN /v/bin/pip install dist/omero-py*gz
 RUN /v/bin/python -c "import omero_version; print omero_version.omero_version"
+# More to be added here
+RUN python setup.py test -t test/unit/clitest/test_admin.py
+RUN python setup.py test -t test/unit/clitest/test_basics.py
+RUN python setup.py test -t test/unit/clitest/test_chgrp.py
+RUN python setup.py test -t test/unit/clitest/test_cli.py
+RUN python setup.py test -t test/unit/clitest/test_db.py
