@@ -14,3 +14,8 @@ RUN python setup.py test -t test/unit/clitest/test_basics.py
 RUN python setup.py test -t test/unit/clitest/test_chgrp.py
 RUN python setup.py test -t test/unit/clitest/test_cli.py
 RUN python setup.py test -t test/unit/clitest/test_db.py
+RUN python setup.py test -t test/unit/clitest/test_download.py
+RUN python setup.py test -t test/unit/clitest/test_export.py
+RUN python setup.py test -t test/unit/clitest/test_fs.py
+RUN python setup.py test -t test/unit/clitest/test_group.py
+RUN python setup.py test -t test/unit/clitest/test_hql.py
