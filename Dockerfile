@@ -2,6 +2,7 @@ FROM centos:centos7
 RUN yum install -y python-setuptools python-virtualenv git python-yaml
 RUN echo git clean -dfx
 RUN virtualenv /v && /v/bin/pip install twine
+RUN /v/bin/pip install --upgrade pip setuptools
 RUN /v/bin/pip install https://github.com/ome/zeroc-ice-py-centos7/releases/download/0.1.0/zeroc_ice-3.6.4-cp27-cp27mu-linux_x86_64.whl
 COPY . /src
 WORKDIR /src
