@@ -83,6 +83,6 @@ setup(
         'omero.gateway.scripts': ['imgs/*']},
     scripts=glob.glob(os.path.sep.join(["bin", "*"])),
     install_requires=[
-        # No Ice included, since a native wheel is preferable
+        'zeroc-ice>=3.6.4,<3.7',
     ],
     tests_require=['pytest<3'])
