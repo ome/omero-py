@@ -15,6 +15,7 @@
 
 import sys
 import traceback
+import os
 
 from path import path
 from omero.cli import CLI
@@ -247,12 +248,10 @@ class PrefsControl(WriteableConfigControl):
                 self.ctx.die(124, "File not found: %s" % args.source)
         else:
             grid_dir = self.ctx.dir / "etc" / "grid"
-            if grid_dir.exists():
-                cfg_xml = grid_dir / "config.xml"
-            else:
-                usr_xml = get_omero_userdir() / "config.xml"
-                self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
-                cfg_xml = usr_xml
+            if not grid_dir.exists():
+                self.ctx.err("%s not found; creating..." % grid_dir)
+                os.makedirs(self.ctx.dir / "etc" / "grid")
+            cfg_xml = grid_dir / "config.xml"
         try:
             return ConfigXml(str(cfg_xml))
         except portalocker.LockException:
