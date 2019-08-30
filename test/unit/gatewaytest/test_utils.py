@@ -60,7 +60,7 @@ class TestServiceOptsDict (object):
         d = ServiceOptsDict({
             "a": None, "b": True, "c": "foo", "d": 1, "e": 1.45, "f": [],
             "g": {}})
-        assert d.values() == ['foo', '1.45', '1']
+        assert set(d.values()) == set(['foo', '1.45', '1'])
 
     def test_items(self):
         d = ServiceOptsDict()
