@@ -20,9 +20,7 @@ from omero.scripts import (
     String, List, Bool, Long, Set,
     MissingInputs, ParseExit, compare_proto)
 from omero.scripts import client, parse_inputs, validate_inputs, parse_text
-from omero.scripts import parse_file, group_params, rlong, rint, wrap, unwrap
-
-SCRIPTS = path(".") / "scripts" / "omero"
+from omero.scripts import group_params, rlong, rint, wrap, unwrap
 
 
 class TestParse(object):
@@ -182,13 +180,6 @@ if True:
         assert "these" == groupings["A"]["1"], str(groupings)
         assert "belong" == groupings["A"]["2"], str(groupings)
         assert "together" == groupings["A"]["3"], str(groupings)
-
-    def testParseAllOfficialScripts(self):
-        for script in SCRIPTS.walk("*.py"):
-            try:
-                parse_file(str(script))
-            except Exception, e:
-                assert False, "%s\n%s" % (script, e)
 
     def testValidateRoiMovieCall(self):
         SCRIPT = """if True:
