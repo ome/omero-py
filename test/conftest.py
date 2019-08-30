@@ -5,6 +5,8 @@
 # how-can-i-repeat-each-test-multiple-times-in-a-py-test-run
 #
 
+import pytest
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -71,10 +73,8 @@ class Methods(object):
         raise Exception(standardMsg)
 
 
-def pytest_namespace():
+def pytest_configure():
     """
     Add helper methods to the 'pytest' module
     """
-    return {
-        "assertAlmostEqual": Methods.assertAlmostEqual
-    }
+    pytest.assertAlmostEqual = Methods.assertAlmostEqual
