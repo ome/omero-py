@@ -184,7 +184,7 @@ class ConfigXml(object):
             id = self.default()
         properties = self.properties(id)
         if properties is not None:
-            for x in properties.getchildren():
+            for x in list(properties):
                 if x.get("name") == self.KEY:
                     return x.get("value")
 
@@ -198,7 +198,7 @@ class ConfigXml(object):
         for k, v in self.properties(None, True):
             version = self.version(k)
             if version == "4.2.1" and v is not None:
-                for x in v.getchildren():
+                for x in list(v):
                     if x.get("name") == "omero.web.ui.top_links":
                         val = x.get("value", "")
                         toplinks = json.loads(val)
@@ -229,7 +229,7 @@ class ConfigXml(object):
             # Remove any reference to the ${omero.dollar} workaround
             # then map anything of the form: ${...} to @{...}
             if props:
-                for x in props.getchildren():
+                for x in list(props):
                     if x.get("name", "").startswith("omero.ldap"):
                         orig = x.get("value", "")
                         val = orig.replace("${omero.dollar}", "")
@@ -307,7 +307,7 @@ class ConfigXml(object):
 
         to_copy = self.properties(default)
         if to_copy is not None:
-            for x in to_copy.getchildren():
+            for x in list(to_copy):
                 if x.get("name") != self.DEFAULT and x.get("name") != self.KEY:
                     SubElement(internal, "property", x.attrib)
         else:
@@ -398,7 +398,7 @@ class ConfigXml(object):
         """
         p.tail = ""
         p.text = ""
-        for p2 in p.getchildren():
+        for p2 in list(p):
             self.clear_text(p2)
 
     #
@@ -434,7 +434,7 @@ class ConfigXml(object):
         default = self.default()
         props = self.properties(default)
         to_remove = []
-        for p in props.getchildren():
+        for p in list(props):
             if p.get("name") == key:
                 to_remove.append(p)
         for x in to_remove:

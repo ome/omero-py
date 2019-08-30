@@ -94,9 +94,10 @@ class TestSessions(object):
             setattr(args, session_args, tmpdir / session_args)
 
         if environment.get('OMERO_SESSION_DIR') or session_args:
-            pytest.deprecated_call(self.cli.controls['sessions'].store, args)
+            store = pytest.deprecated_call(self.cli.controls['sessions'].store, args)
+        else:
+            store = self.cli.controls['sessions'].store(args)
 
-        store = self.cli.controls['sessions'].store(args)
         # By order of precedence
         if environment.get('OMERO_SESSIONDIR'):
             sdir = path(tmpdir) / environment.get('OMERO_SESSIONDIR')
