@@ -84,7 +84,7 @@ class TestSessions(object):
 
         for var in environment.keys():
             if environment[var]:
-                monkeypatch.setenv(var, tmpdir / environment.get(var))
+                monkeypatch.setenv(var, str(tmpdir / environment.get(var)))
             else:
                 monkeypatch.delenv(var, raising=False)
 

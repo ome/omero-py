@@ -5,6 +5,7 @@
 # how-can-i-repeat-each-test-multiple-times-in-a-py-test-run
 #
 
+import os
 import pytest
 
 
@@ -27,6 +28,10 @@ def pytest_generate_tests(metafunc):
         # @pytest.mark.parametrize('tmp_ct', range(count))
         # def test_foo(): pass
         metafunc.parametrize('tmp_ct', range(count))
+
+        # If ICE_CONFIG is not set, then set it to a default file
+        if "ICE_CONFIG" not in os.environ:
+            os.environ["ICE_CONFIG"] = "ice.config"
 
 
 class Methods(object):

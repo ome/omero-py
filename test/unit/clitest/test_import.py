@@ -279,7 +279,7 @@ class TestImport(object):
         ice_config = tmpdir / 'ice.config'
         ice_config.write('omero.host=%s\nomero.port=%g' % (
             hostname, (port or 4064)))
-        monkeypatch.setenv("ICE_CONFIG", ice_config)
+        monkeypatch.setenv("ICE_CONFIG", str(ice_config))
         args = self.cli.parser.parse_args(self.args)
         command_args = CommandArguments(self.cli, args)
 
