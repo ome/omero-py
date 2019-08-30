@@ -191,8 +191,15 @@ if True:
                 assert False, "%s\n%s" % (script, e)
 
     def testValidateRoiMovieCall(self):
-        script = SCRIPTS / "figure_scripts" / "Movie_ROI_Figure.py"
-        params = parse_file(str(script))
+        SCRIPT = """if True:
+            from omero.rtypes import rlong, rstring
+            import omero.scripts as scripts
+            scripts.client('Movie_ROI_Figure.py',
+                scripts.String("Data_Type", values=[rstring('Image')]),
+                scripts.List("IDs").ofType(rlong(0)),
+                scripts.String("Image_Labels")
+            )"""
+        params = parse_text(SCRIPT)
         inputs = {
             "Merged_Colours": wrap(['Red', 'Green']),
             "Image_Labels": wrap("Datasets"),
