@@ -11,7 +11,7 @@ before_install:
   - pip install tox
 
 script:
-  - tox
+  - tox --sitepackages
 
 deploy:
   provider: pypi
