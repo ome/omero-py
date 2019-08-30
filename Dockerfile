@@ -1,4 +1,6 @@
 FROM centos:centos7
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN yum install -y python-setuptools python-virtualenv git python-yaml
 RUN virtualenv /v && /v/bin/pip install twine tox
 RUN /v/bin/pip install --upgrade pip setuptools
