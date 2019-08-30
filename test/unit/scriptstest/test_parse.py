@@ -20,9 +20,7 @@ from omero.scripts import (
     String, List, Bool, Long, Set,
     MissingInputs, ParseExit, compare_proto)
 from omero.scripts import client, parse_inputs, validate_inputs, parse_text
-from omero.scripts import parse_file, group_params, rlong, rint, wrap, unwrap
-
-SCRIPTS = path(".") / "scripts" / "omero"
+from omero.scripts import group_params, rlong, rint, wrap, unwrap
 
 
 class TestParse(object):
@@ -183,16 +181,16 @@ if True:
         assert "belong" == groupings["A"]["2"], str(groupings)
         assert "together" == groupings["A"]["3"], str(groupings)
 
-    def testParseAllOfficialScripts(self):
-        for script in SCRIPTS.walk("*.py"):
-            try:
-                parse_file(str(script))
-            except Exception, e:
-                assert False, "%s\n%s" % (script, e)
-
     def testValidateRoiMovieCall(self):
-        script = SCRIPTS / "figure_scripts" / "Movie_ROI_Figure.py"
-        params = parse_file(str(script))
+        SCRIPT = """if True:
+            from omero.rtypes import rlong, rstring
+            import omero.scripts as scripts
+            scripts.client('Movie_ROI_Figure.py',
+                scripts.String("Data_Type", values=[rstring('Image')]),
+                scripts.List("IDs").ofType(rlong(0)),
+                scripts.String("Image_Labels")
+            )"""
+        params = parse_text(SCRIPT)
         inputs = {
             "Merged_Colours": wrap(['Red', 'Green']),
             "Image_Labels": wrap("Datasets"),

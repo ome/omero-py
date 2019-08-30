@@ -381,6 +381,7 @@ class TestPrefs(object):
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[]')
 
+    @pytest.mark.broken(reason = "migrate to omero-web")
     @pytest.mark.usefixtures('configxml')
     def testAppendWithDefault(self, monkeypatch, capsys):
         import json
@@ -403,6 +404,7 @@ class TestPrefs(object):
         with pytest.raises(NonZeroReturnCode):
             self.invoke("append omero.web.notalist 1")
 
+    @pytest.mark.broken(reason = "migrate to omero-web")
     @pytest.mark.usefixtures('configxml')
     def testRemoveWithDefault(self, monkeypatch, capsys):
         import json

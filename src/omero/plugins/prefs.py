@@ -409,7 +409,7 @@ class PrefsControl(WriteableConfigControl):
 
     @with_config
     def keys(self, args, config):
-        for k in config.keys():
+        for k in sorted(config.keys()):
             if k not in config.IGNORE:
                 self.ctx.out(k)
 

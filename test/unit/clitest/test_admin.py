@@ -4,7 +4,7 @@
 """
    Test of the omero admin control.
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2019 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -34,6 +34,9 @@ ETC_FILES = ["ice.config", "master.cfg", "internal.cfg"]
 MISSING_CONFIGURATION_MSG = "Missing internal configuration."
 REWRITE_MSG = " Run bin/omero admin rewrite."
 FORCE_REWRITE_MSG = " Pass --force-rewrite to the command."
+OMERODIR = False
+if 'OMERODIR' in os.environ:
+    OMERODIR = os.environ.get('OMERODIR')
 
 
 @pytest.fixture(autouse=True)
@@ -44,19 +47,22 @@ def tmpadmindir(tmpdir):
     templates_dir = etc_dir.mkdir('templates')
     templates_dir.mkdir('grid')
 
-    old_etc_dir = path() / ".." / ".." / ".." / "etc"
-    old_templates_dir = old_etc_dir / "templates"
-    for f in glob(old_etc_dir / "*.properties"):
+    # Need to know where to find OMERO
+    assert 'OMERODIR' in os.environ
+    old_etc_dir = os.path.join(OMERODIR, "..", "etc")
+    old_templates_dir = os.path.join(old_etc_dir, "templates")
+    for f in glob(os.path.join(old_etc_dir, "*.properties")):
         path(f).copy(path(etc_dir))
-    for f in glob(old_templates_dir / "*.cfg"):
+    for f in glob(os.path.join(old_templates_dir, "*.cfg")):
         path(f).copy(path(templates_dir))
-    for f in glob(old_templates_dir / "grid" / "*.xml"):
+    for f in glob(os.path.join(old_templates_dir, "grid", "*.xml")):
         path(f).copy(path(templates_dir / "grid"))
-    path(old_templates_dir / "ice.config").copy(path(templates_dir))
+    path(os.path.join(old_templates_dir, "ice.config")).copy(path(templates_dir))
 
     return path(tmpdir)
 
 
+@pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestAdmin(object):
 
     @pytest.fixture(autouse=True)
@@ -272,6 +278,7 @@ def check_templates_xml(topdir, glacier2props):
         assert expected in s
 
 
+@pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestJvmCfg(object):
     """Test template files regeneration"""
 
@@ -310,6 +317,7 @@ class TestJvmCfg(object):
             self.cli.invoke(self.args, strict=True)
 
 
+@pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestRewrite(object):
     """Test template files regeneration"""
 

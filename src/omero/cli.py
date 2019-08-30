@@ -736,6 +736,13 @@ class BaseControl(object):
             self.ctx.die(2, "Error doesn't exist: %s" % name)
         err.die(*args)
 
+    def reset_errors(self, replacement=None):
+        old = self.__errors
+        if replacement is None:
+            replacement = {}
+        self.__errors = replacement
+        return old
+
     def _isWindows(self):
         p_s = platform.system()
         if p_s == 'Windows':
@@ -918,7 +925,11 @@ class BaseControl(object):
     def get_subcommands(self):
         """Return a list of subcommands"""
         parser = Parser()
-        self._configure(parser)
+        old = self.reset_errors()
+        try:
+            self._configure(parser)
+        finally:
+            self.reset_errors(old)
         subparsers_actions = [action for action in parser._actions
                               if isinstance(action, _SubParsersAction)]
 
