@@ -109,4 +109,4 @@ class TestSessions(object):
             sdir = path(tmpdir) / environment.get('OMERO_USERDIR') / 'sessions'
         else:
             sdir = path(get_user_dir()) / 'omero' / 'sessions'
-        assert store.dir == sdir
+        assert store.dir == str(sdir)
