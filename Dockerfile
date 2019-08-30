@@ -8,6 +8,7 @@ RUN /v/bin/pip install https://github.com/ome/zeroc-ice-py-centos7/releases/down
 
 # Optimize for fixing tests
 COPY *.py /src/
+COPY README.rst /src
 COPY src /src/src
 WORKDIR /src
 
