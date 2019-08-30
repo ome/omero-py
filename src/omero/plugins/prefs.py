@@ -247,10 +247,15 @@ class PrefsControl(WriteableConfigControl):
             if not cfg_xml.exists():
                 self.ctx.die(124, "File not found: %s" % args.source)
         else:
-            grid_dir = self.ctx.dir / "etc" / "grid"
+            if 'OMERODIR' in os.environ:
+                base_dir = path(os.environ.get('OMERODIR'))
+            else:
+                base_dir = get_omero_userdir()
+            grid_dir = base_dir / "etc" / "grid"
             if not grid_dir.exists():
-                self.ctx.err("%s not found; creating..." % grid_dir)
-                os.makedirs(self.ctx.dir / "etc" / "grid")
+                self.ctx.err("%s not found; creating %s" %
+                             (grid_dir, grid_dir))
+                os.makedirs(grid_dir)
             cfg_xml = grid_dir / "config.xml"
         try:
             return ConfigXml(str(cfg_xml))
