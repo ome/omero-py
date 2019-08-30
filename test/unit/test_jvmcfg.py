@@ -25,7 +25,7 @@ Test of the automatic JVM setting logic for OMERO startup.
 
 
 import pytest
-
+import os
 
 from omero.config import ConfigXml, xml
 
@@ -47,6 +47,9 @@ from xml.etree.ElementTree import XML
 
 from test.unit.test_config import initial
 
+OMERODIR = False
+if 'OMERODIR' in os.environ:
+    OMERODIR = os.environ.get('OMERODIR')
 
 def write_config(data):
         p = create_path()
@@ -207,8 +210,7 @@ for x in data:
 
 
 def template_xml():
-    templates = path(__file__) / ".." / ".." / ".."
-    templates = templates / ".." / ".." / ".."
+    templates = path(OMERODIR) / ".."
     templates = templates / "etc" / "templates" / "grid" / "templates.xml"
     templates = templates.abspath()
     return XML(templates.text())
@@ -216,6 +218,7 @@ def template_xml():
 
 class TestAdjustStrategy(object):
 
+    @pytest.mark.skipif(OMERODIR is False, reason="Need /grid/templates.xml")
     @pytest.mark.parametrize("fixture", AFS, ids=[x.name for x in AFS])
     def test_adjust(self, fixture, monkeypatch):
         monkeypatch.setattr(Strategy, '_system_memory_mb_java',
