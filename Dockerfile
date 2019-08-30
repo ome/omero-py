@@ -12,8 +12,8 @@ COPY README.rst /src
 COPY src /src/src
 WORKDIR /src
 
-RUN rst-lint README.rst
-RUN python setup.py sdist
+RUN /v/bin/rst-lint README.rst
+RUN /v/bin/python setup.py sdist
 RUN /v/bin/pip install dist/omero-py*gz
 RUN /v/bin/python -c "import omero_version; print omero_version.omero_version"
 
