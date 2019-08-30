@@ -8,12 +8,10 @@ python:
 before_install:
   - pip install https://github.com/ome/zeroc-ice-py-manylinux/releases/download/0.0.10/zeroc_ice-3.6.4-cp27-cp27mu-manylinux2010_x86_64.whl
   - python -c "import Ice; print Ice.stringVersion()"
+  - pip install tox
 
 script:
-  - python setup.py sdist
-  - pip install dist/omero-py*gz
-  - python -c "import omero_version; print omero_version.omero_version"
-  - omero version
+  - tox
 
 deploy:
   provider: pypi
