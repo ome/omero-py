@@ -4080,6 +4080,7 @@ from ._containers import ProjectWrapper
 from ._containers import ScreenWrapper
 from ._containers import WellSampleWrapper
 from ._containers import WellWrapper
+from ._containers import _letterGridLabel
 
 from ._files import FilesetWrapper
 
