@@ -339,10 +339,17 @@ class BlitzObjectWrapper (object):
         for i in range(len(pwc)):
             if isinstance(pwc[i], StringTypes):
                 # resolve class
-                g = globals()
-                if not pwc[i] in g:  # pragma: no cover
+                found = None
+                for kls in KNOWN_WRAPPERS.values():
+                    kls_name = kls.__name__
+                    if kls_name.startswith("_"):
+                        kls_name = kls_name[1:]
+                        if kls_name == pwc[i]:
+                            found = kls
+                            break
+                if not found:  # pragma: no cover
                     raise NotImplementedError
-                pwc[i] = g[pwc[i]]
+                pwc[i] = found
 
         # Cache this so we don't need to resolve classes again
         if (pwc != self.PARENT_WRAPPER_CLASS or
