@@ -34,7 +34,7 @@ from omero.model import ImageI, PixelsI, ExperimenterI, EventI, \
     ProjectI, TagAnnotationI, FileAnnotationI, OriginalFileI, \
     MapAnnotationI, NamedValue, PlateI, WellI, \
     LogicalChannelI, LengthI, IlluminationI, BinningI, \
-    DetectorSettingsI
+    DetectorSettingsI, DichroicI, LightPathI
 from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rtime, rlong, rint, rdouble
 
@@ -187,6 +187,7 @@ class TestBlitzObjectGetAttr(object):
         version = 123
         zoom = 100
         gain = 1010.23
+        di_model = u'Model_ 123_àÅÉ'
 
         obj = LogicalChannelI()
         obj.name = rstring(name)
@@ -206,7 +207,18 @@ class TestBlitzObjectGetAttr(object):
         ds.binning = binning
         obj.detectorSettings = ds
 
-        channel = LogicalChannelWrapper(None, obj)
+        dichroic = DichroicI()
+        dichroic.model = rstring(di_model)
+        light_path = LightPathI()
+        light_path.dichroic = dichroic
+        obj.lightPath = light_path
+
+        class MockChannel(LogicalChannelWrapper):
+            def __loadedHotSwap__(self):
+                # Don't need to load data for getLightPath()
+                pass
+
+        channel = MockChannel(None, obj)
         assert channel.getName() == name.encode('utf8')
         assert channel.name == name
         assert channel.getPinHoleSize().getValue() == ph_size
@@ -228,6 +240,7 @@ class TestBlitzObjectGetAttr(object):
         assert d_settings.getZoom() == zoom
         assert d_settings.getBinning().getValue() == binning_value
         assert d_settings.getBinning().value == binning_value
+        assert channel.getLightPath().getDichroic().getModel() == di_model
 
 
 class TestBlitzGatewayUnicode(object):
