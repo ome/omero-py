@@ -29,7 +29,8 @@ import pytest
 
 from omero.gateway import BlitzGateway, ImageWrapper, \
     ExperimenterWrapper, ProjectWrapper, AnnotationWrapper, \
-    PlateWrapper, WellWrapper, LogicalChannelWrapper
+    PlateWrapper, WellWrapper, LogicalChannelWrapper, \
+    OriginalFileWrapper
 from omero.model import ImageI, PixelsI, ExperimenterI, EventI, \
     ProjectI, TagAnnotationI, FileAnnotationI, OriginalFileI, \
     MapAnnotationI, NamedValue, PlateI, WellI, \
@@ -241,6 +242,52 @@ class TestBlitzObjectGetAttr(object):
         assert d_settings.getBinning().getValue() == binning_value
         assert d_settings.getBinning().value == binning_value
         assert channel.getLightPath().getDichroic().getModel() == di_model
+
+
+class TestFileObject(object):
+
+    def test_original_file_wrapper(self):
+
+        file_text = """String to return in chunks from
+        a file-like object within the OriginalFileWrapper"""
+
+        class MockFile(object):
+            def __init__(self, text, buffer=2621440):
+                self.text = text
+                self.buffer = buffer
+
+            def seek(self, n, mode):
+                pass
+
+            def tell(self):
+                return 0
+
+            def read(self, n=-1):
+                return self.text
+
+            def close(self):
+                pass
+
+            def __iter__(self):
+                for c in self.text:
+                    yield c
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, type, value, traceback):
+                pass
+
+        class MockOriginalFile(OriginalFileWrapper):
+
+            def asFileObj(self, buf=2621440):
+                return MockFile(file_text)
+
+        orig_file = OriginalFileI()
+        wrapper = MockOriginalFile(None, orig_file)
+
+        text = "".join(wrapper.getFileInChunks())
+        assert text == file_text
 
 
 class TestBlitzGatewayUnicode(object):
