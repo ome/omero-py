@@ -29,11 +29,14 @@ import pytest
 
 from omero.gateway import BlitzGateway, ImageWrapper, \
     ExperimenterWrapper, ProjectWrapper, AnnotationWrapper, \
-    PlateWrapper, WellWrapper
+    PlateWrapper, WellWrapper, LogicalChannelWrapper
 from omero.model import ImageI, PixelsI, ExperimenterI, EventI, \
     ProjectI, TagAnnotationI, FileAnnotationI, OriginalFileI, \
-    MapAnnotationI, NamedValue, PlateI, WellI
-from omero.rtypes import rstring, rtime, rlong, rint
+    MapAnnotationI, NamedValue, PlateI, WellI, \
+    LogicalChannelI, LengthI, IlluminationI, BinningI, \
+    DetectorSettingsI
+from omero.model.enums import UnitsLength
+from omero.rtypes import rstring, rtime, rlong, rint, rdouble
 
 
 class MockQueryService(object):
@@ -102,7 +105,9 @@ class TestObjectsUnicode(object):
 
         proj = ProjectWrapper(None, project)
         assert proj.getName() == name.encode('utf8')
+        assert proj.name == name
         assert proj.getDescription() == desc.encode('utf8')
+        assert proj.description == desc
 
     def test_tag_annotation(self):
         """Tests AnnotationWrapper methods return strings"""
@@ -114,7 +119,9 @@ class TestObjectsUnicode(object):
 
         tag = AnnotationWrapper._wrap(None, obj)
         assert tag.getValue() == text_value.encode('utf8')
+        assert tag.textValue == text_value
         assert tag.getNs() == ns.encode('utf8')
+        assert tag.ns == ns
 
     def test_file_annotation(self):
         """Tests AnnotationWrapper methods return strings"""
@@ -161,6 +168,66 @@ class TestObjectsUnicode(object):
 
         well = MockWell(None, well_obj)
         assert well.getWellPos() == "C2"
+
+
+class TestBlitzObjectGetAttr(object):
+    """
+    Tests returning objects via the BlitzObject.__getattr__
+    """
+
+    def test_logical_channel(self):
+        name = u'₩€_name_$$'
+        ill_val = u'πλζ.test.ζ'
+        fluor = u'GFP-₹₹'
+        binning_value = u'Φωλ'
+        ph_size = 1.11
+        ph_units = UnitsLength.MICROMETER
+        ex_wave = 3.34
+        ex_units = UnitsLength.ANGSTROM
+        version = 123
+        zoom = 100
+        gain = 1010.23
+
+        obj = LogicalChannelI()
+        obj.name = rstring(name)
+        obj.pinHoleSize = LengthI(ph_size, ph_units)
+        illumination = IlluminationI()
+        illumination.value = rstring(ill_val)
+        obj.illumination = illumination
+        obj.excitationWave = LengthI(ex_wave, ex_units)
+        obj.setFluor(rstring(fluor))
+
+        ds = DetectorSettingsI()
+        ds.version = rint(version)
+        ds.gain = rdouble(gain)
+        ds.zoom = rdouble(zoom)
+        binning = BinningI()
+        binning.value = rstring(binning_value)
+        ds.binning = binning
+        obj.detectorSettings = ds
+
+        channel = LogicalChannelWrapper(None, obj)
+        assert channel.getName() == name.encode('utf8')
+        assert channel.name == name
+        assert channel.getPinHoleSize().getValue() == ph_size
+        assert channel.getPinHoleSize().getUnit() == ph_units
+        assert channel.getPinHoleSize().getSymbol() == 'µm'
+        # Illumination is an enumeration
+        assert channel.getIllumination().getValue() == ill_val.encode('utf8')
+        assert channel.getExcitationWave().getValue() == ex_wave
+        assert channel.getExcitationWave().getUnit() == ex_units
+        assert channel.getExcitationWave().getSymbol() == 'Å'
+        assert channel.getFluor() == fluor
+        assert channel.fluor == fluor
+
+        d_settings = channel.getDetectorSettings()
+        assert d_settings.getVersion() == version
+        assert d_settings.version == version
+        assert d_settings.getGain() == gain
+        assert d_settings.gain == gain
+        assert d_settings.getZoom() == zoom
+        assert d_settings.getBinning().getValue() == binning_value
+        assert d_settings.getBinning().value == binning_value
 
 
 class TestBlitzGatewayUnicode(object):
