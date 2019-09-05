@@ -28,9 +28,7 @@ import Ice
 import pytest
 
 from omero.gateway import BlitzGateway, ImageWrapper, \
-    ExperimenterWrapper, ProjectWrapper, AnnotationWrapper, \
-    PlateWrapper, WellWrapper, LogicalChannelWrapper, \
-    OriginalFileWrapper
+    WellWrapper, LogicalChannelWrapper, OriginalFileWrapper
 from omero.model import ImageI, PixelsI, ExperimenterI, EventI, \
     ProjectI, TagAnnotationI, FileAnnotationI, OriginalFileI, \
     MapAnnotationI, NamedValue, PlateI, WellI, \
@@ -42,19 +40,21 @@ from omero.rtypes import rstring, rtime, rlong, rint, rdouble
 
 class MockQueryService(object):
 
+    def __init__(self, obj_to_be_returned):
+        self.obj = obj_to_be_returned
+
     def findByQuery(self, query, params, _ctx=None):
-        experimenter = ExperimenterI()
-        experimenter.firstName = rstring('first_name')
-        experimenter.lastName = rstring('last_name')
-        return experimenter
+        return self.obj
 
 
-class MockConnection(object):
+class MockConnection(BlitzGateway):
 
-    SERVICE_OPTS = dict()
+    def __init__(self, obj_to_be_returned):
+        self.obj = obj_to_be_returned
+        self.SERVICE_OPTS = dict()
 
     def getQueryService(self):
-        return MockQueryService()
+        return MockQueryService(self.obj)
 
     def getMaxPlaneSize(self):
         return (64, 64)
@@ -62,6 +62,9 @@ class MockConnection(object):
 
 @pytest.fixture(scope='function')
 def wrapped_image():
+    experimenter = ExperimenterI()
+    experimenter.firstName = rstring('first_name')
+    experimenter.lastName = rstring('last_name')
     image = ImageI()
     image.id = rlong(1L)
     image.description = rstring('description')
@@ -71,7 +74,7 @@ def wrapped_image():
     creation_event = EventI()
     creation_event.time = rtime(2000)  # In milliseconds
     image.details.creationEvent = creation_event
-    return ImageWrapper(conn=MockConnection(), obj=image)
+    return ImageWrapper(conn=MockConnection(experimenter), obj=image)
 
 
 class TestObjectsUnicode(object):
@@ -91,7 +94,7 @@ class TestObjectsUnicode(object):
         experimenter.firstName = rstring(first_name)
         experimenter.lastName = rstring(last_name)
 
-        exp = ExperimenterWrapper(None, experimenter)
+        exp = MockConnection(experimenter).getObject("Experimenter", 1)
         assert exp.getFirstName() == first_name
         assert exp.getLastName() == last_name
         assert exp.getFullName() == "%s %s" % (first_name, last_name)
@@ -104,7 +107,7 @@ class TestObjectsUnicode(object):
         project.name = rstring(name)
         project.description = rstring(desc)
 
-        proj = ProjectWrapper(None, project)
+        proj = MockConnection(project).getObject("Project", 1)
         assert proj.getName() == name.encode('utf8')
         assert proj.name == name
         assert proj.getDescription() == desc.encode('utf8')
@@ -118,7 +121,7 @@ class TestObjectsUnicode(object):
         obj.textValue = rstring(text_value)
         obj.ns = rstring(ns)
 
-        tag = AnnotationWrapper._wrap(None, obj)
+        tag = MockConnection(obj).getObject("Annotation", 1)
         assert tag.getValue() == text_value.encode('utf8')
         assert tag.textValue == text_value
         assert tag.getNs() == ns.encode('utf8')
@@ -132,7 +135,7 @@ class TestObjectsUnicode(object):
         obj = FileAnnotationI()
         obj.file = f
 
-        file_ann = AnnotationWrapper._wrap(None, obj)
+        file_ann = MockConnection(obj).getObject("Annotation", 1)
         assert file_ann.getFileName() == file_name.encode('utf8')
 
     def test_map_annotation(self):
@@ -142,7 +145,7 @@ class TestObjectsUnicode(object):
         data = [NamedValue(d[0], d[1]) for d in values]
         obj.setMapValue(data)
 
-        map_ann = AnnotationWrapper._wrap(None, obj)
+        map_ann = MockConnection(obj).getObject("Annotation", 1)
         assert map_ann.getValue() == values
 
     def test_plate(self):
@@ -153,7 +156,7 @@ class TestObjectsUnicode(object):
         obj = PlateI()
         obj.name = rstring(name)
 
-        plate = PlateWrapper(None, obj)
+        plate = MockConnection(obj).getObject("Plate", 1)
         assert plate.getName() == name.encode('utf8')
         plate._gridSize = {'rows': rows, 'columns': cols}
         assert plate.getColumnLabels() == [c for c in range(1, cols + 1)]
