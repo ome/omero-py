@@ -7,16 +7,18 @@
    Use is subject to license terms supplied in LICENSE.txt
 """
 
+from future import standard_library
+standard_library.install_aliases()
 import glob
 import sys
 import os
 
 from setuptools import setup, find_packages
 
-from StringIO import StringIO
+from io import BytesIO
 from hashlib import md5
 from shutil import copy
-from urllib import urlopen
+from urllib.request import urlopen
 from zipfile import ZipFile
 
 blitz_zip = "https://artifacts.openmicroscopy.org/artifactory/ome.releases/org/openmicroscopy/omero-blitz/5.5.3/omero-blitz-5.5.3-python.zip"  # noqa
@@ -27,7 +29,8 @@ if not os.path.exists("target"):
     content = resp.read()
     md5 = md5(content).hexdigest()
     assert md5 == blitz_md5
-    zipfile = ZipFile(StringIO(content))
+    content = BytesIO(content)
+    zipfile = ZipFile(content)
     zipfile.extractall("target")
 
     for dirpath, dirs, files in os.walk("src"):
