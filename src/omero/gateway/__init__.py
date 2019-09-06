@@ -4129,6 +4129,7 @@ def refreshWrappers():
                            "plateacquisition": PlateAcquisitionWrapper,
                            "acquisition": PlateAcquisitionWrapper,
                            "well": WellWrapper,
+                           "wellsample": WellSampleWrapper,
                            "roi": RoiWrapper,
                            "shape": ShapeWrapper,
                            "experimenter": ExperimenterWrapper,

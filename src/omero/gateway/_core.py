@@ -344,9 +344,9 @@ class BlitzObjectWrapper (object):
                     kls_name = kls.__name__
                     if kls_name.startswith("_"):
                         kls_name = kls_name[1:]
-                        if kls_name == pwc[i]:
-                            found = kls
-                            break
+                    if kls_name == pwc[i]:
+                        found = kls
+                        break
                 if not found:  # pragma: no cover
                     raise NotImplementedError
                 pwc[i] = found
