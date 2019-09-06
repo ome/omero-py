@@ -31,6 +31,7 @@ except:  # pragma: nocover
 
 import omero
 from omero.rtypes import rlong, rint, unwrap
+from omero.gateway import splitHTMLColor
 from ._core import BlitzObjectWrapper
 
 from ._annotations import LongAnnotationWrapper
