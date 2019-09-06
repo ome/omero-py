@@ -39,7 +39,7 @@ class PermissionsI(_omero_model.Permissions):
             self._perm1 = -1
             self.from_string(l)
         elif l is not None:
-            self._perm1 = long(l)
+            self._perm1 = int(l)
         else:
             self._perm1 = -1
 
@@ -49,9 +49,9 @@ class PermissionsI(_omero_model.Permissions):
     def set(self, mask, shift, on):
         self.throwIfImmutable()
         if on:
-            self._perm1 = (self._perm1 | (0L | (mask << shift)))
+            self._perm1 = (self._perm1 | (0 | (mask << shift)))
         else:
-            self._perm1 = (self._perm1 & (-1L ^ (mask << shift)))
+            self._perm1 = (self._perm1 & (-1 ^ (mask << shift)))
 
     # shift 8; mask 4
     def isUserRead(self):
@@ -165,7 +165,7 @@ class PermissionsI(_omero_model.Permissions):
         takes a string.
         """
         import re
-        base = "([rR\-_])([aAwW\-_])"
+        base = r"([rR\-_])([aAwW\-_])"
         regex = re.compile("^(L?)%s$" % (base*3))
         match = regex.match(perms)
         if match is None:
