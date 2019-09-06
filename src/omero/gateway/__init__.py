@@ -52,6 +52,7 @@ from ._core import OmeroRestrictionWrapper
 from ._core import BlitzObjectWrapper
 from ._core import AnnotationWrapper
 from ._core import AnnotationLinkWrapper
+from ._core import EnumerationWrapper
 
 # BASIC #
 
