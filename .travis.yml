@@ -10,7 +10,7 @@ services:
 
 before_install:
   - sudo apt-get install -y openssl
-  - pip install "zeroc-ice>3.6.4,<3.7"
+  - pip install "zeroc-ice>3.6.4,<3.7" future
   - python -c "import Ice; print Ice.stringVersion()"
 
 script:
