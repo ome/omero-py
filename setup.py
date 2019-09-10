@@ -8,22 +8,24 @@
 """
 
 
+from future import standard_library
+standard_library.install_aliases()
 import glob
 import sys
 import os
 
 from setuptools import setup, find_packages
 
-from StringIO import StringIO
+from io import StringIO
 from shutil import copy
-from urllib import urlopen
+from urllib.request import urlopen
 from zipfile import ZipFile
 
-import ConfigParser
+import configparser
 
 
 def get_blitz_location():
-    defaultsect = ConfigParser.DEFAULTSECT
+    defaultsect = configparser.DEFAULTSECT
     version_key = "versions.omero-blitz"
     url_key = "versions.omero-blitz-url"
 
@@ -33,7 +35,7 @@ def get_blitz_location():
     config_blitz_version = "5.5.3"
     config_path = os.environ.get("VERSION_PROPERTIES", "version.properties")
     if os.path.exists(config_path):
-        config_obj = ConfigParser.RawConfigParser({
+        config_obj = configparser.RawConfigParser({
             url_key: config_blitz_url,
             version_key: config_blitz_version,
         })
