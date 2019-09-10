@@ -32,6 +32,11 @@ def get_blitz_location():
     config_blitz_url = ("https://artifacts.openmicroscopy.org/artifactory/"
                         "ome.releases/org/openmicroscopy/omero-blitz/VERSION/"
                         "omero-blitz-VERSION-python.zip")
+    ## WORKAROUND: hard-code specific snapshot due to SNAPSHOT resolution issue
+    config_blitz_url = ("https://merge-ci.openmicroscopy.org/nexus/repository/"
+                        "maven-internal/org/openmicroscopy/omero-blitz/"
+                        "5.5.4-SNAPSHOT/"
+                        "omero-blitz-5.5.4-20190910.004533-352-python.zip")
     config_blitz_version = "5.5.3"
     config_path = os.environ.get("VERSION_PROPERTIES", "version.properties")
     if os.path.exists(config_path):
