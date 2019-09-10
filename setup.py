@@ -9,6 +9,7 @@
 
 from future import standard_library
 standard_library.install_aliases()
+
 import glob
 import sys
 import os
@@ -16,19 +17,39 @@ import os
 from setuptools import setup, find_packages
 
 from io import BytesIO
-from hashlib import md5
 from shutil import copy
 from urllib.request import urlopen
 from zipfile import ZipFile
 
-blitz_zip = "https://artifacts.openmicroscopy.org/artifactory/ome.releases/org/openmicroscopy/omero-blitz/5.5.3/omero-blitz-5.5.3-python.zip"  # noqa
-blitz_md5 = "cf9c0cd4b2e499fc3b4b8be8c58ab6cb"
+import configparser
+
+
+def get_blitz_location():
+    defaultsect = configparser.DEFAULTSECT
+    version_key = "versions.omero-blitz"
+    url_key = "versions.omero-blitz-url"
+
+    config_blitz_url = ("https://artifacts.openmicroscopy.org/artifactory/"
+                        "ome.releases/org/openmicroscopy/omero-blitz/VERSION/"
+                        "omero-blitz-VERSION-python.zip")
+    config_blitz_version = "5.5.3"
+    config_path = os.environ.get("VERSION_PROPERTIES", "version.properties")
+    if os.path.exists(config_path):
+        config_obj = configparser.RawConfigParser({
+            url_key: config_blitz_url,
+            version_key: config_blitz_version,
+        })
+        with open(config_path) as f:
+            config_str = StringIO('[%s]\n%s' % (defaultsect, f.read()))
+        config_obj.readfp(config_str)
+        config_blitz_url = config_obj.get(defaultsect, url_key)
+        config_blitz_version = config_obj.get(defaultsect, version_key)
+    config_blitz_url = config_blitz_url.replace("VERSION", config_blitz_version)
+    return config_blitz_url
 
 if not os.path.exists("target"):
-    resp = urlopen(blitz_zip)
+    resp = urlopen(get_blitz_location())
     content = resp.read()
-    md5 = md5(content).hexdigest()
-    assert md5 == blitz_md5
     content = BytesIO(content)
     zipfile = ZipFile(content)
     zipfile.extractall("target")
