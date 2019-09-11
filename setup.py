@@ -37,7 +37,7 @@ def get_blitz_location():
     if "JENKINS_URL" in os.environ:
         config_blitz_url = os.environ("JENKINS_URL")
         config_blitz_url += "/job/OMERO_build-build/lastSuccessfulBuild"
-        config_blitz_url += "/artifact/omero-blitz/build/omero-blitz-VERSION-python.zip"
+        config_blitz_url += "/artifact/omero-blitz/build/distributions/omero-blitz-VERSION-python.zip"
     else:
         config_blitz_url = ("https://artifacts.openmicroscopy.org/artifactory/"
                             "ome.releases/org/openmicroscopy/omero-blitz/VERSION/"
