@@ -44,7 +44,11 @@ class AtExitEvent(_Event):
     """
 
     def __init__(self, verbose=None, name="Unknown"):
-        super(AtExitEvent, self).__init__(verbose)
+        try:
+            super(AtExitEvent, self).__init__(verbose)
+        except TypeError:
+            # in Python 3 there is no verbose argument
+            super(AtExitEvent, self).__init__()
         self.__name = name
         self.__atexit = False
 
