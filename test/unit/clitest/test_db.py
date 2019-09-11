@@ -69,7 +69,7 @@ class TestDatabase(object):
 
         self.mox = Mox()
         self.mox.StubOutWithMock(getpass, 'getpass')
-        self.mox.StubOutWithMock(__builtin__, "raw_input")
+        self.mox.StubOutWithMock(__builtins__, "raw_input")
 
     def teardown_method(self, method):
         self.file.remove()
