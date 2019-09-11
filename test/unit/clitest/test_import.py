@@ -24,8 +24,14 @@ import omero.clients
 import uuid
 from omero.cli import CLI, NonZeroReturnCode
 # Workaround for a poorly named module
-plugin = __import__('omero.plugins.import', globals(), locals(),
-                    ['ImportControl'], -1)
+try:
+    plugin = __import__('omero.plugins.import', globals(), locals(),
+                        ['ImportControl'], -1)
+except ValueError:
+    # Python 3
+    plugin = __import__('omero.plugins.import', globals(), locals(),
+                        ['ImportControl'], 0)
+
 ImportControl = plugin.ImportControl
 CommandArguments = plugin.CommandArguments
 
