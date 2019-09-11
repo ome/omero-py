@@ -17,7 +17,7 @@ import os
 
 from setuptools import setup, find_packages
 
-from io import BytesIO
+from io import BytesIO, StringIO
 from shutil import copy
 from urllib.request import urlopen
 from zipfile import ZipFile
