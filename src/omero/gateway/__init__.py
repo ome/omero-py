@@ -28,8 +28,20 @@ import os
 
 import warnings
 from collections import defaultdict
-from types import IntType, LongType, UnicodeType, ListType
-from types import BooleanType, TupleType, StringType, StringTypes
+
+try:
+    from types import IntType, LongType, UnicodeType, ListType
+    from types import BooleanType, TupleType, StringType, StringTypes
+except ImportError:
+    IntType = int
+    LongType = int
+    UnicodeType = str
+    ListType = list
+    BooleanType = bool
+    TupleType = tuple
+    StringType = str
+    StringTypes = str
+
 from datetime import datetime
 from io import StringIO
 import configparser
