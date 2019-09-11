@@ -25,19 +25,25 @@ import configparser
 
 
 def get_blitz_location():
+
+    config_blitz_version = "5.5.3"
+
+    # simplified strings
     defaultsect = configparser.DEFAULTSECT
     version_key = "versions.omero-blitz"
     url_key = "versions.omero-blitz-url"
 
-    config_blitz_url = ("https://artifacts.openmicroscopy.org/artifactory/"
-                        "ome.releases/org/openmicroscopy/omero-blitz/VERSION/"
-                        "omero-blitz-VERSION-python.zip")
-    ## WORKAROUND: hard-code specific snapshot due to SNAPSHOT resolution issue
-    config_blitz_url = ("https://merge-ci.openmicroscopy.org/nexus/repository/"
-                        "maven-internal/org/openmicroscopy/omero-blitz/"
-                        "5.5.4-SNAPSHOT/"
-                        "omero-blitz-5.5.4-20190910.004533-352-python.zip")
-    config_blitz_version = "5.5.3"
+    # detect if in Jenkins or not
+    if "JENKINS_URL" in os.environ:
+        config_blitz_url = os.environ("JENKINS_URL")
+        config_blitz_url += "/job/OMERO_build-build/lastSuccessfulBuild"
+        config_blitz_url += "/artifact/omero-blitz/build/omero-blitz-VERSION-python.zip"
+    else:
+        config_blitz_url = ("https://artifacts.openmicroscopy.org/artifactory/"
+                            "ome.releases/org/openmicroscopy/omero-blitz/VERSION/"
+                            "omero-blitz-VERSION-python.zip")
+
+    # load version.properties if available
     config_path = os.environ.get("VERSION_PROPERTIES", "version.properties")
     if os.path.exists(config_path):
         config_obj = configparser.RawConfigParser({
@@ -49,8 +55,11 @@ def get_blitz_location():
         config_obj.readfp(config_str)
         config_blitz_url = config_obj.get(defaultsect, url_key)
         config_blitz_version = config_obj.get(defaultsect, version_key)
+
+    # replace VERSION in the final url and return
     config_blitz_url = config_blitz_url.replace("VERSION", config_blitz_version)
     return config_blitz_url
+
 
 if not os.path.exists("target"):
     resp = urlopen(get_blitz_location())
