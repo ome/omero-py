@@ -23,8 +23,12 @@
 Parser for the omero.properties file to generate RST
 mark up.
 """
+from __future__ import print_function
 
 
+from past.builtins import cmp
+from builtins import str
+from builtins import object
 class Header(object):
     def __init__(self, name, reference=None, description=""):
         """Initialize new configuration property"""
@@ -336,7 +340,7 @@ class PropertyParser(object):
         from django.conf import settings
 
         for key, values in sorted(
-                settings.CUSTOM_SETTINGS_MAPPINGS.iteritems(),
+                iter(settings.CUSTOM_SETTINGS_MAPPINGS.items()),
                 key=lambda k: k):
 
             p = Property()
@@ -365,7 +369,7 @@ class PropertyParser(object):
                     additional_headers[section] = Header(section)
                 headers.setdefault(additional_headers[section], []).append(x)
 
-        for key in headers.iterkeys():
+        for key in headers.keys():
             headers[key].sort(lambda a, b: cmp(a.key, b.key))
         return headers
 
@@ -373,25 +377,25 @@ class PropertyParser(object):
         """Print all keys and their default values"""
         values = ["%s=%s" % (p.key, p.val) for p in self]
         for x in sorted(values):
-            print x
+            print(x)
 
     def print_keys(self):
         """Print all keys"""
         data = self.data()
         for k, v in sorted(data.items()):
-            print "%s (%s)" % (k, len(v))
+            print("%s (%s)" % (k, len(v)))
             for i in v:
-                print "\t", i
+                print("\t", i)
 
     def print_headers(self):
         """Print headers and number of keys"""
         headers = self.headers()
-        for k, v in sorted(headers.items(), key=lambda x: x[0].name):
-            print "%s (%s)" % (k.name, len(v))
+        for k, v in sorted(list(headers.items()), key=lambda x: x[0].name):
+            print("%s (%s)" % (k.name, len(v)))
 
     def print_rst(self):
         """Print configuration in reStructuredText format"""
-        print TOP
+        print(TOP)
         headers = self.headers()
         for header in sorted(headers, key=lambda x: x.name):
             properties = ""
@@ -423,7 +427,7 @@ class PropertyParser(object):
                  "hline": hline,
                  "properties": properties,
                  "reference": header.get_reference()}
-            print HEADER % m
+            print(HEADER % m)
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
@@ -445,7 +449,7 @@ if __name__ == "__main__":
     pp.parse_module('omeroweb.settings')
 
     if ns.dbg:
-        print "Found:", len(list(pp))
+        print("Found:", len(list(pp)))
 
     elif ns.keys:
         pp.print_keys()

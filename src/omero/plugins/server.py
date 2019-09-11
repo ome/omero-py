@@ -12,6 +12,7 @@
 
 """
 
+from builtins import str
 import os
 import sys
 import platform

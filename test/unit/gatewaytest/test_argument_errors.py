@@ -23,7 +23,11 @@
    gateway tests - argument errors in gateway methods
 
 """
+from __future__ import division
 
+from builtins import str
+from builtins import object
+from past.utils import old_div
 from omero.gateway import _BlitzGateway
 import pytest
 
@@ -33,7 +37,7 @@ class TestArgumentErrors(object):
     @classmethod
     @pytest.fixture(autouse=True)
     def setup_class(cls, tmpdir, monkeypatch):
-        ice_config = tmpdir / "ice.config"
+        ice_config = old_div(tmpdir, "ice.config")
         ice_config.write("omero.host=localhost\nomero.port=4064")
         monkeypatch.setenv("ICE_CONFIG", str(ice_config))
         cls.g = _BlitzGateway()
@@ -45,7 +49,7 @@ class TestArgumentErrors(object):
         with pytest.raises(AttributeError):
             self.g.deleteObjects("Image+Only", ["1"])
         with pytest.raises(AttributeError):
-            self.g.chgrpObjects("Image+Only", ["1"], 1L)
+            self.g.chgrpObjects("Image+Only", ["1"], 1)
 
     @pytest.mark.parametrize("object_ids", ["1", [], None])
     def test_bad_object_ids(self, object_ids):
@@ -55,4 +59,4 @@ class TestArgumentErrors(object):
         with pytest.raises(AttributeError):
             self.g.deleteObjects("Image", object_ids)
         with pytest.raises(AttributeError):
-            self.g.chgrpObjects("Image", object_ids, 1L)
+            self.g.chgrpObjects("Image", object_ids, 1)

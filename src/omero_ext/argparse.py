@@ -76,6 +76,12 @@ considered public as object names -- the API of the formatter objects is
 still considered an implementation detail.)
 """
 
+from builtins import zip
+from builtins import map
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from builtins import object
 __version__ = '1.1'
 __all__ = [
     'ArgumentParser',
@@ -164,7 +170,7 @@ class _AttributeHolder(object):
         return '%s(%s)' % (type_name, ', '.join(arg_strings))
 
     def _get_kwargs(self):
-        return _sorted(self.__dict__.items())
+        return _sorted(list(self.__dict__.items()))
 
     def _get_args(self):
         return []

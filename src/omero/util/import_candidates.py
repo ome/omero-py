@@ -9,6 +9,7 @@
 
 """
 
+from builtins import str
 import omero
 
 from omero.util.temp_files import create_path, remove_path
@@ -20,7 +21,7 @@ def _to_list(path):
     Guarantees that a list of strings will be returned.
     Handles unicode caused by "%s" % path.path.
     """
-    if isinstance(path, str) or isinstance(path, unicode):
+    if isinstance(path, str) or isinstance(path, str):
         path = [str(path)]
         return path
     else:

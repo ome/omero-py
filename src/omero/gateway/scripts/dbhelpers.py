@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import sys
 sys.path.append('.')
 
@@ -7,7 +12,7 @@ import omero.gateway
 import omero.model
 import os
 import subprocess
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from types import StringTypes
 from path import path
@@ -98,7 +103,7 @@ class UserEntry (object):
         client = omero.gateway.BlitzGateway(
             self.name, self.passwd, group=groupname, try_super=self.admin)
         if not client.connect():
-            print "Can not connect"
+            print("Can not connect")
             return None
 
         a = client.getAdminService()
@@ -415,10 +420,10 @@ class ImageEntry (ObjectEntry):
                     # print "Trying to get test image from " + TESTIMG_URL +
                     # self.filename
                     sys.stderr.write('<')
-                    fin = urllib2.urlopen(TESTIMG_URL + self.filename)
+                    fin = urllib.request.urlopen(TESTIMG_URL + self.filename)
                     with open(fpath, 'wb') as fout:
                         fout.write(fin.read())
-                except urllib2.HTTPError:
+                except urllib.error.HTTPError:
                     raise IOError('No such file %s' % fpath)
         host = dataset._conn.c.ic.getProperties().getProperty(
             'omero.host') or 'localhost'
@@ -440,8 +445,8 @@ class ImageEntry (ObjectEntry):
             if exe.exists():
                 break
         if exe == 'omero':
-            print "\n\nNo omero found!" \
-                  "Add OMERO_HOME/bin to your PATH variable (See #5176)\n\n"
+            print("\n\nNo omero found!" \
+                  "Add OMERO_HOME/bin to your PATH variable (See #5176)\n\n")
 
         newconn = dataset._conn.clone()
         newconn.connect()
@@ -453,13 +458,13 @@ class ImageEntry (ObjectEntry):
             exe += ' -s %s -k %s -p %s import -d %i --output legacy -n' % (
                 host, session, port, dataset.getId())
             exe = exe.split() + [self.name, fpath]
-            print ' '.join(exe)
+            print(' '.join(exe))
             try:
                 p = subprocess.Popen(
                     exe,  shell=False, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
             except OSError:
-                print "!!Please make sure the 'omero' executable is in PATH"
+                print("!!Please make sure the 'omero' executable is in PATH")
                 return None
             # print ' '.join(exe)
             # [0].strip() #re.search(
@@ -470,9 +475,9 @@ class ImageEntry (ObjectEntry):
                 img = omero.gateway.ImageWrapper(
                     dataset._conn,
                     dataset._conn.getQueryService().find(
-                        'Pixels', long(pid[0].split('\n')[0].strip())).image)
+                        'Pixels', int(pid[0].split('\n')[0].strip())).image)
             except ValueError:
-                print pid
+                print(pid)
                 raise
             # print "imgid = %i" % img.getId()
             img.setName(self.name)
@@ -489,7 +494,7 @@ class ImageEntry (ObjectEntry):
         img = omero.model.ImageI()
         img.setName(omero.gateway.omero_type(self.name))
         if not dataset.imageLinksLoaded:
-            print ".!."
+            print(".!.")
             dataset._obj._imageLinksSeq = []
             dataset._obj._imageLinksLoaded = True
         dataset.linkImage(img)
@@ -527,21 +532,21 @@ def bootstrap(onlyUsers=False, skipImages=True):
     # Create users
     client = loginAsRoot()
     try:
-        for k, u in USERS.items():
+        for k, u in list(USERS.items()):
             if not u.create(client, ROOT.passwd):
                 u.changePassword(client, u.passwd, ROOT.passwd)
                 u.assert_group_perms(client, u.groupname, u.groupperms)
         if onlyUsers:
             return
-        for k, p in PROJECTS.items():
+        for k, p in list(PROJECTS.items()):
             p = p.create()
             p._conn.close()
             # print p.get(client).getDetails().getPermissions().isUserWrite()
-        for k, d in DATASETS.items():
+        for k, d in list(DATASETS.items()):
             d = d.create()
             d._conn.close()
         if not skipImages:
-            for k, i in IMAGES.items():
+            for k, i in list(IMAGES.items()):
                 i = i.create()
                 i._conn.close()
     finally:
@@ -549,7 +554,7 @@ def bootstrap(onlyUsers=False, skipImages=True):
 
 
 def cleanup():
-    for k, p in PROJECTS.items():
+    for k, p in list(PROJECTS.items()):
         sys.stderr.write('*')
         p = p.get()
         if p is not None:
@@ -562,7 +567,7 @@ def cleanup():
                 handle.close()
     client.close()
     client = loginAsRoot()
-    for k, u in USERS.items():
+    for k, u in list(USERS.items()):
         u.changePassword(client, None, ROOT.passwd)
     client.close()
 

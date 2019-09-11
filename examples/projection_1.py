@@ -33,13 +33,15 @@
 # @param method  the method of projecting (maximum, average)
 # @return new pixels object containing the projection.
 #
+from builtins import range
+from builtins import object
 import sys
 import omero
 import omero.cli
 from numpy import zeros
 
 
-class point:
+class point(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y

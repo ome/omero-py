@@ -25,6 +25,7 @@ based on omero.model.PermissionsI
 """
 
 
+from builtins import str
 import Ice
 import IceImport
 IceImport.load("omero_model_Pressure_ice")
@@ -2076,7 +2077,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
             target = None
         elif isinstance(unit, UnitsPressure):
             target = unit
-        elif isinstance(unit, (str, unicode)):
+        elif isinstance(unit, str):
             target = getattr(UnitsPressure, unit)
         else:
             raise Exception("Unknown unit: %s (%s)" % (

@@ -29,6 +29,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+from builtins import object
 from ctypes import c_void_p, POINTER, sizeof, Structure, windll, WinError, WINFUNCTYPE
 from ctypes.wintypes import BOOL, BYTE, DWORD, HANDLE, LPCWSTR, LPWSTR, UINT, WORD
 
@@ -121,7 +122,7 @@ STARTF_USESTDHANDLES    = 0x100
 
 # EnvironmentBlock
 
-class EnvironmentBlock:
+class EnvironmentBlock(object):
     """An object which can be passed as the lpEnv parameter of CreateProcess.
     It is initialized with a dictionary."""
 
@@ -130,7 +131,7 @@ class EnvironmentBlock:
             self._as_parameter_ = None
         else:
             values = ["%s=%s" % (key, value)
-                      for (key, value) in dict.iteritems()]
+                      for (key, value) in dict.items()]
             values.append("")
             self._as_parameter_ = LPCWSTR("\0".join(values))
         

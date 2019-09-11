@@ -24,4 +24,4 @@ WORKDIR /src
 COPY ice.config /src/
 COPY *.ini /src/
 COPY test /src/test
-RUN /py3/bin/tox || echo FIXME: temporarily passing
+ENTRYPOINT ["/py3/bin/tox"]

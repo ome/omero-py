@@ -8,6 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import print_function
 
 import subprocess
 import logging
@@ -47,7 +48,7 @@ class MockCLI(CLI):
         # Not found
         msg = """Couldn't find key: "%s". Options: %s""" % \
             (key, [x[0] for x in self.__expect])
-        print msg
+        print(msg)
         raise Exception(msg)
 
     def out(self, *args, **kwargs):

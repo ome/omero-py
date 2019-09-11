@@ -22,6 +22,7 @@ Read text-based dictionary file formats such as YAML and JSON
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+from past.builtins import basestring
 import os
 import json
 import re
@@ -70,7 +71,7 @@ def load(fileobj, filetype=None, single=True, session=None):
     m = re.match('originalfile:(\d+)$', fileobj, re.I)
     if m:
         rawdata, filetype = get_format_originalfileid(
-            long(m.group(1)), filetype, session)
+            int(m.group(1)), filetype, session)
     else:
         rawdata, filetype = get_format_filename(fileobj, filetype)
 

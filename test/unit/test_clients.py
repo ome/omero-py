@@ -18,6 +18,7 @@ Module documentation
  */
 """
 
+from builtins import object
 import pytest
 import Ice
 import logging

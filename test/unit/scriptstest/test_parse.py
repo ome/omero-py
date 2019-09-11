@@ -8,7 +8,10 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import object
 import pytest
 
 from path import path
@@ -45,8 +48,8 @@ class TestParse(object):
             script_client = client(
                 "testParse", "simple ping script", Long("a").inout(),
                 String("b").inout(), client=mock())
-            print "IN CLIENT: " + \
-                script_client.getProperty("omero.scripts.parse")
+            print("IN CLIENT: " + \
+                script_client.getProperty("omero.scripts.parse"))
             assert False, "Should have raised ParseExit"
         except ParseExit:
             pass
@@ -195,7 +198,7 @@ if True:
             "Merged_Colours": wrap(['Red', 'Green']),
             "Image_Labels": wrap("Datasets"),
             "Data_Type": wrap("Image"),
-            "IDs": wrap([long(1)])
+            "IDs": wrap([int(1)])
         }
         errors = validate_inputs(params, inputs)
         assert "" == errors, errors
@@ -297,7 +300,7 @@ if True:
         assert 1 == rv["a"].val
         try:
             parse_inputs(["b=1"], params)
-        except MissingInputs, mi:
+        except MissingInputs as mi:
             assert ["a"] == mi.keys
 
     def testParseInputsLongList(self):

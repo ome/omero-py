@@ -25,6 +25,7 @@ based on omero.model.PermissionsI
 """
 
 
+from builtins import str
 import Ice
 import IceImport
 IceImport.load("omero_model_Temperature_ice")
@@ -88,7 +89,7 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
             target = None
         elif isinstance(unit, UnitsTemperature):
             target = unit
-        elif isinstance(unit, (str, unicode)):
+        elif isinstance(unit, str):
             target = getattr(UnitsTemperature, unit)
         else:
             raise Exception("Unknown unit: %s (%s)" % (

@@ -21,7 +21,12 @@
 """
 Utility methods for dealing with scripts.
 """
+from __future__ import division
 
+from builtins import hex
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import logging
 import os
 import warnings
@@ -153,7 +158,7 @@ def rmdir_recursive(dir):
         # on Windows, if we don't have write permission we can't remove
         # the file/directory either, so turn that on
         if not os.access(full_name, os.W_OK):
-            os.chmod(full_name, 0600)
+            os.chmod(full_name, 0o600)
         if os.path.isdir(full_name):
             rmdir_recursive(full_name)
         else:
@@ -623,7 +628,7 @@ def readFlimImageFile(rawPixelsStore, pixels):
     id = pixels.getId().getValue()
     pixelsType = pixels.getPixelsType().getValue().getValue()
     rawPixelsStore.setPixelsId(id, False)
-    cRange = range(0, sizeC)
+    cRange = list(range(0, sizeC))
     stack = zeros(
         (sizeC, sizeX, sizeY), dtype=pixelstypetopython.toNumpy(pixelsType))
     for c in cRange:
@@ -813,7 +818,7 @@ def uploadDirAsImages(sf, queryService, updateService,
 
     # code below here is very similar to combineImages.py
     # create an image in OMERO and populate the planes with numpy 2D arrays
-    channelList = range(sizeC)
+    channelList = list(range(sizeC))
     imageId = pixelsService.createImage(
         sizeX, sizeY, sizeZ, sizeT, channelList,
         pixelsType, imageName, description)
@@ -1546,7 +1551,7 @@ def convert_numpy_array(plane, min_max, type):
         val_range = max_val - min_val
         if (val_range == 0):
             val_range = 1
-        scaled = (plane - min_val) * (float(255) / val_range)
+        scaled = (plane - min_val) * (old_div(float(255), val_range))
         conv_array = zeros(plane.shape, dtype=type)
         try:
             conv_array += scaled

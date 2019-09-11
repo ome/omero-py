@@ -8,6 +8,8 @@
 # and wait on a signal from the OMERO.grid to shut them
 # down again.
 
+from builtins import str
+from builtins import range
 import Ice
 import os
 import signal

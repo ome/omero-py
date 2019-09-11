@@ -34,7 +34,11 @@ used for making figures.
 @since 3.0-Beta4.1
 
 """
+from __future__ import division
 
+from future import standard_library
+standard_library.install_aliases()
+from past.utils import old_div
 try:
     from PIL import Image, ImageDraw, ImageFont  # see ticket:2597
 except ImportError:
@@ -44,7 +48,7 @@ except ImportError:
 
 import os.path
 import omero.gateway
-import StringIO
+import io
 from omero.rtypes import rint
 import warnings
 
@@ -162,7 +166,7 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
     # work out how many rows and columns are needed for all the images
     imgCount = len(pixelIds)
 
-    rowCount = (imgCount / colCount)
+    rowCount = (old_div(imgCount, colCount))
     # check that we have enough rows and cols...
     while (colCount * rowCount) < imgCount:
         rowCount += 1
@@ -176,7 +180,7 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
         if leftLabel is not None and rowCount == 0:
             rowCount = 1
         if fontsize is None:
-            fontsize = length / 10 + 5
+            fontsize = old_div(length, 10) + 5
         font = getFont(fontsize)
         if leftLabel:
             textWidth, textHeight = font.getsize(leftLabel)
@@ -203,7 +207,7 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
         textCanvas = Image.new(mode, labelSize, bg)
         draw = ImageDraw.Draw(textCanvas)
         textWidth = font.getsize(leftLabel)[0]
-        textX = (labelCanvasWidth - textWidth) / 2
+        textX = old_div((labelCanvasWidth - textWidth), 2)
         draw.text((textX, spacing), leftLabel, font=font, fill=textColour)
         verticalCanvas = textCanvas.rotate(90)
         pasteImage(verticalCanvas, canvas, 0, 0)
@@ -231,7 +235,7 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
             # check we have a thumbnail (won't get one if image is invalid)
             if thumbnail:
                 # make an "Image" from the string-encoded thumbnail
-                thumbImage = Image.open(StringIO.StringIO(thumbnail))
+                thumbImage = Image.open(io.StringIO(thumbnail))
                 # paste the image onto the canvas at the correct coordinates
                 # for the current row and column
                 x = c * (length + spacing) + leftSpace
@@ -315,8 +319,8 @@ def getZoomFactor(imageSize, maxW, maxH):
     warnings.warn(
         "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     imageW, imageH = imageSize
-    zoomW = float(imageW) / float(maxW)
-    zoomH = float(imageH) / float(maxH)
+    zoomW = old_div(float(imageW), float(maxW))
+    zoomH = old_div(float(imageH), float(maxH))
     return max(zoomW, zoomH)
 
 
@@ -337,8 +341,8 @@ def resizeImage(image, maxW, maxH):
         return image
     # find which axis requires the biggest zoom (smallest relative max
     # dimension)
-    zoomW = float(imageW) / float(maxW)
-    zoomH = float(imageH) / float(maxH)
+    zoomW = old_div(float(imageW), float(maxW))
+    zoomH = old_div(float(imageH), float(maxH))
     zoom = max(zoomW, zoomH)
     if zoomW >= zoomH:  # size is defined by width
         maxH = int(imageH // zoom)  # calculate the new height

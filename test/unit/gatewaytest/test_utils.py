@@ -9,6 +9,9 @@
 
 """
 
+from builtins import str
+from builtins import hex
+from builtins import object
 from omero.gateway.utils import ServiceOptsDict
 from omero.gateway.utils import toBoolean
 from omero.gateway.utils import propertiesToDict
@@ -41,7 +44,7 @@ class TestServiceOptsDict (object):
 
     def test_keys(self):
         d = ServiceOptsDict()
-        assert d.keys() == []
+        assert list(d.keys()) == []
 
         d = ServiceOptsDict({"omero.group": -1})
         assert 'omero.group' in d
@@ -50,10 +53,10 @@ class TestServiceOptsDict (object):
 
     def test_values(self):
         d = ServiceOptsDict()
-        assert d.values() == []
+        assert list(d.values()) == []
 
         d = ServiceOptsDict({"omero.group": -1})
-        assert d.values() == ["-1"]
+        assert list(d.values()) == ["-1"]
 
         pytest.raises(TypeError, d.values, None)
 
@@ -64,10 +67,10 @@ class TestServiceOptsDict (object):
 
     def test_items(self):
         d = ServiceOptsDict()
-        assert d.items() == []
+        assert list(d.items()) == []
 
         d = ServiceOptsDict({"omero.group": -1})
-        assert d.items() == [("omero.group", "-1")]
+        assert list(d.items()) == [("omero.group", "-1")]
 
         pytest.raises(TypeError, d.items, None)
 
@@ -76,7 +79,7 @@ class TestServiceOptsDict (object):
         assert 'omero' not in d
 
         d = ServiceOptsDict({"omero.group": -1, "omero.user": 1})
-        k = d.keys()
+        k = list(d.keys())
         k.sort()
         assert k == ['omero.group', 'omero.user']
 
@@ -134,7 +137,7 @@ class TestServiceOptsDict (object):
 
         # long
         import sys
-        maxint = sys.maxint
+        maxint = sys.maxsize
         d = ServiceOptsDict({"omero.group": (maxint + 1)})
         d["omero.user"] = (maxint + 1)
 

@@ -8,6 +8,7 @@
 #
 # Version comparison functionality
 
+from __future__ import print_function
 import re
 import logging
 
@@ -69,7 +70,7 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.DEBUG)
 
     if "--test" in args:
-        print "="*10, "Test", "="*72
+        print("="*10, "Test", "="*72)
         needs_upgrade("4.0", "4.1.1", True)
         needs_upgrade("4.1", "4.1.1", True)
         needs_upgrade("4.1.0", "4.1.1", True)
@@ -99,6 +100,6 @@ if __name__ == "__main__":
             rv = int(needs_upgrade(args[0], args[1], True))
         except:
             rv = 2
-            print """    %s [--quiet] client_version server_version
-or: %s [--quiet] --test """ % (sys.argv[0], sys.argv[0])
+            print("""    %s [--quiet] client_version server_version
+or: %s [--quiet] --test """ % (sys.argv[0], sys.argv[0]))
         sys.exit(rv)

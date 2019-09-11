@@ -22,8 +22,12 @@
 """
 Test of the automatic JVM setting logic for OMERO startup.
 """
+from __future__ import division
 
 
+from builtins import str
+from past.utils import old_div
+from builtins import object
 import pytest
 import os
 
@@ -54,7 +58,7 @@ if 'OMERODIR' in os.environ:
 def write_config(data):
         p = create_path()
         i = initial()
-        for k, v in data.items():
+        for k, v in list(data.items()):
             for x in i[0:2]:  # __ACTIVE__ & default
                 SubElement(x, "property", name=k, value=v)
         string = tostring(i, 'utf-8')
@@ -193,7 +197,7 @@ class AdjustFixture(object):
         self.kwargs = kwargs
 
     def validate(self, rv):
-        for k, v in self.output.items():
+        for k, v in list(self.output.items()):
             assert k in rv
             found = rv[k]
             found.pop(0)  # settings
@@ -210,7 +214,7 @@ for x in data:
 
 
 def template_xml():
-    templates = path(OMERODIR) / ".."
+    templates = old_div(path(OMERODIR), "..")
     templates = templates / "etc" / "templates" / "grid" / "templates.xml"
     templates = templates.abspath()
     return XML(templates.text())
@@ -237,7 +241,7 @@ class TestAdjustStrategy(object):
         monkeypatch.setattr(Strategy, '_system_memory_mb_java',
                             lambda x: (2000, 4000))
         p = write_config(fixture.input)
-        old_templates = path(__file__).dirname() / "old_templates.xml"
+        old_templates = old_div(path(__file__).dirname(), "old_templates.xml")
         xml = XML(old_templates.abspath().text())
         config = ConfigXml(filename=str(p), env_config="default")
         with pytest.raises(Exception):

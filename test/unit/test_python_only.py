@@ -9,6 +9,7 @@
 
 """
 
+from builtins import object
 import pytest
 import omero
 import Ice

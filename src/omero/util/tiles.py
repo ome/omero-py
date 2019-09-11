@@ -6,8 +6,12 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
 
 
+from builtins import range
+from past.utils import old_div
+from builtins import object
 class TileLoopIteration(object):
     """
     "Interface" which must be passed to forEachTile
@@ -93,10 +97,10 @@ class TileLoop(object):
                     for z in range(0, sizeZ):
 
                         for tileOffsetY in range(
-                                0, ((sizeY + tileHeight - 1) / tileHeight)):
+                                0, (old_div((sizeY + tileHeight - 1), tileHeight))):
 
                             for tileOffsetX in range(
-                                    0, ((sizeX + tileWidth - 1) / tileWidth)):
+                                    0, (old_div((sizeX + tileWidth - 1), tileWidth))):
 
                                 x = tileOffsetX * tileWidth
                                 y = tileOffsetY * tileHeight
@@ -191,7 +195,7 @@ class RPSTileLoop(TileLoop):
             try:
                 srv = self.getSession().getPixelsService()
                 self.pixels = srv.retrievePixDescription(self.pixels.id.val)
-            except Exception, e:
+            except Exception as e:
                 import omero
                 raise omero.ClientError(
                     "Failed to load %s\n%s" % (self.pixels.id.val, e))

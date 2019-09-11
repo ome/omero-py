@@ -23,6 +23,9 @@
 # Version: 1.0
 #
 
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import logging
 import json
 
@@ -55,7 +58,7 @@ class ServiceOptsDict(dict):
         if data is None:
             data = dict()
         if len(kwargs) > 0:
-            for key, val in dict(*args, **kwargs).iteritems():
+            for key, val in dict(*args, **kwargs).items():
                 self[key] = val
         if isinstance(data, dict):
             for key in data:
@@ -166,7 +169,7 @@ class ServiceOptsDict(dict):
         if item is not None and not isinstance(item, bool) and \
             (isinstance(item, basestring) or
              isinstance(item, int) or
-             isinstance(item, long) or
+             isinstance(item, int) or
              isinstance(item, float)):
             return True
         return False
@@ -196,7 +199,7 @@ def propertiesToDict(m, prefix=None):
     """
 
     nested_dict = {}
-    for item, value in m.iteritems():
+    for item, value in m.items():
         d = nested_dict
         if prefix is not None:
             item = item.replace(prefix, "")

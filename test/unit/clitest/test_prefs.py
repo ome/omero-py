@@ -9,6 +9,9 @@
 
 """
 
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import pytest
 from omero.cli import CLI, NonZeroReturnCode
 from omero.config import ConfigXml
@@ -135,7 +138,7 @@ class TestPrefs(object):
             'omero.Z.pass=\n'
             'omero.Z.password=')
 
-        for k, v in config.iteritems():
+        for k, v in config.items():
             self.cli.invoke(self.args + ["set", k, v], strict=True)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out=output_hidden_password)
@@ -428,7 +431,7 @@ class TestPrefs(object):
     ))
     @pytest.mark.usefixtures('configxml')
     def testList(self, data, monkeypatch, capsys):
-        for k, v in data[0].items():
+        for k, v in list(data[0].items()):
             self.invoke("set %s %s" % (k, v))
         self.invoke("list")
         self.assertStdoutStderr(capsys, out=data[1], strip_warning=True)

@@ -80,6 +80,7 @@ Example code to draw a polyline on an image an display it in PIL::
 """
 
 
+from builtins import object
 try:
     from PIL import Image, ImageDraw  # see ticket:2597
 except ImportError:
@@ -97,7 +98,7 @@ import warnings
 # and draw their respective shapes if they accept the
 # DrawingCanvas visior.
 #
-class DrawingCanvas:
+class DrawingCanvas(object):
 
     ##
     # Create the default object.

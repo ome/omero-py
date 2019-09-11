@@ -27,6 +27,8 @@ and tests.
 """
 
 
+from builtins import str
+from builtins import object
 import re
 import sys
 import shlex
@@ -147,7 +149,7 @@ class TxAction(object):
     def obj_id(self):
         parts = self.tx_cmd.type.split(":")
         try:
-            return long(parts[1])
+            return int(parts[1])
         except:
             return None
 
@@ -176,7 +178,7 @@ class NewObjectTxAction(TxAction):
         total = dict(obj._field_info._asdict())
         for arg in completed:
             del total[arg]
-        for remaining, info in total.items():
+        for remaining, info in list(total.items()):
             if info.nullable is False:
                 missing.append(remaining)
 
@@ -196,13 +198,13 @@ class NewObjectTxAction(TxAction):
             try:
                 setter(obj)
                 completed.append(field)
-            except omero.ClientError, ce:
+            except omero.ClientError as ce:
                 ctx.die(333, "%s" % ce)
 
         self.check_requirements(ctx, obj, completed)
         try:
             out = up.saveAndReturnObject(obj)
-        except omero.ServerError, se:
+        except omero.ServerError as se:
             ctx.die(336, "Failed to create %s - %s" %
                     (kls, se.message))
         proxy = "%s:%s" % (kls, out.id.val)
@@ -230,12 +232,12 @@ class UpdateObjectTxAction(TxAction):
         for field, setter in self.tx_cmd.setters():
             try:
                 setter(obj)
-            except omero.ClientError, ce:
+            except omero.ClientError as ce:
                 ctx.die(335, "%s" % ce)
 
         try:
             out = up.saveAndReturnObject(obj)
-        except omero.ServerError, se:
+        except omero.ServerError as se:
             ctx.die(336, "Failed to update %s:%s - %s" %
                     (kls, obj.id.val, se.message))
         proxy = "%s:%s" % (kls, out.id.val)
@@ -271,7 +273,7 @@ class NonFieldTxAction(TxAction):
         import omero
         try:
             out = self.update.saveAndReturnObject(self.obj)
-        except omero.ServerError, se:
+        except omero.ServerError as se:
             ctx.die(336, "Failed to update %s:%s - %s" % (
                 self.kls, self.obj.id.val, se.message))
         proxy = "%s:%s" % (self.kls, out.id.val)
@@ -355,7 +357,7 @@ class ObjGetTxAction(NonFieldTxAction):
             field = self.tx_cmd.arg_list[2]
             try:
                 proxy = self.get_field(field)
-            except AttributeError, ae:
+            except AttributeError as ae:
                 ctx.die(336, ae.message)
         else:
             proxy = ""
@@ -410,7 +412,7 @@ class ObjGetTxAction(NonFieldTxAction):
                     raise AttributeError(
                         "Error: field '%s' for %s:%s : no val, id or value" % (
                             field, self.kls, self.obj.id.val))
-            except AttributeError, ae:
+            except AttributeError as ae:
                 raise AttributeError("Error: field '%s' for %s:%s : %s" % (
                     field, self.kls, self.obj.id.val, ae.message))
 
@@ -445,7 +447,7 @@ class ListGetTxAction(NonFieldTxAction):
                                  + str(item.value) + ")")
                     else:
                         proxy = str(item)
-                except IndexError, ie:
+                except IndexError as ie:
                     ctx.die(336, "Error: field '%s[%s]' for %s:%s, %s" % (
                         field, index, self.kls, self.obj.id.val, ie.message))
             else:

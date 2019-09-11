@@ -403,7 +403,7 @@ class TestRewrite(object):
             kwargs["ws"] = ws
         if wss:
             kwargs["wss"] = wss
-        for (k, v) in kwargs.items():
+        for (k, v) in list(kwargs.items()):
             self.cli.invoke(
                 ["config", "set", "omero.ports.%s" % k, "%s" % v],
                 strict=True)
