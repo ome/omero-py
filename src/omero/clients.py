@@ -290,7 +290,10 @@ class BaseClient(object):
                 raise omero.ClientError("Improper initialization")
 
             # Register Object Factory
-            import ObjectFactoryRegistrar as ofr
+            try:
+                import ObjectFactoryRegistrar as ofr
+            except ModuleNotFoundError:
+                from . import ObjectFactoryRegistrar as ofr
             ofr.registerObjectFactory(self.__ic, self)
 
             for of in list(omero.rtypes.ObjectFactories.values()):

@@ -69,7 +69,11 @@ class TestDatabase(object):
 
         self.mox = Mox()
         self.mox.StubOutWithMock(getpass, 'getpass')
-        self.mox.StubOutWithMock(__builtins__, "raw_input")
+        try:
+            self.mox.StubOutWithMock(__builtins__, "raw_input")
+        except AttributeError:
+            # Python 3
+            self.mox.StubOutWithMock(builtins, "input")
 
     def teardown_method(self, method):
         self.file.remove()
