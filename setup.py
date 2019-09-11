@@ -78,7 +78,10 @@ if not os.path.exists("target"):
             copy(fromfile, tofile)
 
 
-packages = find_packages(where="target")+[""]
+packageless = glob.glob("target/*.py")
+packageless = [x[7:-3] for x in packageless]
+packages = find_packages(where="target")
+
 url = 'https://docs.openmicroscopy.org/latest/omero/developers'
 
 sys.path.append("target")
@@ -119,6 +122,7 @@ setup(
     package_data={
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
+    py_modules=packageless,
     scripts=glob.glob(os.path.sep.join(["bin", "*"])),
     install_requires=[
         'zeroc-ice>=3.6.4,<3.7',
