@@ -325,10 +325,10 @@ class BaseClient(object):
             return {}
 
         hostmatch = re.match(
-            '(?P<protocol>\\w+)://'
-            '(?P<server>[^:/]+)'
-            '(:(?P<port>\\d+))?'
-            '(?P<path>/.*)?$',
+            r'(?P<protocol>\\w+)://'
+            r'(?P<server>[^:/]+)'
+            r'(:(?P<port>\\d+))?'
+            r'(?P<path>/.*)?$',
             host)
 
         if hostmatch:

@@ -68,7 +68,7 @@ def load(fileobj, filetype=None, single=True, session=None):
     except ValueError:
         pass
 
-    m = re.match('originalfile:(\d+)$', fileobj, re.I)
+    m = re.match(r'originalfile:(\d+)$', fileobj, re.I)
     if m:
         rawdata, filetype = get_format_originalfileid(
             int(m.group(1)), filetype, session)

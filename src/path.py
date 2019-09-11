@@ -1555,7 +1555,7 @@ def _permission_mask(mode):
     >>> _permission_mask('go-x')(o777) == o766
     True
     """
-    parsed = re.match('(?P<who>[ugo]+)(?P<op>[-+])(?P<what>[rwx]+)$', mode)
+    parsed = re.match(r'(?P<who>[ugo]+)(?P<op>[-+])(?P<what>[rwx]+)$', mode)
     if not parsed:
         raise ValueError("Unrecognized symbolic mode", mode)
     spec_map = dict(r=4, w=2, x=1)

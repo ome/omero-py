@@ -935,7 +935,7 @@ class SessionsControl(UserGroupControl):
         """Parse a connection string of form (user@)server(:port)"""
 
         import re
-        pat = '^((?P<name>.+)@)?(?P<server>.*?)(:(?P<port>\d{1,5}))?$'
+        pat = r'^((?P<name>.+)@)?(?P<server>.*?)(:(?P<port>\d{1,5}))?$'
         match = re.match(pat, server)
         server = match.group('server')
         name = match.group('name')

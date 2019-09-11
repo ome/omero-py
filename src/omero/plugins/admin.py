@@ -124,7 +124,7 @@ class AdminControl(DiagnosticsControl,
             "BAD_CONFIG", 300,
             "Bad configuration: No IceGrid.Node.Data property")
         self.add_error(
-            "WIN_CONFIG", 400, """
+            "WIN_CONFIG", 400, r"""
 
             %s is not in this directory. Aborting...
 
@@ -717,7 +717,7 @@ present, the user will enter a console""")
         return descript
 
     def checkwindows(self, args):
-        """
+        r"""
         Checks that the templates file as defined in etc\Windows.cfg
         can be found.
         """
@@ -1230,7 +1230,7 @@ present, the user will enter a console""")
                 v = io[0].split()
                 v.extend(io[1].split())
                 v = "".join(v)
-                m = re.match("^\D*(\d[.\d]+\d)\D?.*$", v)
+                m = re.match(r"^\D*(\d[.\d]+\d)\D?.*$", v)
                 v = "%-10s" % m.group(1)
                 self.ctx.out(v, False)
                 try:
@@ -1272,12 +1272,12 @@ present, the user will enter a console""")
             tcp_port = None
             for line in router_lines:
                 if not ssl_port and line.find("ROUTERPORT") >= 0:
-                    m = re.match(".*?(\d+).*?$", line)
+                    m = re.match(r".*?(\d+).*?$", line)
                     if m:
                         ssl_port = m.group(1)
 
                 if not tcp_port and line.find("INSECUREROUTER") >= 0:
-                    m = re.match("^.*?-p (\d+).*?$", line)
+                    m = re.match(r"^.*?-p (\d+).*?$", line)
                     if m:
                         tcp_port = m.group(1)
             return ssl_port, tcp_port
@@ -1367,15 +1367,15 @@ present, the user will enter a console""")
             self.ctx.out("")
 
             # Parsing well known issues
-            ready = re.compile(".*?ome.services.util.ServerVersionCheck\
+            ready = re.compile(r".*?ome.services.util.ServerVersionCheck\
             .*OMERO.Version.*Ready..*?")
-            db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
-            data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
-            pg_password = re.compile(".*?org.postgresql.util.PSQLException:\
+            db_ready = re.compile(r".*?Did.you.create.your.database[?].*?")
+            data_dir = re.compile(r".*?Unable.to.initialize:.FullText.*?")
+            pg_password = re.compile(r".*?org.postgresql.util.PSQLException:\
             .FATAL:.password.*?authentication.failed.for.user.*?")
-            pg_user = re.compile(""".*?org.postgresql.util.PSQLException:\
+            pg_user = re.compile(r""".*?org.postgresql.util.PSQLException:\
             .FATAL:.role.".*?".does.not.exist.*?""")
-            pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:\
+            pg_conn = re.compile(r""".*?org.postgresql.util.PSQLException:\
             .Connection.refused.""")
 
             issues = {

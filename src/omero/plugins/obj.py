@@ -41,7 +41,7 @@ from omero.rtypes import rlong
 
 class TxField(object):
 
-    ARG_RE = re.compile(("(?P<FIELD>[a-zA-Z][a-zA-Z0-9]*)"
+    ARG_RE = re.compile((r"(?P<FIELD>[a-zA-Z][a-zA-Z0-9]*)"
                          "(?P<OPER>[@])?="
                          "(?P<VALUE>.*)"))
 
@@ -57,7 +57,7 @@ class TxField(object):
         self.oper = m.group("OPER")
         if self.oper == "@":
             # Treat value like an array lookup
-            if re.match('\d+$', self.value):
+            if re.match(r'\d+$', self.value):
                 self.value = tx_state.get_row(int(self.value))
             elif re.match(TxCmd.VAR_NAME + '$', self.value):
                 self.value = tx_state.get_var(self.value)
@@ -70,10 +70,10 @@ class TxField(object):
 
 class TxCmd(object):
 
-    VAR_NAME = "(?P<DEST>[a-zA-Z][a-zA-Z0-9]*)"
-    VAR_RE = re.compile(("^\s*%s"
-                         "\s*=\s"
-                         "(?P<REST>.*)$") % VAR_NAME)
+    VAR_NAME = r"(?P<DEST>[a-zA-Z][a-zA-Z0-9]*)"
+    VAR_RE = re.compile((r"^\s*%s"
+                         r"\s*=\s"
+                         r"(?P<REST>.*)$") % VAR_NAME)
 
     def __init__(self, tx_state, arg_list=None, line=None):
         """

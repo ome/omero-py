@@ -71,8 +71,8 @@ finally:
 print "Finished script"
 """
 
-RE0 = re.compile("\s*script\s+upload\s*")
-RE1 = re.compile("\s*script\s+upload\s+--official\s*")
+RE0 = re.compile(r"\s*script\s+upload\s*")
+RE1 = re.compile(r"\s*script\s+upload\s+--official\s*")
 
 
 class ScriptControl(BaseControl):

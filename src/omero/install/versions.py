@@ -13,7 +13,7 @@ import re
 import logging
 
 # Regex copied from ome.api.IConfig.VERSION_REGEX
-REGEX = re.compile("^.*?[-]?(\\d+[.]\\d+([.]\\d+)?)[-]?.*?$")
+REGEX = re.compile(r"^.*?[-]?(\\d+[.]\\d+([.]\\d+)?)[-]?.*?$")
 LOG = logging.getLogger("omero.version")
 
 

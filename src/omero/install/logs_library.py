@@ -178,7 +178,7 @@ class MyLine(lines.Line2D):
 
 def plot_threads(watcher, all_colors=("blue", "red", "yellow", "green",
                                       "pink", "purple")):
-    digit = re.compile(".*(\d+).*")
+    digit = re.compile(r".*(\d+).*")
 
     fig = plt.figure()
     ax = fig.add_subplot(111)

@@ -166,8 +166,8 @@ class BulkAnnotationConfiguration(object):
             raise Exception("Option `position` must be an int")
 
         if cfg["clientvalue"]:
-            subbed = re.sub("\{\{\s*value\s*\}\}", '', cfg["clientvalue"])
-            m = re.search("\{\{[\s\w]*}\}", subbed)
+            subbed = re.sub(r"\{\{\s*value\s*\}\}", '', cfg["clientvalue"])
+            m = re.search(r"\{\{[\s\w]*}\}", subbed)
             if m:
                 raise Exception(
                     "clientvalue template parameter not found: %s" % m.group())

@@ -25,7 +25,7 @@ import omero.util
 import omero.util.temp_files
 import uuid
 
-command_pattern = "^\s*(\w+)(\((.*)\))?(:(.*))?$"
+command_pattern = r"^\s*(\w+)(\((.*)\))?(:(.*))?$"
 command_pattern_compiled = re.compile(command_pattern)
 log = logging.getLogger("omero.perf")
 

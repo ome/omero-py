@@ -99,9 +99,9 @@ else:
 
 OMERO_COMPONENTS = ['common', 'model', 'romio', 'renderer', 'server', 'blitz']
 
-COMMENT = re.compile("^\s*#")
-RELFILE = re.compile("^\w")
-LINEWSP = re.compile("^\s*\w+\s+")
+COMMENT = re.compile(r"^\s*#")
+RELFILE = re.compile(r"^\w")
+LINEWSP = re.compile(r"^\s*\w+\s+")
 
 #
 # Possibilities:
@@ -1101,10 +1101,10 @@ OMERO Diagnostics (%s) %s
             elif not p.size:
                 self.ctx.out("empty")
             else:
-                warn_regex = ('(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
-                              'warn(i(ng:)?)?\s')
-                err_regex = ('(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
-                             'error:?\s')
+                warn_regex = (r'(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                              r'warn(i(ng:)?)?\s')
+                err_regex = (r'(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                             r'error:?\s')
                 warn = 0
                 err = 0
                 for l in p.lines():
@@ -1203,7 +1203,7 @@ class CLI(cmd.Cmd, Context):
         class CD(BaseControl):
 
             def _complete(self, text, line, begidx, endidx):
-                RE = re.compile("\s*cd\s*")
+                RE = re.compile(r"\s*cd\s*")
                 m = RE.match(line)
                 if m:
                     replaced = RE.sub('', line)

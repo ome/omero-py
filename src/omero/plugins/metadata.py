@@ -41,7 +41,7 @@ GUI clients.
 
 
 ANNOTATION_TYPES = [t for t in dir(omero.model)
-                    if re.match('[A-Za-z0-9]+Annotation$', t)]
+                    if re.match(r'[A-Za-z0-9]+Annotation$', t)]
 
 
 def guess_mimetype(filename):

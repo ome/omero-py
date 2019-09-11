@@ -1351,7 +1351,7 @@ class BulkToMapAnnotationContext(_QueryContext):
 
     def populate(self, table):
         def idcolumn_to_omeroclass(col):
-            clsname = re.search('::(\w+)Column$', col.ice_staticId()).group(1)
+            clsname = re.search(r'::(\w+)Column$', col.ice_staticId()).group(1)
             return clsname
 
         try:

@@ -268,11 +268,11 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     datetime_format = '%Y-%m-%d-%Hh%Mm%Ss'
 
     # Regular expression matching a log filename
-    log_regex = re.compile('.*log(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
+    log_regex = re.compile(r'.*log(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
 
     # Regular expression matching a result filename
     detail_regex = re.compile(
-        '^Well(\d+)_(.*)_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
+        r'^Well(\d+)_(.*)_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
 
     # Companion file format
     companion_format = 'Companion/MIAS'

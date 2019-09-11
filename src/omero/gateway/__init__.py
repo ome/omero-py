@@ -2750,7 +2750,7 @@ class _BlitzGateway (object):
                   False if the server is wholly in read-only mode,
                   otherwise None
         """
-        key_regex = '^omero\.cluster\.read_only\.runtime\.'
+        key_regex = r'^omero\.cluster\.read_only\.runtime\.'
         properties = self.getConfigService().getConfigValues(key_regex)
         values = frozenset(list(properties.values()))
         if not values:
@@ -4702,7 +4702,7 @@ class OmeroGatewaySafeCallWrapper(object):  # pragma: no cover
                     args, kwargs, exc_info=True)
 
     def handle_exception(self, e, *args, **kwargs):
-        """
+        r"""
         Exception handler that is expected to be overridden by sub-classes.
         The expected behaviour is either to handle a type of exception and
         return the server side result or to raise the already thrown

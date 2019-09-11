@@ -107,12 +107,12 @@ class ImporterLog(object):
 
     # Regular expression for matching log4j log lines
     log_regex = re.compile(
-        '^(?P<date_time>\S+\s+\S+)\s+(?P<ms_elapsed>\d+)\s+'
+        r'^(?P<date_time>\S+\s+\S+)\s+(?P<ms_elapsed>\d+)\s+'
         '(?P<thread>\[.*?\])\s+(?P<level>\S+)\s+(?P<class>\S+)\s+-\s+'
         '(?P<message>.*)$')
 
     # Regular expression for matching possible OMERO.importer status messages
-    status_regex = re.compile('^[A-Z_]*')
+    status_regex = re.compile(r'^[A-Z_]*')
 
     # Format string for matching log4j date/time strings
     date_time_fmt = '%Y-%m-%d %H:%M:%S'

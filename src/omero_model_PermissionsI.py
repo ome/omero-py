@@ -166,7 +166,7 @@ class PermissionsI(_omero_model.Permissions):
         """
         import re
         base = r"([rR\-_])([aAwW\-_])"
-        regex = re.compile("^(L?)%s$" % (base*3))
+        regex = re.compile(r"^(L?)%s$" % (base*3))
         match = regex.match(perms)
         if match is None:
             raise ValueError("Invalid permission string: %s" % perms)
