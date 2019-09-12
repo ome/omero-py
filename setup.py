@@ -8,21 +8,31 @@
 """
 from __future__ import print_function
 
-from future import standard_library
-standard_library.install_aliases()
-
 import glob
 import sys
 import os
 
 from setuptools import setup, find_packages
 
-from io import BytesIO, StringIO
+try:
+    from io import BytesIO
+except ImportError:
+    # Python 2
+    from StringIO import StringIO as BytesIO
+
 from shutil import copy
-from urllib.request import urlopen
+try:
+    from urllib.request import urlopen
+except ImportError:
+    # Python 2
+    from urllib import urlopen
 from zipfile import ZipFile
 
-import configparser
+try:
+    import configparser
+except ImportError:
+    # Python 2
+    import ConfigParser as configparser
 
 
 def get_blitz_location():
@@ -54,7 +64,7 @@ def get_blitz_location():
             version_key: config_blitz_version,
         })
         with open(config_path) as f:
-            config_str = StringIO('[%s]\n%s' % (defaultsect, f.read()))
+            config_str = BytesIO('[%s]\n%s' % (defaultsect, f.read()))
         config_obj.readfp(config_str)
         config_blitz_url = config_obj.get(defaultsect, url_key)
         config_blitz_version = config_obj.get(defaultsect, version_key)
