@@ -24,6 +24,7 @@ from __future__ import division
 from __future__ import print_function
 
 from past.builtins import execfile
+from past.builtins import basestring
 from builtins import zip
 from builtins import input
 from builtins import map
@@ -1295,7 +1296,7 @@ class CLI(cmd.Cmd, Context):
         function returned by argparse.
         """
 
-        if isinstance(line, str):
+        if isinstance(line, basestring):
             if COMMENT.match(line):
                 return  # EARLY EXIT!
             args = shlex.split(line)
