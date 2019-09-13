@@ -15,10 +15,12 @@ import os
 from setuptools import setup, find_packages
 
 try:
-    from io import BytesIO
-except ImportError:
-    # Python 2
+    from StringIO import StringIO
     from StringIO import StringIO as BytesIO
+except ImportError:
+    # Python 3
+    from io import StringIO
+    from io import BytesIO
 
 from shutil import copy
 try:
@@ -65,7 +67,7 @@ def get_blitz_location():
             version_key: config_blitz_version,
         })
         with open(config_path) as f:
-            config_str = BytesIO('[%s]\n%s' % (defaultsect, f.read()))
+            config_str = StringIO('[%s]\n%s' % (defaultsect, f.read()))
         config_obj.readfp(config_str)
         config_blitz_url = config_obj.get(defaultsect, url_key)
         config_blitz_version = config_obj.get(defaultsect, version_key)
