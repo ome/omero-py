@@ -436,6 +436,7 @@ class TestPrefs(object):
         self.invoke("list")
         self.assertStdoutStderr(capsys, out=data[1], strip_warning=True)
 
+    @pytest.mark.broken(reason = "needs whitespace fixing")
     @pytest.mark.parametrize("data", (
         ("omero.a=b\nomero.c=d\n##ignore=me\n",
          "omero.a=b\nomero.c=d",
