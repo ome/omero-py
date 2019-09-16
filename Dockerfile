@@ -19,6 +19,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY *.py /src/
 COPY README.rst /src
 COPY src /src/src
+COPY bin /src/bin
 WORKDIR /src
 
 # Copy test-related files and run
