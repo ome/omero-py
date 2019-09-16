@@ -19,8 +19,8 @@ from shutil import copy
 from urllib import urlopen
 from zipfile import ZipFile
 
-blitz_zip = "https://artifacts.openmicroscopy.org/artifactory/ome.releases/org/openmicroscopy/omero-blitz/5.5.3/omero-blitz-5.5.3-python.zip"  # noqa
-blitz_md5 = "cf9c0cd4b2e499fc3b4b8be8c58ab6cb"
+blitz_zip = "https://artifacts.openmicroscopy.org/artifactory/ome.releases/org/openmicroscopy/omero-blitz/5.5.4/omero-blitz-5.5.4-python.zip"
+blitz_md5 = "0a12356c317ad32ca06f49adfb149d66"
 
 if not os.path.exists("target"):
     resp = urlopen(blitz_zip)
