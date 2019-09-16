@@ -30,6 +30,7 @@ from builtins import input
 from builtins import map
 from builtins import str
 from builtins import range
+from builtins import bytes
 from past.utils import old_div
 from builtins import object
 sys = __import__("sys")
@@ -513,8 +514,9 @@ class Context(object):
         Prints text to a given string, capturing any exceptions.
         """
         try:
-            if isinstance(text, str):
-                text = text.encode("utf-8")
+            if sys.version_info < (3, 0, 0):
+                if isinstance(text, basestring) and not isinstance(text, unicode):
+                    text = text.encode("utf-8")
             stream.write(text)
             if newline:
                 stream.write("\n")

@@ -144,9 +144,9 @@ class ConfigXml(object):
         self.source = None
         if not self.read_only:
             try:
-                self.source = open(self.filename, "a+")  # Open file handle
+                self.source = open(self.filename, "a+b")  # Open file handle
             except IOError:
-                self.logger.debug("open('%s', 'a+') failed" % self.filename)
+                self.logger.debug("open('%s', 'a+b') failed" % self.filename)
                 if not os.path.isfile(self.filename):
                     raise
                 # Before we're forced to open read-only, we need to check
@@ -165,7 +165,7 @@ class ConfigXml(object):
             self.exclusive = False
             self.save_on_close = False
             # Open file handle read-only
-            self.source = open(self.filename, "r")
+            self.source = open(self.filename, "rb")
 
     def _open_lock(self):
         return open("%s.lock" % self.filename, "a+")
@@ -335,7 +335,7 @@ class ConfigXml(object):
         temp_file = path.path(self.filename + ".temp")
         try:
             # Copying etree usage from ome-model
-            with open(temp_file, "w") as o:
+            with open(temp_file, "wb") as o:
                 ElementTree(icegrid).write(o, encoding="UTF-8")
             if sys.platform == "win32":
                 os.remove(self.filename)
