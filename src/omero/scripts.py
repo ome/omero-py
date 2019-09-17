@@ -31,6 +31,8 @@ from omero.rtypes import rint, rfloat, rstring, rinternal, rbool, rmap
 from omero.rtypes import robject, rlist, rset, rtype, rlong, rdouble
 from omero.rtypes import wrap, unwrap
 
+from collections import defaultdict
+
 
 TYPE_LOG = logging.getLogger("omero.scripts.Type")
 PROC_LOG = logging.getLogger("omero.scripts.ProcessCallback")
@@ -550,7 +552,7 @@ def group_params(params):
 
     this function returns:
 
-        {"A" {"": "1" : "B" : "2", "C" : "3"} }
+        {"A" : {"": "1", "B" : "2", "C" : "3"} }
 
     while:
 
@@ -561,40 +563,40 @@ def group_params(params):
         {"A" : "1"}
 
     """
-    groupings = dict()
-    for k, v in list(params.inputs.items()):
+    nested_dict = lambda: defaultdict(nested_dict)
+    groupings = nested_dict()
+    ordered_params = sorted(list(params.inputs.items()))
+    for param_name, v in ordered_params:
 
         val = v.grouping
-        if not val.endswith("."):
-            val = val + "."
+        if val.endswith("."):
+            val = val[:-1]
 
         parts = val.split(".")
 
-        g = groupings
-        while parts:
-            p = parts.pop(0)
-            try:
-                g = g[p]
-            except KeyError:
-                if parts:
-                    g[p] = dict()
-                    g = g[p]
-                else:
-                    g[p] = k
-
-        # Now find all subtrees of the form {"": "key"} and
-        # replace them by themselves
-        tuples = [(groupings, k, v) for k, v in list(groupings.items())]
-        while tuples:
-            new_tuples = []
-            for g, k, v in tuples:
-                if isinstance(v, dict):
-                    if len(v) == 1 and "" in v:
-                        g[k] = v[""]
+        previous = None
+        current = groupings
+        for idx, key in enumerate(parts):
+            if (idx+1) < len(parts):
+                # We need to descend further
+                previous = current
+                current = current[key]
+            else:
+                # No further keys remaining, assign
+                if isinstance(current, dict):
+                    if key in current:
+                        current[key][""] = param_name
                     else:
-                        new_tuples.extend([(v, k2, v2)
-                                           for k2, v2 in list(v.items())])
-            tuples = new_tuples
+                        current[key] = param_name
+                elif isinstance(current, str):
+                    # Here we assume the value is a node key
+                    replacement = dict()
+                    replacement[""] = current
+                    replacement[key] = param_name
+                    assert previous[parts[idx-1]] == current
+                    previous[parts[idx-1]] = replacement
+                else:
+                    raise Exception(current, type(current))
 
     return groupings
 
