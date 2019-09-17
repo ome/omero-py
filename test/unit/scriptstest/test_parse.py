@@ -23,7 +23,12 @@ from omero.scripts import (
     String, List, Bool, Long, Set,
     MissingInputs, ParseExit, compare_proto)
 from omero.scripts import client, parse_inputs, validate_inputs, parse_text
-from omero.scripts import group_params, rlong, rint, wrap, unwrap
+from omero.scripts import group_params, rlist, rlong, rint, wrap, unwrap
+
+try:
+    long
+except:
+    long = int
 
 
 class TestParse(object):
@@ -74,8 +79,8 @@ if True:
     import omero.scripts as scripts
     client = scripts.client(
         'HelloWorld.py', 'Hello World example script',
-        scripts.Long('longParam', True, description='theDesc', min=long(1),
-        max=long(10), values=[rlong(5)]) )
+        scripts.Long('longParam', True, description='theDesc', min=int(1),
+        max=int(10), values=[rlong(5)]) )
     client.setOutput('returnMessage', rstring('Script ran OK!'))"""
         params = parse_text(SCRIPT)
         longParam = params.inputs["longParam"]
@@ -203,7 +208,7 @@ if True:
             "Merged_Colours": wrap(['Red', 'Green']),
             "Image_Labels": wrap("Datasets"),
             "Data_Type": wrap("Image"),
-            "IDs": wrap([int(1)])
+            "IDs": rlist([rlong(1)])
         }
         errors = validate_inputs(params, inputs)
         assert "" == errors, errors
