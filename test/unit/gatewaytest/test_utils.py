@@ -83,8 +83,6 @@ class TestServiceOptsDict (object):
         k.sort()
         assert k == ['omero.group', 'omero.user']
 
-        pytest.raises(TypeError, d.has_key)
-
     def test_contains(self):
         d = ServiceOptsDict()
         assert not ('omero.group' in d)
