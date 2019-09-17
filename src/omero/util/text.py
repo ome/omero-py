@@ -21,6 +21,7 @@ from builtins import range
 from past.utils import old_div
 from builtins import object
 import json
+import sys
 
 
 class Style(object):
@@ -293,11 +294,18 @@ class ALIGN(object):
 class Column(list):
 
     def __init__(self, name, data, align=ALIGN.LEFT, style=SQLStyle()):
-        def tostring(x):
-            try:
-                return str(x).decode("utf-8")
-            except UnicodeDecodeError:
-                return '<Invalid UTF-8>'
+        if sys.version_info >= (3, 0, 0):
+            def tostring(x):
+                if isinstance(x, bytes):
+                    return x.decode("utf-8", "surrogateescape")
+                else:
+                    return str(x)
+        else:
+            def tostring(x):
+                try:
+                    return str(x).decode("utf-8")
+                except UnicodeDecodeError:
+                    return '<Invalid UTF-8>'
 
         decoded = [tostring(d) for d in data]
         list.__init__(self, decoded)
@@ -325,23 +333,32 @@ class Table(object):
             if i is None:
                 yield x.format % x.name
             else:
-                try:
-                    x[i].decode("ascii")
-                except UnicodeEncodeError:
-                    yield x.format % x[i]
-                except UnicodeDecodeError:  # Unicode characters are present
-                    yield (x.format % x[i].decode("utf-8")).encode("utf-8")
-                except AttributeError:  # Unicode characters are present
-                    yield x.format % x[i]
+                if sys.version_info >= (3, 0, 0):
+                    if isinstance(x, bytes):
+                        yield bytes.decode("utf-8", "surrogateescape")
+                    else:
+                        yield str(x)
                 else:
-                    yield x.format % x[i]
+                    try:
+                        x[i].decode("ascii")
+                    except UnicodeEncodeError:
+                        yield x.format % x[i]
+                    except UnicodeDecodeError:  # Unicode characters are present
+                        yield (x.format % x[i].decode("utf-8")).encode("utf-8")
+                    except AttributeError:  # Unicode characters are present
+                        yield x.format % x[i]
+                    else:
+                        yield x.format % x[i]
 
     def get_rows(self):
         for row in self.style.get_rows(self):
             yield row
 
     def __str__(self):
-        return ('\n'.join(self.get_rows())).encode("utf-8")
+        if sys.version_info >= (3, 0, 0):
+            return '\n'.join(self.get_rows())
+        else:
+            return ('\n'.join(self.get_rows())).encode("utf-8")
 
 
 def filesizeformat(bytes):

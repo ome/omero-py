@@ -22,13 +22,18 @@ omero.rtypes as well as the omero/rtypes.{h,cpp} files.
 """
 
 from past.builtins import basestring
-from builtins import str
 import omero
 import Ice
 import IceImport
 IceImport.load("omero_RTypes_ice")
 IceImport.load("omero_Scripts_ice")
 IceImport.load("omero_model_RTypes_ice")
+
+sys = __import__("sys")  # Python sys
+
+if sys.version_info >= (3, 0, 0):
+    # Keep str behavior on Python 2
+    from builtins import str
 
 
 def rtype(val):
@@ -300,8 +305,9 @@ def rstring(val):
         if len(val) == 0:
             return remptystr
         else:
-            if isinstance(val, str):
-                val = val.encode("utf-8")
+            if sys.version_info < (3, 0, 0):
+                if isinstance(val, str):
+                    val = val.encode("utf-8")
             return RStringI(val)
     else:
         return rstring(str(val))

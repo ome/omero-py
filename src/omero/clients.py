@@ -9,7 +9,6 @@
 from __future__ import print_function
 
 from builtins import zip
-from builtins import str
 from builtins import range
 from builtins import object
 __save__ = __name__
@@ -35,6 +34,11 @@ import uuid
 
 IceImport.load("Glacier2_Router_ice")
 import Glacier2
+
+
+if sys.version_info >= (3, 0, 0):
+    # Keep str behavior on Python 2
+    from builtins import str
 
 
 class BaseClient(object):
@@ -133,6 +137,8 @@ class BaseClient(object):
             host = None
             port = hosturl['port']
             args.append(self._get_endpoint_from_hosturl(hosturl))
+
+        args = [str(x) for x in args]
 
         # Equiv to multiple constructors. #######################
         if id is None:
