@@ -15,15 +15,20 @@ RUN /py3/bin/pip install https://github.com/ome/zeroc-ice-py-manylinux/releases/
 ENV VIRTUAL_ENV=/py3
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+RUN useradd -ms /bin/bash tox
+USER tox
+
 # Optimize for fixing tests
-COPY *.py /src/
-COPY README.rst /src
-COPY src /src/src
-COPY bin /src/bin
+COPY --chown=tox:tox *.py /src/
+COPY --chown=tox:tox README.rst /src
+COPY --chown=tox:tox src /src/src
+COPY --chown=tox:tox bin /src/bin
 WORKDIR /src
 
 # Copy test-related files and run
-COPY ice.config /src/
-COPY *.ini /src/
-COPY test /src/test
+COPY --chown=tox:tox ice.config /src/
+COPY --chown=tox:tox *.ini /src/
+COPY --chown=tox:tox test /src/test
+
+ENV PIP_CACHE_DIR=/tmp/pip-cache
 ENTRYPOINT ["/py3/bin/tox"]
