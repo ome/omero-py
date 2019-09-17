@@ -162,8 +162,9 @@ if True:
             assert "these" == groupings["A"]["1"], str(groupings)
             assert "belong" == groupings["A"]["2"], str(groupings)
             assert "together" == groupings["A"]["3"], str(groupings)
-        except KeyError:
-            assert False, str(groupings)
+        except:
+            print("INVALID: %s" % groupings)
+            raise
 
     def testGroupingWithMainExtraDot(self):
         SCRIPT = """if True:
@@ -176,10 +177,14 @@ if True:
         params = parse_text(SCRIPT)
 
         groupings = group_params(params)
-        assert "checkbox" == groupings["A"][""], str(groupings)
-        assert "these" == groupings["A"]["1"], str(groupings)
-        assert "belong" == groupings["A"]["2"], str(groupings)
-        assert "together" == groupings["A"]["3"], str(groupings)
+        try:
+            assert "checkbox" == groupings["A"][""], str(groupings)
+            assert "these" == groupings["A"]["1"], str(groupings)
+            assert "belong" == groupings["A"]["2"], str(groupings)
+            assert "together" == groupings["A"]["3"], str(groupings)
+        except:
+            print("INVALID: %s" % groupings)
+            raise
 
     def testValidateRoiMovieCall(self):
         SCRIPT = """if True:
