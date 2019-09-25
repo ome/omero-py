@@ -9,6 +9,7 @@
 
 from __future__ import division
 from builtins import str
+from future.utils import native_str
 from past.utils import old_div
 from builtins import object
 import os
@@ -91,13 +92,13 @@ def configure_server_logging(props):
     log_timed = props.getPropertyWithDefault(
         "omero.logging.timedlog", "False")[0] in ('T', 't')
     log_num = int(
-        props.getPropertyWithDefault("omero.logging.lognum", str(LOGNUM)))
+        props.getPropertyWithDefault("omero.logging.lognum", native_str(LOGNUM)))
     log_size = int(
-        props.getPropertyWithDefault("omero.logging.logsize", str(LOGSIZE)))
+        props.getPropertyWithDefault("omero.logging.logsize", native_str(LOGSIZE)))
     log_num = int(
-        props.getPropertyWithDefault("omero.logging.lognum", str(LOGNUM)))
+        props.getPropertyWithDefault("omero.logging.lognum", native_str(LOGNUM)))
     log_level = int(
-        props.getPropertyWithDefault("omero.logging.level", str(LOGLEVEL)))
+        props.getPropertyWithDefault("omero.logging.level", native_str(LOGLEVEL)))
     configure_logging(log_dir, log_name, loglevel=log_level,
                       maxBytes=log_size, backupCount=log_num,
                       time_rollover=log_timed)
@@ -199,7 +200,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6,
         implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
     else:
         if not implicit_ctx.containsKey(omero.constants.CLIENTUUID):
-            client_uuid = str(uuid.uuid4())
+            client_uuid = native_str(uuid.uuid4())
             implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
 
     while tryCount < retries:
