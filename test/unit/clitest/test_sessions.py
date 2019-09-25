@@ -25,6 +25,8 @@ from builtins import object
 from past.utils import old_div
 from omero.cli import CLI
 from omero.plugins.sessions import SessionsControl
+
+import os
 import pytest
 
 
@@ -88,7 +90,7 @@ class TestSessions(object):
 
         for var in list(environment.keys()):
             if environment[var]:
-                monkeypatch.setenv(var, str(old_div(tmpdir, environment.get(var))))
+                monkeypatch.setenv(var, "%s%s%s" % (tmpdir, os.path.sep, environment.get(var)))
             else:
                 monkeypatch.delenv(var, raising=False)
 

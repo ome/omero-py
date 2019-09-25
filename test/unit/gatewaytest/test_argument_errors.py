@@ -39,7 +39,7 @@ class TestArgumentErrors(object):
     def setup_class(cls, tmpdir, monkeypatch):
         ice_config = old_div(tmpdir, "ice.config")
         ice_config.write("omero.host=localhost\nomero.port=4064")
-        monkeypatch.setenv("ICE_CONFIG", str(ice_config))
+        monkeypatch.setenv("ICE_CONFIG", "%s" % ice_config)
         cls.g = _BlitzGateway()
 
     def test_graphspec_with_plus(self):

@@ -303,7 +303,7 @@ class Column(list):
         else:
             def tostring(x):
                 try:
-                    return str(x).decode("utf-8")
+                    return str(x).encode("utf-8")
                 except UnicodeDecodeError:
                     return '<Invalid UTF-8>'
 
