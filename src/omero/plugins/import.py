@@ -28,6 +28,7 @@ from __future__ import print_function
 
 from builtins import str
 from past.utils import old_div
+from past.builtins import basestring
 from builtins import object
 import os
 import csv
@@ -156,7 +157,7 @@ class CommandArguments(object):
             key = key.replace("_", "-")
             if val == NO_ARG:
                 arg_list.append("--%s" % key)
-            elif isinstance(val, str):
+            elif isinstance(val, basestring):
                 arg_list.append(
                     "--%s=%s" % (key, val))
             else:
