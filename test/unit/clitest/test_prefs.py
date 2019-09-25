@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 """
    Test of the scripts plugin
 
@@ -19,6 +21,11 @@ from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import PrefsControl, HELP
 from omero.util.temp_files import create_path
 
+
+try:
+    basestring
+except:
+    basestring = str
 
 @pytest.fixture
 def configxml(monkeypatch):
