@@ -492,14 +492,10 @@ class TestPrefs(object):
         input, update = data
         cfg = tmpdir.join("test.cfg")
         cfg.write(input.encode("utf-8"), "wb")
-        try:
-            self.invoke("load %s" % cfg)  # 3 fail here
-            self.invoke("get omero.ldap.base")
-            self.invoke("set omero.ldap.base %s" % update)  # 1 here
-            self.invoke("get omero.ldap.base")
-        except:
-            if sys.version_info < (3, 0, 0):
-                pytest.xfail("see gh-25")
+        self.invoke("load %s" % cfg)  # 3 fail here
+        self.invoke("get omero.ldap.base")
+        self.invoke("set omero.ldap.base %s" % update)  # 1 here
+        self.invoke("get omero.ldap.base")
 
     @pytest.mark.xfail
     def testConfigPropertyParser(self, tmpdir):
