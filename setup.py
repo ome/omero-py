@@ -145,5 +145,6 @@ setup(
     scripts=glob.glob(os.path.sep.join(["bin", "*"])),
     install_requires=[
         'zeroc-ice>=3.6.4,<3.7',
+        'future',
     ],
     tests_require=['pytest<3'])
