@@ -251,6 +251,10 @@ class Strategy(object):
         if str(sz).startswith("-X"):
             return sz
         else:
+            try:
+                sz = int(float(sz))
+            except ValueError:
+                pass
             rv = "-Xmx%s" % sz
             if rv[-1].lower() not in ("b", "k", "m", "g"):
                 rv = "%sm" % rv
@@ -359,7 +363,7 @@ class PercentStrategy(Strategy):
         choice = self.use_active and active or total
 
         percent = self.get_percent()
-        calculated = choice * int(percent) / 100
+        calculated = int(choice * int(percent) / 100)
         return calculated
 
     def usage_table(self, min=10, max=20):
