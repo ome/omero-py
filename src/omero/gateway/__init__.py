@@ -44,7 +44,12 @@ except ImportError:
 
 from datetime import datetime
 from io import StringIO
-import configparser
+
+try:
+    import configparser
+except ImportError:
+    # Python 2
+    import ConfigParser as configparser
 
 import omero
 import omero.clients
