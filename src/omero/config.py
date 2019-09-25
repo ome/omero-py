@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
 """
 ::
@@ -18,7 +19,7 @@ see ticket:800
 see ticket:2213 - Replacing Java Preferences API
 """
 
-from builtins import object
+from builtins import object, str
 import os
 import path
 import time
