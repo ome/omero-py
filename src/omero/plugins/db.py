@@ -27,7 +27,6 @@
 """
 from __future__ import division
 
-from builtins import str
 from past.utils import old_div
 from omero.cli import BaseControl
 from omero.cli import CLI
@@ -42,6 +41,11 @@ import omero.java
 import platform
 import sys
 import time
+
+if sys.version_info >= (3, 0, 0):
+    # Keep str behavior on Python 2
+    from builtins import str
+
 
 HELP = """Database tools for creating scripts, setting passwords, etc."""
 
