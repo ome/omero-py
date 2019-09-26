@@ -8,6 +8,7 @@
 
 """
 
+from builtins import str
 import sys
 
 from omero.cli import CLI, ExceptionHandler, admin_only, UserGroupControl
@@ -121,7 +122,7 @@ to users.""")
             tb.set_style(args.style)
         tb.cols(["Id", "OmeName", "DN"])
         for map in list_of_dn_user_maps:
-            for dn, id in map.items():
+            for dn, id in list(map.items()):
                 try:
                     exp = iadmin.getExperimenter(id)
                 except:

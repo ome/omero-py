@@ -1,3 +1,6 @@
+from __future__ import division
+from past.utils import old_div
+
 from datetime import datetime
 import time
 
@@ -39,7 +42,7 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
         :rtype:     :class:`datetime.datetime`
         """
 
-        return datetime.fromtimestamp(self._obj.timeValue.val / 1000.0)
+        return datetime.fromtimestamp(old_div(self._obj.timeValue.val, 1000.0))
 
     def setValue(self, val):
         """
@@ -52,11 +55,11 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
 
         if isinstance(val, datetime):
             self._obj.timeValue = rtime(
-                long(time.mktime(val.timetuple())*1000))
+                int(time.mktime(val.timetuple())*1000))
         elif isinstance(val, omero.RTime):
             self._obj.timeValue = val
         else:
-            self._obj.timeValue = rtime(long(val * 1000))
+            self._obj.timeValue = rtime(int(val * 1000))
 
 AnnotationWrapper._register(TimestampAnnotationWrapper)
 

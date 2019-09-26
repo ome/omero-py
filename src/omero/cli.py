@@ -20,7 +20,19 @@ Copyright (c) 2007-2016, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
+from __future__ import division
+from __future__ import print_function
 
+from past.builtins import execfile
+from past.builtins import basestring
+from builtins import zip
+from builtins import input
+from builtins import map
+from builtins import str
+from builtins import range
+from builtins import bytes
+from past.utils import old_div
+from builtins import object
 sys = __import__("sys")
 cmd = __import__("cmd")
 
@@ -70,8 +82,8 @@ if "DEBUG" in os.environ:
         DEBUG = int(os.environ["DEBUG"])
     except ValueError:
         DEBUG = 1
-    print "Deprecated warning: use the 'bin/omero --debug=x [args]' to debug"
-    print "Running omero with debugging == 1"
+    print("Deprecated warning: use the 'bin/omero --debug=x [args]' to debug")
+    print("Running omero with debugging == 1")
 
 OMERODOC = """
 Command-line tool for local and remote interactions with OMERO.
@@ -89,9 +101,9 @@ else:
 
 OMERO_COMPONENTS = ['common', 'model', 'romio', 'renderer', 'server', 'blitz']
 
-COMMENT = re.compile("^\s*#")
-RELFILE = re.compile("^\w")
-LINEWSP = re.compile("^\s*\w+\s+")
+COMMENT = re.compile(r"^\s*#")
+RELFILE = re.compile(r"^\w")
+LINEWSP = re.compile(r"^\s*\w+\s+")
 
 #
 # Possibilities:
@@ -175,7 +187,7 @@ class Parser(ArgumentParser):
         if help is None:
             help = func.__doc__
         parser = sub.add_parser(
-            func.im_func.__name__, help=help, description=help)
+            func.__func__.__name__, help=help, description=help)
         parser.set_defaults(func=func, **kwargs)
         return parser
 
@@ -303,7 +315,7 @@ class ProxyStringType(object):
     def __call__(self, s):
         try:
             return omero.proxy_to_instance(s, default=self.default)
-        except omero.ClientError, ce:
+        except omero.ClientError as ce:
             raise ValueError(str(ce))
 
     def __repr__(self):
@@ -431,7 +443,7 @@ Examples (admin or group owner only):
 """
 
 
-class Context:
+class Context(object):
     """Simple context used for default logic. The CLI registry which registers
     the plugins installs itself as a fully functional Context.
 
@@ -502,19 +514,20 @@ class Context:
         Prints text to a given string, capturing any exceptions.
         """
         try:
-            if isinstance(text, unicode):
-                text = text.encode("utf-8")
+            if sys.version_info < (3, 0, 0):
+                if isinstance(text, basestring) and not isinstance(text, unicode):
+                    text = text.encode("utf-8")
             stream.write(text)
             if newline:
                 stream.write("\n")
             else:
                 stream.flush()
-        except IOError, e:
+        except IOError as e:
             if e.errno != errno.EPIPE:
                 raise
         except:
-            print >>sys.stderr, "Error printing text"
-            print >>sys.stdout, text
+            print("Error printing text", file=sys.stderr)
+            print(text, file=sys.stdout)
             if self.isdebug:
                 traceback.print_exc()
 
@@ -544,7 +557,7 @@ class Context:
             dir.mkdir()
         elif not dir.isdir():
             raise Exception("%s is not a directory" % dir)
-        dir.chmod(0700)
+        dir.chmod(0o700)
         return dir
 
     def pub(self, args, strict=False):
@@ -561,7 +574,7 @@ class Context:
                     import getpass
                     rv = getpass.getpass(prompt)
                 else:
-                    rv = raw_input(prompt)
+                    rv = input(prompt)
                 if required and not rv:
                     self.out("Input required")
                     continue
@@ -637,7 +650,7 @@ def admin_only(*fargs, **fkwargs):
                         privs = types.allEnumerations("AdminPrivilege")
                         need_privs = set(omero.rtypes.unwrap(
                             [x.getValue() for x in privs]))
-                    except Exception, e:
+                    except Exception as e:
                         self.ctx.err("Error: denying access: %s" % e)
                         # If the user can't load enums assume the worst
                         self.error_admin_only(fatal=True)
@@ -736,6 +749,13 @@ class BaseControl(object):
             self.ctx.die(2, "Error doesn't exist: %s" % name)
         err.die(*args)
 
+    def reset_errors(self, replacement=None):
+        old = self.__errors
+        if replacement is None:
+            replacement = {}
+        self.__errors = replacement
+        return old
+
     def _isWindows(self):
         p_s = platform.system()
         if p_s == 'Windows':
@@ -781,7 +801,7 @@ class BaseControl(object):
             nodepath = self._properties()[property]
 
             if RELFILE.match(nodepath):
-                nodedata = self.dir / path(nodepath)
+                nodedata = old_div(self.dir, path(nodepath))
             else:
                 nodedata = path(nodepath)
 
@@ -792,7 +812,7 @@ class BaseControl(object):
                 created = True
             return (nodedata, created)
 
-        except KeyError, ke:
+        except KeyError as ke:
             self.ctx.err(property + " is not configured")
             self.ctx.die(4, str(ke))
 
@@ -802,7 +822,7 @@ class BaseControl(object):
         """
         props = self._properties()
         self._nodedata()
-        logdata = self.dir / path(props["Ice.StdOut"]).dirname()
+        logdata = old_div(self.dir, path(props["Ice.StdOut"]).dirname())
         if not logdata.exists():
             self.ctx.out("Initializing %s" % logdata)
             logdata.makedirs()
@@ -834,7 +854,7 @@ class BaseControl(object):
         Returns a path of the form _nodedata() / (_node() + ".pid"),
         i.e. a file named NODENAME.pid in the node's data directory.
         """
-        pidfile = self._nodedata() / (self._node() + ".pid")
+        pidfile = old_div(self._nodedata(), (self._node() + ".pid"))
         return pidfile
 
     def _cfglist(self):
@@ -844,13 +864,13 @@ class BaseControl(object):
         followed by a file named NODENAME.cfg under the etc/
         directory, following by PLATFORM.cfg if it exists.
         """
-        cfgs = self.dir / "etc"
-        internal = cfgs / "internal.cfg"
-        owncfg = cfgs / self._node() + ".cfg"
+        cfgs = old_div(self.dir, "etc")
+        internal = old_div(cfgs, "internal.cfg")
+        owncfg = old_div(cfgs, self._node()) + ".cfg"
         results = [internal, owncfg]
         # Look for <platform>.cfg
         p_s = platform.system()
-        p_c = cfgs / p_s + ".cfg"
+        p_c = old_div(cfgs, p_s) + ".cfg"
         if p_c.exists():
             results.append(p_c)
         return results
@@ -911,20 +931,24 @@ class BaseControl(object):
 
     def _add_wait(self, parser, default=-1):
         parser.add_argument(
-            "--wait", type=long,
+            "--wait", type=int,
             help="Number of seconds to wait for the processing to complete "
             "(Indefinite < 0; No wait=0).", default=default)
 
     def get_subcommands(self):
         """Return a list of subcommands"""
         parser = Parser()
-        self._configure(parser)
+        old = self.reset_errors()
+        try:
+            self._configure(parser)
+        finally:
+            self.reset_errors(old)
         subparsers_actions = [action for action in parser._actions
                               if isinstance(action, _SubParsersAction)]
 
         subcommands = []
         for subparsers_action in subparsers_actions:
-            for choice, subparser in subparsers_action.choices.items():
+            for choice, subparser in list(subparsers_action.choices.items()):
                 subcommands.append(format(choice))
         return subcommands
 
@@ -1015,8 +1039,8 @@ class BaseControl(object):
         from operator import itemgetter
         out = ""
         ids = sorted(ids)
-        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
-            g = map(str, map(itemgetter(1), g))
+        for k, g in groupby(enumerate(ids), lambda i_x: i_x[0]-i_x[1]):
+            g = list(map(str, list(map(itemgetter(1), g))))
             out += g[0]
             if len(g) > 2:
                 out += "-" + g[-1]
@@ -1080,10 +1104,10 @@ OMERO Diagnostics (%s) %s
             elif not p.size:
                 self.ctx.out("empty")
             else:
-                warn_regex = ('(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
-                              'warn(i(ng:)?)?\s')
-                err_regex = ('(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
-                             'error:?\s')
+                warn_regex = (r'(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                              r'warn(i(ng:)?)?\s')
+                err_regex = (r'(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                             r'error:?\s')
                 warn = 0
                 err = 0
                 for l in p.lines():
@@ -1143,7 +1167,7 @@ class CLI(cmd.Cmd, Context):
         self._stack = []     #: List of commands being processed
         self._client = None  #: Single client for all activities
         #: Paths to be loaded; initially official plugins
-        self._plugin_paths = [OMEROCLI / "plugins"]
+        self._plugin_paths = [old_div(OMEROCLI, "plugins")]
         self._pluginsLoaded = CLI.PluginsLoaded()
 
     def assertRC(self):
@@ -1182,7 +1206,7 @@ class CLI(cmd.Cmd, Context):
         class CD(BaseControl):
 
             def _complete(self, text, line, begidx, endidx):
-                RE = re.compile("\s*cd\s*")
+                RE = re.compile(r"\s*cd\s*")
                 m = RE.match(line)
                 if m:
                     replaced = RE.sub('', line)
@@ -1238,7 +1262,7 @@ class CLI(cmd.Cmd, Context):
             finally:
                 self._stack.pop(0)
                 self.dbg("Stack-: %s" % len(self._stack), level=2)
-        except SystemExit, exc:  # Thrown by argparse
+        except SystemExit as exc:  # Thrown by argparse
             self.dbg("SystemExit raised\n%s" % traceback.format_exc())
             self.rv = exc.code
             return False
@@ -1252,7 +1276,7 @@ class CLI(cmd.Cmd, Context):
         #    self.err(str(ae))
         #    if self.isdebug:
         #        traceback.print_exc()
-        except NonZeroReturnCode, nzrc:
+        except NonZeroReturnCode as nzrc:
             self.dbg(traceback.format_exc())
             self.rv = nzrc.rv
         return False  # Continue
@@ -1274,7 +1298,7 @@ class CLI(cmd.Cmd, Context):
         function returned by argparse.
         """
 
-        if isinstance(line, (str, unicode)):
+        if isinstance(line, basestring):
             if COMMENT.match(line):
                 return  # EARLY EXIT!
             args = shlex.split(line)
@@ -1326,7 +1350,7 @@ class CLI(cmd.Cmd, Context):
             elif "p" in debug_opts or "profile" in debug_opts:
                 from hotshot import stats, Profile
                 from omero.util import get_omero_userdir
-                profile_file = get_omero_userdir() / "hotshot_edi_stats"
+                profile_file = old_div(get_omero_userdir(), "hotshot_edi_stats")
                 prof = Profile(profile_file)
                 prof.runcall(lambda: args.func(args))
                 prof.close()
@@ -1341,7 +1365,7 @@ class CLI(cmd.Cmd, Context):
         return []
 
     def completenames(self, text, line, begidx, endidx):
-        names = self.controls.keys()
+        names = list(self.controls.keys())
         return [str(n + " ") for n in names if n.startswith(line)]
 
     ##########################################
@@ -1417,7 +1441,7 @@ class CLI(cmd.Cmd, Context):
         jar_root = root_path / 'lib' / 'server'
         for component in OMERO_COMPONENTS:
             from zipfile import ZipFile, is_zipfile, BadZipfile
-            jar_name = jar_root / 'omero-{}.jar'.format(component)
+            jar_name = old_div(jar_root, 'omero-{}.jar'.format(component))
             if is_zipfile(jar_name):
                 config_name = 'omero-{}.properties'.format(component)
                 try:
@@ -1440,7 +1464,7 @@ class CLI(cmd.Cmd, Context):
         lines = self.get_config_property_lines(path(self._cwd(None)))
         defaults = "".join([line + '\n' for line in lines])
         if not defaults:
-            print "No properties files found for OMERO default configuration."
+            print("No properties files found for OMERO default configuration.")
         return defaults
 
     def parsePropertyFile(self, data, output):
@@ -1468,8 +1492,8 @@ class CLI(cmd.Cmd, Context):
 
         from omero.plugins.prefs import getprefs
         try:
-            output = getprefs(["get"], str(path(self._cwd(None)) / "lib"))
-        except OSError, err:
+            output = getprefs(["get"], str(old_div(path(self._cwd(None)), "lib")))
+        except OSError as err:
             self.err("Error getting preferences")
             self.dbg(err)
             output = ""
@@ -1477,7 +1501,7 @@ class CLI(cmd.Cmd, Context):
         import Ice
         data = Ice.InitializationData()
         data.properties = Ice.createProperties()
-        for k, v in properties.items():
+        for k, v in list(properties.items()):
             data.properties.setProperty(k, v)
         self.parsePropertyFile(data, output)
         return data
@@ -1504,7 +1528,7 @@ class CLI(cmd.Cmd, Context):
                 return self.get_client()
             except KeyboardInterrupt:
                 raise
-            except Exception, e:
+            except Exception as e:
                 self.dbg("Removing client: %s" % e)
                 self.get_client().closeSession()
                 self.set_client(None)
@@ -1586,7 +1610,7 @@ class CLI(cmd.Cmd, Context):
                     paths.add(x)
             else:
                 if self.isdebug:
-                    print "Can't load %s" % x
+                    print("Can't load %s" % x)
         for plugin_path in paths:
             self.loadpath(path(plugin_path))
 
@@ -1601,7 +1625,7 @@ class CLI(cmd.Cmd, Context):
                     self.loadpath(path(plugin))
         else:
             if self.isdebug:
-                print "Loading %s" % pathobj
+                print("Loading %s" % pathobj)
             try:
                 loc = {"register": self.register_only}
                 execfile(str(pathobj), loc)
@@ -1723,13 +1747,13 @@ class ExperimenterArg(object):
         self.orig = arg
         self.usr = None
         try:
-            self.usr = long(arg)
+            self.usr = int(arg)
         except ValueError:
             if ":" in arg:
                 parts = arg.split(":", 1)
                 if parts[0] == "User" or "Experimenter":
                     try:
-                        self.usr = long(parts[1])
+                        self.usr = int(parts[1])
                     except ValueError:
                         pass
 
@@ -1750,13 +1774,13 @@ class ExperimenterGroupArg(object):
         self.orig = arg
         self.grp = None
         try:
-            self.grp = long(arg)
+            self.grp = int(arg)
         except ValueError:
             if ":" in arg:
                 parts = arg.split(":", 1)
                 if parts[0] == "Group" or "ExperimenterGroup":
                     try:
-                        self.grp = long(parts[1])
+                        self.grp = int(parts[1])
                     except ValueError:
                         pass
 
@@ -1790,12 +1814,12 @@ class GraphArg(object):
             for id in parts[1].split(","):
                 if "-" in id:
                     needsForce = True
-                    low, high = map(long, id.split("-"))
+                    low, high = list(map(int, id.split("-")))
                     if high < low:
                         raise ValueError("Bad range: %s", arg)
-                    ids.extend(range(low, high+1))
+                    ids.extend(list(range(low, high+1)))
                 else:
-                    ids.append(long(id))
+                    ids.append(int(id))
             targetObjects[graph[0]] = ids
             cmd.targetObjects = targetObjects
             if len(graph) > 1:
@@ -1878,7 +1902,7 @@ class CmdControl(BaseControl):
             self.ctx.out("Steps: %s" % status.steps)
             if status.stopTime > 0 and status.startTime > 0:
                 elapse = status.stopTime - status.startTime
-                self.ctx.out("Elapsed time: %s secs." % (elapse/1000.0))
+                self.ctx.out("Elapsed time: %s secs." % (old_div(elapse,1000.0)))
             else:
                 self.ctx.out("Unfinished.")
             self.ctx.out("Flags: %s" % status.flags)
@@ -1909,7 +1933,7 @@ class CmdControl(BaseControl):
             self.ctx.out("Exiting immediately")
         elif wait > 0:
             ms = wait * 1000
-            ms = ms / loops
+            ms = old_div(ms, loops)
             self.ctx.out("Waiting %s loops of %s ms" % (ms, loops))
             cb.loop(loops, ms)
         else:
@@ -2001,7 +2025,7 @@ class GraphControl(CmdControl):
             try:
                 try:
                     speclist, status, cb = self.response(client, req)
-                except omero.LockTimeout, lt:
+                except omero.LockTimeout as lt:
                     self.ctx.die(446, "LockTimeout: %s" % lt.message)
             finally:
                 if cb is not None:
@@ -2032,7 +2056,7 @@ class GraphControl(CmdControl):
 
         if args.obj is None or not args.obj:
             self.ctx.die(440, "no object targets supplied for graph operation")
-        commands, forces = zip(*args.obj)
+        commands, forces = list(zip(*args.obj))
         show = not (args.force or args.dry_run)
         needsForce = any(forces)
         if needsForce and show:
@@ -2069,7 +2093,7 @@ class GraphControl(CmdControl):
         own_id = ec.userId
         if not command_check or not command_check.targetObjects:
             return
-        for k, v in command_check.targetObjects.items():
+        for k, v in list(command_check.targetObjects.items()):
             query_str = (
                 "select "
                 "x.details.owner.id, "
@@ -2112,7 +2136,7 @@ class GraphControl(CmdControl):
             rv.extend(others)
         elif len(others) > 1:
             for req in others[1:]:
-                type, ids = req.targetObjects.items()[0]
+                type, ids = list(req.targetObjects.items())[0]
                 others[0].targetObjects.setdefault(type, []).extend(ids)
             rv.append(others[0])
 
@@ -2123,14 +2147,14 @@ class GraphControl(CmdControl):
             shmap = {skipheads[0].startFrom[0]: skipheads[0]}
             for req in skipheads[1:]:
                 if req.startFrom[0] in shmap:
-                    type, ids = req.targetObjects.items()[0]
+                    type, ids = list(req.targetObjects.items())[0]
                     if type in shmap[req.startFrom[0]].targetObjects:
                         shmap[req.startFrom[0]].targetObjects[type].extend(ids)
                     else:
                         shmap[req.startFrom[0]].targetObjects[type] = ids
                 else:
                     shmap[req.startFrom[0]] = req
-            for req in shmap.values():
+            for req in list(shmap.values()):
                 rv.append(req)
 
         return rv
@@ -2140,7 +2164,7 @@ class GraphControl(CmdControl):
         cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
         objects = []
         for req in doall.requests:
-            for type in req.targetObjects.keys():
+            for type in list(req.targetObjects.keys()):
                 ids = self._order_and_range_ids(req.targetObjects[type])
                 if isinstance(req, omero.cmd.SkipHead):
                     type += ("/" + req.startFrom[0])
@@ -2150,7 +2174,7 @@ class GraphControl(CmdControl):
     def _get_object_ids(self, objDict):
         import collections
         objIds = {}
-        for k in objDict.keys():
+        for k in list(objDict.keys()):
             if objDict[k]:
                 objIds[k] = self._order_and_range_ids(objDict[k])
         newIds = collections.OrderedDict(sorted(objIds.items()))
@@ -2237,7 +2261,7 @@ class UserGroupControl(BaseControl):
     def find_group_by_id(self, admin, group_id, fatal=False):
         import omero
         try:
-            gid = long(group_id)
+            gid = int(group_id)
             g = admin.getGroup(gid)
         except ValueError:
             self.error_invalid_groupid(group_id, fatal=fatal)
@@ -2268,7 +2292,7 @@ class UserGroupControl(BaseControl):
 
         # Find by group by id
         try:
-            g2 = admin.getGroup(long(id_or_name))
+            g2 = admin.getGroup(int(id_or_name))
         except (ValueError, omero.ApiUsageException):
             g2 = None
 
@@ -2292,7 +2316,7 @@ class UserGroupControl(BaseControl):
     def find_user_by_id(self, admin, user_id, fatal=False):
         import omero
         try:
-            uid = long(user_id)
+            uid = int(user_id)
             u = admin.getExperimenter(uid)
         except ValueError:
             self.error_invalid_userid(user_id, fatal=fatal)
@@ -2323,7 +2347,7 @@ class UserGroupControl(BaseControl):
 
         # Find user by id
         try:
-            u2 = admin.getExperimenter(long(id_or_name))
+            u2 = admin.getExperimenter(int(id_or_name))
         except (ValueError, omero.ApiUsageException):
             u2 = None
 

@@ -3,6 +3,7 @@
 """
 ...
 """
+from __future__ import print_function
 
 #
 #  Copyright (C) 2009 University of Dundee. All rights reserved.
@@ -23,6 +24,8 @@
 #
 
 
+from builtins import range
+from builtins import object
 import unittest
 import os
 
@@ -89,22 +92,22 @@ class MIASParseRoiTest(unittest.TestCase):
         # Our required original file format
         format = rstring('Companion/MIAS')
         # Create original file representing the log file
-        o = OriginalFileI(1L, True)
+        o = OriginalFileI(1, True)
         o.name = rstring(self.LOG_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.LOG_FILE))
         o.mimetype = format
         original_files.append(o)  # [1L] = o
-        original_file_image_map[1L] = images[0]
+        original_file_image_map[1] = images[0]
         # Create original file representing the result file
-        o = OriginalFileI(2L, True)
+        o = OriginalFileI(2, True)
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
         o.mimetype = format
         original_files.append(o)  # [2L] = o
-        original_file_image_map[2L] = images[0]
+        original_file_image_map[2] = images[0]
         sf = TestingServiceFactory()
         self.analysis_ctx = MIASPlateAnalysisCtx(
-            images, original_files, original_file_image_map, 1L, sf)
+            images, original_files, original_file_image_map, 1, sf)
 
     def test_get_measurement_ctx(self):
         ctx = self.analysis_ctx.get_measurement_ctx(0)
@@ -157,15 +160,15 @@ class FlexParseRoiTest(unittest.TestCase):
         # Our required original file format
         format = rstring('Companion/Flex')
         # Create original file representing the result file
-        o = OriginalFileI(1L, True)
+        o = OriginalFileI(1, True)
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
         o.mimetype = format
         original_files.append(o)  # [1L] = o
-        original_file_image_map[1L] = images[0]
+        original_file_image_map[1] = images[0]
         sf = TestingServiceFactory()
         self.analysis_ctx = FlexPlateAnalysisCtx(
-            images, original_files, original_file_image_map, 1L, sf)
+            images, original_files, original_file_image_map, 1, sf)
 
     def test_get_measurement_ctx(self):
         ctx = self.analysis_ctx.get_measurement_ctx(0)
@@ -207,15 +210,15 @@ class InCellParseRoiTest(unittest.TestCase):
         # Our required original file format
         format = rstring('Companion/InCell')
         # Create original file representing the result file
-        o = OriginalFileI(1L, True)
+        o = OriginalFileI(1, True)
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
         o.mimetype = format
         original_files.append(o)  # [1L] = o
-        original_file_image_map[1L] = image
+        original_file_image_map[1] = image
         sf = TestingServiceFactory()
         self.analysis_ctx = InCellPlateAnalysisCtx(
-            images, original_files, original_file_image_map, 1L, sf)
+            images, original_files, original_file_image_map, 1, sf)
 
     def test_get_measurement_ctx(self):
         ctx = self.analysis_ctx.get_measurement_ctx(0)
@@ -226,7 +229,7 @@ class InCellParseRoiTest(unittest.TestCase):
         columns = ctx.parse()
         self.assertNotEqual(None, columns)
         for column in columns:
-            print 'Column: %s' % column.name
+            print('Column: %s' % column.name)
         self.assertEqual(33, len(columns))
         for column in columns:
             self.assertEqual(114149, len(column.values))

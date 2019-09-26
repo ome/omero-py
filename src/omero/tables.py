@@ -6,6 +6,10 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import Ice
 import time
 import traceback
@@ -207,7 +211,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def getNumberOfRows(self, current=None):
         rv = self.storage.rows()
         self.logger.info("%s.getNumberOfRows() => %s", self, rv)
-        return long(rv)
+        return int(rv)
 
     @remoted
     @perf
@@ -232,7 +236,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         try:
             return self.storage.readCoordinates(self.stamp, rowNumbers,
                                                 current)
-        except tables.HDF5ExtError, err:
+        except tables.HDF5ExtError as err:
             aue = omero.ApiUsageException()
             aue.message = "Error reading coordinates. Most likely out of range"
             aue.serverStackTrace = "".join(traceback.format_exc())
@@ -243,12 +247,12 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def read(self, colNumbers, start, stop, current=None):
         self.logger.info("%s.read(%s, %s, %s)", self, colNumbers, start, stop)
-        if start == 0L and stop == 0L:
+        if start == 0 and stop == 0:
             stop = None
         try:
             return self.storage.read(self.stamp, colNumbers,
                                      start, stop, current)
-        except tables.HDF5ExtError, err:
+        except tables.HDF5ExtError as err:
             aue = omero.ApiUsageException()
             aue.message = "Error reading coordinates. Most likely out of range"
             aue.serverStackTrace = "".join(traceback.format_exc())
@@ -425,7 +429,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         wait = float(self.communicator.getProperties().getPropertyWithDefault(
             "omero.repo.wait", "1"))
-        per_loop = wait / retries
+        per_loop = old_div(wait, retries)
 
         e = None
         for x in range(retries):
@@ -433,7 +437,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
                 self._get_dir()
                 self._get_uuid()
                 self._get_repo()
-            except Exception, e:
+            except Exception as e:
                 self.logger.warn("Failed to find repo_svc: %s" % e)
 
             if self.repo_svc:
@@ -473,7 +477,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         """
         cfg = self.ctx.getSession().getConfigService()
         self.db_uuid = cfg.getDatabaseUuid()
-        self.instance = self.repo_cfg / self.db_uuid
+        self.instance = old_div(self.repo_cfg, self.db_uuid)
 
     def _get_repo(self):
         """
@@ -482,7 +486,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         create a proxy for the InternalRepository attached to that.
         """
 
-        uuidfile = self.instance / "repo_uuid"
+        uuidfile = old_div(self.instance, "repo_uuid")
         if not uuidfile.exists():
             msg = "%s doesn't exist" % uuidfile
             raise IOError(msg)

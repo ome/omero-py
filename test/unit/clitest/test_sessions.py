@@ -19,8 +19,14 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import division
+from builtins import str
+from builtins import object
+from past.utils import old_div
 from omero.cli import CLI
 from omero.plugins.sessions import SessionsControl
+
+import os
 import pytest
 
 
@@ -82,24 +88,25 @@ class TestSessions(object):
         from omero.util import get_user_dir
         from path import path
 
-        for var in environment.keys():
+        for var in list(environment.keys()):
             if environment[var]:
-                monkeypatch.setenv(var, tmpdir / environment.get(var))
+                monkeypatch.setenv(var, "%s%s%s" % (tmpdir, os.path.sep, environment.get(var)))
             else:
                 monkeypatch.delenv(var, raising=False)
 
         # args.session_dir sets the sessions dir
         args = Namespace()
         if session_args:
-            setattr(args, session_args, tmpdir / session_args)
+            setattr(args, session_args, old_div(tmpdir, session_args))
 
         if environment.get('OMERO_SESSION_DIR') or session_args:
-            pytest.deprecated_call(self.cli.controls['sessions'].store, args)
+            store = pytest.deprecated_call(self.cli.controls['sessions'].store, args)
+        else:
+            store = self.cli.controls['sessions'].store(args)
 
-        store = self.cli.controls['sessions'].store(args)
         # By order of precedence
         if environment.get('OMERO_SESSIONDIR'):
-            sdir = path(tmpdir) / environment.get('OMERO_SESSIONDIR')
+            sdir = old_div(path(tmpdir), environment.get('OMERO_SESSIONDIR'))
         elif environment.get('OMERO_SESSION_DIR'):
             sdir = (path(tmpdir) / environment.get('OMERO_SESSION_DIR') /
                     'omero' / 'sessions')
@@ -109,4 +116,4 @@ class TestSessions(object):
             sdir = path(tmpdir) / environment.get('OMERO_USERDIR') / 'sessions'
         else:
             sdir = path(get_user_dir()) / 'omero' / 'sessions'
-        assert store.dir == sdir
+        assert store.dir == str(sdir)

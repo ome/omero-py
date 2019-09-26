@@ -9,6 +9,7 @@ Copyright (c) 2007, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
+from __future__ import print_function
 
 import logging
 import os
@@ -29,11 +30,11 @@ def not_root():
     try:
         euid = os.geteuid()
         if euid == 0:
-            print "FATAL: Running %s as root can corrupt your directory permissions." % sys.argv[0]
+            print("FATAL: Running %s as root can corrupt your directory permissions." % sys.argv[0])
             sys.exit(1)
         else:
             return euid
-    except AttributeError, ae:
+    except AttributeError as ae:
         # This platform doesn't support effective uid
         # So nothing to worry about.
         return None
@@ -59,10 +60,10 @@ def readlink(file=sys.argv[0]):
     return file
 
 omero_home = None
-if os.environ.has_key("OMERO_HOME"):
+if "OMERO_HOME" in os.environ:
     omero_home = os.environ["OMERO_HOME"]
     if not os.path.exists(omero_home):
-        print "OMERO_HOME=%s cannot be found" % omero_home
+        print("OMERO_HOME=%s cannot be found" % omero_home)
         sys.exit(3)
 
 if omero_home:
@@ -85,7 +86,7 @@ sys.path.append(vlb);
 sys.path.append(ipy)
 
 if not os.path.exists(lib):
-    print "WARN: %s does not exist. It is unlikely that OMERO will run properly" % lib
+    print("WARN: %s does not exist. It is unlikely that OMERO will run properly" % lib)
 
 #
 # Testing shortcut. If the first argument is an
@@ -100,9 +101,9 @@ if len(sys.argv) == 2 and sys.argv[1] == "": sys.exit(0)
 try:
     try:
         import omero.cli
-    except ImportError, ie:
-        print "*"*80
-        print """
+    except ImportError as ie:
+        print("*"*80)
+        print("""
         ERROR: Could not import omero.cli! (%s)
 
         This means that your installation is incomplete. Contact
@@ -114,21 +115,21 @@ try:
         as well as which version you are building from. If you
         downloaded a distribution, please provide which link you
         used.
-        """ % ie
-        print "*"*80
-        print """
+        """ % ie)
+        print("*"*80)
+        print("""
         Debugging Info:
         --------------
         CWD=%s
         VERSION=%s
         OMERO_HOME=%s
         PYTHONPATH=%s
-        """ % (os.getcwd(), sys.version.replace("\n"," "), omero_home, sys.path)
+        """ % (os.getcwd(), sys.version.replace("\n"," "), omero_home, sys.path))
         sys.exit(2)
 
     logging.basicConfig(level=logging.WARN)
     rv = omero.cli.argv()
     sys.exit(rv)
-except KeyboardInterrupt, ki:
-    print "Cancelled"
+except KeyboardInterrupt as ki:
+    print("Cancelled")
     sys.exit(1)

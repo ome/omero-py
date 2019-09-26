@@ -9,6 +9,8 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from builtins import str
+from builtins import object
 import omero.model
 
 
@@ -30,7 +32,7 @@ class TestPermissions(object):
         assert self.p.isWorldWrite()
 
         # All off
-        self.p._perm1 = 0L
+        self.p._perm1 = 0
         assert not self.p.isUserRead()
         assert not self.p.isUserAnnotate()
         assert not self.p.isUserWrite()
@@ -42,7 +44,7 @@ class TestPermissions(object):
         assert not self.p.isWorldWrite()
 
         # All on
-        self.p._perm1 = -1L
+        self.p._perm1 = -1
         assert self.p.isUserRead()
         assert self.p.isUserAnnotate()
         assert self.p.isUserWrite()

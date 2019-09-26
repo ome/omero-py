@@ -17,7 +17,10 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import object
 import re
 import os
 import sys
@@ -68,8 +71,8 @@ finally:
 print "Finished script"
 """
 
-RE0 = re.compile("\s*script\s+upload\s*")
-RE1 = re.compile("\s*script\s+upload\s+--official\s*")
+RE0 = re.compile(r"\s*script\s+upload\s*")
+RE1 = re.compile(r"\s*script\s+upload\s+--official\s*")
 
 
 class ScriptControl(BaseControl):
@@ -165,7 +168,7 @@ class ScriptControl(BaseControl):
             "-b", "--background", action="store_true",
             help="Run processor in background. Used in demo")
         serve.add_argument(
-            "-t", "--timeout", default=0, type=long,
+            "-t", "--timeout", default=0, type=int,
             help="Seconds that the processor should run. 0 means no timeout")
         _who(serve)
 
@@ -183,7 +186,7 @@ class ScriptControl(BaseControl):
         delete = parser.add(
             sub, self.delete, help="delete an existing script")
         delete.add_argument(
-            "id", type=long,
+            "id", type=int,
             help="Id of the original file which is to be deleted")
 
         run = parser.add(
@@ -311,7 +314,7 @@ class ScriptControl(BaseControl):
                 try:
                     self.ctx.invoke(['script', method.__name__] +
                                     list(arguments))
-                except Exception, e:
+                except Exception as e:
                     import traceback
                     self.ctx.out("\nEXECUTION FAILED: %s" % e)
                     self.ctx.dbg(traceback.format_exc())
@@ -347,11 +350,11 @@ class ScriptControl(BaseControl):
             for p in list(getattr(self, "_processors", [])):
                 p.cleanup()
                 self._processors.remove(p)
-        except Exception, e:
+        except Exception as e:
             self.ctx.err("Failed to clean processors: %s" % e)
 
         self.ctx.out("\nDeleting script from server...")
-        args.id = long(id)
+        args.id = int(id)
         self.delete(args)
 
     def cat(self, args):
@@ -359,7 +362,7 @@ class ScriptControl(BaseControl):
         script_id, ofile = self._file(args, client)
         try:
             self.ctx.out(client.sf.getScriptService().getScriptText(script_id))
-        except Exception, e:
+        except Exception as e:
             self.ctx.err("Failed to find script: %s (%s)" % (script_id, e))
 
     def edit(self, args):
@@ -379,7 +382,7 @@ class ScriptControl(BaseControl):
             p = create_path()
             edit_path(p, txt)
             scriptSvc.editScript(ofile, p.text())
-        except Exception, e:
+        except Exception as e:
             self.ctx.err("Failed to find script: %s (%s)" % (script_id, e))
 
     def jobs(self, args):
@@ -406,7 +409,7 @@ class ScriptControl(BaseControl):
         svc = client.sf.getScriptService()
         try:
             params = svc.getParams(script_id)
-        except omero.ValidationException, ve:
+        except omero.ValidationException as ve:
             self.ctx.die(502, "ValidationException: %s" % ve.message)
 
         m = self._parse_inputs(args, params)
@@ -414,7 +417,7 @@ class ScriptControl(BaseControl):
         try:
             proc = svc.runScript(script_id, m, None)
             job = proc.getJob()
-        except omero.ValidationException, ve:
+        except omero.ValidationException as ve:
             self.ctx.err("Bad parameters:\n%s" % ve)
             return  # EARLY EXIT
 
@@ -453,7 +456,7 @@ class ScriptControl(BaseControl):
         p("stdout")
         p("stderr")
         self.ctx.out("\n\t*** out parameters ***")
-        for k, v in rv.items():
+        for k, v in list(rv.items()):
             if k not in ("stdout", "stderr", "omero.scripts.parse"):
                 self.ctx.out("\t* %s=%s" % (k, omero.rtypes.unwrap(v)))
         self.ctx.out("\t***  done ***")
@@ -472,7 +475,7 @@ class ScriptControl(BaseControl):
         self._parse_scripts(scripts, banner)
 
     def log(self, args):
-        print args
+        print(args)
         pass
 
     def params(self, args):
@@ -483,9 +486,9 @@ class ScriptControl(BaseControl):
 
         try:
             job_params = svc.getParams(script_id)
-        except omero.ValidationException, ve:
+        except omero.ValidationException as ve:
             self.ctx.die(454, "ValidationException: %s" % ve.message)
-        except omero.ResourceError, re:
+        except omero.ResourceError as re:
             self.ctx.die(455, "ResourceError: %s" % re.message)
 
         if job_params:
@@ -579,7 +582,7 @@ class ScriptControl(BaseControl):
                     client, serverid="omero.scripts.serve", accepts_list=who,
                     omero_home=self.ctx.dir)
                 self._processors.append(impl)
-            except Exception, e:
+            except Exception as e:
                 self.ctx.die(100, "Failed initialization: %s" % e)
 
             if background:
@@ -646,13 +649,13 @@ http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
         if args.official:
             try:
                 id = scriptSvc.uploadOfficialScript(args.file, p.text())
-            except omero.ApiUsageException, aue:
+            except omero.ApiUsageException as aue:
                 if "editScript" in aue.message:
                     self.ctx.die(502, "%s already exists; use 'replace'"
                                  " instead" % args.file)
                 else:
                     self.ctx.die(504, "ApiUsageException: %s" % aue.message)
-            except omero.SecurityViolation, sv:
+            except omero.SecurityViolation as sv:
                 self.ctx.die(503, "SecurityViolation: %s" % sv.message)
         else:
             id = scriptSvc.uploadScript(args.file, p.text())
@@ -675,7 +678,7 @@ http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
 
         try:
             scriptSvc.editScript(ofile, scriptText)
-        except omero.SecurityViolation, sv:
+        except omero.SecurityViolation as sv:
             self.ctx.die(200, sv.message)
 
     def delete(self, args):
@@ -683,7 +686,7 @@ http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
         client = self.ctx.conn(args)
         try:
             client.sf.getScriptService().deleteScript(ofile)
-        except Exception, e:
+        except Exception as e:
             self.ctx.err("Failed to delete script: %s (%s)" % (ofile, e))
 
     def disable(self, args):
@@ -732,7 +735,7 @@ omero.pass=%(omero.sess)s
 
             params = parse_file(args.file)
             m = self._parse_inputs(args, params)
-            for k, v in m.items():
+            for k, v in list(m.items()):
                 if v is not None:
                     client.setInput(k, v)
 
@@ -749,7 +752,7 @@ omero.pass=%(omero.sess)s
         from omero.scripts import parse_inputs, parse_input, MissingInputs
         try:
             rv = parse_inputs(args.input, params)
-        except MissingInputs, mi:
+        except MissingInputs as mi:
             rv = mi.inputs
             for key in mi.keys:
                 value = self.ctx.input("""Enter value for "%s": """ % key,
@@ -778,7 +781,7 @@ omero.pass=%(omero.sess)s
             f = f[5:]
 
         try:
-            script_id = long(f)
+            script_id = int(f)
         except:
             script_path = str(f)
             script_id = svc.getScriptID(script_path)
@@ -797,7 +800,7 @@ omero.pass=%(omero.sess)s
         WHO_CURRENT = {"user": lambda ec: ec.userId,
                        "group": lambda ec: ec.groupId}
 
-        for key, factory in WHO_FACTORY.items():
+        for key, factory in list(WHO_FACTORY.items()):
             if who.startswith(key):
                 if who == key:
                     id = WHO_CURRENT[key](self.ctx.get_event_context())
@@ -807,7 +810,7 @@ omero.pass=%(omero.sess)s
                     if len(parts) != 2:
                         continue
                     else:
-                        id = long(parts[1])
+                        id = int(parts[1])
                         return factory(id, False)
 
 try:

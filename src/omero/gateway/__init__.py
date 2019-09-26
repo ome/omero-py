@@ -1,3 +1,5 @@
+from __future__ import division
+
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
@@ -12,13 +14,37 @@
 # jason@glencoesoftware.com.
 
 # Set up the python include paths
+from past.builtins import cmp
+from future import standard_library
+standard_library.install_aliases()
+from builtins import chr
+from builtins import map
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from past.utils import old_div
+from builtins import object
 import os
 
 import warnings
-from types import IntType, LongType, UnicodeType
-from types import StringTypes
-from cStringIO import StringIO
-import ConfigParser
+from collections import defaultdict
+
+# TODO check various types are used
+try:
+    from types import IntType, LongType, UnicodeType
+    from types import BooleanType, TupleType, StringType, StringTypes
+except ImportError:
+    IntType = int
+    LongType = int
+    UnicodeType = str
+    BooleanType = bool
+    TupleType = tuple
+    StringType = str
+    StringTypes = str
+
+from datetime import datetime
+from io import StringIO
+import configparser
 
 import omero
 import omero.clients
@@ -130,8 +156,7 @@ class _BlitzGateway (object):
         self.extra_config = extra_config
         self.ice_config = [self.ICE_CONFIG]
         self.ice_config.extend(extra_config)
-        self.ice_config = map(
-            lambda x: os.path.abspath(str(x)), filter(None, self.ice_config))
+        self.ice_config = [os.path.abspath(str(x)) for x in [_f for _f in self.ice_config if _f]]
 
         self.host = host
         self.port = port
@@ -220,7 +245,7 @@ class _BlitzGateway (object):
 
         try:
             stateful_services = self.c.getStatefulServices()
-        except Exception, e:
+        except Exception as e:
             logger.warn("No services could be found.", e)
             stateful_services = []
 
@@ -475,7 +500,7 @@ class _BlitzGateway (object):
             logger.debug(traceback.format_exc())
             logger.debug("... session has left the building, not reconnecting")
             return False
-        except Ice.UnknownException, x:  # pragma: no cover
+        except Ice.UnknownException as x:  # pragma: no cover
             # Probably a wrapped RemovedSession
             logger.debug(traceback.format_exc())
             logger.debug('Ice.UnknownException: %s' % str(x))
@@ -533,7 +558,7 @@ class _BlitzGateway (object):
         """
         self._connected = False
         oldC = self.c
-        for proxy in self._proxies.values():
+        for proxy in list(self._proxies.values()):
             proxy.close()
         if oldC is not None:
             try:
@@ -558,7 +583,7 @@ class _BlitzGateway (object):
 
         if not isinstance(self._proxies, NoProxies):
             logger.debug("## Reusing proxies")
-            for k, p in self._proxies.items():
+            for k, p in list(self._proxies.items()):
                 p._resyncConn(self)
         else:
             logger.debug("## Creating proxies")
@@ -754,7 +779,7 @@ class _BlitzGateway (object):
                     self._was_join = True
                 except Ice.SyscallException:  # pragma: no cover
                     raise
-                except Exception, x:  # pragma: no cover
+                except Exception as x:  # pragma: no cover
                     logger.debug("Error: " + str(x))
                     self._sessionUuid = None
                     if sUuid:
@@ -776,8 +801,8 @@ class _BlitzGateway (object):
                     # pragma: no cover
                     except Glacier2.SessionNotExistException:
                         pass
-                for key, value in self._ic_props.items():
-                    if isinstance(value, unicode):
+                for key, value in list(self._ic_props.items()):
+                    if isinstance(value, str):
                         value = value.encode('utf_8')
                     self.c.ic.getProperties().setProperty(key, value)
                 if self._anonymous:
@@ -837,11 +862,11 @@ class _BlitzGateway (object):
         except Ice.SyscallException:  # pragma: no cover
             logger.debug('This one is a SyscallException', exc_info=True)
             raise
-        except Ice.LocalException, x:  # pragma: no cover
+        except Ice.LocalException as x:  # pragma: no cover
             logger.debug("connect(): " + traceback.format_exc())
             self._last_error = x
             return False
-        except Exception, x:  # pragma: no cover
+        except Exception as x:  # pragma: no cover
             logger.debug("connect(): " + traceback.format_exc())
             self._last_error = x
             return False
@@ -1017,7 +1042,7 @@ class _BlitzGateway (object):
         if gid is None:
             gid = self.getEventContext().groupId
         if not isinstance(gid, LongType) or not isinstance(gid, IntType):
-            gid = long(gid)
+            gid = int(gid)
         if gid in self.getEventContext().leaderOfGroups:
             return True
         return False
@@ -1327,9 +1352,9 @@ class _BlitzGateway (object):
                   False if the server is wholly in read-only mode,
                   otherwise None
         """
-        key_regex = '^omero\.cluster\.read_only\.runtime\.'
+        key_regex = r'^omero\.cluster\.read_only\.runtime\.'
         properties = self.getConfigService().getConfigValues(key_regex)
-        values = frozenset(properties.values())
+        values = frozenset(list(properties.values()))
         if not values:
             return True
         elif len(values) == 1:
@@ -1398,8 +1423,8 @@ class _BlitzGateway (object):
                  'Image': ('DatasetImageLink', ImageWrapper),
                  'Plate': ('ScreenPlateLink', PlateWrapper)}
 
-        if obj_type not in links.keys():
-            raise AttributeError("obj_type must be in %s" % str(links.keys()))
+        if obj_type not in list(links.keys()):
+            raise AttributeError("obj_type must be in %s" % str(list(links.keys())))
 
         if params is None:
             params = omero.sys.ParametersI()
@@ -1464,7 +1489,7 @@ class _BlitzGateway (object):
         """
 
         admin_serv = self.getAdminService()
-        dgr = admin_serv.getDefaultGroup(long(eid))
+        dgr = admin_serv.getDefaultGroup(int(eid))
         return ExperimenterGroupWrapper(self, dgr)
 
     def getOtherGroups(self, eid):
@@ -1480,7 +1505,7 @@ class _BlitzGateway (object):
         """
 
         admin_serv = self.getAdminService()
-        for gr in admin_serv.containedGroups(long(eid)):
+        for gr in admin_serv.containedGroups(int(eid)):
             yield ExperimenterGroupWrapper(self, gr)
 
     def getGroupsLeaderOf(self):
@@ -1600,7 +1625,7 @@ class _BlitzGateway (object):
         """
 
         admin_serv = self.getAdminService()
-        for exp in admin_serv.containedExperimenters(long(gid)):
+        for exp in admin_serv.containedExperimenters(int(gid)):
             yield ExperimenterWrapper(self, exp)
 
     def listColleagues(self):
@@ -1801,8 +1826,8 @@ class _BlitzGateway (object):
             if tto is None:
                 tto = time.time() * 1000
             for e in tm.getByPeriod(
-                    ['Image'], rtime(long(tfrom)),
-                    rtime(long(tto)), p, False)['Image']:
+                    ['Image'], rtime(int(tfrom)),
+                    rtime(int(tto)), p, False)['Image']:
                 yield ImageWrapper(self, e)
 
     ###########################
@@ -1964,7 +1989,7 @@ class _BlitzGateway (object):
 
         # finding by attributes
         if attributes is not None:
-            for k, v in attributes.items():
+            for k, v in list(attributes.items()):
                 clauses.append('obj.%s=:%s' % (k, k))
                 baseParams.map[k] = omero_type(v)
         if clauses:
@@ -2055,7 +2080,7 @@ class _BlitzGateway (object):
         """
 
         if parent_type.lower() not in KNOWN_WRAPPERS:
-            wrapper_types = ", ".join(KNOWN_WRAPPERS.keys())
+            wrapper_types = ", ".join(list(KNOWN_WRAPPERS.keys()))
             err_msg = ("getAnnotationLinks() does not support type: '%s'. "
                        "Must be one of: %s" % (parent_type, wrapper_types))
             raise AttributeError(err_msg)
@@ -2329,7 +2354,7 @@ class _BlitzGateway (object):
             sizeY, sizeX = firstPlane.shape
             if sourceImageId is not None:
                 if channelList is None:
-                    channelList = range(sizeC)
+                    channelList = list(range(sizeC))
                 iId = pixelsService.copyAndResizeImage(
                     sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ),
                     rint(sizeT), channelList, None, False, self.SERVICE_OPTS)
@@ -2376,7 +2401,7 @@ class _BlitzGateway (object):
                     raise Exception(
                         "Cannot create an image in omero from numpy array "
                         "with dtype: %s" % dType)
-                channelList = range(sizeC)
+                channelList = list(range(sizeC))
                 iId = pixelsService.createImage(
                     sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType,
                     imageName, description, self.SERVICE_OPTS)
@@ -2403,7 +2428,7 @@ class _BlitzGateway (object):
             for theZ in range(sizeZ):
                 for theC in range(sizeC):
                     for theT in range(sizeT):
-                        plane = zctPlanes.next()
+                        plane = next(zctPlanes)
                         # use the first plane to create image.
                         if image is None:
                             image, dtype = createImage(plane, channelList)
@@ -2423,14 +2448,14 @@ class _BlitzGateway (object):
                                 channelsMinMax[theC][0], minValue)
                             channelsMinMax[theC][1] = max(
                                 channelsMinMax[theC][1], maxValue)
-        except Exception, e:
+        except Exception as e:
             logger.error(
                 "Failed to setPlane() on rawPixelsStore while creating Image",
                 exc_info=True)
             exc = e
         try:
             rawPixelsStore.close(self.SERVICE_OPTS)
-        except Exception, e:
+        except Exception as e:
             logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
                 exc = e
@@ -2439,7 +2464,7 @@ class _BlitzGateway (object):
 
         # simply completing the generator - to avoid a GeneratorExit error.
         try:
-            zctPlanes.next()
+            next(zctPlanes)
         except StopIteration:
             pass
 
@@ -2507,7 +2532,7 @@ class _BlitzGateway (object):
         """
 
         if data_type == "Image":
-            imageIds = [long(i) for i in ids]
+            imageIds = [int(i) for i in ids]
         elif data_type == "Dataset":
             images = self.getContainerService().getImages(
                 "Dataset", ids, None, self.SERVICE_OPTS)
@@ -2620,7 +2645,7 @@ class _BlitzGateway (object):
             rawFileStore.setFileId(
                 originalFile.getId().getValue(), self.SERVICE_OPTS)
             buf = 10000
-            for pos in range(0, long(fileSize), buf):
+            for pos in range(0, int(fileSize), buf):
                 block = None
                 if fileSize-pos < buf:
                     blockSize = fileSize-pos
@@ -2776,7 +2801,7 @@ class _BlitzGateway (object):
         """
 
         query_serv = self.getQueryService()
-        obj = query_serv.find(klass, long(eid), self.SERVICE_OPTS)
+        obj = query_serv.find(klass, int(eid), self.SERVICE_OPTS)
         if obj is not None:
             return EnumerationWrapper(self, obj)
         else:
@@ -2820,7 +2845,7 @@ class _BlitzGateway (object):
 
         types = self.getTypesService()
         rv = dict()
-        for key, value in types.getEnumerationsWithEntries().items():
+        for key, value in list(types.getEnumerationsWithEntries().items()):
             r = list()
             for e in value:
                 r.append(EnumerationWrapper(self, e))
@@ -2945,7 +2970,7 @@ class _BlitzGateway (object):
             raise AttributeError('Must be a list of object IDs')
 
         graph = graph_spec.lstrip('/').split('/')
-        obj_ids = map(long, obj_ids)
+        obj_ids = list(map(int, obj_ids))
         delete = Delete2(targetObjects={graph[0]: obj_ids}, dryRun=dryRun)
 
         exc = list()
@@ -3042,7 +3067,7 @@ class _BlitzGateway (object):
             raise AttributeError('Must be a list of object IDs')
 
         graph = graph_spec.lstrip('/').split('/')
-        obj_ids = map(long, obj_ids)
+        obj_ids = list(map(int, obj_ids))
         chgrp = Chgrp2(targetObjects={graph[0]: obj_ids}, groupId=group_id)
 
         if len(graph) > 1:
@@ -3070,7 +3095,7 @@ class _BlitzGateway (object):
 
         ownerId = self.SERVICE_OPTS.getOmeroUser() or self.getUserId()
         for obj_id in obj_ids:
-            obj_id = long(obj_id)
+            obj_id = int(obj_id)
             if container_id is not None and graph_spec in parentLinkClasses:
                 # get link class for graph_spec objects
                 link_klass = parentLinkClasses[graph_spec][0]
@@ -3141,7 +3166,7 @@ class _BlitzGateway (object):
 
         search.setBatchSize(batchSize, ctx)
         if ownedBy is not None:
-            ownedBy = long(ownedBy)
+            ownedBy = int(ownedBy)
             if ownedBy >= 0:
                 details = omero.model.DetailsI()
                 details.setOwner(omero.model.ExperimenterI(ownedBy, False))
@@ -3156,7 +3181,7 @@ class _BlitzGateway (object):
                 t = c[i]
                 t = unwrap(t)
                 if t is not None:
-                    t = time.localtime(t / 1000)
+                    t = time.localtime(old_div(t, 1000))
                     t = time.strftime("%Y%m%d", t)
                     return t
             except:
@@ -3194,7 +3219,7 @@ class _BlitzGateway (object):
                 while search.hasNext(ctx):
                     results = timeit(searchProcessing)()
                     if p == page:
-                        rv.extend(map(lambda x: t(self, x), results))
+                        rv.extend([t(self, x) for x in results])
                         break
                     p += 1
 
@@ -3240,7 +3265,7 @@ class _BlitzGateway (object):
 
             thumbs_map = tb.getThumbnailByLongestSideSet(
                 rint(max_size), list(_temp), ctx)
-            for (pix, thumb) in thumbs_map.items():
+            for (pix, thumb) in list(thumbs_map.items()):
                 _resp[_temp[pix]] = thumb
         except Exception:
             logger.error(traceback.format_exc())
@@ -3269,7 +3294,7 @@ class OmeroGatewaySafeCallWrapper(object):  # pragma: no cover
         self.attr = attr
         self.f = f
         try:
-            self.__f__name = f.im_self.ice_getIdentity().name
+            self.__f__name = f.__self__.ice_getIdentity().name
         except:
             self.__f__name = "unknown"
 
@@ -3279,7 +3304,7 @@ class OmeroGatewaySafeCallWrapper(object):  # pragma: no cover
                     args, kwargs, exc_info=True)
 
     def handle_exception(self, e, *args, **kwargs):
-        """
+        r"""
         Exception handler that is expected to be overridden by sub-classes.
         The expected behaviour is either to handle a type of exception and
         return the server side result or to raise the already thrown
@@ -3295,7 +3320,7 @@ class OmeroGatewaySafeCallWrapper(object):  # pragma: no cover
     def __call__(self, *args, **kwargs):
         try:
             return self.f(*args, **kwargs)
-        except Exception, e:
+        except Exception as e:
             self.debug(e.__class__.__name__, args, kwargs)
             return self.handle_exception(e, *args, **kwargs)
 
@@ -3740,9 +3765,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
     def simpleMarshal(self, xtra=None, parents=False):
         rv = super(_ExperimenterWrapper, self).simpleMarshal(
             xtra=xtra, parents=parents)
-        isAdmin = (len(filter(
-            lambda x: x.name.val == 'system',
-            self._conn.getAdminService().containedGroups(self.getId()))) == 1)
+        isAdmin = (len([x for x in self._conn.getAdminService().containedGroups(self.getId()) if x.name.val == 'system']) == 1)
         rv.update(
             {'firstName': self.firstName,
              'middleName': self.middleName,
@@ -3777,7 +3800,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
 
         self._obj.unloadAnnotationLinks()
-        cp = ConfigParser.SafeConfigParser()
+        cp = configparser.SafeConfigParser()
         prefs = self.getAnnotation('TODO.changeme.preferences')
         if prefs is not None:
             prefs = prefs.getValue()
@@ -3821,7 +3844,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             section = 'DEFAULT'
         try:
             return self.getRawPreferences().get(section, key)
-        except ConfigParser.Error:
+        except configparser.Error:
             return default
         return default
 

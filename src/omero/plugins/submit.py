@@ -10,7 +10,9 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import print_function
 
+from builtins import str
 from omero.cli import BaseControl, CLI
 import sys
 
@@ -44,8 +46,8 @@ class SubmitCLI(CLI):
         raise Cancel()
 
     def post_process(self):
-        print "Uploading"
-        print self.queue
+        print("Uploading")
+        print(self.queue)
 
 HELP = """When run without arguments, submit shell is opened
 which takes commands without executing them. On save,
@@ -72,7 +74,7 @@ class SubmitControl(BaseControl):
             except Cancel:
                 l = len(submit.queue)
                 if l > 0:
-                    print l, " items queued. Really cancel? [Yn]"
+                    print(l, " items queued. Really cancel? [Yn]")
 
 try:
     # register("submit", SubmitControl, HELP)

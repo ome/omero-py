@@ -25,7 +25,12 @@
 </small>
 @since 3.0-Beta4.2
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import math
 import numpy
 
@@ -223,7 +228,7 @@ class ImageData(DataObject):
 #
 
 
-class ROICoordinate:
+class ROICoordinate(object):
 
     ##
     # Initialise the ROICoordinate.
@@ -337,8 +342,8 @@ def shapeWrapper(serverSideShape):
     @param serverSideShape The shape object to wrap.
     @return See above.
     """
-    print "ServerSideShape"
-    print serverSideShape.__class__.__name__
+    print("ServerSideShape")
+    print(serverSideShape.__class__.__name__)
     if serverSideShape.__class__.__name__ == 'EllipseI':
         return EllipseData(serverSideShape)
     if serverSideShape.__class__.__name__ == 'RectangleI':
@@ -383,7 +388,7 @@ class ROIData(DataObject):
             s = shapeWrapper(shape)
             if(s is not None):
                 coord = ROICoordinate(s.getZ(), s.getT())
-                if(coord not in self.roiShapes.keys()):
+                if(coord not in list(self.roiShapes.keys())):
                     self.roiShapes[coord] = list()
                 data = self.roiShapes[coord]
                 data.append(s)
@@ -419,7 +424,7 @@ class ROIData(DataObject):
             raise Exception("No Roi specified.")
         coord = shape.getROICoordinate()
         shapeList = None
-        if(coord not in self.roiShapes.keys()):
+        if(coord not in list(self.roiShapes.keys())):
             shapeList = list()
             self.roiShapes[coord] = shapeList
         else:
@@ -476,7 +481,7 @@ class ROIData(DataObject):
     # @return See above.
     #
     def getIterator(self):
-        return self.roiShapes.iteritems()
+        return iter(self.roiShapes.items())
 
     ##
     # Returns an iterator of the Shapes in the ROI in the range [start, end].
@@ -486,7 +491,7 @@ class ROIData(DataObject):
     # @return See above.
     #
     def getShapesInRange(self, start, end):
-        coordList = self.roiShapes.keys()
+        coordList = list(self.roiShapes.keys())
         coordList.sort()
         keyList = []
         for coord in coordList:
@@ -806,7 +811,7 @@ class EllipseData(ShapeData):
         o = (majr[1] - majl[1])
         a = (majr[0] - majl[0])
         h = math.sqrt(o * o + a * a)
-        majorAxisAngle = math.asin(o / h)
+        majorAxisAngle = math.asin(old_div(o, h))
         boundingBoxMinX = min(lt[0], rt[0], lb[0], rb[0])
         boundingBoxMaxX = max(lt[0], rt[0], lb[0], rb[0])
         boundingBoxMinY = min(lt[1], rt[1], lb[1], rb[1])
@@ -820,16 +825,16 @@ class EllipseData(ShapeData):
         points = {}
         cx = float(centre[0])
         cy = float(centre[1])
-        xrange = range(centredBoundingBox[0][0], centredBoundingBox[1][0])
-        yrange = range(centredBoundingBox[0][1], centredBoundingBox[1][1])
+        xrange = list(range(centredBoundingBox[0][0], centredBoundingBox[1][0]))
+        yrange = list(range(centredBoundingBox[0][1], centredBoundingBox[1][1]))
         for dx in xrange:
             for dy in yrange:
                 newX = dx * math.cos(majorAxisAngle) + dy * \
                     math.sin(majorAxisAngle)
                 newY = -dx * math.sin(majorAxisAngle) + \
                     dy * math.cos(majorAxisAngle)
-                val = (newX * newX) / (radiusx * radiusx) + \
-                    (newY * newY) / (radiusy * radiusy)
+                val = old_div((newX * newX), (radiusx * radiusx)) + \
+                    old_div((newY * newY), (radiusy * radiusy))
                 if(val <= 1):
                     points[(int(dx + cx), int(dy + cy))] = 1
         return points
@@ -1014,7 +1019,7 @@ class PolygonData(ShapeData):
     # @return See above.
     def toCoords(self, ptsList):
         coords = []
-        for index in range(len(ptsList) / 2):
+        for index in range(old_div(len(ptsList), 2)):
             coords.append(
                 (int(ptsList[index * 2]), int(ptsList[index * 2 + 1])))
         return coords
@@ -1026,8 +1031,8 @@ class PolygonData(ShapeData):
     def containsPoints(self):
         points = {}
         boundingRectangle = self.getBoundingRectangle()
-        xrange = range(boundingRectangle[0][0], boundingRectangle[1][0])
-        yrange = range(boundingRectangle[0][1], boundingRectangle[1][1])
+        xrange = list(range(boundingRectangle[0][0], boundingRectangle[1][0]))
+        yrange = list(range(boundingRectangle[0][1], boundingRectangle[1][1]))
         for xx in xrange:
             for yy in yrange:
                 if(self.inPolygon((xx, yy))):
@@ -1044,7 +1049,7 @@ class PolygonData(ShapeData):
         angle = 0.0
         polypoints = self.getPoints()
         polygon = []
-        for index in range(0, len(polypoints) / 2):
+        for index in range(0, old_div(len(polypoints), 2)):
             polygon.append(
                 (int(polypoints[index * 2]), int(polypoints[index * 2 + 1])))
 
@@ -1346,7 +1351,7 @@ class RectData(ShapeData):
         o = (majr[1] - majl[1])
         a = (majr[0] - majl[0])
         h = math.sqrt(o * o + a * a)
-        angle = math.asin(o / h)
+        angle = math.asin(old_div(o, h))
         boundingBoxMinX = min(lt[0], rt[0], lb[0], rb[0])
         boundingBoxMaxX = max(lt[0], rt[0], lb[0], rb[0])
         boundingBoxMinY = min(lt[1], rt[1], lb[1], rb[1])
@@ -1355,8 +1360,8 @@ class RectData(ShapeData):
             (boundingBoxMinX, boundingBoxMinY),
             (boundingBoxMaxX, boundingBoxMaxY))
         points = {}
-        xrange = range(boundingBox[0][0], boundingBox[1][0])
-        yrange = range(boundingBox[0][1], boundingBox[1][1])
+        xrange = list(range(boundingBox[0][0], boundingBox[1][0]))
+        yrange = list(range(boundingBox[0][1], boundingBox[1][1]))
         transformedX = float(centre[0])
         transformedY = float(centre[1])
         cx = float(centre[0])

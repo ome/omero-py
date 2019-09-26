@@ -11,8 +11,17 @@
 # The following classes (ALIGN, Column, Table) were originally from
 # http://code.activestate.com/recipes/577202-render-tables-for-text-interface/
 #
-
+from __future__ import unicode_literals
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import zip
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import json
+import sys
 
 
 class Style(object):
@@ -50,11 +59,11 @@ class SQLStyle(Style):
                     (table.page_info[0], table.page_info[2]))
 
     def get_rows(self, table):
-        yield unicode(self.headers(table))
-        yield unicode(self.line(table))
+        yield str(self.headers(table))
+        yield str(self.line(table))
         for i in range(0, table.length):
             yield self.SEPARATOR.join(table.get_row(i))
-        yield unicode(self.status(table))
+        yield str(self.status(table))
 
 
 class PlainStyle(Style):
@@ -68,8 +77,8 @@ class PlainStyle(Style):
     def _write_row(self, table, i):
         try:
             import csv
-            import StringIO
-            output = StringIO.StringIO()
+            import io
+            output = io.StringIO()
             writer = csv.writer(output)
             writer.writerow(table.get_row(i))
             return output.getvalue()
@@ -107,7 +116,7 @@ class JSONStyle(Style):
         for i in range(0, table.length):
             prefix = '[' if i == 0 else ''
             suffix = ']' if i == table.length - 1 else ','
-            d = dict(zip(headers, table.get_row(i)))
+            d = dict(list(zip(headers, table.get_row(i))))
             yield prefix + json.dumps(d) + suffix
 
 
@@ -144,7 +153,7 @@ def list_styles():
     """
     List the styles that are known by find_style
     """
-    return STYLE_REGISTRY.keys()
+    return list(STYLE_REGISTRY.keys())
 
 
 class TableBuilder(object):
@@ -235,7 +244,7 @@ class TableBuilder(object):
                 value = items[idx]
             self.results[idx].append(value)
 
-        for k, v in by_name.items():
+        for k, v in list(by_name.items()):
             if k not in self.headers:
                 raise KeyError("%s not in %s" % (k, self.headers))
             idx = self.headers.index(k)
@@ -256,9 +265,9 @@ class TableBuilder(object):
                                  (col, len(self.headers)))
 
         from operator import itemgetter
-        tr = zip(*self.results)
+        tr = list(zip(*self.results))
         tr.sort(key=itemgetter(*cols), reverse=reverse)
-        self.results = zip(*tr)
+        self.results = list(zip(*tr))
 
     def build(self):
         columns = []
@@ -278,18 +287,25 @@ class TableBuilder(object):
         return str(self.build())
 
 
-class ALIGN:
+class ALIGN(object):
     LEFT, RIGHT = '-', ''
 
 
 class Column(list):
 
     def __init__(self, name, data, align=ALIGN.LEFT, style=SQLStyle()):
-        def tostring(x):
-            try:
-                return str(x).decode("utf-8")
-            except UnicodeDecodeError:
-                return '<Invalid UTF-8>'
+        if sys.version_info >= (3, 0, 0):
+            def tostring(x):
+                if isinstance(x, bytes):
+                    return x.decode("utf-8", "surrogateescape")
+                else:
+                    return str(x)
+        else:
+            def tostring(x):
+                try:
+                    return str(x)
+                except UnicodeDecodeError:
+                    return '<Invalid UTF-8>'
 
         decoded = [tostring(d) for d in data]
         list.__init__(self, decoded)
@@ -298,7 +314,7 @@ class Column(list):
         self.format = style.format(self.width, align)
 
 
-class Table:
+class Table(object):
 
     def __init__(self, *columns):
         self.style = SQLStyle()
@@ -317,23 +333,32 @@ class Table:
             if i is None:
                 yield x.format % x.name
             else:
-                try:
-                    x[i].decode("ascii")
-                except UnicodeEncodeError:
-                    yield x.format % x[i]
-                except UnicodeDecodeError:  # Unicode characters are present
-                    yield (x.format % x[i].decode("utf-8")).encode("utf-8")
-                except AttributeError:  # Unicode characters are present
-                    yield x.format % x[i]
+                if sys.version_info >= (3, 0, 0):
+                    if isinstance(x, bytes):
+                        yield bytes.decode("utf-8", "surrogateescape")
+                    else:
+                        yield str(x)
                 else:
-                    yield x.format % x[i]
+                    try:
+                        x[i].decode("ascii")
+                    except UnicodeEncodeError:
+                        yield x.format % x[i]
+                    except UnicodeDecodeError:  # Unicode characters are present
+                        yield (x.format % x[i].decode("utf-8")).encode("utf-8")
+                    except AttributeError:  # Unicode characters are present
+                        yield x.format % x[i]
+                    else:
+                        yield x.format % x[i]
 
     def get_rows(self):
         for row in self.style.get_rows(self):
             yield row
 
     def __str__(self):
-        return ('\n'.join(self.get_rows())).encode("utf-8")
+        if sys.version_info >= (3, 0, 0):
+            return '\n'.join(self.get_rows())
+        else:
+            return ('\n'.join(self.get_rows())).encode("utf-8")
 
 
 def filesizeformat(bytes):
@@ -359,14 +384,14 @@ def filesizeformat(bytes):
     if bytes < KB:
         value = "%(size)d B" % {'size': bytes}
     elif bytes < MB:
-        value = "%s KB" % filesize_number_format(bytes / KB)
+        value = "%s KB" % filesize_number_format(old_div(bytes, KB))
     elif bytes < GB:
-        value = "%s MB" % filesize_number_format(bytes / MB)
+        value = "%s MB" % filesize_number_format(old_div(bytes, MB))
     elif bytes < TB:
-        value = "%s GB" % filesize_number_format(bytes / GB)
+        value = "%s GB" % filesize_number_format(old_div(bytes, GB))
     elif bytes < PB:
-        value = "%s TB" % filesize_number_format(bytes / TB)
+        value = "%s TB" % filesize_number_format(old_div(bytes, TB))
     else:
-        value = "%s PB" % filesize_number_format(bytes / PB)
+        value = "%s PB" % filesize_number_format(old_div(bytes, PB))
 
     return value

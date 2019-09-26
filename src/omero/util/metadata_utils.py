@@ -26,6 +26,9 @@ Includes classes to help with basic data-munging (TODO), and for formatting
 data for clients.
 """
 
+from builtins import range
+from past.builtins import basestring
+from builtins import object
 from collections import deque
 from omero.constants import namespaces
 import re
@@ -110,7 +113,7 @@ class BulkAnnotationConfiguration(object):
         if not cfg:
             cfg = {}
 
-        invalid = set(cfg.keys()).difference(default_defaults.keys())
+        invalid = set(cfg.keys()).difference(list(default_defaults.keys()))
         if invalid:
             raise Exception(
                 "Invalid key(s) in column defaults: %s" % list(invalid))
@@ -163,8 +166,8 @@ class BulkAnnotationConfiguration(object):
             raise Exception("Option `position` must be an int")
 
         if cfg["clientvalue"]:
-            subbed = re.sub("\{\{\s*value\s*\}\}", '', cfg["clientvalue"])
-            m = re.search("\{\{[\s\w]*}\}", subbed)
+            subbed = re.sub(r"\{\{\s*value\s*\}\}", '', cfg["clientvalue"])
+            m = re.search(r"\{\{[\s\w]*}\}", subbed)
             if m:
                 raise Exception(
                     "clientvalue template parameter not found: %s" % m.group())
@@ -307,7 +310,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
 
         # Unspecified Columns
         if isdefault and self.default_cfg["include"]:
-            for name in self.headerindexmap.keys():
+            for name in list(self.headerindexmap.keys()):
                 if name not in self.checked:
                     cfg = self.get_column_config({"name": name})
                     assert not isinstance(cfg, GroupConfig)
@@ -318,7 +321,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
         # any gaps with unpositioned columns (otherwise append to end)
         output_configs = []
         if positioned:
-            for pos in xrange(1, max(positioned.keys()) + 1):
+            for pos in range(1, max(positioned.keys()) + 1):
                 if pos in positioned:
                     output_configs.append(positioned.pop(pos))
                 elif not unpositioned:

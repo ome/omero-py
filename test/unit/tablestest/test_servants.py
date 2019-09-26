@@ -8,7 +8,12 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import pytest
 import Ice
 import omero
@@ -37,7 +42,7 @@ class communicator_provider(object):
 class mock_communicator(object):
     def __init__(self):
         self.delegate = Ice.initialize()
-        for of in ObjectFactories.values():
+        for of in list(ObjectFactories.values()):
             of.register(self.delegate)  # Columns
 
     # Delegated
@@ -154,7 +159,7 @@ class mocked_query_service(object):
 
 class mock_internal_repo(object):
     def __init__(self, dir):
-        self.path = dir / "mock.h5"
+        self.path = old_div(dir, "mock.h5")
 
     def __call__(self, *args):
         return self
@@ -245,9 +250,9 @@ class TestTables(TestCase):
         if repo_uuid is None:
             repo_uuid = self.repouuid()
         f = self.repodir()
-        f = path(f) / db_uuid
+        f = old_div(path(f), db_uuid)
         f.makedirs()
-        f = f / "repo_uuid"
+        f = old_div(f, "repo_uuid")
         f.write_lines([repo_uuid])
 
     # Note: some of the following method were added as __init__ called
@@ -354,7 +359,7 @@ class TestTables(TestCase):
     def testTableSearch(self):
         table = self.testTableAddData(True, False)
         rv = list(table.getWhereList('(a==1)', None, None, None, None, None))
-        assert range(5) == rv
+        assert list(range(5)) == rv
         data = table.readCoordinates(rv, self.current)
         assert 2 == len(data.columns)
         for i in range(5):

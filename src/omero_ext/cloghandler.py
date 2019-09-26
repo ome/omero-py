@@ -44,8 +44,10 @@ See the README file for an example usage of this module.
 This module supports Python 2.6 and later.
 
 """
+from __future__ import absolute_import
 
 
+from builtins import range
 __version__  = '0.9.1'
 __revision__  = 'lowell87@gmail.com-20130711022321-doutxl7zyzuwss5a 2013-07-10 22:23:21 -0400 [0]'
 __author__ = "Lowell Alleman"
@@ -73,7 +75,7 @@ except ImportError:
 # clobbering that the builtin class allows.
 
 # sibling module than handles all the ugly platform-specific details of file locking
-from portalocker import lock, unlock, LOCK_EX, LOCK_NB, LockException
+from .portalocker import lock, unlock, LOCK_EX, LOCK_NB, LockException
 
 
 # Workaround for handleError() in Python 2.7+ where record is written to stderr

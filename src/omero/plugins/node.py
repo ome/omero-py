@@ -11,7 +11,11 @@
  Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import str
+from past.utils import old_div
 from omero.cli import BaseControl, CLI, NonZeroReturnCode
 from omero.util import tail_lines
 import os
@@ -70,12 +74,12 @@ class NodeControl(BaseControl):
         """
         props = self._properties()
         self.ctx.rv = nzrc.rv
-        myoutput = self.dir / path(props["Ice.StdErr"])
+        myoutput = old_div(self.dir, path(props["Ice.StdErr"]))
         if not myoutput.exists():
             pass
         else:
-            print "from %s:" % str(myoutput)
-            print tail_lines(str(myoutput), 2)
+            print("from %s:" % str(myoutput))
+            print(tail_lines(str(myoutput), 2))
 
     @windows_warning
     def start(self, args):
@@ -99,11 +103,11 @@ class NodeControl(BaseControl):
                     command = command + ["--daemon", "--pidfile",
                                          str(self._pid()), "--nochdir"]
                 self.ctx.call(command)
-        except OSError, o:
+        except OSError as o:
                 msg = """%s\nPossibly an error finding "icegridnode". Try \
 "icegridnode -h" from the command line.""" % o
                 raise Exception(msg)
-        except NonZeroReturnCode, nzrc:
+        except NonZeroReturnCode as nzrc:
                 self._handleNZRC(nzrc)
 
     def status(self, args):
@@ -117,7 +121,7 @@ class NodeControl(BaseControl):
                 self.ctx.call(command)
                 command = ["icegridnode", "--uninstall", "OMERO."+args.name]
                 self.ctx.call(command)
-            except NonZeroReturnCode, nzrc:
+            except NonZeroReturnCode as nzrc:
                 self._handleNZRC(nzrc)
         else:
                 pid = open(self._pid(), "r").readline()

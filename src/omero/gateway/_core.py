@@ -1,3 +1,7 @@
+
+from __future__ import division
+from past.utils import old_div
+
 import os
 
 from collections import defaultdict
@@ -443,7 +447,7 @@ class BlitzObjectWrapper (object):
             if (self._obj.acquisitionDate.val is not None and
                     self._obj.acquisitionDate.val > 0):
                 t = self._obj.acquisitionDate.val
-                return datetime.fromtimestamp(t/1000)
+                return datetime.fromtimestamp(old_div(t,1000))
         except:
             # object doesn't have acquisitionDate
             pass
@@ -887,9 +891,8 @@ class BlitzObjectWrapper (object):
         self._loadAnnotationLinks()
         rv = self.copyAnnotationLinks()
         if ns is not None:
-            rv = filter(
-                lambda x: x.getChild().getNs() and
-                x.getChild().getNs().val == ns, rv)
+            rv = [x for x in rv if x.getChild().getNs() and
+                x.getChild().getNs().val == ns]
         return rv
 
     def unlinkAnnotations(self, ns):
@@ -1163,7 +1166,7 @@ class BlitzObjectWrapper (object):
                 if wrapper is not None and v is not None:
                     if wrapper == '':
                         if isinstance(v, ListType):
-                            v = map(lambda x: x.simpleMarshal(), v)
+                            v = [x.simpleMarshal() for x in v]
                         else:
                             v = v.simpleMarshal()
                     else:
@@ -1175,8 +1178,7 @@ class BlitzObjectWrapper (object):
             if 'childCount' in xtra:
                 rv['child_count'] = self.countChildren()
         if parents:
-            rv['parents'] = map(
-                lambda x: x.simpleMarshal(), self.getAncestry())
+            rv['parents'] = [x.simpleMarshal() for x in self.getAncestry()]
         return rv
 
     # def __str__ (self):
@@ -1211,7 +1213,7 @@ class BlitzObjectWrapper (object):
                 hasattr(self, '_attrs')):
             tattr = attr[3].lower() + attr[4:]      # 'getName' -> 'name'
             # find attr with 'name'
-            attrs = filter(lambda x: tattr in x, self._attrs)
+            attrs = [x for x in self._attrs if tattr in x]
             for a in attrs:
                 if a.startswith('#') and a[1:] == tattr:
                     v = getattr(self, tattr)
@@ -1352,7 +1354,7 @@ class BlitzObjectWrapper (object):
         """
 
         if self._creationDate is not None:
-            return datetime.fromtimestamp(self._creationDate/1000)
+            return datetime.fromtimestamp(old_div(self._creationDate, 1000))
 
         try:
             if self._obj.details.creationEvent._time is not None:
@@ -1365,7 +1367,7 @@ class BlitzObjectWrapper (object):
             self._creationDate = self._conn.getQueryService().get(
                 "Event", self._obj.details.creationEvent.id.val,
                 self._conn.SERVICE_OPTS).time.val
-        return datetime.fromtimestamp(self._creationDate/1000)
+        return datetime.fromtimestamp(old_div(self._creationDate, 1000))
 
     def updateEventDate(self):
         """
@@ -1387,7 +1389,7 @@ class BlitzObjectWrapper (object):
             t = self._conn.getQueryService().get(
                 "Event", self._obj.details.updateEvent.id.val,
                 self._conn.SERVICE_OPTS).time.val
-        return datetime.fromtimestamp(t/1000)
+        return datetime.fromtimestamp(old_div(t,1000))
 
     # setters are also provided
 

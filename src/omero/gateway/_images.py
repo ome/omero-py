@@ -1,3 +1,6 @@
+from __future__ import division
+from past.utils import old_div
+
 import Ice
 import array
 import math
@@ -75,7 +78,7 @@ class ColorHolder (object):
         """
 
         self._color = {'red': 0, 'green': 0, 'blue': 0, 'alpha': 255}
-        if colorname and colorname.lower() in self._color.keys():
+        if colorname and colorname.lower() in list(self._color.keys()):
             self._color[colorname.lower()] = 255
 
     @classmethod
@@ -472,7 +475,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 remappedPlane = numpy.array(convertedPlane, numpyType)
                 remappedPlane.resize(planeY, planeX)
                 yield remappedPlane
-        except Exception, e:
+        except Exception as e:
             logger.error(
                 "Failed to getPlane() or getTile() from rawPixelsStore",
                 exc_info=True)
@@ -480,7 +483,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         try:
             if rawPixelsStore is not None:
                 rawPixelsStore.close()
-        except Exception, e:
+        except Exception as e:
             logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
                 exc = e
@@ -577,9 +580,9 @@ class _ChannelWrapper (BlitzObjectWrapper):
                 # Don't show as double if it's really an int
                 if int(rv) == rv:
                     rv = int(rv)
-        if rv is None or len(unicode(rv).strip()) == 0:
+        if rv is None or len(str(rv).strip()) == 0:
             rv = self._idx
-        return unicode(rv)
+        return str(rv)
 
     def getName(self):
         """
@@ -592,7 +595,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         lc = self.getLogicalChannel()
         rv = lc.name
         if rv is not None:
-            return unicode(rv)
+            return str(rv)
 
     def getEmissionWave(self, units=None):
         """
@@ -982,7 +985,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         t = unwrap(self._obj.acquisitionDate)
         if t is not None and t > 0:
             try:
-                return datetime.fromtimestamp(t/1000)
+                return datetime.fromtimestamp(old_div(t,1000))
             except ValueError:
                 return None
 
@@ -1353,7 +1356,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 try:
                     # E.g. May throw Missing Pyramid Exception
                     tb.resetDefaults(ctx)
-                except omero.ConcurrencyException, ce:
+                except omero.ConcurrencyException as ce:
                     logger.info(
                         "ConcurrencyException: resetDefaults() failed "
                         "in _prepareTB with backOff: %s" % ce.backOff)
@@ -1398,7 +1401,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         for l, m in ((global_metadata, rsp.globalMetadata),
                      (series_metadata, rsp.seriesMetadata)):
 
-            for k, v in m.items():
+            for k, v in list(m.items()):
                 l.append((k, unwrap(v)))  # was RType!
 
         if sort:
@@ -1519,7 +1522,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                         thumb = tb.getThumbnail
                 else:
                     thumb = tb.getThumbnailForSectionDirect
-            args = map(lambda x: rint(x), size)
+            args = [rint(x) for x in size]
             if pos is not None:
                 args = list(pos) + args
             ctx = self._conn.SERVICE_OPTS.copy()
@@ -1550,7 +1553,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
             pmax = 2 ** (8 * rp.getByteWidth())
             if rp.isSigned():
-                return (-(pmax / 2), pmax / 2 - 1)
+                return (-(old_div(pmax, 2)), old_div(pmax, 2) - 1)
             else:
                 return (0, pmax-1)
         finally:
@@ -1649,15 +1652,15 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             if name is not None and len(name.val.strip()) > 0:
                 ret.append(name.val)
             elif emissionWave is not None and\
-                    len(unicode(emissionWave.val).strip()) > 0:
+                    len(str(emissionWave.val).strip()) > 0:
                 # FIXME: units ignored for wavelength
                 rv = emissionWave.getValue()
                 # Don't show as double if it's really an int
                 if int(rv) == rv:
                     rv = int(rv)
-                ret.append(unicode(rv))
+                ret.append(str(rv))
             else:
-                ret.append(unicode(idx.val))
+                ret.append(str(idx.val))
         return ret
 
     @assert_re()
@@ -1767,7 +1770,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     List of strings
         """
 
-        return self.PROJECTIONS.keys()
+        return list(self.PROJECTIONS.keys())
 
     def getProjection(self):
         """
@@ -1777,7 +1780,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     String
         """
 
-        if self._pr in self.PROJECTIONS.keys():
+        if self._pr in list(self.PROJECTIONS.keys()):
             return self._pr
         return 'normal'
 
@@ -1861,8 +1864,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         try:
             rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
             plane = omero.romio.PlaneDef(self.PLANEDEF)
-            plane.z = long(theZ)
-            plane.t = long(theT)
+            plane.z = int(theZ)
+            plane.t = int(theT)
             histogram = rp.getHistogram(channels, binCount, globalRange, plane)
             return histogram
         finally:
@@ -1890,15 +1893,12 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             return None
         axis = axis.lower()[:1]
         if channels is None:
-            channels = map(
-                lambda x: x._idx, filter(
-                    lambda x: x.isActive(), self.getChannels()))
+            channels = [x._idx for x in [x for x in self.getChannels() if x.isActive()]]
         if range is None:
             range = axis == 'h' and self.getSizeY() or self.getSizeX()
         if not isinstance(channels, (TupleType, ListType)):
             channels = (channels,)
-        chw = map(
-            lambda x: (x.getWindowMin(), x.getWindowMax()), self.getChannels())
+        chw = [(x.getWindowMin(), x.getWindowMax()) for x in self.getChannels()]
         rv = []
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
@@ -1919,14 +1919,14 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 # system now move data into the windowMin..windowMax range
                 offset = -chw[c][0]
                 if offset != 0:
-                    plot = map(lambda x: x+offset, plot)
+                    plot = [x+offset for x in plot]
                 try:
                     normalize = 1.0/chw[c][1]*(range-1)
                 except ZeroDivisionError:
                     # This channel has zero sized window, no plot here
                     continue
                 if normalize != 1.0:
-                    plot = map(lambda x: x*normalize, plot)
+                    plot = [x*normalize for x in plot]
                 if isinstance(plot, array.array):
                     plot = plot.tolist()
                 rv.append(plot)
@@ -1975,7 +1975,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if not len(self._rm):
             for m in self._conn.getEnumerationEntries('RenderingModel'):
                 self._rm[m.value] = m
-        return self._rm.values()
+        return list(self._rm.values())
 
     @assert_re()
     def getRenderingModel(self):
@@ -2181,8 +2181,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             # tiled the resulting size is a multiple of the tile size and not
             # the iterative quotient of a 2**(resolutionLevels - 1).
             for i in range(1, re.getResolutionLevels()):
-                tile_width = round(tile_width / 2.0)
-                tile_height = round(tile_height / 2.0)
+                tile_width = round(old_div(tile_width, 2.0))
+                tile_height = round(old_div(tile_height, 2.0))
             width = int(tiles_wide * tile_width)
             height = int(tiles_high * tile_height)
             jpeg_data = self.renderJpegRegion(
@@ -2224,8 +2224,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :type compression:      Float
         """
 
-        self._pd.z = long(z)
-        self._pd.t = long(t)
+        self._pd.z = int(z)
+        self._pd.t = int(t)
 
         regionDef = omero.romio.RegionDef()
         regionDef.x = int(x)
@@ -2261,7 +2261,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         try:
             if self._re is not None:
                 self._re.close()
-        except Exception, e:
+        except Exception as e:
             logger.warn("Failed to close " + self._re)
             logger.debug(e)
         finally:
@@ -2283,10 +2283,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         if z is None:
             z = self._re.getDefaultZ()
-        self._pd.z = long(z)
+        self._pd.z = int(z)
         if t is None:
             t = self._re.getDefaultT()
-        self._pd.t = long(t)
+        self._pd.t = int(t)
         try:
             if compression is not None:
                 try:
@@ -2363,7 +2363,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
 
         rv = []
-        tokens = filter(None, text.split(' '))
+        tokens = [_f for _f in text.split(' ') if _f]
         while len(tokens) > 1:
             p1 = 0
             p2 = 1
@@ -2406,7 +2406,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         todel = []
         svc = self._conn.getScriptService()
-        mms = filter(lambda x: x.name.val == 'Make_Movie.py', svc.getScripts())
+        mms = [x for x in svc.getScripts() if x.name.val == 'Make_Movie.py']
         if not len(mms):
             logger.error('No Make_Movie.py script found!')
             return None, None
@@ -2477,12 +2477,12 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     if i == 0:
                         y = 10+j*tsize[1]
                     elif i == 1:
-                        y = h / 2 - \
+                        y = old_div(h, 2) - \
                             ((len(wwline)-j)*tsize[1]) + \
-                            (len(wwline)*tsize[1])/2
+                            old_div((len(wwline)*tsize[1]),2)
                     else:
                         y = h - (len(wwline) - j)*tsize[1] - 10
-                    draw.text((w/2-tsize[0]/2, y), line, font=font)
+                    draw.text((old_div(w,2)-old_div(tsize[0],2), y), line, font=font)
             fp = StringIO()
             slide.save(fp, "JPEG")
             fileSize = len(fp.getvalue())
@@ -2501,7 +2501,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         try:
             proc = svc.runScript(mms.id.val, m, None)
             proc.getJob()
-        except omero.ValidationException, ve:
+        except omero.ValidationException as ve:
             logger.error('Bad Parameters:\n%s' % ve)
             return None, None
 
@@ -2643,7 +2643,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         # Font sizes depends on image width
         w = self.getSizeX()
         if w >= 640:
-            fsize = (int((w-640)/128)*8) + 24
+            fsize = (int(old_div((w-640),128))*8) + 24
             if fsize > 64:
                 fsize = 64
         elif w >= 512:
@@ -2703,7 +2703,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         :returns: (Image, width, height).
         """
-        channels = filter(lambda x: x.isActive(), self.getChannels())
+        channels = [x for x in self.getChannels() if x.isActive()]
         width = self.getSizeX()
         height = self.getSizeY()
 
@@ -2730,8 +2730,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     String
         """
 
-        self._pd.z = long(z)
-        self._pd.t = long(t)
+        self._pd.z = int(z)
+        self._pd.t = int(t)
 
         im, width, height = self.prepareLinePlotCanvas()
         base = height - 1
@@ -2773,8 +2773,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     String
         """
 
-        self._pd.z = long(z)
-        self._pd.t = long(t)
+        self._pd.z = int(z)
+        self._pd.t = int(t)
 
         im, width, height = self.prepareLinePlotCanvas()
 

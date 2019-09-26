@@ -56,13 +56,22 @@ Suggested usage / workflow:
   # Verify all methods were called as expected
   my_mox.VerifyAll()
 """
+from __future__ import absolute_import
 
+from builtins import str
+from builtins import object
 from collections import deque
 import re
 import types
 import unittest
 
-import stubout
+from . import stubout
+from future.utils import with_metaclass
+
+try:
+    from types import InstanceType
+except ImportError:
+    InstanceType = object
 
 class Error(AssertionError):
   """Base exception for this module."""
@@ -150,8 +159,8 @@ class Mox(object):
 
   # A list of types that should be stubbed out with MockObjects (as
   # opposed to MockAnythings).
-  _USE_MOCK_OBJECT = [types.ClassType, types.InstanceType, types.ModuleType,
-                      types.ObjectType, types.TypeType]
+  _USE_MOCK_OBJECT = [type, InstanceType, types.ModuleType,
+                      object, type]
 
   def __init__(self):
     """Initialize a new Mox."""
@@ -263,7 +272,7 @@ def Reset(*args):
     mock._Reset()
 
 
-class MockAnything:
+class MockAnything(object):
   """A mock that can be used to mock anything.
 
   This is helpful for mocking classes that do not provide a public interface.
@@ -304,7 +313,7 @@ class MockAnything:
     return MockMethod(method_name, self._expected_calls_queue,
                       self._replay_mode)
 
-  def __nonzero__(self):
+  def __bool__(self):
     """Return 1 for nonzero so the mock can be used as a conditional."""
 
     return 1
@@ -746,7 +755,7 @@ class MockMethod(object):
     self._side_effects = side_effects
     return self
 
-class Comparator:
+class Comparator(object):
   """Base class for all Mox comparators.
 
   A Comparator can be used as a parameter to a mocked method when the exact
@@ -776,7 +785,7 @@ class Comparator:
       rhs: any python object
     """
 
-    raise NotImplementedError, 'method must be implemented by a subclass.'
+    raise NotImplementedError('method must be implemented by a subclass.')
 
   def __eq__(self, rhs):
     return self.equals(rhs)
@@ -1348,7 +1357,7 @@ class MoxMetaTestBase(type):
       for attr_name in dir(base):
         d[attr_name] = getattr(base, attr_name)
 
-    for func_name, func in d.items():
+    for func_name, func in list(d.items()):
       if func_name.startswith('test') and callable(func):
         setattr(cls, func_name, MoxMetaTestBase.CleanUpTest(cls, func))
 
@@ -1384,7 +1393,7 @@ class MoxMetaTestBase(type):
     return new_method
 
 
-class MoxTestBase(unittest.TestCase):
+class MoxTestBase(with_metaclass(MoxMetaTestBase, unittest.TestCase)):
   """Convenience test class to make stubbing easier.
 
   Sets up a "mox" attribute which is an instance of Mox - any mox tests will
@@ -1392,8 +1401,6 @@ class MoxTestBase(unittest.TestCase):
   methods have been called at the end of each test, eliminating boilerplate
   code.
   """
-
-  __metaclass__ = MoxMetaTestBase
 
   def setUp(self):
     self.mox = Mox()

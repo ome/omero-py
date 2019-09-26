@@ -6,6 +6,7 @@
 
    Use is subject to license terms supplied in LICENSE.txt
 """
+from __future__ import print_function
 
 import glob
 import sys
@@ -13,21 +14,77 @@ import os
 
 from setuptools import setup, find_packages
 
-from StringIO import StringIO
-from hashlib import md5
+try:
+    from StringIO import StringIO
+    from StringIO import StringIO as BytesIO
+except ImportError:
+    # Python 3
+    from io import StringIO
+    from io import BytesIO
+
 from shutil import copy
-from urllib import urlopen
+try:
+    from urllib.request import urlopen
+except ImportError:
+    # Python 2
+    from urllib import urlopen
 from zipfile import ZipFile
 
-blitz_zip = "https://artifacts.openmicroscopy.org/artifactory/ome.releases/org/openmicroscopy/omero-blitz/5.5.3/omero-blitz-5.5.3-python.zip"  # noqa
-blitz_md5 = "cf9c0cd4b2e499fc3b4b8be8c58ab6cb"
+try:
+    import configparser
+except ImportError:
+    # Python 2
+    import ConfigParser as configparser
+
+
+def get_blitz_location():
+
+    config_blitz_version = "5.5.4"
+
+    # simplified strings
+    defaultsect = configparser.DEFAULTSECT
+    version_key = "versions.omero-blitz"
+    url_key = "versions.omero-blitz-url"
+
+    # detect if in Jenkins or not
+    if "JENKINS_URL" in os.environ:
+        config_blitz_url = os.environ.get("JENKINS_URL")
+        config_blitz_url += "job/OMERO-build-build/lastSuccessfulBuild/"
+        config_blitz_url += "artifact/omero-blitz/build/distributions/"
+        config_blitz_url += "omero-blitz-VERSION-python.zip"
+    else:
+        config_blitz_url = (
+            "https://artifacts.openmicroscopy.org/artifactory/ome.releases/"
+            "org/openmicroscopy/omero-blitz/VERSION/"
+            "omero-blitz-VERSION-python.zip")
+
+    # load version.properties if available
+    config_path = os.environ.get("VERSION_PROPERTIES",
+                                 "artifact/version.properties")
+    if os.path.exists(config_path):
+        config_obj = configparser.RawConfigParser({
+            url_key: config_blitz_url,
+            version_key: config_blitz_version,
+        })
+        with open(config_path) as f:
+            config_str = StringIO('[%s]\n%s' % (defaultsect, f.read()))
+        config_obj.readfp(config_str)
+        config_blitz_url = config_obj.get(defaultsect, url_key)
+        config_blitz_version = config_obj.get(defaultsect, version_key)
+
+    # replace VERSION in the final url and return
+    config_blitz_url = config_blitz_url.replace(
+        "VERSION", config_blitz_version)
+    return config_blitz_url
+
 
 if not os.path.exists("target"):
-    resp = urlopen(blitz_zip)
+    loc = get_blitz_location()
+    print("Downloading %s ..." % loc, file=sys.stderr)
+    resp = urlopen(loc)
     content = resp.read()
-    md5 = md5(content).hexdigest()
-    assert md5 == blitz_md5
-    zipfile = ZipFile(StringIO(content))
+    content = BytesIO(content)
+    zipfile = ZipFile(content)
     zipfile.extractall("target")
 
     for dirpath, dirs, files in os.walk("src"):
@@ -40,7 +97,10 @@ if not os.path.exists("target"):
             copy(fromfile, tofile)
 
 
-packages = find_packages(where="target")+[""]
+packageless = glob.glob("target/*.py")
+packageless = [x[7:-3] for x in packageless]
+packages = find_packages(where="target")
+
 url = 'https://docs.openmicroscopy.org/latest/omero/developers'
 
 sys.path.append("target")
@@ -81,8 +141,9 @@ setup(
     package_data={
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
+    py_modules=packageless,
     scripts=glob.glob(os.path.sep.join(["bin", "*"])),
     install_requires=[
-        # No Ice included, since a native wheel is preferable
+        'zeroc-ice>=3.6.4,<3.7',
     ],
     tests_require=['pytest<3'])

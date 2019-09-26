@@ -4,10 +4,19 @@
 """
    Test of the omero admin control.
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2019 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
+
+from builtins import object
+
+import warnings
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+    from past.utils import old_div
 
 import os
 import re
@@ -26,7 +35,7 @@ from omero.plugins.prefs import PrefsControl
 
 from mocks import MockCLI
 
-omeroDir = path(os.getcwd()) / "build"
+omeroDir = old_div(path(os.getcwd()), "build")
 
 GRID_FILES = ["templates.xml", "default.xml", "windefault.xml"]
 ETC_FILES = ["ice.config", "master.cfg", "internal.cfg"]
@@ -34,6 +43,9 @@ ETC_FILES = ["ice.config", "master.cfg", "internal.cfg"]
 MISSING_CONFIGURATION_MSG = "Missing internal configuration."
 REWRITE_MSG = " Run bin/omero admin rewrite."
 FORCE_REWRITE_MSG = " Pass --force-rewrite to the command."
+OMERODIR = False
+if 'OMERODIR' in os.environ:
+    OMERODIR = os.environ.get('OMERODIR')
 
 
 @pytest.fixture(autouse=True)
@@ -44,19 +56,22 @@ def tmpadmindir(tmpdir):
     templates_dir = etc_dir.mkdir('templates')
     templates_dir.mkdir('grid')
 
-    old_etc_dir = path() / ".." / ".." / ".." / "etc"
-    old_templates_dir = old_etc_dir / "templates"
-    for f in glob(old_etc_dir / "*.properties"):
+    # Need to know where to find OMERO
+    assert 'OMERODIR' in os.environ
+    old_etc_dir = os.path.join(OMERODIR, "..", "etc")
+    old_templates_dir = os.path.join(old_etc_dir, "templates")
+    for f in glob(os.path.join(old_etc_dir, "*.properties")):
         path(f).copy(path(etc_dir))
-    for f in glob(old_templates_dir / "*.cfg"):
+    for f in glob(os.path.join(old_templates_dir, "*.cfg")):
         path(f).copy(path(templates_dir))
-    for f in glob(old_templates_dir / "grid" / "*.xml"):
-        path(f).copy(path(templates_dir / "grid"))
-    path(old_templates_dir / "ice.config").copy(path(templates_dir))
+    for f in glob(os.path.join(old_templates_dir, "grid", "*.xml")):
+        path(f).copy(path(old_div(templates_dir, "grid")))
+    path(os.path.join(old_templates_dir, "ice.config")).copy(path(templates_dir))
 
     return path(tmpdir)
 
 
+@pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestAdmin(object):
 
     @pytest.fixture(autouse=True)
@@ -199,7 +214,7 @@ class TestAdmin(object):
 
         self.invoke("admin rewrite")
 
-        ice_config = tmpdir / 'ice.config'
+        ice_config = old_div(tmpdir, 'ice.config')
         ice_config.write('omero.host=localhost\nomero.port=4064')
         monkeypatch.setenv("ICE_CONFIG", ice_config)
 
@@ -226,13 +241,13 @@ class TestAdmin(object):
 
 def check_registry(topdir, prefix='', registry=4061, **kwargs):
     for key in ['master.cfg', 'internal.cfg']:
-        s = path(topdir / "etc" / key).text()
+        s = path(old_div(topdir, "etc" / key)).text()
         assert 'tcp -h 127.0.0.1 -p %s%s' % (prefix, registry) in s
 
 
 def check_ice_config(topdir, prefix='', ssl=4064, **kwargs):
-    config_text = path(topdir / "etc" / "ice.config").text()
-    pattern = re.compile('^omero.port=\d+$', re.MULTILINE)
+    config_text = path(old_div(topdir, "etc" / "ice.config")).text()
+    pattern = re.compile(r'^omero.port=\d+$', re.MULTILINE)
     matches = pattern.findall(config_text)
     assert matches == ["omero.port=%s%s" % (prefix, ssl)]
 
@@ -259,19 +274,20 @@ def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, ws=4065, wss=4066,
 
     client_endpoints = 'client-endpoints="%s"' % ':'.join(client_endpoint_list)
     for key in ['default.xml', 'windefault.xml']:
-        s = path(topdir / "etc" / "grid" / key).text()
+        s = path(old_div(topdir, "etc" / "grid" / key)).text()
         assert routerport in s
         assert insecure_routerport in s
         assert client_endpoints in s
 
 
 def check_templates_xml(topdir, glacier2props):
-    s = path(topdir / "etc" / "grid" / "templates.xml").text()
+    s = path(old_div(topdir, "etc" / "grid" / "templates.xml")).text()
     for k, v in glacier2props:
         expected = '<property name="%s" value="%s" />' % (k, v)
         assert expected in s
 
 
+@pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestJvmCfg(object):
     """Test template files regeneration"""
 
@@ -288,16 +304,16 @@ class TestJvmCfg(object):
 
         # Test non-existence of configuration files
         for f in GRID_FILES:
-            assert not os.path.exists(path(self.cli.dir) / "etc" / "grid" / f)
+            assert not os.path.exists(old_div(path(self.cli.dir), "etc" / "grid" / f))
         for f in ETC_FILES:
-            assert not os.path.exists(path(self.cli.dir) / "etc" / f)
+            assert not os.path.exists(old_div(path(self.cli.dir), "etc" / f))
 
         # Call the jvmcf command and test file genearation
         self.cli.invoke(self.args, strict=True)
         for f in GRID_FILES:
-            assert not os.path.exists(path(self.cli.dir) / "etc" / "grid" / f)
+            assert not os.path.exists(old_div(path(self.cli.dir), "etc" / "grid" / f))
         for f in ETC_FILES:
-            assert not os.path.exists(path(self.cli.dir) / "etc" / f)
+            assert not os.path.exists(old_div(path(self.cli.dir), "etc" / f))
 
     @pytest.mark.parametrize(
         'suffix', ['', '.blitz', '.indexer', '.pixeldata', '.repository'])
@@ -310,6 +326,7 @@ class TestJvmCfg(object):
             self.cli.invoke(self.args, strict=True)
 
 
+@pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestRewrite(object):
     """Test template files regeneration"""
 
@@ -326,16 +343,16 @@ class TestRewrite(object):
 
         # Test non-existence of configuration files
         for f in GRID_FILES:
-            assert not os.path.exists(path(self.cli.dir) / "etc" / "grid" / f)
+            assert not os.path.exists(old_div(path(self.cli.dir), "etc" / "grid" / f))
         for f in ETC_FILES:
-            assert not os.path.exists(path(self.cli.dir) / "etc" / f)
+            assert not os.path.exists(old_div(path(self.cli.dir), "etc" / f))
 
         # Call the jvmcf command and test file genearation
         self.cli.invoke(self.args, strict=True)
         for f in GRID_FILES:
-            assert os.path.exists(path(self.cli.dir) / "etc" / "grid" / f)
+            assert os.path.exists(old_div(path(self.cli.dir), "etc" / "grid" / f))
         for f in ETC_FILES:
-            assert os.path.exists(path(self.cli.dir) / "etc" / f)
+            assert os.path.exists(old_div(path(self.cli.dir), "etc" / f))
 
     def testForceRewrite(self, monkeypatch):
         """Test template regeneration while the server is running"""
@@ -347,10 +364,10 @@ class TestRewrite(object):
             self.cli.invoke(self.args, strict=True)
 
     def testOldTemplates(self):
-        old_templates = path(__file__).dirname() / ".." / "old_templates.xml"
+        old_templates = old_div(path(__file__).dirname(), ".." / "old_templates.xml")
         old_templates.copy(
-            path(self.cli.dir) / "etc" / "templates" / "grid" /
-            "templates.xml")
+            old_div(path(self.cli.dir), "etc" / "templates" / "grid" /
+            "templates.xml"))
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
@@ -386,7 +403,7 @@ class TestRewrite(object):
             kwargs["ws"] = ws
         if wss:
             kwargs["wss"] = wss
-        for (k, v) in kwargs.iteritems():
+        for (k, v) in list(kwargs.items()):
             self.cli.invoke(
                 ["config", "set", "omero.ports.%s" % k, "%s" % v],
                 strict=True)

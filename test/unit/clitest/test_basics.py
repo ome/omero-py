@@ -20,13 +20,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+from builtins import object
 import pytest
 from omero.cli import CLI
 
 cli = CLI()
 cli.loadplugins()
-commands = cli.controls.keys()
-topics = cli.topics.keys()
+commands = list(cli.controls.keys())
+topics = list(cli.topics.keys())
 
 
 class TestBasics(object):

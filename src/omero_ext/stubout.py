@@ -15,10 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from builtins import object
 import inspect
 
 
-class StubOutForTesting:
+class StubOutForTesting(object):
   """Sample Usage:
      You want os.path.exists() to always return true during testing.
 
@@ -61,7 +62,7 @@ class StubOutForTesting:
        Raises AttributeError if the attribute cannot be found.
     """
     if (inspect.ismodule(obj) or
-        (not inspect.isclass(obj) and obj.__dict__.has_key(attr_name))):
+        (not inspect.isclass(obj) and attr_name in obj.__dict__)):
       orig_obj = obj
       orig_attr = getattr(obj, attr_name)
 

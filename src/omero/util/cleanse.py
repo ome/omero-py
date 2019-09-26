@@ -3,6 +3,7 @@
 """
 Reconcile and cleanse where necessary an OMERO data directory of orphaned data.
 """
+from __future__ import print_function
 
 #
 #  Copyright (c) 2009-2016 University of Dundee. All rights reserved.
@@ -28,6 +29,8 @@ Reconcile and cleanse where necessary an OMERO data directory of orphaned data.
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 
+from builtins import range
+from builtins import object
 import omero.clients
 import omero
 import sys
@@ -57,7 +60,7 @@ def usage(error):
     Prints usage so that we don't have to. :)
     """
     cmd = sys.argv[0]
-    print """%s
+    print("""%s
 Usage: %s [--dry-run] [-u username | -k] <omero.data.dir>
 Cleanses files in the OMERO data directory that have no reference in the
 OMERO database. NOTE: As this script is designed to be run via cron or in
@@ -72,7 +75,7 @@ Examples:
   %s --dry-run -u root /OMERO
 
 Report bugs to OME Users <ome-users@lists.openmicroscopy.org.uk>""" % \
-        (error, cmd, cmd)
+        (error, cmd, cmd))
     sys.exit(2)
 
 
@@ -133,17 +136,17 @@ class Cleanser(object):
         for path in self.deferred_paths:
             file_name = split(path)[1]
             try:
-                object_id = omero.rtypes.rlong(long(file_name))
+                object_id = omero.rtypes.rlong(int(file_name))
             except ValueError:
                 try:
                     file_name.index(self.PYRAMID_FILE)
                     id_part = file_name.split("_")[0]
                     if file_name.endswith(self.PYRAMID_FILE):
-                        object_id = omero.rtypes.rlong(long(id_part))
+                        object_id = omero.rtypes.rlong(int(id_part))
                     elif (file_name.endswith(self.PYRAMID_LOCK)
                             or file_name.endswith(self.PYRAMID_TEMP)):
                         object_id = omero.rtypes.rlong(
-                            long(id_part.lstrip('.')))
+                            int(id_part.lstrip('.')))
                     else:
                         object_id = omero.rtypes.rlong(-1)
                 except ValueError:
@@ -162,20 +165,20 @@ class Cleanser(object):
             if object_id.val not in existing_ids:
                 if object_id.val == -1:
                     if self.dry_run:
-                        print "   \_ %s (ignored/keep)" % path
+                        print("   \_ %s (ignored/keep)" % path)
                 else:
                     size = os.stat(path)[ST_SIZE]
                     self.cleansed.append(path)
                     self.bytes_cleansed = size
                     if self.dry_run:
-                        print "   \_ %s (remove)" % path
+                        print("   \_ %s (remove)" % path)
                     else:
                         try:
                             os.unlink(path)
-                        except OSError, e:
-                            print e
+                        except OSError as e:
+                            print(e)
             elif self.dry_run:
-                print "   \_ %s (keep)" % path
+                print("   \_ %s (keep)" % path)
         self.deferred_paths = list()
 
     def finalize(self):
@@ -212,7 +215,7 @@ def initial_check(config_service, admin_service=None):
     server_version = config_service.getVersion()
     server_tuple = tuple([int(x) for x in server_version.split(".")])
     if server_tuple < (4, 2, 1):
-        print "Server version is too old! (%s) Aborting..." % server_version
+        print("Server version is too old! (%s) Aborting..." % server_version)
         sys.exit(3)
 
 
@@ -230,10 +233,10 @@ def cleanse(data_dir, client, dry_run=False):
         for directory in SEARCH_DIRECTORIES:
             full_path = os.path.join(data_dir, directory)
             if not os.path.exists(full_path):
-                print "%s does not exist. Skipping..." % full_path
+                print("%s does not exist. Skipping..." % full_path)
                 continue
             if dry_run:
-                print "Reconciling OMERO data directory...\n %s" % full_path
+                print("Reconciling OMERO data directory...\n %s" % full_path)
             object_type = SEARCH_DIRECTORIES[directory]
             cleanser = Cleanser(query_service, object_type)
             cleanser.dry_run = dry_run
@@ -241,13 +244,13 @@ def cleanse(data_dir, client, dry_run=False):
             cleanser.finalize()
     finally:
         if dry_run:
-            print cleanser
+            print(cleanser)
 
     # delete empty directories from the managed repositories
     proxy, description = client.getManagedRepository(description=True)
     if proxy:
         root = description.path.val + description.name.val
-        print "Removing empty directories from...\n %s" % root
+        print("Removing empty directories from...\n %s" % root)
         delete_empty_dirs(proxy, root, client, dry_run)
 
 
@@ -260,7 +263,7 @@ def delete_empty_dirs(repo, root, client, dry_run):
 
     if dry_run:
         for directory in to_delete:
-            print "   \_ %s%s (remove)" % (root, directory)
+            print("   \_ %s%s (remove)" % (root, directory))
     elif to_delete:
         # probably less than a screenful
         batch_size = 20
@@ -268,11 +271,11 @@ def delete_empty_dirs(repo, root, client, dry_run):
         for from_index in range(0, len(to_delete), batch_size):
             batch_to_delete = to_delete[from_index:from_index + batch_size]
             for directory in batch_to_delete:
-                print "Removing %s%s" % (root, directory)
+                print("Removing %s%s" % (root, directory))
             handle = repo.deletePaths(batch_to_delete, True, False)
             try:
                 client.waitOnCmd(handle, closehandle=True)
-            except omero.CmdError, ce:
+            except omero.CmdError as ce:
                 if isinstance(ce.err, omero.cmd.GraphException):
                     raise Exception("failed delete: " + ce.err.message)
                 else:
@@ -326,9 +329,9 @@ def fixpyramids(data_dir, query_service,
 
                 if delete_pyramid:
                     if dry_run:
-                        print "Would remove %s" % f
+                        print("Would remove %s" % f)
                     else:
-                        print "Removing %s" % f
+                        print("Removing %s" % f)
                         os.remove(pixels_file)
 
 
@@ -339,12 +342,12 @@ def removepyramids(client, little_endian=None, dry_run=False,
     config_service = client.sf.getConfigService()
 
     initial_check(config_service, admin_service)
-    value = long(limit)
+    value = int(limit)
     # If the default limit is changed, please update the help
     # in admin.py
     if value > 500 or value <= 0:
-        value = long(500)
-    print "No more than %s pyramids will be removed" % value
+        value = int(500)
+    print("No more than %s pyramids will be removed" % value)
     # look for any pyramid files with the specified endianness
     # the pyramid file will be removed
     request = omero.cmd.FindPyramids()
@@ -361,21 +364,21 @@ def removepyramids(client, little_endian=None, dry_run=False,
                            failonerror=True,
                            failontimeout=True)
         rsp = cb.getResponse()
-    except omero.CmdError, ce:
-        print "Failed to load pyramids: %s" % ce.err.name
+    except omero.CmdError as ce:
+        print("Failed to load pyramids: %s" % ce.err.name)
         return
     finally:
         if cb:
             cb.close(True)
 
     if len(rsp.pyramidFiles) == 0:
-        print "No pyramids to remove"
+        print("No pyramids to remove")
         return
 
     for j in range(len(rsp.pyramidFiles)):
         image_id = rsp.pyramidFiles[j]
         if dry_run:
-            print "Would remove pyramid for image %s" % image_id
+            print("Would remove pyramid for image %s" % image_id)
         else:
             req = omero.cmd.ManageImageBinaries()
             req.imageId = image_id
@@ -385,16 +388,16 @@ def removepyramids(client, little_endian=None, dry_run=False,
                 cb = client.submit(req, loops=loops, ms=ms,
                                    failonerror=True,
                                    failontimeout=True)
-                print "Pyramid removed for image %s" % image_id
-            except omero.CmdError, ce:
-                print "Failed to remove for image %s: %s" % (
-                    image_id, ce.err.name)
+                print("Pyramid removed for image %s" % image_id)
+            except omero.CmdError as ce:
+                print("Failed to remove for image %s: %s" % (
+                    image_id, ce.err.name))
             finally:
                 if cb:
                     try:
                         cb.close(True)
                     except Ice.NotRegisteredException:
-                        print "Error closing callback for %s" % image_id
+                        print("Error closing callback for %s" % image_id)
 
 
 def main():
@@ -403,7 +406,8 @@ def main():
     """
     try:
         options, args = getopt(sys.argv[1:], "u:k:", ["dry-run"])
-    except GetoptError, (msg, opt):
+    except GetoptError as xxx_todo_changeme:
+        (msg, opt) = xxx_todo_changeme.args
         usage(msg)
 
     try:
@@ -423,7 +427,7 @@ def main():
             dry_run = True
 
     if session_key is None:
-        print "Username: %s" % username
+        print("Username: %s" % username)
         try:
             password = getpass.getpass()
         except KeyboardInterrupt:
@@ -437,8 +441,8 @@ def main():
         else:
             client.createSession(session_key)
     except PermissionDeniedException:
-        print "%s: Permission denied" % sys.argv[0]
-        print "Sorry."
+        print("%s: Permission denied" % sys.argv[0])
+        print("Sorry.")
         sys.exit(1)
 
     try:

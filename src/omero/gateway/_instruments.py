@@ -386,7 +386,7 @@ def LightSourceWrapper(conn, obj, **kwargs):
     :param obj:     omero.model object
     :return:        :class:`_LightSourceWrapper` subclass
     """
-    for k, v in _LightSourceClasses.items():
+    for k, v in list(_LightSourceClasses.items()):
         if isinstance(obj, k):
             return getattr(omero.gateway, v)(conn, obj, **kwargs)
     return None

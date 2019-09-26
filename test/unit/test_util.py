@@ -23,7 +23,12 @@
 """
 Test of various things under omero.util
 """
+from __future__ import division
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import json
 import pytest
 from path import path
@@ -204,9 +209,9 @@ class TestTempFileManager(object):
          'OMERO_TEMPDIR': 'tempdir',
          'OMERO_TMPDIR': 'tmpdir'}))
     def testTmpdirEnvironment(self, monkeypatch, tmpdir, environment):
-        for var in environment.keys():
+        for var in list(environment.keys()):
             if environment[var]:
-                monkeypatch.setenv(var, tmpdir / environment.get(var))
+                monkeypatch.setenv(var, old_div(tmpdir, environment.get(var)))
             else:
                 monkeypatch.delenv(var, raising=False)
 
@@ -214,7 +219,7 @@ class TestTempFileManager(object):
             pytest.deprecated_call(manager.tmpdir)
 
         if environment.get('OMERO_TMPDIR'):
-            tdir = tmpdir / environment.get('OMERO_TMPDIR')
+            tdir = old_div(tmpdir, environment.get('OMERO_TMPDIR'))
         elif environment.get('OMERO_TEMPDIR'):
             tdir = tmpdir / environment.get('OMERO_TEMPDIR') / "omero" / "tmp"
         elif environment.get('OMERO_USERDIR'):
@@ -228,7 +233,7 @@ class TestTempFileManager(object):
 
         monkeypatch.setenv('OMERO_TEMPDIR', tmpdir)
         monkeypatch.delenv('OMERO_USERDIR', raising=False)
-        tmpfile = tmpdir / 'omero'
+        tmpfile = old_div(tmpdir, 'omero')
         tmpfile.write('')
 
         assert manager.tmpdir() == path(get_user_dir()) / "omero" / "tmp"
@@ -237,9 +242,9 @@ class TestTempFileManager(object):
 
         monkeypatch.setenv('OMERO_TEMPDIR', tmpdir)
         monkeypatch.delenv('OMERO_USERDIR', raising=False)
-        tempdir = tmpdir / 'omero'
+        tempdir = old_div(tmpdir, 'omero')
         tempdir.mkdir()
-        tmpfile = tempdir / 'tmp'
+        tmpfile = old_div(tempdir, 'tmp')
         tmpfile.write('')
 
         assert manager.tmpdir() == path(get_user_dir()) / "omero" / "tmp"

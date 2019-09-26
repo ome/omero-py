@@ -8,7 +8,12 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import unicode_literals
+from __future__ import division
 
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import os
 import sys
 import pytest
@@ -22,7 +27,7 @@ from omero.util.sessions import SessionsStore
 from omero.util.temp_files import create_path
 from omero.plugins.sessions import SessionsControl
 
-omeroDir = path(os.getcwd()) / "build"
+omeroDir = old_div(path(os.getcwd()), "build")
 
 testsess = "testsess"
 testuser = "testuser"
@@ -217,9 +222,9 @@ class TestStore(object):
         session_dir = tmpdir
 
         # Using last_* methods
-        assert (session_dir / "._LASTHOST_").exists()
+        assert (old_div(session_dir, "._LASTHOST_")).exists()
         assert "srv" == s.last_host()
-        assert (session_dir / "._LASTPORT_").exists()
+        assert (old_div(session_dir, "._LASTPORT_")).exists()
         assert (port or '4064') == s.last_port()
 
         # Using helpers

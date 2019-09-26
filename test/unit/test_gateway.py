@@ -24,6 +24,7 @@
 Test of various things under omero.gateway
 """
 
+from builtins import object
 import Ice
 import pytest
 
@@ -55,11 +56,11 @@ class MockConnection(object):
 @pytest.fixture(scope='function')
 def wrapped_image():
     image = ImageI()
-    image.id = rlong(1L)
+    image.id = rlong(1)
     image.description = rstring('description')
     image.name = rstring('name')
     image.acquisitionDate = rtime(1000)  # In milliseconds
-    image.details.owner = ExperimenterI(1L, False)
+    image.details.owner = ExperimenterI(1, False)
     creation_event = EventI()
     creation_event.time = rtime(2000)  # In milliseconds
     image.details.creationEvent = creation_event
@@ -98,7 +99,7 @@ class TestBlitzGatewayImageWrapper(object):
         assert data['author'] == 'first_name last_name'
         assert data['date'] == 1.0  # In seconds
         assert data['type'] == 'Image'
-        assert data['id'] == 1L
+        assert data['id'] == 1
         assert data['name'] == 'name'
 
     def test_simple_marshal(self, wrapped_image):

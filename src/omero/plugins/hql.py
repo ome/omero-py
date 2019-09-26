@@ -10,7 +10,11 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 from omero.cli import BaseControl, CLI
 import time
 import sys
@@ -110,7 +114,7 @@ To quit, enter 'q' or just enter.
                 self.display(rv, style=args.style, idsonly=args.ids_only)
             else:
                 try:
-                    id = long(id)
+                    id = int(id)
                     obj = rv[id]
                     if id not in has_details:
                         self.ctx.out("No details available: %s" % id)
@@ -127,7 +131,7 @@ To quit, enter 'q' or just enter.
                 self.ctx.out("id = %s" % obj.id.val)
                 for key in keys:
                     value = self.unwrap(obj.__dict__[key])
-                    if isinstance(value, (str, unicode)):
+                    if isinstance(value, str):
                         value = "'%s'" % value
                     if key.startswith("_"):
                         key = key[1:]
@@ -156,14 +160,14 @@ To quit, enter 'q' or just enter.
                     tb.cols(["Class", "Id"])
                     klass = o.__class__.__name__
                     id = o.id.val
-                    for k, v in o.__dict__.items():
+                    for k, v in list(o.__dict__.items()):
                         values[k] = self.unwrap(v)
                     values = self.filter(values)
-                    tb.cols(values.keys())
+                    tb.cols(list(values.keys()))
                 tb.row(idx, klass, id, **values)
             # Handling for true projections
             else:
-                indices = range(1, len(object_list) + 1)
+                indices = list(range(1, len(object_list) + 1))
                 if cols is not None:
                     tb.cols(cols)
                 else:
@@ -192,7 +196,7 @@ To quit, enter 'q' or just enter.
         if isinstance(unwrapped, IObject):
             rv = "%s:%s" % (unwrapped.__class__.__name__, unwrapped.id.val)
         elif isinstance(object, RTimeI):
-            rv = time.ctime(unwrapped/1000.0)
+            rv = time.ctime(old_div(unwrapped,1000.0))
         elif isinstance(object, Details):
             owner = None
             group = None
@@ -237,7 +241,7 @@ To quit, enter 'q' or just enter.
                 values.pop(x)
 
         rv = dict()
-        for k, v in values.items():
+        for k, v in list(values.items()):
             if k.startswith("_"):
                 rv[k[1:]] = v
             else:
@@ -250,12 +254,12 @@ To quit, enter 'q' or just enter.
             rv = querySvc.projection(queryStr, params, ice_map)
             self.ctx.set("last.hql.rv", rv)
             return rv
-        except omero.SecurityViolation, sv:
+        except omero.SecurityViolation as sv:
             if "omero.group" in ice_map:
                 self.raise_error("NOT_ADMIN")
             else:
                 self.ctx.die(54, "SecurityViolation: %s" % sv)
-        except omero.QueryException, qe:
+        except omero.QueryException as qe:
             self.ctx.set("last.hql.rv", [])
             self.raise_error("BAD_QUERY", qe.message)
 

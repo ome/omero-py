@@ -1,3 +1,6 @@
+from __future__ import division
+from past.utils import old_div
+
 from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
@@ -150,11 +153,11 @@ ScreenWrapper = _ScreenWrapper
 def _letterGridLabel(i):
     """  Convert number to letter label. E.g. 0 -> 'A' and 100 -> 'CW'  """
     r = chr(ord('A') + i % 26)
-    i = i/26
+    i = old_div(i,26)
     while i > 0:
         i -= 1
         r = chr(ord('A') + i % 26) + r
-        i = i/26
+        i = old_div(i,26)
     return r
 
 
@@ -254,7 +257,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             for well in q.findAllByQuery(
                     query, params, self._conn.SERVICE_OPTS):
                 self._childcache[(well.row.val, well.column.val)] = well
-        return self._childcache.values()
+        return list(self._childcache.values())
 
     def countChildren(self):
         return len(self._listChildren())
@@ -315,7 +318,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             return [_letterGridLabel(x)
                     for x in range(self.getGridSize()['columns'])]
         else:
-            return range(1, self.getGridSize()['columns']+1)
+            return list(range(1, self.getGridSize()['columns']+1))
 
     def getRowLabels(self):
         """
@@ -324,7 +327,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         if (self.rowNamingConvention and
                 self.rowNamingConvention.lower() == 'number'):
-            return range(1, self.getGridSize()['rows']+1)
+            return list(range(1, self.getGridSize()['rows']+1))
         else:
             # this should simply be precalculated!
             return [_letterGridLabel(x)
@@ -422,8 +425,8 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
         if name is None:
             if self.startTime is not None and self.endTime is not None:
                 name = "%s - %s" % (
-                    datetime.fromtimestamp(self.startTime/1000),
-                    datetime.fromtimestamp(self.endTime/1000))
+                    datetime.fromtimestamp(old_div(self.startTime, 1000)),
+                    datetime.fromtimestamp(old_div(self.endTime, 1000)))
             else:
                 name = "Run %i" % self.id
         return name
@@ -442,12 +445,12 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
     def getStartTime(self):
         """Get the StartTime as a datetime object or None if not set."""
         if self.startTime:
-            return datetime.fromtimestamp(self.startTime/1000)
+            return datetime.fromtimestamp(old_div(self.startTime, 1000))
 
     def getEndTime(self):
         """Get the EndTime as a datetime object or None if not set."""
         if self.endTime:
-            return datetime.fromtimestamp(self.endTime/1000)
+            return datetime.fromtimestamp(old_div(self.endTime, 1000))
 
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
 

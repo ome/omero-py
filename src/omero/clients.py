@@ -6,7 +6,11 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import print_function
 
+from builtins import zip
+from builtins import range
+from builtins import object
 __save__ = __name__
 __name__ = 'omero'
 try:
@@ -30,6 +34,11 @@ import uuid
 
 IceImport.load("Glacier2_Router_ice")
 import Glacier2
+
+
+if sys.version_info >= (3, 0, 0):
+    # Keep str behavior on Python 2
+    from builtins import str
 
 
 class BaseClient(object):
@@ -116,7 +125,7 @@ class BaseClient(object):
             # See ticket:5516 To prevent issues on systems where the base
             # class of path.path is unicode, we will encode all unicode
             # strings here.
-            args = [arg.encode("utf-8") if isinstance(arg, unicode)
+            args = [arg.encode("utf-8") if isinstance(arg, str)
                     else arg for arg in args]
 
         # hosturl overrides all other args
@@ -128,6 +137,8 @@ class BaseClient(object):
             host = None
             port = hosturl['port']
             args.append(self._get_endpoint_from_hosturl(hosturl))
+
+        args = [str(x) for x in args]
 
         # Equiv to multiple constructors. #######################
         if id is None:
@@ -146,7 +157,7 @@ class BaseClient(object):
                 "omero.port", str(omero.constants.GLACIER2PORT))
         id.properties.setProperty("omero.port", str(port))
         if pmap:
-            for k, v in pmap.items():
+            for k, v in list(pmap.items()):
                 id.properties.setProperty(str(k), str(v))
 
         self._initData(id)
@@ -267,7 +278,7 @@ class BaseClient(object):
             keys = list(m.keys())
             keys.sort()
             for key in keys:
-                print "%s=%s" % (key, m[key])
+                print("%s=%s" % (key, m[key]))
 
         self.__lock.acquire()
         try:
@@ -285,10 +296,13 @@ class BaseClient(object):
                 raise omero.ClientError("Improper initialization")
 
             # Register Object Factory
-            import ObjectFactoryRegistrar as ofr
+            try:
+                import ObjectFactoryRegistrar as ofr
+            except ModuleNotFoundError:
+                from . import ObjectFactoryRegistrar as ofr
             ofr.registerObjectFactory(self.__ic, self)
 
-            for of in omero.rtypes.ObjectFactories.values():
+            for of in list(omero.rtypes.ObjectFactories.values()):
                 of.register(self.__ic)
 
             # Define our unique identifier (used during close/detach)
@@ -320,10 +334,10 @@ class BaseClient(object):
             return {}
 
         hostmatch = re.match(
-            '(?P<protocol>\\w+)://'
-            '(?P<server>[^:/]+)'
-            '(:(?P<port>\\d+))?'
-            '(?P<path>/.*)?$',
+            r'(?P<protocol>\\w+)://'
+            r'(?P<server>[^:/]+)'
+            r'(:(?P<port>\\d+))?'
+            r'(?P<path>/.*)?$',
             host)
 
         if hostmatch:
@@ -429,7 +443,7 @@ class BaseClient(object):
         """
         try:
             self.closeSession()
-        except Exception, e:
+        except Exception as e:
             # It is perfectly normal for the session to have been closed
             # before garbage collection
             # though for some reason I can't match this exception with the
@@ -549,7 +563,7 @@ class BaseClient(object):
 
         rv = dict()
         for prefix in ["omero", "Ice"]:
-            for k, v in properties.getPropertiesForPrefix(prefix).items():
+            for k, v in list(properties.getPropertiesForPrefix(prefix).items()):
                 rv[k] = v
         return rv
 
@@ -643,12 +657,12 @@ class BaseClient(object):
                     self.__oa.add(self.__cb, id)
 
                     break
-                except omero.WrappedCreateSessionException, wrapped:
+                except omero.WrappedCreateSessionException as wrapped:
                     if not wrapped.concurrency:
                         raise wrapped  # We only retry concurrency issues.
                     reason = "%s:%s" % (wrapped.type, wrapped.reason)
                     retries = retries + 1
-                except Ice.ConnectTimeoutException, cte:
+                except Ice.ConnectTimeoutException as cte:
                     reason = "Ice.ConnectTimeoutException:%s" % str(cte)
                     retries = retries + 1
 
@@ -743,7 +757,7 @@ class BaseClient(object):
             if seconds > 0:
                 self.__resources = omero.util.Resources(seconds)
 
-                class Entry:
+                class Entry(object):
                     def __init__(self, c):
                         self.c = c
 
@@ -780,7 +794,7 @@ class BaseClient(object):
 
     def getManagedRepository(self, description=False):
         repos = self.getSession().sharedResources().repositories()
-        repoMap = zip(repos.proxies, repos.descriptions)
+        repoMap = list(zip(repos.proxies, repos.descriptions))
         prx = None
         for (prx, desc) in repoMap:
             if not prx:
@@ -841,7 +855,7 @@ class BaseClient(object):
 
         import os
         import types
-        if not filename or not isinstance(filename, types.StringType):
+        if not filename or not isinstance(filename, bytes):
             raise omero.ClientError("Non-null filename must be provided")
 
         if not os.path.exists(filename):
@@ -1023,7 +1037,7 @@ class BaseClient(object):
 
             try:
                 self.stopKeepAlive()
-            except Exception, e:
+            except Exception as e:
                 self.__logger.warning(
                     "While cleaning up resources: " + str(e))
 
@@ -1042,7 +1056,7 @@ class BaseClient(object):
             if oldOa:
                 try:
                     oldOa.deactivate()
-                except Exception, e:
+                except Exception as e:
                     self.__logger.warning(
                         "While deactivating adapter: " + str(e.message))
 
@@ -1133,7 +1147,7 @@ class BaseClient(object):
         u = self.getSessionId()
         s = session.getSessionService()
         m = getattr(s, method)
-        rv = apply(m, (u,)+args)
+        rv = m(*(u,)+args)
         if callable(_unwrap):
             rv = _unwrap(rv)  # Passed in function
         elif _unwrap:
@@ -1253,7 +1267,7 @@ class BaseClient(object):
         def _closeSession(self):
             try:
                 self.oa.deactivate()
-            except Exception, e:
+            except Exception as e:
                 sys.err.write("On session closed: " + str(e))
 
         def __init__(self, ic, oa, id):
@@ -1272,7 +1286,7 @@ class BaseClient(object):
                 try:
                     self.ic.getLogger().error("Error performing %s" % action)
                 except:
-                    print "Error performing %s" % action
+                    print("Error performing %s" % action)
 
         def requestHeartbeat(self, current=None):
             self.execute(self.onHeartbeat, "heartbeat")
