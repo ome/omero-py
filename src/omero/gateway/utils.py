@@ -24,6 +24,7 @@
 #
 
 from builtins import str
+from future.utils import native_str
 from past.builtins import basestring
 from builtins import object
 import logging
@@ -87,7 +88,7 @@ class ServiceOptsDict(dict):
     def __setitem__(self, key, item):
         """Set key to value as string."""
         if self._testItem(item):
-            super(ServiceOptsDict, self).__setitem__(key, str(item))
+            super(ServiceOptsDict, self).__setitem__(key, native_str(item))
             logger.debug("Setting %r to %r" % (key, item))
         else:
             raise AttributeError(
