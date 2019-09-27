@@ -25,6 +25,7 @@
 
 import logging
 import json
+from future.utils import native_str
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +79,7 @@ class ServiceOptsDict(dict):
     def __setitem__(self, key, item):
         """Set key to value as string."""
         if self._testItem(item):
-            super(ServiceOptsDict, self).__setitem__(key, str(item))
+            super(ServiceOptsDict, self).__setitem__(key, native_str(item))
             logger.debug("Setting %r to %r" % (key, item))
         else:
             raise AttributeError(
