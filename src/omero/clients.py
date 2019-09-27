@@ -32,6 +32,8 @@ import re
 import ssl
 import uuid
 
+from past.builtins import basestring
+
 IceImport.load("Glacier2_Router_ice")
 import Glacier2
 
@@ -169,7 +171,7 @@ class BaseClient(object):
         This allows for simplified usage without parameter
         names.
         """
-        types = [list, Ice.InitializationData, str, int, dict]
+        types = [list, Ice.InitializationData, basestring, int, dict]
         original = [args, id, host, port, pmap]
         repaired = [None, None, None, None, None]
 
