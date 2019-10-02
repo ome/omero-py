@@ -20,6 +20,7 @@ standard_library.install_aliases()
 from builtins import chr
 from builtins import map
 from builtins import str
+from future.utils import native_str
 from builtins import range
 from past.builtins import basestring
 from past.utils import old_div
@@ -4884,7 +4885,7 @@ class ProxyObjectWrapper (object):
             try:
                 logger.debug("## - refreshing %s" %
                              (self._func_str or self._service_name))
-                obj = conn.c.ic.stringToProxy(str(self._obj))
+                obj = conn.c.ic.stringToProxy(native_str(self._obj))
                 self._obj = self._obj.checkedCast(obj)
             except Ice.ObjectNotExistException:
                 self._obj = None
