@@ -45,6 +45,7 @@ except ImportError:
 
 from datetime import datetime
 from io import StringIO
+from io import BytesIO
 
 try:
     import configparser
@@ -8366,7 +8367,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         elif len(size) == 2:
             w, h = size
         img = img.resize((w, h), Image.NEAREST)
-        rv = StringIO()
+        rv = BytesIO()
         img.save(rv, 'jpeg', quality=70)
         return rv.getvalue()
 
@@ -9119,10 +9120,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 size = (int(size), int(height * ratio))
             else:
                 size = (int(width * ratio), int(size))
-            jpeg_data = Image.open(StringIO(jpeg_data))
+            jpeg_data = Image.open(BytesIO(jpeg_data))
             jpeg_data.thumbnail(size, Image.ANTIALIAS)
             ImageDraw.Draw(jpeg_data)
-            f = StringIO()
+            f = BytesIO()
             jpeg_data.save(f, "JPEG")
             f.seek(0)
             return f.read()
@@ -9474,7 +9475,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         rv = self.renderJpeg(z, t, compression)
         if rv is not None:
-            i = StringIO(rv)
+            i = BytesIO(rv)
             rv = Image.open(i)
         return rv
 
@@ -9491,7 +9492,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
 
         img = self.renderSplitChannelImage(z, t, compression, border)
-        rv = StringIO()
+        rv = BytesIO()
         img.save(rv, 'jpeg', quality=int(compression*100))
         return rv.getvalue()
 
@@ -9719,7 +9720,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     width=linewidth)
                 last_point = chcol[i]
         del draw
-        out = StringIO()
+        out = BytesIO()
         im.save(out, format="gif", transparency=0)
         return out.getvalue()
 
