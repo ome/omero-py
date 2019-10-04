@@ -687,7 +687,7 @@ class ITest(object):
             else:
                 user = admin.getExperimenter(user.id.val)
                 name = user.omeName.val
-        elif isinstance(user, str):
+        elif isinstance(user, basestring):
             name = user
             user = admin.lookupExperimenter(name)
         elif isinstance(user, ExperimenterGroup):
