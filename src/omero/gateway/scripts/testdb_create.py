@@ -16,6 +16,7 @@ from builtins import str
 from builtins import range
 from builtins import object
 from io import StringIO
+from io import BytesIO
 import omero
 from omero.rtypes import rstring
 
@@ -289,7 +290,7 @@ class TestDBHelper(object):
         @param content:     String containing the content of the file
         @return:            OriginalFileWrapper
         """
-        sio = StringIO(content)
+        sio = BytesIO(content)
         f = self.gateway.createOriginalFileFromFileObj(
             sio, parentpath, filename, len(content))
         return f
