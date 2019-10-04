@@ -28,6 +28,7 @@ from __future__ import print_function
 
 from builtins import str
 from future.utils import native_str
+from past.builtins import basestring
 from builtins import range
 from past.utils import old_div
 from builtins import object
@@ -659,7 +660,7 @@ class ITest(object):
             else:
                 group = admin.getGroup(group.id.val)
                 name = group.name.val
-        elif isinstance(group, str):
+        elif isinstance(group, basestring):
             name = group
             group = admin.lookupGroup(name)
         elif isinstance(group, Experimenter):
