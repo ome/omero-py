@@ -27,6 +27,7 @@ from __future__ import division
 from __future__ import print_function
 
 from builtins import str
+from future.utils import native_str
 from builtins import range
 from past.utils import old_div
 from builtins import object
@@ -840,7 +841,7 @@ class ITest(object):
 
         sf = client.sf
         if omero_group is not None:
-            prx = sf.submit(request, {'omero.group': str(omero_group)})
+            prx = sf.submit(request, {'omero.group': native_str(omero_group)})
         else:
             prx = sf.submit(request)
 
