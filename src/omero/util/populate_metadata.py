@@ -30,6 +30,7 @@ from builtins import chr
 from builtins import str
 from builtins import range
 from past.builtins import basestring
+from future.utils import native_str
 from builtins import object
 import logging
 import gzip
@@ -996,7 +997,7 @@ class ParsingContext(object):
         sr = sf.sharedResources()
         update_service = sf.getUpdateService()
         name = 'bulk_annotations'
-        table = sr.newTable(1, name, {'omero.group': group})
+        table = sr.newTable(1, name, {'omero.group': native_str(group)})
         if table is None:
             raise MetadataError(
                 "Unable to create table: %s" % name)
