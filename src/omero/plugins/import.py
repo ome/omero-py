@@ -151,7 +151,7 @@ class CommandArguments(object):
         if len(key) == 1:
             arg_list.append("-"+key)
             if val != NO_ARG:
-                if isinstance(val, str):
+                if isinstance(val, basestring):
                     arg_list.append(val)
         else:
             key = key.replace("_", "-")
