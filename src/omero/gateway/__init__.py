@@ -9679,7 +9679,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     width=linewidth)
                 last_point = base-chrow[i]
         del draw
-        out = StringIO()
+        out = BytesIo()
         im.save(out, format="gif", transparency=0)
         return out.getvalue()
 
