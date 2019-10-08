@@ -8,7 +8,11 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
+from __future__ import division
 
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import os
 import errno
 import pytest
@@ -196,7 +200,7 @@ class TestConfig(object):
         p = create_path()
         config = ConfigXml(filename=str(p))
         m = config.as_map()
-        for k, v in m.items():
+        for k, v in list(m.items()):
             assert "5.1.0" == v
 
     def testOldVersionDetected(self):
@@ -300,20 +304,20 @@ class TestConfig(object):
 
     def testReadOnlyConfigSimple(self):
         p = create_path()
-        p.chmod(0444)  # r--r--r--
+        p.chmod(0o444)  # r--r--r--
         config = ConfigXml(filename=str(p), env_config=None)  # Must be None
         config.close()  # Shouldn't save
 
     def testReadOnlyConfigPassesOnExplicitReadOnly(self):
         p = create_path()
-        p.chmod(0444)  # r--r--r--
+        p.chmod(0o444)  # r--r--r--
         ConfigXml(filename=str(p),
                   env_config="default",
                   read_only=True).close()
 
     def testReadOnlyConfigFailsOnEnv1(self):
         p = create_path()
-        p.chmod(0444)  # r--r--r--
+        p.chmod(0o444)  # r--r--r--
         pytest.raises(Exception, ConfigXml, filename=str(p),
                       env_config="default")
 
@@ -322,7 +326,7 @@ class TestConfig(object):
         os.environ["OMERO_CONFIG"] = "default"
         try:
             p = create_path()
-            p.chmod(0444)  # r--r--r--
+            p.chmod(0o444)  # r--r--r--
             pytest.raises(Exception, ConfigXml, filename=str(p))
         finally:
             if old is None:
@@ -332,19 +336,19 @@ class TestConfig(object):
 
     def testCannotCreate(self):
         d = create_path(folder=True)
-        d.chmod(0555)
-        filename = str(d / "config.xml")
+        d.chmod(0o555)
+        filename = str(old_div(d, "config.xml"))
         with pytest.raises(IOError) as excinfo:
             ConfigXml(filename).close()
         assert excinfo.value.errno == errno.EACCES
 
     def testCannotCreateLock(self):
         d = create_path(folder=True)
-        filename = str(d / "config.xml")
+        filename = str(old_div(d, "config.xml"))
         lock_filename = "%s.lock" % filename
         with open(lock_filename, "w") as fo:
             fo.write("dummy\n")
-        os.chmod(lock_filename, 0444)
+        os.chmod(lock_filename, 0o444)
         with pytest.raises(IOError) as excinfo:
             ConfigXml(filename).close()
         assert excinfo.value.errno == errno.EACCES

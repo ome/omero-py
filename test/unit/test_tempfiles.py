@@ -8,7 +8,11 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
+from __future__ import division
 
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import logging
 logging.basicConfig(level=0)
 
@@ -59,7 +63,7 @@ class TestTemps(object):
 
     def testFolderWrite(self):
         p = self.testFolderSimple()
-        f = p / "file"
+        f = old_div(p, "file")
         f.write_text("hi")
         return p
 

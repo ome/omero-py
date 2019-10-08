@@ -69,7 +69,7 @@ class Type(omero.grid.Param):
         self.optional = optional
 
         # Assign all the kwargs
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             if not hasattr(self, k):
                 TYPE_LOG.warn("Unknown property: %s", k)
             setattr(self, k, v)
@@ -162,7 +162,7 @@ class Type(omero.grid.Param):
     def __get(self, val, func=True):
         if val is not None:
             if func:
-                return val.im_func
+                return val.__func__
             else:
                 return val
 
@@ -375,7 +375,7 @@ def client(*args, **kwargs):
         c.params.inputs = {}
         c.params.outputs = {}
 
-    for k, v in kwargs.items():
+    for k, v in list(kwargs.items()):
         if hasattr(c.params, k):
             setattr(c.params, k, v)
 
@@ -433,7 +433,7 @@ def parse_text(scriptText):
         finally:
             if old:
                 os.environ["ICE_CONFIG"] = old
-    except ParseExit, exit:
+    except ParseExit as exit:
         return exit.params
 
 
@@ -523,7 +523,7 @@ def parse_input(input_string, params):
         try:
             parts2 = val.split(":")
             kls = parts2[0]
-            _id = long(parts2[1])
+            _id = int(parts2[1])
             if not kls.endswith("I"):
                 kls = "%sI" % kls
             kls = getattr(omero.model, kls)
@@ -636,8 +636,8 @@ def compare_proto(key, proto, input, cache=None):
     # Now recurse if a collection type
     errors = ""
     if isinstance(proto, omero.RMap) and len(proto.val) > 0:
-        for x in input.val.values():
-            errors += compare_proto(key, proto.val.values()[0], x, cache)
+        for x in list(input.val.values()):
+            errors += compare_proto(key, list(proto.val.values())[0], x, cache)
     elif isinstance(proto, omero.RCollection) and len(proto.val) > 0:
         for x in input.val:
             errors += compare_proto(key, proto.val[0], x, cache)
@@ -650,7 +650,7 @@ def expand(input):
     elif isinstance(input, (list, tuple)):
         items = list(input)
     elif isinstance(input, dict):
-        items = input.values()
+        items = list(input.values())
     else:
         items = [input]
     return items
@@ -707,7 +707,7 @@ def validate_inputs(params, inputs, svc=None, session=None):
     errors.
     """
     errors = ""
-    for key, param in params.inputs.items():
+    for key, param in list(params.inputs.items()):
         if key not in inputs:
             if param.optional:
                 if param.useDefault and svc is not None:
@@ -729,7 +729,7 @@ def set_input(svc, session, key, value):
     try:
         svc.setInput(session, key, value)
         return ""
-    except Exception, e:
+    except Exception as e:
         return error_msg("Failed to set intput", key, "%s=%s. Error: %s", key,
                          value, e)
 

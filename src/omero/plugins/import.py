@@ -23,7 +23,13 @@
    Startup plugin for command-line importer.
 
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import str
+from past.utils import old_div
+from past.builtins import basestring
+from builtins import object
 import os
 import csv
 import sys
@@ -145,13 +151,13 @@ class CommandArguments(object):
         if len(key) == 1:
             arg_list.append("-"+key)
             if val != NO_ARG:
-                if isinstance(val, (str, unicode)):
+                if isinstance(val, basestring):
                     arg_list.append(val)
         else:
             key = key.replace("_", "-")
             if val == NO_ARG:
                 arg_list.append("--%s" % key)
-            elif isinstance(val, (str, unicode)):
+            elif isinstance(val, basestring):
                 arg_list.append(
                     "--%s=%s" % (key, val))
             else:
@@ -485,11 +491,11 @@ class ImportControl(BaseControl):
             client_dir = path(args.clientdir)
         else:
             client_dir = self.ctx.dir / "lib" / "client"
-        etc_dir = self.ctx.dir / "etc"
+        etc_dir = old_div(self.ctx.dir, "etc")
         if args.logback:
             xml_file = path(args.logback)
         else:
-            xml_file = etc_dir / "logback-cli.xml"
+            xml_file = old_div(etc_dir, "logback-cli.xml")
         logback = "-Dlogback.configurationFile=%s" % xml_file
 
         try:
@@ -575,7 +581,7 @@ class ImportControl(BaseControl):
                     else:
                         with open(command_args.dry_run % incr, "w") as o:
                             # FIXME: this assumes 'bin/omero'
-                            print >>o, sys.argv[0], "import", rv
+                            print(sys.argv[0], "import", rv, file=o)
                 else:
                     self.do_import(command_args, xargs)
                 if self.ctx.rv:

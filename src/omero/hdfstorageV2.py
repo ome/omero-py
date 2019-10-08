@@ -6,6 +6,10 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+from builtins import str
+from builtins import zip
+from builtins import range
+from builtins import object
 import time
 import numpy
 import logging
@@ -130,7 +134,7 @@ class HdfList(object):
                 hdffile.close()
                 raise
 
-        if fileno in self.__filenos.keys():
+        if fileno in list(self.__filenos.keys()):
             hdffile.close()
             raise omero.LockTimeout(
                 None, None, "File already opened by process: %s" % hdfpath, 0)
@@ -435,7 +439,7 @@ class HdfStorage(object):
                 val = rfloat(val)
             elif isinstance(val, int):
                 val = rint(val)
-            elif isinstance(val, long):
+            elif isinstance(val, int):
                 val = rlong(val)
             elif isinstance(val, str):
                 val = rstring(val)
@@ -458,7 +462,7 @@ class HdfStorage(object):
                 raise omero.ApiUsageException(None, None, msg)
 
             self.__initcheck()
-            for k, v in m.iteritems():
+            for k, v in m.items():
                 if internal_attr(k):
                     raise omero.ApiUsageException(
                         None, None, "Reserved attribute name: %s" % k)
@@ -475,7 +479,7 @@ class HdfStorage(object):
         if not m:
             return
 
-        for k, v in m.iteritems():
+        for k, v in m.items():
             # This uses the default pytables type conversion, which may
             # convert it to a numpy type or keep it as a native Python type
             attr[k] = unwrap(v)
@@ -500,7 +504,7 @@ class HdfStorage(object):
             col.append(self.__mea)  # Potential corruption !!!
 
         # Convert column-wise data to row-wise records
-        records = numpy.array(zip(*arrays), dtype=dtypes)
+        records = numpy.array(list(zip(*arrays)), dtype=dtypes)
 
         self.__mea.append(records)
 
@@ -524,7 +528,7 @@ class HdfStorage(object):
         try:
             return self.__mea.get_where_list(condition, variables, None,
                                              start, stop, step).tolist()
-        except (NameError, SyntaxError, TypeError, ValueError), err:
+        except (NameError, SyntaxError, TypeError, ValueError) as err:
             aue = omero.ApiUsageException()
             aue.message = "Bad condition: %s, %s" % (condition, variables)
             aue.serverStackTrace = "".join(traceback.format_exc())
@@ -539,7 +543,7 @@ class HdfStorage(object):
         data.columns = cols
         data.rowNumbers = rowNumbers
         # Convert to millis since epoch
-        data.lastModification = long(self._stamp * 1000)
+        data.lastModification = int(self._stamp * 1000)
         return data
 
     @stamped
@@ -559,7 +563,7 @@ class HdfStorage(object):
 
         rows = self._getrows(start, stop)
         rv, l = self._rowstocols(rows, colNumbers, cols)
-        return self._as_data(rv, range(start, start + l))
+        return self._as_data(rv, list(range(start, start + l)))
 
     def _getrows(self, start, stop):
         return self.__mea.read(start, stop)
@@ -580,9 +584,9 @@ class HdfStorage(object):
         self.__initcheck()
 
         if colNumbers is None or len(colNumbers) == 0:
-            colNumbers = range(self.__width())
+            colNumbers = list(range(self.__width()))
         if rowNumbers is None or len(rowNumbers) == 0:
-            rowNumbers = range(self.__length())
+            rowNumbers = list(range(self.__length()))
 
         self.__sizecheck(colNumbers, rowNumbers)
         cols = self.cols(None, current)

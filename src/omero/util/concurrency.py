@@ -13,6 +13,14 @@ import threading
 import omero.util
 import logging.handlers
 
+try:
+    from threading import _Event
+    from threading import _Timer
+except ImportError:
+    # Python3
+    from threading import Event as _Event
+    from threading import Timer as _Timer
+
 
 def get_event(name="Unknown"):
     """
@@ -24,7 +32,7 @@ def get_event(name="Unknown"):
     return event
 
 
-class AtExitEvent(threading._Event):
+class AtExitEvent(_Event):
 
     """
     threading.Event extension which provides an additional method
@@ -36,7 +44,11 @@ class AtExitEvent(threading._Event):
     """
 
     def __init__(self, verbose=None, name="Unknown"):
-        super(AtExitEvent, self).__init__(verbose)
+        try:
+            super(AtExitEvent, self).__init__(verbose)
+        except TypeError:
+            # in Python 3 there is no verbose argument
+            super(AtExitEvent, self).__init__()
         self.__name = name
         self.__atexit = False
 
@@ -51,7 +63,7 @@ class AtExitEvent(threading._Event):
         return "%s (%s)" % (super(AtExitEvent, self).__repr__(), self.__name)
 
 
-class Timer(threading._Timer):
+class Timer(_Timer):
 
     """Based on threading._Thread but allows for resetting the Timer.
 
@@ -72,7 +84,7 @@ class Timer(threading._Timer):
             args = []
         if kwargs is None:
             kwargs = {}
-        threading._Timer.__init__(self, interval, function, args, kwargs)
+        _Timer.__init__(self, interval, function, args, kwargs)
         self.log = logging.getLogger(omero.util.make_logname(self))
         self.completed = threading.Event()
         self.exception = threading.Event()

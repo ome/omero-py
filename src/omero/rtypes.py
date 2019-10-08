@@ -21,6 +21,7 @@ This module is meant to be kept in sync with the abstract Java class
 omero.rtypes as well as the omero/rtypes.{h,cpp} files.
 """
 
+from past.builtins import basestring
 import omero
 import Ice
 import IceImport
@@ -28,7 +29,11 @@ IceImport.load("omero_RTypes_ice")
 IceImport.load("omero_Scripts_ice")
 IceImport.load("omero_model_RTypes_ice")
 
-from types import StringTypes
+sys = __import__("sys")  # Python sys
+
+if sys.version_info >= (3, 0, 0):
+    # Keep str behavior on Python 2
+    from builtins import str
 
 
 def rtype(val):
@@ -52,11 +57,11 @@ def rtype(val):
         return rbool(val)
     elif isinstance(val, int):
         return rint(val)
-    elif isinstance(val, long):
+    elif isinstance(val, int):
         return rlong(val)
     elif isinstance(val, float):
         return rfloat(val)
-    elif isinstance(val, StringTypes):
+    elif isinstance(val, basestring):
         return rstring(val)
     elif isinstance(val, omero.model.IObject):
         return robject(val)
@@ -96,7 +101,7 @@ def wrap(val, cache=None):
     elif isinstance(val, dict):
         rv = rmap()
         cache[id(val)] = rv
-        for k, v in val.items():
+        for k, v in list(val.items()):
             rv.val[k] = wrap(v, cache)
         rv._validate()
     elif isinstance(val, omero.RType):
@@ -130,7 +135,7 @@ def unwrap(val, cache=None):
     elif isinstance(val, dict):
         rv = {}
         cache[id(val)] = rv
-        for k, v in val.items():
+        for k, v in list(val.items()):
             rv[unwrap(k, cache)] = unwrap(v, cache)
     elif isinstance(val, omero.RCollection):
         if val.val is None:
@@ -148,7 +153,7 @@ def unwrap(val, cache=None):
         else:
             rv = {}
             cache[id(val)] = rv
-            for k, v in val.val.items():
+            for k, v in list(val.val.items()):
                 rv[unwrap(k, cache)] = unwrap(v, cache)
     elif isinstance(val, omero.RType):  # Non-recursive
         rv = val.val
@@ -296,15 +301,16 @@ def rstring(val):
         return remptystr
     elif isinstance(val, omero.RString):
         return val
-    elif isinstance(val, StringTypes):
+    elif isinstance(val, basestring):
         if len(val) == 0:
             return remptystr
         else:
-            if isinstance(val, unicode):
-                val = val.encode("utf-8")
+            if sys.version_info < (3, 0, 0):
+                if isinstance(val, str):
+                    val = val.encode("utf-8")
             return RStringI(val)
     else:
-        return rstring(unicode(val))
+        return rstring(str(val))
 
 # Static factory methods (collections)
 # =========================================================================
@@ -559,7 +565,7 @@ class RIntI(omero.RInt):
 class RLongI(omero.RLong):
 
     def __init__(self, value):
-        omero.RLong.__init__(self, long(value))
+        omero.RLong.__init__(self, int(value))
 
     def getValue(self, current=None):
         return self._val
@@ -615,7 +621,7 @@ class RLongI(omero.RLong):
 class RTimeI(omero.RTime):
 
     def __init__(self, value):
-        omero.RTime.__init__(self, long(value))
+        omero.RTime.__init__(self, int(value))
 
     def getValue(self, current=None):
         return self._val
@@ -1158,7 +1164,7 @@ class RMapI(omero.RMap):
         self._validate()
 
     def _validate(self):
-        for k, v in self._val.items():
+        for k, v in list(self._val.items()):
             if not isinstance(k, str):
                 raise ValueError("Key of wrong type: %s" % type(k))
             if v is not None and not isinstance(v, omero.RType):

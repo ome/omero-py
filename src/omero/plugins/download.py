@@ -11,6 +11,7 @@
 
 """
 
+from builtins import str
 import sys
 import omero
 import re
@@ -64,11 +65,11 @@ class DownloadControl(BaseControl):
                 sys.stdout.flush()
             else:
                 client.download(orig_file, target_file)
-        except omero.ValidationException, ve:
+        except omero.ValidationException as ve:
             # Possible, though unlikely after previous check
             self.ctx.die(67, "Unknown ValidationException: %s"
                          % ve.message)
-        except omero.ResourceError, re:
+        except omero.ResourceError as re:
             # ID exists in DB, but not on FS
             self.ctx.die(67, "ResourceError: %s" % re.message)
 
@@ -77,7 +78,7 @@ class DownloadControl(BaseControl):
         query = session.getQueryService()
         if ':' not in value:
             try:
-                ofile = query.get("OriginalFile", long(value),
+                ofile = query.get("OriginalFile", int(value),
                                   {'omero.group': '-1'})
                 return ofile
             except ValueError:
@@ -139,7 +140,7 @@ class DownloadControl(BaseControl):
         m = pattern.match(value)
         if not m:
             return
-        return long(m.group('id'))
+        return int(m.group('id'))
 
 try:
     register("download", DownloadControl, HELP)

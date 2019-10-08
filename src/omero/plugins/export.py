@@ -8,6 +8,7 @@
 
 """
 
+from builtins import str
 import os
 import sys
 
@@ -55,7 +56,7 @@ class ExportControl(BaseControl):
 
         klass, id = img.split(":")
         try:
-            id = long(id)
+            id = int(id)
         except:
             self.ctx.die(3, "Bad id format: %s" % id)
 
@@ -125,7 +126,7 @@ class ExportControl(BaseControl):
                     l = e.generateTiff()
                 else:
                     l = e.generateXml()
-            except omero.ServerError, se:
+            except omero.ServerError as se:
                 self.ctx.err("%s: %s" % (se.__class__.__name__, se.message))
                 return
 
@@ -145,7 +146,7 @@ class ExportControl(BaseControl):
                     handle.close()
                     if remove:
                         os.remove(handle.name)
-            except Exception, e:
+            except Exception as e:
                 self.ctx.err("Failed to close handle: %s" % e)
 
             e.close()

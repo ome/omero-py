@@ -22,7 +22,12 @@
 """
 Automatic configuration of memory settings for Java servers.
 """
+from __future__ import division
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 from types import StringType
 from shlex import split
 
@@ -62,7 +67,7 @@ def strip_dict(map, prefix=("omero", "jvmcfg"), suffix=(), limit=1):
                 newkey = ".".join(newkey)
                 rv[newkey] = v
 
-    for k, v in map.items():
+    for k, v in list(map.items()):
         __strip_dict(k, v, prefix, suffix, rv)
     return rv
 
@@ -194,7 +199,7 @@ class Strategy(object):
         try:
             import psutil
             pymem = psutil.virtual_memory()
-            return (pymem.free/1000000, pymem.total/1000000)
+            return (old_div(pymem.free,1000000), old_div(pymem.total,1000000))
         except ImportError:
             LOGGER.debug("No psutil installed")
             return None
@@ -225,13 +230,13 @@ class Strategy(object):
             rv[parts[0]] = parts[1]
 
         try:
-            free = long(rv["Free"]) / 1000000
+            free = old_div(int(rv["Free"]), 1000000)
         except:
             LOGGER.warn("Failed to parse Free from %s", rv)
             free = 2000
 
         try:
-            total = long(rv["Total"]) / 1000000
+            total = old_div(int(rv["Total"]), 1000000)
         except:
             LOGGER.warn("Failed to parse Total from %s", rv)
             total = 4000
@@ -246,6 +251,10 @@ class Strategy(object):
         if str(sz).startswith("-X"):
             return sz
         else:
+            try:
+                sz = int(float(sz))
+            except ValueError:
+                pass
             rv = "-Xmx%s" % sz
             if rv[-1].lower() not in ("b", "k", "m", "g"):
                 rv = "%sm" % rv
@@ -354,7 +363,7 @@ class PercentStrategy(Strategy):
         choice = self.use_active and active or total
 
         percent = self.get_percent()
-        calculated = choice * int(percent) / 100
+        calculated = int(choice * int(percent) / 100)
         return calculated
 
     def usage_table(self, min=10, max=20):
@@ -447,7 +456,7 @@ def adjust_settings(config, template_xml,
 
         # Now we check for any other properties and
         # put them where the replacement should go.
-        for k, v in m.items():
+        for k, v in list(m.items()):
             r = []
             suffix = ".%s" % name
             size = len(suffix)
@@ -483,7 +492,7 @@ def usage_charts(path,
     from pylab import text
 
     points = 200
-    x = array([2 ** (x / points) / 1000
+    x = array([old_div(2 ** (old_div(x, points)), 1000)
                for x in range(min*points, max*points)])
     y_configs = (
         (Settings({}), 'A'),

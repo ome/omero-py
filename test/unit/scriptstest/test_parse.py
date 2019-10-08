@@ -8,7 +8,10 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import object
 import pytest
 
 from path import path
@@ -20,7 +23,13 @@ from omero.scripts import (
     String, List, Bool, Long, Set,
     MissingInputs, ParseExit, compare_proto)
 from omero.scripts import client, parse_inputs, validate_inputs, parse_text
-from omero.scripts import group_params, rlong, rint, wrap, unwrap
+from omero.scripts import group_params, rlist, rlong, rint, wrap, unwrap
+
+try:
+    long
+except:
+    # Python 3
+    long = int
 
 
 class TestParse(object):
@@ -45,8 +54,8 @@ class TestParse(object):
             script_client = client(
                 "testParse", "simple ping script", Long("a").inout(),
                 String("b").inout(), client=mock())
-            print "IN CLIENT: " + \
-                script_client.getProperty("omero.scripts.parse")
+            print("IN CLIENT: " + \
+                script_client.getProperty("omero.scripts.parse"))
             assert False, "Should have raised ParseExit"
         except ParseExit:
             pass
@@ -71,8 +80,8 @@ if True:
     import omero.scripts as scripts
     client = scripts.client(
         'HelloWorld.py', 'Hello World example script',
-        scripts.Long('longParam', True, description='theDesc', min=long(1),
-        max=long(10), values=[rlong(5)]) )
+        scripts.Long('longParam', True, description='theDesc', min=int(1),
+        max=int(10), values=[rlong(5)]) )
     client.setOutput('returnMessage', rstring('Script ran OK!'))"""
         params = parse_text(SCRIPT)
         longParam = params.inputs["longParam"]
@@ -200,7 +209,7 @@ if True:
             "Merged_Colours": wrap(['Red', 'Green']),
             "Image_Labels": wrap("Datasets"),
             "Data_Type": wrap("Image"),
-            "IDs": wrap([long(1)])
+            "IDs": rlist([rlong(1)])
         }
         errors = validate_inputs(params, inputs)
         assert "" == errors, errors
@@ -302,7 +311,7 @@ if True:
         assert 1 == rv["a"].val
         try:
             parse_inputs(["b=1"], params)
-        except MissingInputs, mi:
+        except MissingInputs as mi:
             assert ["a"] == mi.keys
 
     def testParseInputsLongList(self):

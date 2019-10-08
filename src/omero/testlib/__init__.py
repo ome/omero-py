@@ -23,7 +23,15 @@
    Library for integration tests
 
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import str
+from future.utils import native_str
+from past.builtins import basestring
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import os
 import platform
 import locale
@@ -184,7 +192,7 @@ class ITest(object):
         while dist_dir is None:
             dist_dir = travers(p)
             searched.append(p)
-            p = p / ".."  # Walk up, in case test runner entered a subdirectory
+            p = old_div(p, "..")  # Walk up, in case test runner entered a subdirectory
             p = p.abspath()
             count -= 1
             if not count:
@@ -314,7 +322,7 @@ class ITest(object):
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:
                 try:    # if the line has an image ID...
-                    image_id = str(long(x.strip()))
+                    image_id = str(int(x.strip()))
                     # Occasionally during tests an id is duplicated on stdout
                     if image_id not in pix_ids:
                         pix_ids.append(image_id)
@@ -349,7 +357,7 @@ class ITest(object):
             append = "series=%d%s" % (images_count, append)
 
         if kwargs:
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 append += "&%s=%s" % (k, v)
 
         query = client.sf.getQueryService()
@@ -358,7 +366,7 @@ class ITest(object):
             with open(fake.abspath() + ".ini", "w") as ini:
                 if global_metadata:
                     ini.write("[GlobalMetadata]\n")
-                    for k, v in global_metadata.items():
+                    for k, v in list(global_metadata.items()):
                         ini.write("%s=%s\n" % (k, v))
 
         pixel_ids = self.import_image(
@@ -369,7 +377,7 @@ class ITest(object):
 
         images = []
         for pix_id_str in pixel_ids:
-            pixels = query.get("Pixels", long(pix_id_str))
+            pixels = query.get("Pixels", int(pix_id_str))
             images.append(pixels.getImage())
         return images
 
@@ -423,7 +431,7 @@ class ITest(object):
             return y
 
         def f2(x, y):
-            return (x + y) / 2
+            return old_div((x + y), 2)
 
         def f3(x, y):
             return x
@@ -444,7 +452,7 @@ class ITest(object):
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
-        channel_list = range(1, size_c + 1)
+        channel_list = list(range(1, size_c + 1))
         iid = pixels_service.createImage(size_x, size_y, size_z, size_t,
                                          channel_list, pixels_type,
                                          name, "description")
@@ -642,7 +650,7 @@ class ITest(object):
     def group_and_name(cls, group):
         group = unwrap(group)
         admin = cls.root.sf.getAdminService()
-        if isinstance(group, (int, long)):
+        if isinstance(group, int):
             group = admin.getGroup(group)
             name = group.name.val
         elif isinstance(group, ExperimenterGroup):
@@ -652,7 +660,7 @@ class ITest(object):
             else:
                 group = admin.getGroup(group.id.val)
                 name = group.name.val
-        elif isinstance(group, (str, unicode)):
+        elif isinstance(group, basestring):
             name = group
             group = admin.lookupGroup(name)
         elif isinstance(group, Experimenter):
@@ -679,7 +687,7 @@ class ITest(object):
             else:
                 user = admin.getExperimenter(user.id.val)
                 name = user.omeName.val
-        elif isinstance(user, (str, unicode)):
+        elif isinstance(user, basestring):
             name = user
             user = admin.lookupExperimenter(name)
         elif isinstance(user, ExperimenterGroup):
@@ -834,7 +842,7 @@ class ITest(object):
 
         sf = client.sf
         if omero_group is not None:
-            prx = sf.submit(request, {'omero.group': str(omero_group)})
+            prx = sf.submit(request, {'omero.group': native_str(omero_group)})
         else:
             prx = sf.submit(request)
 
@@ -1139,9 +1147,9 @@ class ITest(object):
                     store.setPixelsId(id, True)
                     # No exception. The pyramid is now ready
                     not_ready = False
-                except Exception, ex:
+                except Exception as ex:
                     # try again in elapse_time
-                    print count, "Pyramid not ready:", ex.message
+                    print(count, "Pyramid not ready:", ex.message)
                     time.sleep(elapse_time)
                     count = count + elapse_time
         finally:
@@ -1156,7 +1164,7 @@ class ITest(object):
             client = self.client
         pixels = self.import_image(filename=str(fakefile), client=client,
                                    skip=skip)[0]
-        id = long(float(pixels))
+        id = int(float(pixels))
         assert id >= 0
         # wait for the pyramid to be generated
         self.wait_for_pyramid(id, client)
@@ -1317,8 +1325,8 @@ class AbstractRepoTest(ITest):
 
     def create_test_dir(self):
         folder = create_path(folder=True)
-        (folder / "a.fake").touch()
-        (folder / "b.fake").touch()
+        (old_div(folder, "a.fake")).touch()
+        (old_div(folder, "b.fake")).touch()
         return folder
 
     def create_fileset(self, folder):

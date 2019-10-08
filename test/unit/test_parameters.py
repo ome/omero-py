@@ -10,6 +10,7 @@
 
 """
 
+from builtins import object
 from omero.rtypes import rlong, rint, rbool, rstring, rtime
 from omero_sys_ParametersI import ParametersI
 
@@ -46,7 +47,7 @@ class TestParameters(object):
         p = ParametersI()
         p.exp(rlong(1))
         assert p.isExperimenter()
-        assert p.getExperimenter().getValue() == 1L
+        assert p.getExperimenter().getValue() == 1
         p.allExps()
         assert not p.isExperimenter()
 
@@ -54,7 +55,7 @@ class TestParameters(object):
         p = ParametersI()
         p.grp(rlong(1))
         assert p.isGroup()
-        assert p.getGroup().getValue() == 1L
+        assert p.getGroup().getValue() == 1
         p.allGrps()
         assert not p.isGroup()
 

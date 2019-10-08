@@ -9,6 +9,10 @@
 
 """
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import pytest
 import os
 from path import path
@@ -18,7 +22,7 @@ from omero.cli import NonZeroReturnCode
 from omero.cli import CLI
 from omero_ext.mox import Mox
 import getpass
-import __builtin__
+import builtins
 
 OMERODIR = False
 if 'OMERODIR' in os.environ:
@@ -65,7 +69,11 @@ class TestDatabase(object):
 
         self.mox = Mox()
         self.mox.StubOutWithMock(getpass, 'getpass')
-        self.mox.StubOutWithMock(__builtin__, "raw_input")
+        try:
+            self.mox.StubOutWithMock(__builtins__, "raw_input")
+        except AttributeError:
+            # Python 3
+            self.mox.StubOutWithMock(builtins, "input")
 
     def teardown_method(self, method):
         self.file.remove()

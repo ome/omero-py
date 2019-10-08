@@ -21,6 +21,7 @@
 
 """Gateway tests - buildQuery() as used by conn.getObjects()."""
 
+from builtins import object
 from omero.gateway import _BlitzGateway, BlitzObjectWrapper, KNOWN_WRAPPERS
 from omero.sys import Parameters, ParametersI, Filter
 import pytest
@@ -36,7 +37,7 @@ def gateway():
 class TestBuildQuery(object):
     """Test the conn.buildQuery() method for all Object Wrappers."""
 
-    @pytest.mark.parametrize("dtype", KNOWN_WRAPPERS.keys())
+    @pytest.mark.parametrize("dtype", list(KNOWN_WRAPPERS.keys()))
     def test_no_clauses(self, gateway, dtype):
         """Expect a query with no 'where' clauses."""
         result = gateway.buildQuery(dtype)
@@ -48,7 +49,7 @@ class TestBuildQuery(object):
         assert "where" not in query
         assert 'None' not in query
 
-    @pytest.mark.parametrize("dtype", KNOWN_WRAPPERS.keys())
+    @pytest.mark.parametrize("dtype", list(KNOWN_WRAPPERS.keys()))
     def test_filter_by_owner(self, gateway, dtype):
         """Query should filter by owner."""
         p = ParametersI()
@@ -68,7 +69,7 @@ class TestBuildQuery(object):
             else:
                 assert "where owner" not in query
 
-    @pytest.mark.parametrize("dtype", KNOWN_WRAPPERS.keys())
+    @pytest.mark.parametrize("dtype", list(KNOWN_WRAPPERS.keys()))
     def test_pagination(self, gateway, dtype):
         """Query should paginate."""
         offset = 1

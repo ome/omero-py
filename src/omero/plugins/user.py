@@ -177,7 +177,7 @@ class UserControl(UserGroupControl):
         try:
             client.sf.setSecurityPassword(own_pw)
             self.ctx.out("Verified password.\n")
-        except omero.SecurityViolation, sv:
+        except omero.SecurityViolation as sv:
             import traceback
             self.ctx.die(456, "SecurityViolation: Bad credentials")
             self.ctx.dbg(traceback.format_exc(sv))
@@ -292,14 +292,14 @@ class UserControl(UserGroupControl):
                                                           group, groups)
                 self.ctx.out("Added user %s (id=%s) with password"
                              % (login, id))
-        except omero.ValidationException, ve:
+        except omero.ValidationException as ve:
             # Possible, though unlikely after previous check
             if self.exc.is_constraint_violation(ve):
                 self.ctx.die(66, "User already exists: %s" % login)
             else:
                 self.ctx.die(67, "Unknown ValidationException: %s"
                              % ve.message)
-        except omero.SecurityViolation, se:
+        except omero.SecurityViolation as se:
             self.ctx.die(68, "Security violation: %s" % se.message)
 
     def parse_userid(self, a, args):

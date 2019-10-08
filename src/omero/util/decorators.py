@@ -6,6 +6,7 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+from builtins import object
 import time
 import logging
 import traceback
@@ -31,9 +32,9 @@ def perf(func):
             self = args[0]
             mod = self.__class__.__module__
             cls = self.__class__.__name__
-            tag = "%s.%s.%s" % (mod, cls, func.func_name)
+            tag = "%s.%s.%s" % (mod, cls, func.__name__)
         except:
-            tag = func.func_name
+            tag = func.__name__
         start = time.time()
         try:
             rv = func(*args, **kwargs)
@@ -64,11 +65,11 @@ def remoted(func):
     def exc_handler(*args, **kwargs):
         try:
             self = args[0]
-            log.info(" Meth: %s.%s", self.__class__.__name__, func.func_name)
+            log.info(" Meth: %s.%s", self.__class__.__name__, func.__name__)
             rv = func(*args, **kwargs)
             log.info(__RESULT, rv)
             return rv
-        except Exception, e:
+        except Exception as e:
             log.info(__EXCEPT, e)
             if isinstance(e, omero.ServerError):
                 raise
@@ -112,7 +113,7 @@ class TimeIt (object):
 
     def __call__(self, func):
         def wrapped(*args, **kwargs):
-            name = self._name or func.func_name
+            name = self._name or func.__name__
             self.logger.log(self._level, "timing %s" % (name))
             now = time.time()
             rv = func(*args, **kwargs)
@@ -128,11 +129,11 @@ def timeit(func):
     Logs at logging.DEBUG level.
     """
     def wrapped(*args, **kwargs):
-        TimeIt.logger.log(logging.DEBUG, "timing %s" % (func.func_name))
+        TimeIt.logger.log(logging.DEBUG, "timing %s" % (func.__name__))
         now = time.time()
         rv = func(*args, **kwargs)
         TimeIt.logger.log(logging.DEBUG, "timed %s: %f" %
-                          (func.func_name, time.time() - now))
+                          (func.__name__, time.time() - now))
         return rv
     return TimeIt()(func)
 

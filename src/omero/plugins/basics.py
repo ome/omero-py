@@ -17,7 +17,9 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import print_function
 
+from past.builtins import cmp
 import sys
 
 from collections import defaultdict
@@ -193,7 +195,7 @@ class HelpControl(BaseControl):
             "version": VERSION,
             "commands": commands,
             "topics": topics}
-        print HELP_USAGE % key_list
+        print(HELP_USAGE % key_list)
 
     def print_single_command_or_topic(self, args):
         """Print the help for a command or a topic"""
@@ -255,11 +257,11 @@ class ErrorsControl(BaseControl):
     def __call__(self, args):
         arranged = defaultdict(lambda: defaultdict(
             lambda: defaultdict(list)))
-        for name, control in self.ctx.controls.items():
+        for name, control in list(self.ctx.controls.items()):
             if not args.plugins or name in args.plugins:
                 combined = []
                 if hasattr(control, "get_errors"):
-                    combined.extend(control.get_errors().items())
+                    combined.extend(list(control.get_errors().items()))
                     combined.sort(lambda a, b: cmp(a[1].rcode, b[1].rcode))
                     for key, err in combined:
                         arranged[err.rcode][name][key].append(err)
@@ -288,11 +290,11 @@ Use "--" to end parsing, e.g. '%(prog)s -- --help' for IPython help"""),
     "load": (LoadControl, LOAD_HELP)}
 
 try:
-    for k, v in controls.items():
+    for k, v in list(controls.items()):
         register(k, v[0], v[1])
 except NameError:
     if __name__ == "__main__":
         cli = CLI()
-        for k, v in controls.items():
+        for k, v in list(controls.items()):
             cli.register(k, v[0], v[1])
         cli.invoke(sys.argv[1:])

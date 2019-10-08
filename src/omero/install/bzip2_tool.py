@@ -10,6 +10,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -34,7 +35,7 @@ def bzip2_tool(disable=False):
 
 def _swap(f, t):
     if not os.path.exists(f):
-        print "%s doesn't exist" % f
+        print("%s doesn't exist" % f)
         sys.exit(0)
     os.rename(f, t)
 
@@ -47,13 +48,13 @@ if __name__ == "__main__":
             elif which == "enable":
                 which = False
             else:
-                print "Unknown command: ", which
+                print("Unknown command: ", which)
                 sys.exit(2)
             bzip2_tool(disable=which)
             sys.exit(0)
-    except Exception, e:
-        print "bzip2_tool failed: ", e
+    except Exception as e:
+        print("bzip2_tool failed: ", e)
         sys.exit(1)
 
-    print "Usage: %s disable|enable" % sys.argv[0]
+    print("Usage: %s disable|enable" % sys.argv[0])
     sys.exit(2)

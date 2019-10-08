@@ -8,6 +8,7 @@
 
 """
 
+from builtins import str
 import sys
 
 from omero.cli import UserGroupControl, CLI, ExceptionHandler, admin_only
@@ -122,7 +123,7 @@ server-permissions.html
             "--perms", help="Group permissions set as string, e.g. 'rw----' ")
         group.add_argument(
             "--type", help="Group permissions set symbolically",
-            default="private", choices=defaultperms.keys())
+            default="private", choices=list(defaultperms.keys()))
 
     def parse_perms(self, args):
         from omero_model_PermissionsI import PermissionsI as Perms
@@ -131,7 +132,7 @@ server-permissions.html
             perms = defaultperms[args.type]
         try:
             return Perms(perms)
-        except ValueError, ve:
+        except ValueError as ve:
             self.ctx.die(505, str(ve))
 
     @admin_only(AdminPrivilegeModifyGroup)
@@ -165,16 +166,16 @@ server-permissions.html
             id = admin.createGroup(g)
             self.ctx.out("Added group %s (id=%s) with permissions %s"
                          % (args.name, id, perms))
-        except omero.ValidationException, ve:
+        except omero.ValidationException as ve:
             # Possible, though unlikely after previous check
             if self.exc.is_constraint_violation(ve):
                 self.ctx.die(66, "Group already exists: %s" % args.name)
             else:
                 self.ctx.die(67, "Unknown ValidationException: %s"
                              % ve.message)
-        except omero.SecurityViolation, se:
+        except omero.SecurityViolation as se:
             self.ctx.die(68, "Security violation: %s" % se.message)
-        except omero.ServerError, se:
+        except omero.ServerError as se:
             self.ctx.die(4, "%s: %s" % (type(se), se.message))
 
     def perms(self, args):
@@ -199,7 +200,7 @@ server-permissions.html
                 c.submit(chmod)
                 self.ctx.out("Changed permissions for group %s (id=%s) to %s"
                              % (g.name.val, gid, perms))
-            except omero.CmdError, ce:
+            except omero.CmdError as ce:
                 import traceback
                 self.ctx.dbg(traceback.format_exc())
                 self.ctx.die(504, "Cannot change permissions for group %s"

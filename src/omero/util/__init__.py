@@ -7,6 +7,11 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+from __future__ import division
+from builtins import str
+from future.utils import native_str
+from past.utils import old_div
+from builtins import object
 import os
 import sys
 import Ice
@@ -87,13 +92,13 @@ def configure_server_logging(props):
     log_timed = props.getPropertyWithDefault(
         "omero.logging.timedlog", "False")[0] in ('T', 't')
     log_num = int(
-        props.getPropertyWithDefault("omero.logging.lognum", str(LOGNUM)))
+        props.getPropertyWithDefault("omero.logging.lognum", native_str(LOGNUM)))
     log_size = int(
-        props.getPropertyWithDefault("omero.logging.logsize", str(LOGSIZE)))
+        props.getPropertyWithDefault("omero.logging.logsize", native_str(LOGSIZE)))
     log_num = int(
-        props.getPropertyWithDefault("omero.logging.lognum", str(LOGNUM)))
+        props.getPropertyWithDefault("omero.logging.lognum", native_str(LOGNUM)))
     log_level = int(
-        props.getPropertyWithDefault("omero.logging.level", str(LOGLEVEL)))
+        props.getPropertyWithDefault("omero.logging.level", native_str(LOGLEVEL)))
     configure_logging(log_dir, log_name, loglevel=log_level,
                       maxBytes=log_size, backupCount=log_num,
                       time_rollover=log_timed)
@@ -195,7 +200,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6,
         implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
     else:
         if not implicit_ctx.containsKey(omero.constants.CLIENTUUID):
-            client_uuid = str(uuid.uuid4())
+            client_uuid = native_str(uuid.uuid4())
             implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
 
     while tryCount < retries:
@@ -207,7 +212,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6,
             sf = blitz.create(user, None)
             # Group currently unused.
             return omero.api.ServiceFactoryPrx.checkedCast(sf)
-        except Exception, e:
+        except Exception as e:
             tryCount += 1
             log.info("Failed to get session on attempt %s", str(tryCount))
             excpt = e
@@ -257,7 +262,7 @@ def long_to_path(id, root=""):
     if id is None or id == "":
         raise Exception("Expecting a not-null id.")
 
-    id = long(id)
+    id = int(id)
 
     if id < 0:
         raise Exception("Expecting a non-negative id.")
@@ -286,7 +291,7 @@ def load_dotted_class(dotted_class):
         got = __import__(pkg, fromlist=[mod])
         got = getattr(got, mod)
         return getattr(got, kls)
-    except Exception, e:
+    except Exception as e:
         raise Exception("""Failed to load: %s
         previous excetion: %s""" % (dotted_class, e))
 
@@ -370,7 +375,7 @@ class ServerContext(object):
                 self.session.keepAlive(None)
             except Ice.CommunicatorDestroyedException:
                 self.session = None  # Ignore
-            except Exception, e:
+            except Exception as e:
                 self.logger.warn("Connection failure: %s" % e)
                 self.session = None
 
@@ -378,7 +383,7 @@ class ServerContext(object):
             try:
                 self.newSession()
                 self.logger.info("Established connection: %s" % self.session)
-            except Exception, e:
+            except Exception as e:
                 self.logger.warn("Failed to establish connection: %s" % e)
 
         if self.session is None:
@@ -453,7 +458,7 @@ class Server(Ice.Application):
 
         try:
             self.logger.info("Waiting %s ms on startup" % ms)
-            self.stop_event.wait(ms / 1000)
+            self.stop_event.wait(old_div(ms, 1000))
         except:
             self.logger.debug(exc_info=1)
 
@@ -483,7 +488,7 @@ class Server(Ice.Application):
         try:
 
             ofr.registerObjectFactory(self.communicator(), None)  # No client
-            for of in rFactories.values() + cFactories.values():
+            for of in list(rFactories.values()) + list(cFactories.values()):
                 of.register(self.communicator())
 
             try:
@@ -603,7 +608,7 @@ class Servant(SimpleServant):
         self.cleanup()
 
 
-class Resources:
+class Resources(object):
 
     """
     Container class for storing resources which should be
@@ -749,7 +754,7 @@ class Resources:
         self.cleanup()
 
 
-class Environment:
+class Environment(object):
 
     """
     Simple class for creating an executable environment
@@ -786,7 +791,7 @@ class Environment:
         """
         Manually adds a value to the environment string
         """
-        if key in self.env.keys():
+        if key in list(self.env.keys()):
             self.env[key] = os.pathsep.join([self.env[key], addition])
         else:
             self.set(key, addition)
@@ -799,7 +804,7 @@ class Environment:
 def get_user(default=None):
     """
     Returns the username. For most purposes, this value
-    will be the same as getpass.getuser on \*nix and
+    will be the same as getpass.getuser on Unix and
     win32api.GetUserName on Windows, but in some situations
     (when running without a terminal, etc) getuser may throw
     a KeyError. In which case, or if the username resolves to
@@ -831,7 +836,7 @@ def get_omero_userdir():
     if omero_userdir:
         return path.path(omero_userdir)
     else:
-        return path.path(get_user_dir()) / "omero"
+        return old_div(path.path(get_user_dir()), "omero")
 
 
 def get_user_dir():
@@ -860,7 +865,7 @@ def edit_path(path_or_obj, start_text):
         else:
             editor = "vi"
 
-    if isinstance(start_text, unicode):
+    if isinstance(start_text, str):
         start_text = start_text.encode("utf-8")
     f.write_text(start_text)
 

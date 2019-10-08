@@ -6,6 +6,11 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import os
 import time
 import signal
@@ -173,10 +178,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 
     def make_files(self):
         self.dir = create_path("process", ".dir", folder=True)
-        self.script_path = self.dir / "script"
-        self.config_path = self.dir / "config"
-        self.stdout_path = self.dir / "out"
-        self.stderr_path = self.dir / "err"
+        self.script_path = old_div(self.dir, "script")
+        self.config_path = old_div(self.dir, "config")
+        self.stdout_path = old_div(self.dir, "out")
+        self.stderr_path = old_div(self.dir, "err")
 
     def make_config(self):
         """
@@ -184,7 +189,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         """
         config_file = open(str(self.config_path), "w")
         try:
-            for key in self.properties.iterkeys():
+            for key in self.properties.keys():
                 config_file.write("%s=%s\n" % (key, self.properties[key]))
         finally:
             config_file.close()
@@ -413,7 +418,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             status = self.final_status
             if status is None:
                 status = (self.rcode == 0 and "Finished" or "Error")
-            handle.attach(long(self.properties["omero.job"]))
+            handle.attach(int(self.properties["omero.job"]))
             oldStatus = handle.setStatus(status)
             self.status(
                 "Changed job status from %s to %s" % (oldStatus, status))
@@ -455,7 +460,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 
         try:
             ofile = client.upload(filename, name=name, type=format)
-            jobid = long(client.getProperty("omero.job"))
+            jobid = int(client.getProperty("omero.job"))
             link = omero.model.JobOriginalFileLinkI()
             if self.params is None:
                 link.parent = omero.model.ParseJobI(rlong(jobid), False)
@@ -557,7 +562,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 
                 else:
                     self.status("Skipped signal")
-            except OSError, oserr:
+            except OSError as oserr:
                 self.logger.debug(
                     "err on pid=%s iskill=%s : %s", self.popen.pid, iskill,
                     oserr)
@@ -640,7 +645,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                 self.callbacks[key] = callback
                 self.logger.debug("Added callback: %s", key)
                 return
-        except Exception, ex:
+        except Exception as ex:
             e = ex
         # Only reached on failure
         msg = "Failed to add callback: %s. Reason: %s" % (callback, e)
@@ -658,7 +663,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                     None, None, "No callback registered with id: %s" % key)
             del self.callbacks[key]
             self.logger.debug("Removed callback: %s", key)
-        except Exception, e:
+        except Exception as e:
             msg = "Failed to remove callback: %s. Reason: %s" % (callback, e)
             self.logger.debug(msg)
             raise omero.ApiUsageException(None, None, msg)
@@ -666,7 +671,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     @locked
     def allcallbacks(self, method, arg):
         self.status("Callback %s" % method)
-        for key, cb in self.callbacks.items():
+        for key, cb in list(self.callbacks.items()):
             try:
                 m = getattr(cb, method)
                 m(arg)
@@ -692,7 +697,7 @@ class MATLABProcessI(ProcessI):
         in ordert to append a ".m"
         """
         ProcessI.make_files(self)
-        self.script_path = self.dir / "script.m"
+        self.script_path = old_div(self.dir, "script.m")
 
     def command(self):
         """
@@ -875,7 +880,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             cb = omero.grid.ProcessorCallbackPrx.uncheckedCast(cb)
             prx = omero.grid.ProcessorPrx.uncheckedCast(self.prx)
             cb.isProxyAccepted(valid, id, prx)
-        except Exception, e:
+        except Exception as e:
             self.logger.warn(
                 "callback failed on willAccept: %s Exception:%s", cb, e)
 
@@ -892,11 +897,11 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
             for x in servants:
                 try:
-                    rv.append(long(x.properties["omero.job"]))
+                    rv.append(int(x.properties["omero.job"]))
                 except:
                     pass
             cb.responseRunning(rv)
-        except Exception, e:
+        except Exception as e:
             self.logger.warn(
                 "callback failed on requestRunning: %s Exception:%s", cb, e)
 

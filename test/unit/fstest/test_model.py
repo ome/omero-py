@@ -25,6 +25,7 @@ These tests don't do anything functional, but
 just show creation / linkage scenarios.
 """
 
+from builtins import object
 import time
 import omero
 import omero.all

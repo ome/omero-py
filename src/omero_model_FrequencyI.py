@@ -25,6 +25,7 @@ based on omero.model.PermissionsI
 """
 
 
+from builtins import str
 import Ice
 import IceImport
 IceImport.load("omero_model_Frequency_ice")
@@ -921,7 +922,7 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
             target = None
         elif isinstance(unit, UnitsFrequency):
             target = unit
-        elif isinstance(unit, (str, unicode)):
+        elif isinstance(unit, str):
             target = getattr(UnitsFrequency, unit)
         else:
             raise Exception("Unknown unit: %s (%s)" % (
