@@ -304,8 +304,8 @@ class ValueResolver(object):
         q = "select x.details.group.id from %s x where x.id = %d " % (
             self.target_type, self.target_id
         )
-        self.target_group = unwrap(
-            self.client.sf.getQueryService().projection(q, None))
+        result = self.client.sf.getQueryService().projection(q, None)
+        self.target_group = result[0][0].val
         # The goal is to make this the only instance of
         # a if/elif/else block on the target_class. All
         # logic should be placed in a the concrete wrapper
@@ -993,7 +993,7 @@ class ParsingContext(object):
 
     def write_to_omero(self, batch_size=1000, loops=10, ms=500):
         sf = self.client.getSession()
-        group = str(self.value_resolver.target_group)
+        group = self.value_resolver.target_group
         sr = sf.sharedResources()
         update_service = sf.getUpdateService()
         name = 'bulk_annotations'
