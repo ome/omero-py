@@ -3956,7 +3956,7 @@ class _BlitzGateway (object):
 
         queryService = self.getQueryService()
         params = omero.sys.Parameters()
-        params.map = {'ids': omero.rtypes.wrap(imageIds)}
+        params.map = {'ids': rlist([rlong(id) for id in imageIds])}
 
         # load Pixels, Channels, Logical Channels and Images
         query = ("select p from Pixels p left outer "
