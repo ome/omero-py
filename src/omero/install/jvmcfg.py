@@ -28,7 +28,7 @@ from builtins import str
 from builtins import range
 from past.utils import old_div
 from builtins import object
-from types import StringType
+from past.builtins import basestring
 from shlex import split
 
 import logging
@@ -46,9 +46,9 @@ def strip_dict(map, prefix=("omero", "jvmcfg"), suffix=(), limit=1):
     of elements that are allowed in the new key after
     stripping prefix and suffix.
     """
-    if isinstance(prefix, StringType):
+    if isinstance(prefix, basestring):
         prefix = tuple(prefix.split("."))
-    if isinstance(suffix, StringType):
+    if isinstance(suffix, basestring):
         suffix = tuple(suffix.split("."))
     rv = dict()
     if not map:
