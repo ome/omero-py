@@ -24,6 +24,7 @@
 Test of various things under omero.util
 """
 from __future__ import division
+from __future__ import unicode_literals
 
 from builtins import str
 from builtins import range
@@ -98,7 +99,7 @@ tables = (
     MockTable(("c1", "c2"), (("£ö", "b"),),
               ['c1,c2'], ['£ö,b\r\n'],
               ' c1 | c2 \n----+----\n', [' £ö | b  '],
-              [{"c1": u"£ö", "c2": "b"}],
+              [{"c1": "£ö", "c2": "b"}],
               ),
     )
 

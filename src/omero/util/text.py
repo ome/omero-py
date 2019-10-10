@@ -78,11 +78,26 @@ class PlainStyle(Style):
         try:
             import csv
             import io
-            output = io.StringIO()
+            if sys.version_info >= (3, 0, 0):
+                output = io.StringIO()
+                def _encode(s):
+                    return s
+                def _decode(s):
+                    return s
+            else:
+                # Python 2.7 csv module does not support unicode!
+                # https://docs.python.org/2.7/library/csv.html#module-csv
+                # Need to treat as bytes and encode/decode
+                output = io.BytesIO()
+                def _encode(s):
+                    return s.encode('utf-8')
+                def _decode(s):
+                    return s.decode('utf-8')
             writer = csv.writer(output)
-            writer.writerow(table.get_row(i))
-            return output.getvalue()
-        except Exception:
+            r = table.get_row(i)
+            writer.writerow([_encode(s) for s in table.get_row(i)])
+            return _decode(output.getvalue())
+        except Exception as e:
             return self.SEPARATOR.join(table.get_row(i))
 
     def get_rows(self, table):
@@ -334,13 +349,14 @@ class Table(object):
                 yield x.format % x.name
             else:
                 if sys.version_info >= (3, 0, 0):
-                    if isinstance(x, bytes):
-                        yield bytes.decode("utf-8", "surrogateescape")
+                    if isinstance(x[i], bytes):
+                        yield x.format % bytes.decode(
+                            "utf-8", "surrogateescape")
                     else:
-                        yield str(x)
+                        yield x.format % str(x[i])
                 else:
                     try:
-                        x[i].decode("ascii")
+                        yield x.format % x[i].decode("ascii")
                     except UnicodeEncodeError:
                         yield x.format % x[i]
                     except UnicodeDecodeError:  # Unicode characters are present
