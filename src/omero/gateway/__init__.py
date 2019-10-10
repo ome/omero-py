@@ -4513,6 +4513,37 @@ class _BlitzGateway (object):
                 save.obj = link
                 saves.append(save)
 
+        # If we are moving taggable objects...
+        if getattr(omero.model, "%sAnnotationLinkI" % graph_spec):
+            for obj in self.getObjects(graph_spec, obj_ids):
+                # get tags on this object in current group
+                self.SERVICE_OPTS.setOmeroGroup(-1)
+                tag_values = []
+                for ann in obj.listAnnotations():
+                    if ann.OMERO_TYPE == omero.model.TagAnnotationI:
+                        tag_values.append(ann.getTextValue())
+                # find tags in target group..
+                self.SERVICE_OPTS.setOmeroGroup(group_id)
+                tag_values = list(set(tag_values))  # remove duplicates
+                for tag_text in tag_values:
+                    tags = list(self.getObjects(
+                        'Annotation', attributes={'textValue': tag_text}))
+                    if len(tags) > 0:
+                        tag_id = tags[0].id
+                    else:
+                        # create tag in target group
+                        tag = omero.gateway.TagAnnotationWrapper(self)
+                        tag.setValue(tag_text)
+                        tag.save()
+                        tag_id = tag.id
+                    # create link to save
+                    link = getattr(omero.model, "%sAnnotationLinkI" % graph_spec)()
+                    link.parent = omero.model.ImageI(obj.id, False)
+                    link.child = omero.model.TagAnnotationI(tag_id, False)
+                    save = Save()
+                    save.obj = link
+                    saves.append(save)
+
         requests.extend(saves)
         da.requests = requests
 
