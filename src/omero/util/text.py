@@ -94,7 +94,6 @@ class PlainStyle(Style):
                 def _decode(s):
                     return s.decode('utf-8')
             writer = csv.writer(output)
-            r = table.get_row(i)
             writer.writerow([_encode(s) for s in table.get_row(i)])
             return _decode(output.getvalue())
         except Exception as e:
