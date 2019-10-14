@@ -15,6 +15,7 @@ from builtins import map
 from builtins import str
 from past.utils import old_div
 from builtins import object
+import builtins
 import platform
 import subprocess
 import sys
@@ -517,7 +518,7 @@ JSON File Format:
         (the default). If we were creating a tagset, this could be "tag set".
         """
         if name is None:
-            name = input("Please enter a name for this %s: " % text)
+            name = builtins.input("Please enter a name for this %s: " % text)
 
         if name is not None and name != '':
             tag = TagAnnotationI()

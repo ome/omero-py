@@ -3956,7 +3956,7 @@ class _BlitzGateway (object):
 
         queryService = self.getQueryService()
         params = omero.sys.Parameters()
-        params.map = {'ids': omero.rtypes.wrap(imageIds)}
+        params.map = {'ids': rlist([rlong(id) for id in imageIds])}
 
         # load Pixels, Channels, Logical Channels and Images
         query = ("select p from Pixels p left outer "
@@ -9679,7 +9679,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     width=linewidth)
                 last_point = base-chrow[i]
         del draw
-        out = StringIO()
+        out = BytesIO()
         im.save(out, format="gif", transparency=0)
         return out.getvalue()
 

@@ -21,6 +21,7 @@ This module is meant to be kept in sync with the abstract Java class
 omero.rtypes as well as the omero/rtypes.{h,cpp} files.
 """
 
+from builtins import str
 from past.builtins import basestring
 import omero
 import Ice
@@ -30,10 +31,6 @@ IceImport.load("omero_Scripts_ice")
 IceImport.load("omero_model_RTypes_ice")
 
 sys = __import__("sys")  # Python sys
-
-if sys.version_info >= (3, 0, 0):
-    # Keep str behavior on Python 2
-    from builtins import str
 
 
 def rtype(val):
@@ -1165,7 +1162,7 @@ class RMapI(omero.RMap):
 
     def _validate(self):
         for k, v in list(self._val.items()):
-            if not isinstance(k, str):
+            if not isinstance(k, basestring):
                 raise ValueError("Key of wrong type: %s" % type(k))
             if v is not None and not isinstance(v, omero.RType):
                 raise ValueError("Value of wrong type: %s" % type(v))
