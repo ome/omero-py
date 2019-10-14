@@ -167,7 +167,7 @@ class TestStrategy(object):
         strategy = PercentStrategy("blitz")
         table = list(strategy.usage_table(15, 16))[0]
         assert table[0] == 2**15
-        assert table[1] == 2**15*15/100
+        assert table[1] == int(2**15 * 15 / 100)
 
     def test_heap_dump_on(self):
         settings = Settings({"heap_dump": "on"})
