@@ -188,7 +188,7 @@ class ITest(object):
         searched = []
         p = path(".").abspath()
         # "" means top of directory
-        dist_dir = None
+        dist_dir = os.getenv('OMERODIR')
         while dist_dir is None:
             dist_dir = travers(p)
             searched.append(p)
