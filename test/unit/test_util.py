@@ -232,7 +232,7 @@ class TestTempFileManager(object):
 
     def testTmpdir2805_1(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv('OMERO_TEMPDIR', tmpdir)
+        monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
         monkeypatch.delenv('OMERO_USERDIR', raising=False)
         tmpfile = old_div(tmpdir, 'omero')
         tmpfile.write('')
@@ -241,7 +241,7 @@ class TestTempFileManager(object):
 
     def testTmpdir2805_2(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv('OMERO_TEMPDIR', tmpdir)
+        monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
         monkeypatch.delenv('OMERO_USERDIR', raising=False)
         tempdir = old_div(tmpdir, 'omero')
         tempdir.mkdir()
