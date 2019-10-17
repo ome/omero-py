@@ -10,6 +10,8 @@ from builtins import str
 from builtins import zip
 from builtins import range
 from builtins import object
+from future.utils import native
+from past.builtins import basestring
 import time
 import numpy
 import logging
@@ -224,7 +226,7 @@ class HdfStorage(object):
                             self.__hdf_path, mode))
                     mode = "r"
 
-            return tables.open_file(str(self.__hdf_path), mode=mode,
+            return tables.open_file(native(str(self.__hdf_path)), mode=mode,
                                     title="OMERO HDF Measurement Storage",
                                     rootUEP="/")
         except (tables.HDF5ExtError, IOError) as e:
@@ -297,7 +299,7 @@ class HdfStorage(object):
         k = '__version'
         try:
             v = self.__mea.attrs[k]
-            if isinstance(v, str):
+            if isinstance(v, basestring):
                 return v
         except KeyError:
             k = 'version'
@@ -441,7 +443,7 @@ class HdfStorage(object):
                 val = rint(val)
             elif isinstance(val, int):
                 val = rlong(val)
-            elif isinstance(val, str):
+            elif isinstance(val, basestring):
                 val = rstring(val)
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))

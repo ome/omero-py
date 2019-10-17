@@ -9,6 +9,7 @@
 from __future__ import division
 from builtins import str
 from builtins import range
+from future.utils import native_str
 from past.utils import old_div
 import Ice
 import time
@@ -162,7 +163,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             gid = unwrap(self.file_obj.details.group.id)
             client_uuid = self.factory.ice_getIdentity().category[8:]
             ctx = {
-                "omero.group": str(gid),
+                "omero.group": native_str(gid),
                 omero.constants.CLIENTUUID: client_uuid}
             try:
                 # Size to reset the server object to (must be checked after
