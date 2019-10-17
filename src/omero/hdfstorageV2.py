@@ -11,7 +11,7 @@ from builtins import zip
 from builtins import range
 from builtins import object
 from future.utils import native
-from past.utils import basestring
+from past.builtins import basestring
 import time
 import numpy
 import logging
