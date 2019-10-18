@@ -447,14 +447,14 @@ class SessionsControl(UserGroupControl):
                                      " %s:%s" % (previous[1], previous[0],
                                                  previous[3]))
                         self.ctx.dbg("Exception on attach: %s"
-                                     % traceback.print_exc(e))
+                                     % traceback.format_exception(None, e, e.__traceback__))
                         try:
                             store.remove(*previous[:-1])
                         except OSError as ose:
                             self.ctx.dbg("Session file missing: %s" % ose)
                         except:
                             self.ctx.dbg("Exception on remove: %s"
-                                         % traceback.print_exc(e))
+                                         % traceback.format_exception(None, e, e.__traceback__))
                             # Could tell user to manually clear here and then
                             # self.ctx.die()
                             self.ctx.err("Failed to remove session: %s" % e)
