@@ -431,7 +431,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             "omero.repo.wait", "1"))
         per_loop = old_div(wait, retries)
 
-        e = None
+        exc = None
         for x in range(retries):
             try:
                 self._get_dir()
@@ -439,6 +439,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
                 self._get_repo()
             except Exception as e:
                 self.logger.warn("Failed to find repo_svc: %s" % e)
+                exc = e
 
             if self.repo_svc:
                 break
@@ -447,8 +448,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
                 self.logger.debug(msg)
                 self.stop_event.wait(per_loop)
 
-        if e:
-            raise e
+        if exc:
+            raise exc
 
     def _get_dir(self):
         """

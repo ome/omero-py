@@ -736,10 +736,12 @@ class Resources(object):
 
     @locked
     def cleanup(self):
-        self.stop_event.set()
-        for m in self.stuff:
-            self.safeClean(m)
+        stuff = self.stuff
         self.stuff = None
+        self.stop_event.set()
+        if stuff:
+            for m in stuff:
+                self.safeClean(m)
         self.logger.debug("Cleanup done")
 
     def safeClean(self, m):
