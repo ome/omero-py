@@ -22,7 +22,7 @@ import tables
 import threading
 import Ice
 
-from omero_ext.mox import Mox
+from mox3 import mox
 from omero.rtypes import rint, rstring
 
 from library import TestCase
@@ -298,7 +298,7 @@ class TestHdfList(TestCase):
 
     def setup_method(self, method):
         TestCase.setup_method(self, method)
-        self.mox = Mox()
+        self.mox = mox.Mox()
 
     def hdfpath(self):
         tmpdir = self.tmpdir()
