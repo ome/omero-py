@@ -16,6 +16,7 @@ from __future__ import division
 from __future__ import print_function
 
 from builtins import str
+from future.utils import bytes_to_native_str
 from past.utils import old_div
 from builtins import object
 import re
@@ -1225,7 +1226,7 @@ present, the user will enter a console""")
                 return False
 
             p.wait()
-            io = p.communicate()
+            io = list(map(bytes_to_native_str, p.communicate()))
             try:
                 v = io[0].split()
                 v.extend(io[1].split())

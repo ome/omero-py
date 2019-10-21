@@ -175,6 +175,9 @@ class TestAdmin(object):
     # STATUS
     #
 
+    def testDiagnostics(self):
+        self.invoke("admin diagnostics")
+
     def testStatusNoConfig(self):
         self.invoke("admin status", fails=True)
         self.cli.assertStderr([MISSING_CONFIGURATION_MSG + REWRITE_MSG])
