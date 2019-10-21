@@ -21,6 +21,7 @@ from builtins import range
 from past.utils import old_div
 from builtins import object
 import json
+import os
 import sys
 
 
@@ -93,7 +94,7 @@ class PlainStyle(Style):
                     return s.encode('utf-8')
                 def _decode(s):
                     return s.decode('utf-8')
-            writer = csv.writer(output)
+            writer = csv.writer(output, lineterminator=os.linesep)
             writer.writerow([_encode(s) for s in table.get_row(i)])
             return _decode(output.getvalue())
         except Exception as e:
