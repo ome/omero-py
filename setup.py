@@ -146,6 +146,9 @@ setup(
     install_requires=[
         'zeroc-ice>=3.6.4,<3.7',
         'future',
-        'mox3',
     ],
-    tests_require=['pytest<3'])
+    tests_require=[
+        'pytest<3',
+        'mox3',
+    ]
+    )
