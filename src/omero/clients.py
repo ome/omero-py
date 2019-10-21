@@ -236,6 +236,7 @@ class BaseClient(object):
             # OPENSSL_VERSION_INFO not available for 2.6, fall back to default
             self._optSetProp(id, prop, "HIGH:ADH")
 
+        self._optSetProp(id, "IceSSL.VerifyDepthMax", "6")
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
         self._optSetProp(id, "IceSSL.Protocols", "tls1")
 
@@ -336,9 +337,9 @@ class BaseClient(object):
             return {}
 
         hostmatch = re.match(
-            r'(?P<protocol>\\w+)://'
+            r'(?P<protocol>\w+)://'
             r'(?P<server>[^:/]+)'
-            r'(:(?P<port>\\d+))?'
+            r'(:(?P<port>\d+))?'
             r'(?P<path>/.*)?$',
             host)
 

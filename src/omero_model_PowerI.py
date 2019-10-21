@@ -26,6 +26,7 @@ based on omero.model.PermissionsI
 
 
 from builtins import str
+from past.builtins import basestring
 import Ice
 import IceImport
 IceImport.load("omero_model_Power_ice")
@@ -922,7 +923,7 @@ class PowerI(_omero_model.Power, UnitBase):
             target = None
         elif isinstance(unit, UnitsPower):
             target = unit
-        elif isinstance(unit, str):
+        elif isinstance(unit, basestring):
             target = getattr(UnitsPower, unit)
         else:
             raise Exception("Unknown unit: %s (%s)" % (

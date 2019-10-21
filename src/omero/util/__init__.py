@@ -286,7 +286,7 @@ def load_dotted_class(dotted_class):
     try:
         parts = dotted_class.split(".")
         pkg = ".".join(parts[0:-2])
-        mod = str(parts[-2])
+        mod = native_str(parts[-2])
         kls = parts[-1]
         got = __import__(pkg, fromlist=[mod])
         got = getattr(got, mod)
@@ -736,10 +736,12 @@ class Resources(object):
 
     @locked
     def cleanup(self):
-        self.stop_event.set()
-        for m in self.stuff:
-            self.safeClean(m)
+        stuff = self.stuff
         self.stuff = None
+        self.stop_event.set()
+        if stuff:
+            for m in stuff:
+                self.safeClean(m)
         self.logger.debug("Cleanup done")
 
     def safeClean(self, m):

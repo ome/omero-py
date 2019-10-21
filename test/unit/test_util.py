@@ -33,6 +33,7 @@ from builtins import object
 import json
 import pytest
 from path import path
+from os import linesep
 
 from omero.util.text import CSVStyle, JSONStyle, PlainStyle, TableBuilder
 from omero.util.upgrade_check import UpgradeCheck
@@ -77,27 +78,27 @@ class MockTable(object):
 
 tables = (
     MockTable(("c1", "c2"), (("a", "b"),),
-              ['c1,c2'], ['a,b\r\n'],
+              ['c1,c2'], ['a,b' + linesep],
               ' c1 | c2 \n----+----\n', [' a  | b  '],
               [{"c1": "a", "c2": "b"}],
               ),
     MockTable(("c1", "c2"), (("a,b", "c"),),
-              ['c1,c2'], ['"a,b",c\r\n'],
+              ['c1,c2'], ['"a,b",c' + linesep],
               ' c1  | c2 \n-----+----\n', [' a,b | c  '],
               [{"c1": "a,b", "c2": "c"}],
               ),
     MockTable(("c1", "c2"), (("'a b'", "c"),),
-              ['c1,c2'], ["'a b',c\r\n"],
+              ['c1,c2'], ["'a b',c" + linesep],
               ' c1    | c2 \n-------+----\n', [" 'a b' | c  "],
               [{"c1": "'a b'", "c2": "c"}],
               ),
     MockTable(("c1", "c2"), (("a", "b"), ("c", "d")),
-              ['c1,c2'], ['a,b\r\n', 'c,d\r\n'],
+              ['c1,c2'], ['a,b' + linesep, 'c,d' + linesep],
               ' c1 | c2 \n----+----\n', [' a  | b  ', ' c  | d  '],
               [{"c1": "a", "c2": "b"}, {"c1": "c", "c2": "d"}],
               ),
     MockTable(("c1", "c2"), (("£ö", "b"),),
-              ['c1,c2'], ['£ö,b\r\n'],
+              ['c1,c2'], ['£ö,b' + linesep],
               ' c1 | c2 \n----+----\n', [' £ö | b  '],
               [{"c1": "£ö", "c2": "b"}],
               ),
@@ -232,7 +233,7 @@ class TestTempFileManager(object):
 
     def testTmpdir2805_1(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv('OMERO_TEMPDIR', tmpdir)
+        monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
         monkeypatch.delenv('OMERO_USERDIR', raising=False)
         tmpfile = old_div(tmpdir, 'omero')
         tmpfile.write('')
@@ -241,7 +242,7 @@ class TestTempFileManager(object):
 
     def testTmpdir2805_2(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv('OMERO_TEMPDIR', tmpdir)
+        monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
         monkeypatch.delenv('OMERO_USERDIR', raising=False)
         tempdir = old_div(tmpdir, 'omero')
         tempdir.mkdir()
