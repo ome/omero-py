@@ -101,7 +101,9 @@ def _relative_symlink_file(src, dst):
     try:
         os.symlink(relsrc, dst)
         print(src, dst)
-    except FileExistsError:
+    except OSError as e:
+        if e.errno != 17:
+            raise
         os.remove(dst)
         os.symlink(relsrc, dst)
 
