@@ -286,7 +286,7 @@ def load_dotted_class(dotted_class):
     try:
         parts = dotted_class.split(".")
         pkg = ".".join(parts[0:-2])
-        mod = str(parts[-2])
+        mod = native_str(parts[-2])
         kls = parts[-1]
         got = __import__(pkg, fromlist=[mod])
         got = getattr(got, mod)
