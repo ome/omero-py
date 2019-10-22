@@ -439,9 +439,11 @@ class HdfStorage(object):
             val = attr[key]
             if isinstance(val, float):
                 val = rfloat(val)
-            elif isinstance(val, int):
-                val = rint(val)
-            elif isinstance(val, int):
+            # Recent versions of PyTables have treated Python 2 int and long
+            # identically
+            # elif isinstance(val, int):
+            #     val = rint(val)
+            elif isinstance(val, (int, numpy.int64)):
                 val = rlong(val)
             elif isinstance(val, basestring):
                 val = rstring(val)

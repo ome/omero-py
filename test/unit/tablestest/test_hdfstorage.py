@@ -23,7 +23,11 @@ import threading
 import Ice
 
 from mox3 import mox
-from omero.rtypes import rint, rstring
+from omero.rtypes import (
+    rint,
+    rlong,
+    rstring,
+)
 
 from library import TestCase
 from path import path
@@ -216,7 +220,7 @@ class TestHdfStorage(TestCase):
         assert len(m1) == 3
         assert m1['__initialized'].val > 0
         assert m1['__version'] == rstring('2')
-        assert m1['a'] == rint(1)
+        assert m1['a'] == rlong(1)
 
         with pytest.raises(omero.ApiUsageException) as exc:
             hdf.add_meta_map({'b': rint(1), '__c': rint(2)})
@@ -236,7 +240,7 @@ class TestHdfStorage(TestCase):
 
         hdf.add_meta_map({'__test': 1}, replace=True, init=True)
         m3 = hdf.get_meta_map()
-        assert m3 == {'__test': rint(1)}
+        assert m3 == {'__test': rlong(1)}
 
         hdf.cleanup()
 
