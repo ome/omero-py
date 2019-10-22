@@ -180,7 +180,7 @@ class UserControl(UserGroupControl):
         except omero.SecurityViolation as sv:
             import traceback
             self.ctx.die(456, "SecurityViolation: Bad credentials")
-            self.ctx.dbg(traceback.format_exception(None, e, e.__traceback__))
+            self.ctx.dbg(traceback.format_exception(None, e, sys.exc_info()[2]))
 
         if args.username:
             try:
