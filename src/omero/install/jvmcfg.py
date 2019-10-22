@@ -26,6 +26,7 @@ from __future__ import division
 
 from builtins import str
 from builtins import range
+from future.utils import bytes_to_native_str
 from past.utils import old_div
 from builtins import object
 from past.builtins import basestring
@@ -213,7 +214,7 @@ class Strategy(object):
         jars = str(cwd / "lib" / "server") + "/*"
         cmd = ["ome.services.util.JvmSettingsCheck", "--psutil"]
         p = omero.java.popen(["-cp", str(jars)] + cmd)
-        o, e = p.communicate()
+        o, e = list(map(bytes_to_native_str, p.communicate()))
 
         if p.poll() != 0:
             LOGGER.warn("Failed to invoke java:\nout:%s\nerr:%s",

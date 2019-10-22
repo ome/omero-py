@@ -17,6 +17,8 @@ from __future__ import print_function
 
 from builtins import str
 from future.utils import bytes_to_native_str
+from future.utils import isbytes
+from future.utils import native_str
 from past.utils import old_div
 from builtins import object
 import re
@@ -1645,6 +1647,8 @@ present, the user will enter a console""")
 
         def _check(msg, vers):
             compat = ice_compatibility.split(".")
+            if isbytes(vers):
+                vers = bytes_to_native_str(vers)
             vers = vers.split(".")
             if compat[0:2] != vers[0:2]:
                 self.ctx.die(164, "%s is not compatible with %s: %s"
