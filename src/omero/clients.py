@@ -858,7 +858,7 @@ class BaseClient(object):
 
         import os
         import types
-        if not filename or not isinstance(filename, bytes):
+        if not filename or not isinstance(filename, basestring):
             raise omero.ClientError("Non-null filename must be provided")
 
         if not os.path.exists(filename):
