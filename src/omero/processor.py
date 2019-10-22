@@ -63,7 +63,7 @@ class WithGroup(object):
         ctx = self._service.ice_getCommunicator()\
             .getImplicitContext().getContext()
         ctx = dict(ctx)
-        ctx["omero.group"] = group
+        ctx["omero.group"] = native_str(group)
         return ctx
 
     def __getattr__(self, name):
