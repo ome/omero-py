@@ -9,6 +9,7 @@
 
 """
 from __future__ import division
+from future.utils import native_str
 
 from builtins import str
 from builtins import range
@@ -246,7 +247,7 @@ class TestTables(TestCase):
     def repodir(self, make=True):
         self.tmp = path(self.tmpdir())
         self.communicator.getProperties().setProperty("omero.repo.dir",
-                                                      str(self.tmp))
+                                                      native_str(self.tmp))
         repo = self.tmp / ".omero" / "repository"
         if make:
             repo.makedirs()
