@@ -308,7 +308,11 @@ class TestHdfList(TestCase):
         tmpdir = self.tmpdir()
         return old_div(path(tmpdir), "test.h5")
 
-    def testLocking(self, monkeypatch):
+    def testLockingPytables(self, monkeypatch):
+        # https://www.pytables.org/release-notes/RELEASE_NOTES_v3.1.x.html#backward-incompatible-changes
+        # implies this is allowed, no idea how this test could have passed
+        # recently
+
         lock1 = threading.RLock()
         hdflist2 = HdfList()
         lock2 = threading.RLock()
@@ -327,6 +331,15 @@ class TestHdfList(TestCase):
         assert exc_info.value.message.startswith(
             "The file '%s' is already opened. " % tmp)
         monkeypatch.undo()
+
+    def testLockingPortalocker(self, monkeypatch):
+        lock1 = threading.RLock()
+        hdflist2 = HdfList()
+        lock2 = threading.RLock()
+        tmp = str(self.hdfpath())
+
+        # Using HDFLIST
+        hdf1 = HdfStorage(tmp, lock1)
 
         # HdfList uses portalocker, test by mocking tables.open_file
         if hasattr(tables, "open_file"):
