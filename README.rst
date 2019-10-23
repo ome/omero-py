@@ -38,7 +38,7 @@ See: `OMERO`_ documentation
 Developer installation
 ----------------------
 
-OMERO.py currently depends on an externally built artifact which is automatically bundled in the PyPi package.
+OMERO.py currently depends on an externally built artifact which is automatically bundled in the PyPI package.
 
 For a development installation we recommend creating a virtualenv with the following setup (example assumes ``python3.6`` but you can create and activate the virtualenv using any compatible Python):
 
