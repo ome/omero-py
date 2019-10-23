@@ -15,7 +15,7 @@ import logging
 
 from omero.cli import CLI, NonZeroReturnCode
 
-from omero_ext import mox
+from mox3 import mox
 from omero_version import ice_compatibility
 
 LOG = logging.getLogger("climocks")

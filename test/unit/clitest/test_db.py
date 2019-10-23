@@ -20,7 +20,7 @@ from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
 from omero.cli import CLI
-from omero_ext.mox import Mox
+from mox3 import mox
 import getpass
 import builtins
 
@@ -67,7 +67,7 @@ class TestDatabase(object):
             os.rename(self.script_file, self.script_file + '.bak')
         assert not os.path.isfile(self.script_file)
 
-        self.mox = Mox()
+        self.mox = mox.Mox()
         self.mox.StubOutWithMock(getpass, 'getpass')
         try:
             self.mox.StubOutWithMock(__builtins__, "raw_input")

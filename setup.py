@@ -210,7 +210,10 @@ setup(
         'zeroc-ice>=3.6.4,<3.7',
         'future',
     ],
-    tests_require=['pytest<3'],
+    tests_require=[
+        'pytest<3',
+        'mox3',
+    ],
     cmdclass={
         'devtarget': DevTargetCommand,
     },
