@@ -35,6 +35,26 @@ Contributing
 
 See: `OMERO`_ documentation
 
+Developer installation
+----------------------
+
+OMERO.py currently depends on an externally built artifact which is automatically bundled in the PyPi package.
+
+For a development installation we recommend creating a virtualenv with the following setup (example assumes ``python3.6`` but you can create and activate the virtualenv using any compatible Python):
+
+::
+
+    python3.6 -mvenv venv
+    . venv/bin/activate
+    pip install zeroc-ice==3.6.5
+    git clone https://github.com/ome/omero-py
+    cd omero-py
+    python setup.py devtarget
+    pip install -e .
+
+This will install OMERO.py into your virtualenv as an editable package, so any edits to ``src`` files should be reflected in your installation.
+Note that if you add or remove files you must rerun the last two steps.
+
 Running tests
 -------------
 
