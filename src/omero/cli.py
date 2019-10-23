@@ -25,6 +25,8 @@ from __future__ import print_function
 
 from past.builtins import execfile
 from past.builtins import basestring
+from future.utils import bytes_to_native_str
+from future.utils import isbytes
 from future.utils import native_str
 from builtins import zip
 from builtins import input
@@ -1450,6 +1452,8 @@ class CLI(cmd.Cmd, Context):
                     with ZipFile(jar_name, 'r') as jar_file:
                         with jar_file.open(config_name, 'r') as config:
                             for line in iter(config.readline, ''):
+                                if not line:
+                                    break
                                 yield line.rstrip()
                 except (BadZipfile, IOError, KeyError):
                     pass
@@ -1458,19 +1462,29 @@ class CLI(cmd.Cmd, Context):
             file_path = root_path / 'etc' / 'omero.properties'
             with open(file_path, 'r') as config:
                 for line in iter(config.readline, ''):
+                    if not line:
+                        break
                     yield line.rstrip()
         except IOError:
             pass
 
     def readDefaults(self):
         lines = self.get_config_property_lines(path(self._cwd(None)))
-        defaults = "".join([line + '\n' for line in lines])
+        defaults = ""
+        for line in lines:
+            if isbytes(line):
+                defaults += bytes_to_native_str(line)
+            else:
+                defaults += line
+            defaults += "\n"
         if not defaults:
             print("No properties files found for OMERO default configuration.")
         return defaults
 
     def parsePropertyFile(self, data, output):
         for line in output.splitlines():
+            if isbytes(line):
+                line = bytes_to_native_str(line)
             if line.startswith(
                     "Listening for transport dt_socket at address"):
                 self.dbg(

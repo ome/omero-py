@@ -27,6 +27,8 @@
 """
 from __future__ import division
 
+from future.utils import bytes_to_native_str
+from future.utils import isbytes
 from past.utils import old_div
 from omero.cli import BaseControl
 from omero.cli import CLI
@@ -152,6 +154,7 @@ class DatabaseControl(BaseControl):
                             else:
                                 output.write(func(s))
                         except Exception as e:
+                            self.ctx.dbg(str(e))
                             self.ctx.die(
                                 154, "Failed to map line: %s\nError: %s"
                                 % (s, e))
@@ -159,11 +162,15 @@ class DatabaseControl(BaseControl):
                 input.close()
 
     def _make_replace(self, root_pass, db_vers, db_patch):
+        def fix(str_in):
+            if isbytes(str_in):
+                str_in = bytes_to_native_str(str_in)
+            return str_in
         def replace_method(str_in):
-                str_out = str_in.replace("@ROOTPASS@", root_pass)
-                str_out = str_out.replace("@DBVERSION@", db_vers)
-                str_out = str_out.replace("@DBPATCH@", db_patch)
-                return str_out
+            str_out = str_in.replace("@ROOTPASS@", fix(root_pass))
+            str_out = str_out.replace("@DBVERSION@", fix(db_vers))
+            str_out = str_out.replace("@DBPATCH@", fix(db_patch))
+            return str_out
         return replace_method
 
     def _db_profile(self):
