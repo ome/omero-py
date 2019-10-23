@@ -320,7 +320,8 @@ class Column(list):
                 try:
                     return str(x)
                 except UnicodeDecodeError:
-                    return '<Invalid UTF-8>'
+                    # Unicode characters are present
+                    return str(x.decode("utf-8", "ignore"))
 
         decoded = [tostring(d) for d in data]
         list.__init__(self, decoded)
