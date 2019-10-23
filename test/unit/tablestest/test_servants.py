@@ -194,13 +194,19 @@ class mock_storage(object):
 
 class TestTables(TestCase):
 
+    @pytest.fixture(autouse=True)
+    def setup_internal_service_factory(self, monkeypatch):
+        self.sf_provider = mocked_internal_service_factory()
+        monkeypatch.setattr(
+            omero.util, 'internal_service_factory', self.sf_provider)
+        self.sf = self.sf_provider()
+
     def setup_method(self, method):
         TestCase.setup_method(self, method)
 
         # Session
-        self.sf_provider = mocked_internal_service_factory()
-        omero.util.internal_service_factory = self.sf_provider
-        self.sf = self.sf_provider()
+        # setup_internal_service_factory fixture should be called automatically
+        # after setup_method
 
         # Context
         serverid = "mock_table"
@@ -266,10 +272,10 @@ class TestTables(TestCase):
         self.repodir(False)
         pytest.raises(omero.ResourceError, omero.tables.TablesI, self.ctx)
 
-    def testTablesIGetDirGetsRepoThenNoSF(self):
+    def testTablesIGetDirGetsRepoThenNoSF(self, monkeypatch):
         self.repodir()
-        omero.util.internal_service_factory = \
-            mocked_internal_service_factory(None)
+        monkeypatch.setattr(omero.util, 'internal_service_factory',
+                            mocked_internal_service_factory(None))
         pytest.raises(Exception, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoFile(self):
