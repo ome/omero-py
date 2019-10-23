@@ -328,7 +328,7 @@ class TestHdfList(TestCase):
         with pytest.raises(ValueError) as exc_info:
             HdfStorage(tmp, lock2)
 
-        assert exc_info.value.message.startswith(
+        assert exc_info.value.args[0].startswith(
             "The file '%s' is already opened. " % tmp)
         monkeypatch.undo()
 
