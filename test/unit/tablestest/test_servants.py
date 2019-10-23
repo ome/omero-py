@@ -18,7 +18,7 @@ from builtins import object
 import pytest
 import Ice
 import omero
-# import omero.hdfstorageV2
+import omero.hdfstorageV2
 import omero.tables
 import uuid
 import logging
@@ -204,8 +204,13 @@ class TestTables(TestCase):
         self.sf = self.sf_provider()
 
         # Is this needed?
-        # monkeypatch.setattr(omero.hdfstorageV2, 'HDFLIST',
-        #                     omero.hdfstorageV2.HdfList())
+        monkeypatch.setattr(omero.hdfstorageV2, 'HDFLIST',
+                            omero.hdfstorageV2.HdfList())
+
+        # monkeypatch should automatically revert a change so this is probably
+        # unnecessary
+        yield
+        monkeypatch.undo()
 
     def setup_method(self, method):
         TestCase.setup_method(self, method)
