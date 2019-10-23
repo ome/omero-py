@@ -1,6 +1,12 @@
 OMERO.py
 ========
 
+.. image:: https://travis-ci.org/ome/omero-py.png
+   :target: http://travis-ci.org/ome/omero-py
+
+.. image:: https://badge.fury.io/py/omero-py.svg
+    :target: https://badge.fury.io/py/omero-py
+
 Introduction
 ------------
 
