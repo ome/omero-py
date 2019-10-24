@@ -25,7 +25,8 @@ mark up.
 """
 from __future__ import print_function
 
-
+from future.utils import bytes_to_native_str
+from future.utils import isbytes
 from past.builtins import cmp
 from builtins import str
 from builtins import object
@@ -251,6 +252,8 @@ class PropertyParser(object):
     def parse_lines(self, lines):
         """Parse the properties from the given configuration file lines"""
         for line in lines:
+            if isbytes(line):
+                line = bytes_to_native_str(line)
             if line.endswith("\n"):
                 line = line[:-1]
 
