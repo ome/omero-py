@@ -4513,7 +4513,8 @@ class _BlitzGateway (object):
                 save.obj = link
                 saves.append(save)
 
-        requests.extend(saves)
+        if len(saves) > 0:
+            requests.extend(saves)
         da.requests = requests
 
         logger.debug('DoAll Chgrp2: type: %s, ids: %s, grp: %s' %
