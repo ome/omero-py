@@ -1337,8 +1337,12 @@ class BlitzObjectWrapper (object):
                 # If this is a _unit, then we ignore val
                 # since it's not an rtype to unwrap.
                 if not hasattr(rv, "_unit"):
-                    return (isinstance(rv.val, StringType) and
-                            rv.val.decode('utf8') or rv.val)
+                    rv = rv.val
+                    if isinstance(rv, StringType):
+                        try:
+                            rv = rv.decode('utf8')
+                        except:
+                            pass
             return rv
         raise AttributeError(
             "'%s' object has no attribute '%s'"
