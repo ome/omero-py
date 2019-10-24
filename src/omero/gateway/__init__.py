@@ -2213,7 +2213,7 @@ class _BlitzGateway (object):
                 for key, value in list(self._ic_props.items()):
                     if isinstance(value, str):
                         value = value.encode('utf_8')
-                    self.c.ic.getProperties().setProperty(key, value)
+                    self.c.ic.getProperties().setProperty(key, native_str(value))
                 if self._anonymous:
                     self.c.ic.getImplicitContext().put(
                         omero.constants.EVENT, 'Internal')
