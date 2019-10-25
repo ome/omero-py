@@ -139,7 +139,7 @@ class UpgradeCheck(object):
                 request.add_header('User-Agent', self.agent)
                 self.log.debug("Attempting to connect to %s" % full_url)
                 response = urllib.request.urlopen(request)
-                result = response.read()
+                result = response.read().decode("utf-8")
             finally:
                 socket.setdefaulttimeout(old_timeout)
 
