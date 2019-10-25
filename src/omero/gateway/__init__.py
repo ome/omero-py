@@ -1337,8 +1337,12 @@ class BlitzObjectWrapper (object):
                 # If this is a _unit, then we ignore val
                 # since it's not an rtype to unwrap.
                 if not hasattr(rv, "_unit"):
-                    return (isinstance(rv.val, StringType) and
-                            rv.val.decode('utf8') or rv.val)
+                    rv = rv.val
+                    if isinstance(rv, StringType):
+                        try:
+                            rv = rv.decode('utf8')
+                        except:
+                            pass
             return rv
         raise AttributeError(
             "'%s' object has no attribute '%s'"
@@ -2209,7 +2213,7 @@ class _BlitzGateway (object):
                 for key, value in list(self._ic_props.items()):
                     if isinstance(value, str):
                         value = value.encode('utf_8')
-                    self.c.ic.getProperties().setProperty(key, value)
+                    self.c.ic.getProperties().setProperty(key, native_str(value))
                 if self._anonymous:
                     self.c.ic.getImplicitContext().put(
                         omero.constants.EVENT, 'Internal')
