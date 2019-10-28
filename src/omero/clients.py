@@ -301,7 +301,7 @@ class BaseClient(object):
             # Register Object Factory
             try:
                 import ObjectFactoryRegistrar as ofr
-            except ModuleNotFoundError:
+            except ImportError:
                 from . import ObjectFactoryRegistrar as ofr
             ofr.registerObjectFactory(self.__ic, self)
 
