@@ -14,7 +14,11 @@ import os
 import subprocess
 import urllib.request, urllib.error, urllib.parse
 
-from types import StringTypes
+try:
+    from types import StringTypes
+except ImportError:
+    StringTypes = str
+
 from path import path
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
