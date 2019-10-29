@@ -29,7 +29,7 @@ data for clients.
 from builtins import range
 from past.builtins import basestring
 from builtins import object
-from collections import deque
+from collections import deque, OrderedDict
 from omero.constants import namespaces
 import re
 
@@ -253,7 +253,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
         super(KeyValueGroupList, self).__init__(
             default_cfg, column_cfgs)
         self.headers = headers
-        self.headerindexmap = dict(
+        self.headerindexmap = OrderedDict(
             (b, a) for (a, b) in enumerate(self.headers))
         self.checked = set()
         self.output_configs = self.get_output_configs()
@@ -311,6 +311,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
         # Unspecified Columns
         if isdefault and self.default_cfg["include"]:
             for name in self.headerindexmap.keys():
+                print(name)
                 if name not in self.checked:
                     cfg = self.get_column_config({"name": name})
                     assert not isinstance(cfg, GroupConfig)
