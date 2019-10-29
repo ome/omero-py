@@ -310,7 +310,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
 
         # Unspecified Columns
         if isdefault and self.default_cfg["include"]:
-            for name in list(self.headerindexmap.keys()):
+            for name in self.headerindexmap.keys():
                 if name not in self.checked:
                     cfg = self.get_column_config({"name": name})
                     assert not isinstance(cfg, GroupConfig)
