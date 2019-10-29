@@ -24,7 +24,6 @@
 Test of various things under omero.gateway
 """
 
-from past.builtins import basestring
 from builtins import object
 import Ice
 import pytest
@@ -188,13 +187,12 @@ class TestBlitzObjectGetAttr(object):
     """
     Tests returning objects via the BlitzObject.__getattr__
     """
-    
+
     def _encode(self, s):
         if sys.version_info >= (3, 0, 0):
             return s
         else:
             return s.encode('utf8')
-
 
     def test_logical_channel(self):
         name = u'₩€_name_$$'
