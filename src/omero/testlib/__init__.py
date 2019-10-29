@@ -1010,7 +1010,7 @@ class ITest(object):
         if mimetype is None:
             mimetype = "application/octet-stream"
         if binary is None:
-            binary = "12345678910"
+            binary = b"12345678910"
         if name is None:
             name = str(self.uuid())
 
