@@ -8,6 +8,8 @@ matrix:
       env: TOX=py27
     - python: "3.6"
       env: TOX=py36
+    - python: "3.7"
+      env: TOX=py37
     - python: "3.6"
       env: TOX=no
 
