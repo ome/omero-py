@@ -336,7 +336,6 @@ class TestKeyValueListTransformer(object):
             (expected(name="a2", visible=False), 0),
             (expected(name="a4", clientvalue="*-{{ value }}-*"), 1),
         ]
-        print(output_configs)
 
         tr = KeyValueListTransformer(headers, output_configs)
         r = tr.transform(("2", "4", "x", "1a|1b"))
