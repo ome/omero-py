@@ -1443,7 +1443,7 @@ class AbstractRepoTest(ITest):
         def _nowrite(rfs):
             try:
                 pytest.raises(omero.SecurityViolation,
-                              rfs.write, "bye", 0, 3)
+                              rfs.write, b"bye", 0, 3)
                 assert b"hi" == rfs.read(0, 2)
             finally:
                 rfs.close()
