@@ -1020,8 +1020,11 @@ present, the user will enter a console""")
         from omero.util.cleanse import removepyramids
         client = self.ctx.conn(args)
         client.getSessionId()
-        wait = args.wait if args.wait > 0 else 25
-        limit = args.limit if args.limit > 0 else 500
+        wait = args.wait if args.wait is not None and args.wait > 0 else 25
+        if args.limit is not None and args.limit > 0
+            limit = args.limit
+        else:
+            limit = 500
         if args.endian == "both":
             little = None
         elif args.endian == "little":
