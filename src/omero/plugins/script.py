@@ -293,7 +293,7 @@ class ScriptControl(BaseControl):
             from sha import new as sha_new
 
         digest = sha_new()
-        digest.update(DEMO_SCRIPT)
+        digest.update(DEMO_SCRIPT.encode('utf-8'))
         sha1 = digest.hexdigest()
 
         self.ctx.out("\nExample script writing session")
