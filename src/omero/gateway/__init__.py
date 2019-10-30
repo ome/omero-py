@@ -1317,7 +1317,10 @@ class BlitzObjectWrapper (object):
                     rv = getattr(self._obj, attrName)
                     if hasattr(rv, 'val'):
                         if isinstance(rv.val, StringType):
-                            return rv.val.decode('utf8')
+                            if isinstance(rv.val, str):
+                                return rv.val
+                            else:
+                                return rv.val.decode('utf8')
                         # E.g. pixels.getPhysicalSizeX()
                         if hasattr(rv, "_unit"):
                             return rv
