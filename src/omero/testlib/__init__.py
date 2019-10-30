@@ -1423,12 +1423,12 @@ class AbstractRepoTest(ITest):
     def assert_write(self, mrepo2, filename, ofile):
         def _write(rfs):
             try:
-                rfs.write("bye", 0, 3)
-                assert "bye" == rfs.read(0, 3)
+                rfs.write(b"bye", 0, 3)
+                assert b"bye" == rfs.read(0, 3)
                 # Resetting for other expectations
                 rfs.truncate(2)
                 rfs.write(b"hi", 0, 2)
-                assert "hi" == rfs.read(0, 2)
+                assert b"hi" == rfs.read(0, 2)
             finally:
                 rfs.close()
 
@@ -1444,7 +1444,7 @@ class AbstractRepoTest(ITest):
             try:
                 pytest.raises(omero.SecurityViolation,
                               rfs.write, "bye", 0, 3)
-                assert "hi" == rfs.read(0, 2)
+                assert b"hi" == rfs.read(0, 2)
             finally:
                 rfs.close()
 
@@ -1476,7 +1476,7 @@ class AbstractRepoTest(ITest):
     def assert_read(self, mrepo2, filename, ofile, ctx=None):
         def _read(rfs):
             try:
-                assert "hi" == rfs.read(0, 2)
+                assert b"hi" == rfs.read(0, 2)
             finally:
                 rfs.close()
 
