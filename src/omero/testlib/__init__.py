@@ -1307,7 +1307,7 @@ class AbstractRepoTest(ITest):
     def create_file(self, mrepo1, filename):
         rfs = mrepo1.file(filename, "rw")
         try:
-            rfs.write("hi", 0, 2)
+            rfs.write(b"hi", 0, 2)
             ofile = rfs.save()
             return ofile
         finally:
@@ -1427,7 +1427,7 @@ class AbstractRepoTest(ITest):
                 assert "bye" == rfs.read(0, 3)
                 # Resetting for other expectations
                 rfs.truncate(2)
-                rfs.write("hi", 0, 2)
+                rfs.write(b"hi", 0, 2)
                 assert "hi" == rfs.read(0, 2)
             finally:
                 rfs.close()
