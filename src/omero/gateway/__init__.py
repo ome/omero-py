@@ -7362,7 +7362,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 # +str(sizeX*sizeY)+pythonTypes[pixelType]
                 convertType = '>%d%s' % (
                     (planeY*planeX), pixelTypes[pixelType][0])
-                convertedPlane = unpack(convertType, rawPlane)
+                convertedPlane = unpack(convertType, rawPlane.encode("utf-8"))
                 remappedPlane = numpy.array(convertedPlane, numpyType)
                 remappedPlane.resize(planeY, planeX)
                 yield remappedPlane
