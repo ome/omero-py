@@ -1305,15 +1305,16 @@ present, the user will enter a console""")
                 servers = io[0].split()
                 servers.sort()
                 for s in servers:
-                    self._item("Server", "%s" % s)
+                    decoded = s.decode("utf-8")
+                    self._item("Server", "%s" % decoded)
                     p2 = self.ctx.popen(
-                        self._cmd("-e", "server state %s" % s))  # popen
+                        self._cmd("-e", "server state %s" % decoded))  # popen
                     p2.wait()
                     io2 = p2.communicate()
                     if io2[1]:
-                        self.ctx.err(io2[1].strip())
+                        self.ctx.err(io2[1].strip().decode("utf-8"))
                     elif io2[0]:
-                        self.ctx.out(io2[0].strip())
+                        self.ctx.out(io2[0].strip().decode("utf-8"))
                     else:
                         self.ctx.err("UNKNOWN!")
             if self._isWindows():
