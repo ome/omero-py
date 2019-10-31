@@ -58,7 +58,7 @@ client = scripts.client("length of input string",
 authors = ["OME Team"],
 institutions = ["openmicroscopy.org"])
 
-print "Starting script"
+print("Starting script")
 
 try:
     a = client.getInput("a").getValue()
@@ -68,7 +68,7 @@ try:
 finally:
     client.closeSession()
 
-print "Finished script"
+print("Finished script")
 """
 
 RE0 = re.compile(r"\s*script\s+upload\s*")
