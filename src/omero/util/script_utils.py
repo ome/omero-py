@@ -1529,7 +1529,7 @@ def numpy_save_as_image(plane, min_max, dtype, name):
     image = numpy_to_image(plane, min_max, dtype)
     try:
         image.save(name)
-    except (IOError, KeyError) as e:
+    except (IOError, KeyError, ValueError) as e:
         msg = "Cannot save the array as an image: %s: %s" % (
             name, e)
         logging.error(msg)
