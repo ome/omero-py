@@ -140,12 +140,12 @@ def fileread(fin, fsize, bufsize):
     :param fsize: total number of bytes to read
     :type bufsize: int
     :param fsize: size of each chunk of data read from fin
-    :rtype: string
-    :return: string buffer holding the contents read from the file
+    :rtype: bytes
+    :return: bytes buffer holding the contents read from the file
     """
     # Read it all in one go
     p = 0
-    rv = ''
+    rv = b''
     try:
         while p < fsize:
             s = min(bufsize, fsize-p)
