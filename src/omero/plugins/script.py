@@ -293,7 +293,7 @@ class ScriptControl(BaseControl):
             from sha import new as sha_new
 
         digest = sha_new()
-        digest.update(DEMO_SCRIPT)
+        digest.update(DEMO_SCRIPT.encode('utf-8'))
         sha1 = digest.hexdigest()
 
         self.ctx.out("\nExample script writing session")
@@ -449,7 +449,7 @@ class ScriptControl(BaseControl):
                              % (m, f.val.id.val))
                 try:
                     client.download(ofile=f.val, filehandle=handle())
-                except:
+                except Exception:
                     self.ctx.err("Failed to display %s" % m)
                 self.ctx.out("\n\t*** end %s ***\n" % m)
 
@@ -526,7 +526,7 @@ class ScriptControl(BaseControl):
                         try:
                             proto_value = \
                                 v.prototype.val.values[0].ice_staticId()
-                        except:
+                        except Exception:
                             proto_value = None
 
                         self.ctx.out("    Subtype: %s" % proto_value)
@@ -782,7 +782,7 @@ omero.pass=%(omero.sess)s
 
         try:
             script_id = int(f)
-        except:
+        except Exception:
             script_path = str(f)
             script_id = svc.getScriptID(script_path)
         ofile = q.get("OriginalFile", script_id)
@@ -812,6 +812,7 @@ omero.pass=%(omero.sess)s
                     else:
                         id = int(parts[1])
                         return factory(id, False)
+
 
 try:
     register("script", ScriptControl, HELP)
