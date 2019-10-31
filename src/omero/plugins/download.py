@@ -36,6 +36,7 @@ Examples:
     bin/omero download Image:5 original_image
 """
 
+
 class StdOutHandle():
     """
     File handle for writing bytes to std.out in python 2 and python 3
@@ -50,6 +51,7 @@ class StdOutHandle():
         except TypeError:
             # python 3: If String was expected, convert to String
             return sys.stdout.write(b.decode('ascii', 'replace'))
+
 
 class DownloadControl(BaseControl):
 
