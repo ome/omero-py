@@ -123,11 +123,12 @@ def _format_from_name(filename):
 
 
 def get_format_filename(filename, filetype):
+    """Returns bytes from the named json or yaml file."""
     if not filetype:
         filetype = _format_from_name(filename)
     if filetype not in ('json', 'yaml'):
         raise ValueError('Unknown file format: %s' % filename)
-    with open(filename, 'r') as f:
+    with open(filename, 'rb') as f:
         rawdata = f.read()
     return rawdata, filetype
 
