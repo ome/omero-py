@@ -176,6 +176,7 @@ def get_group_ids(out, sort_key=None):
                 new_value = ids[-1]
             else:
                 new_value = elements[1].strip()
-            assert new_value >= last_value
+            if last_value is not None:
+                assert new_value >= last_value
             last_value = new_value
     return ids
