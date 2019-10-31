@@ -189,7 +189,7 @@ def calc_sha1(filename):
     @return:            The hash of the file
     """
 
-    with open(filename) as file_handle:
+    with open(filename, 'rb') as file_handle:
         h = hash_sha1()
         h.update(file_handle.read())
         hash = h.hexdigest()
