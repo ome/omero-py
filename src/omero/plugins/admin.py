@@ -1450,13 +1450,14 @@ present, the user will enter a console""")
                     self._item("%s %s port" % (s, port_type),
                                "%s" % value or "Not found")
                     self.ctx.out("")
+                s = str(s, "utf-8")
                 p2 = self.ctx.popen(
                     self._cmd("-e", "application describe %s" % s))
                 io2 = p2.communicate()
                 if io2[1]:
-                    self.ctx.err(io2[1].strip())
+                    self.ctx.err(str(io2[1].strip(), "utf-8"))
                 elif io2[0]:
-                    ssl_port, tcp_port = get_ports(io2[0])
+                    ssl_port, tcp_port = get_ports(str(io2[0], "utf-8"))
                     port_val("SSL", ssl_port)
                     port_val("TCP", tcp_port)
                 else:
