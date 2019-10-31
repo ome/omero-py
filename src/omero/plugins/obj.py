@@ -358,7 +358,7 @@ class ObjGetTxAction(NonFieldTxAction):
             try:
                 proxy = self.get_field(field)
             except AttributeError as ae:
-                ctx.die(336, ae.message)
+                ctx.die(336, str(ae))
         else:
             proxy = ""
             for attr in dir(self.obj):
@@ -414,7 +414,7 @@ class ObjGetTxAction(NonFieldTxAction):
                             field, self.kls, self.obj.id.val))
             except AttributeError as ae:
                 raise AttributeError("Error: field '%s' for %s:%s : %s" % (
-                    field, self.kls, self.obj.id.val, ae.message))
+                    field, self.kls, self.obj.id.val, str(ae)))
 
         return proxy
 
@@ -449,7 +449,7 @@ class ListGetTxAction(NonFieldTxAction):
                         proxy = str(item)
                 except IndexError as ie:
                     ctx.die(336, "Error: field '%s[%s]' for %s:%s, %s" % (
-                        field, index, self.kls, self.obj.id.val, ie.message))
+                        field, index, self.kls, self.obj.id.val, str(ie)))
             else:
                 ctx.die(336, "Field '%s' for %s:%s is not a list" % (
                     field, self.kls, self.obj.id.val))
