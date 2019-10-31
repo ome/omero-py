@@ -356,7 +356,7 @@ def download_file(raw_file_store, original_file, file_path=None):
     file_size = original_file.getSize().getValue()
     block_size = min(max_block_size, file_size)
     cnt = 0
-    with open(file_path, 'w') as file_handle:
+    with open(file_path, 'wb') as file_handle:
         while cnt < file_size:
             block = raw_file_store.read(cnt, block_size)
             cnt = cnt + block_size
