@@ -150,7 +150,7 @@ class TxAction(object):
         parts = self.tx_cmd.type.split(":")
         try:
             return int(parts[1])
-        except:
+        except Exception:
             return None
 
     def instance(self, ctx):
