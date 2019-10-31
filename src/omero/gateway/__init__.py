@@ -4555,8 +4555,6 @@ class _BlitzGateway (object):
         """
         if not text:
             return []
-        if isinstance(text, UnicodeType):
-            text = text.encode('utf8')
         if obj_types is None:
             types = (ProjectWrapper, DatasetWrapper, ImageWrapper)
         else:
