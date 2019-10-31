@@ -9561,7 +9561,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         dims = self.splitChannelDims(
             border=border)[self.isGreyscaleRenderingModel() and 'g' or 'c']
-        canvas = Image.new('RGBA', (dims['width'], dims['height']), '#fff')
+        canvas = Image.new('RGB', (dims['width'], dims['height']), '#fff')
         cmap = [
             ch.isActive() and i+1 or 0
             for i, ch in enumerate(self.getChannels())]
