@@ -1317,7 +1317,10 @@ class BlitzObjectWrapper (object):
                     rv = getattr(self._obj, attrName)
                     if hasattr(rv, 'val'):
                         if isinstance(rv.val, StringType):
-                            return rv.val.decode('utf8')
+                            if isinstance(rv.val, str):
+                                return rv.val
+                            else:
+                                return rv.val.decode('utf8')
                         # E.g. pixels.getPhysicalSizeX()
                         if hasattr(rv, "_unit"):
                             return rv
@@ -1337,8 +1340,12 @@ class BlitzObjectWrapper (object):
                 # If this is a _unit, then we ignore val
                 # since it's not an rtype to unwrap.
                 if not hasattr(rv, "_unit"):
-                    return (isinstance(rv.val, StringType) and
-                            rv.val.decode('utf8') or rv.val)
+                    rv = rv.val
+                    if isinstance(rv, StringType):
+                        try:
+                            rv = rv.decode('utf8')
+                        except:
+                            pass
             return rv
         raise AttributeError(
             "'%s' object has no attribute '%s'"
@@ -2209,7 +2216,7 @@ class _BlitzGateway (object):
                 for key, value in list(self._ic_props.items()):
                     if isinstance(value, str):
                         value = value.encode('utf_8')
-                    self.c.ic.getProperties().setProperty(key, value)
+                    self.c.ic.getProperties().setProperty(key, native_str(value))
                 if self._anonymous:
                     self.c.ic.getImplicitContext().put(
                         omero.constants.EVENT, 'Internal')
@@ -4548,8 +4555,6 @@ class _BlitzGateway (object):
         """
         if not text:
             return []
-        if isinstance(text, UnicodeType):
-            text = text.encode('utf8')
         if obj_types is None:
             types = (ProjectWrapper, DatasetWrapper, ImageWrapper)
         else:
@@ -7355,7 +7360,11 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 # +str(sizeX*sizeY)+pythonTypes[pixelType]
                 convertType = '>%d%s' % (
                     (planeY*planeX), pixelTypes[pixelType][0])
-                convertedPlane = unpack(convertType, rawPlane)
+                if isinstance(rawPlane, bytes):
+                    convertedPlane = unpack(convertType, rawPlane)
+                else:
+                    encoded = rawPlane.encode("utf-8")
+                    convertedPlane = unpack(convertType, encoded)
                 remappedPlane = numpy.array(convertedPlane, numpyType)
                 remappedPlane.resize(planeY, planeX)
                 yield remappedPlane

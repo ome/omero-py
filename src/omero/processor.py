@@ -994,7 +994,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
             # client.download(file, str(process.script_path))
             scriptText = sf.getScriptService().getScriptText(file.id.val)
-            process.script_path.write_bytes(scriptText)
+            process.script_path.write_bytes(scriptText.encode('utf-8'))
 
             self.logger.info("Downloaded file: %s" % file.id.val)
             s = client.sha1(str(process.script_path))

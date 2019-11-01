@@ -16,6 +16,8 @@ from __future__ import division
 from __future__ import print_function
 
 from builtins import str
+from future.utils import bytes_to_native_str
+from future.utils import isbytes
 from past.utils import old_div
 from builtins import object
 import re
@@ -97,10 +99,10 @@ class AdminControl(DiagnosticsControl,
         and otherwise delegates to the BaseControl
         """
         for s in (" deploy ", " start ", " startasync "):
-            l = len(s)
+            length = len(s)
             i = line.find(s)
             if i >= 0:
-                f = line[i+l:]
+                f = line[i+length:]
                 return self._complete_file(f)
         return WriteableConfigControl._complete(
             self, text, line, begidx, endidx)
@@ -528,7 +530,7 @@ present, the user will enter a console""")
                 try:
                     hs = win32service.OpenService(
                         hscm, svc_name, win32service.SERVICE_ALL_ACCESS)
-                except:
+                except Exception:
                     return "DOESNOTEXIST"
                 try:
                     q = win32service.QueryServiceStatus(hs)
@@ -1017,8 +1019,11 @@ present, the user will enter a console""")
         from omero.util.cleanse import removepyramids
         client = self.ctx.conn(args)
         client.getSessionId()
-        wait = args.wait if args.wait > 0 else 25
-        limit = args.limit if args.limit > 0 else 500
+        wait = args.wait if args.wait is not None and int(args.wait) > 0 else 25
+        if args.limit is not None and int(args.limit) > 0:
+            limit = args.limit
+        else:
+            limit = 500
         if args.endian == "both":
             little = None
         elif args.endian == "little":
@@ -1075,7 +1080,8 @@ present, the user will enter a console""")
 
     def _glacier2_icessl_xml(self, config_props):
         # Convert omero.glacier2.IceSSL.* properties to IceSSL.*
-        glacier2_icessl = dict((k[15:], v) for (k, v) in list(config_props.items())
+        items = list(config_props.items())
+        glacier2_icessl = dict((k[15:], v) for (k, v) in items
                                if k.startswith('omero.glacier2.IceSSL.'))
         return ['<property name="%s" value="%s"/>' % kv
                 for kv in list(glacier2_icessl.items())]
@@ -1161,7 +1167,8 @@ present, the user will enter a console""")
 
             with open(input_file) as template:
                 data = template.read()
-            output_file = path(old_div(output_dir, os.path.basename(input_file)))
+            output_file = path(old_div(output_dir,
+                               os.path.basename(input_file)))
             if output_file.exists():
                 output_file.remove()
             with open(output_file, 'w') as f:
@@ -1225,7 +1232,7 @@ present, the user will enter a console""")
                 return False
 
             p.wait()
-            io = p.communicate()
+            io = list(map(bytes_to_native_str, p.communicate()))
             try:
                 v = io[0].split()
                 v.extend(io[1].split())
@@ -1242,8 +1249,7 @@ present, the user will enter a console""")
                         where = where[0]
                         if sz > 1:
                             where += " -- %s others" % sz
-
-                except:
+                except Exception:
                     where = "unknown"
                 self.ctx.out("(%s)" % where)
                 return True
@@ -1302,15 +1308,16 @@ present, the user will enter a console""")
                 servers = io[0].split()
                 servers.sort()
                 for s in servers:
-                    self._item("Server", "%s" % s)
+                    decoded = s.decode("utf-8")
+                    self._item("Server", "%s" % decoded)
                     p2 = self.ctx.popen(
-                        self._cmd("-e", "server state %s" % s))  # popen
+                        self._cmd("-e", "server state %s" % decoded))  # popen
                     p2.wait()
                     io2 = p2.communicate()
                     if io2[1]:
-                        self.ctx.err(io2[1].strip())
+                        self.ctx.err(io2[1].strip().decode("utf-8"))
                     elif io2[0]:
-                        self.ctx.out(io2[0].strip())
+                        self.ctx.out(io2[0].strip().decode("utf-8"))
                     else:
                         self.ctx.err("UNKNOWN!")
             if self._isWindows():
@@ -1363,7 +1370,7 @@ present, the user will enter a console""")
             sz = 0
             for x in log_dir.walkfiles():
                 sz += x.size
-            self.ctx.out("%-.2f MB" % (old_div(float(sz),1000000.0)))
+            self.ctx.out("%-.2f MB" % (old_div(float(sz), 1000000.0)))
             self.ctx.out("")
 
             # Parsing well known issues
@@ -1400,7 +1407,7 @@ present, the user will enter a console""")
                                            "[line:%s] %s" % (lno, v))
                                 self.ctx.out("")
                                 break
-            except:
+            except Exception:
                 self.ctx.err("Error while parsing logs")
 
         if not args.no_logs:
@@ -1644,6 +1651,8 @@ present, the user will enter a console""")
 
         def _check(msg, vers):
             compat = ice_compatibility.split(".")
+            if isbytes(vers):
+                vers = bytes_to_native_str(vers)
             vers = vers.split(".")
             if compat[0:2] != vers[0:2]:
                 self.ctx.die(164, "%s is not compatible with %s: %s"
@@ -1696,7 +1705,7 @@ present, the user will enter a console""")
         except portalocker.LockException:
             try:
                 config.close()
-            except:
+            except Exception:
                 pass
             self.ctx.die(111, "Could not acquire lock on %s" % cfg_xml)
 
@@ -1770,7 +1779,7 @@ present, the user will enter a console""")
                 for file in files:
                     try:
                         os.remove(file)
-                    except:
+                    except Exception:
                         self.ctx.err("Failed to remove: %s", file)
 
         elif args.prepare:

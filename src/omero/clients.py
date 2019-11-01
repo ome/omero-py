@@ -11,6 +11,7 @@ from __future__ import print_function
 from builtins import zip
 from builtins import range
 from builtins import object
+from future.utils import bytes_to_native_str
 __save__ = __name__
 __name__ = 'omero'
 try:
@@ -98,6 +99,7 @@ class BaseClient(object):
 
         Equivalent to all OmeroJava and OmeroCpp constructors
         """
+        args, id, host, port, pmap = self._repair(args, id, host, port, pmap)
 
         # Setting all protected values to prevent AttributeError
         self.__agent = "OMERO.py"  #: See setAgent
@@ -120,16 +122,6 @@ class BaseClient(object):
 
         args, id, host, port, pmap = self._repair(args, id, host, port, pmap)
 
-        # Copying args since we don't really want them edited
-        if not args:
-            args = []
-        else:
-            # See ticket:5516 To prevent issues on systems where the base
-            # class of path.path is unicode, we will encode all unicode
-            # strings here.
-            args = [arg.encode("utf-8") if isinstance(arg, str)
-                    else arg for arg in args]
-
         # hosturl overrides all other args
         hosturl = self._check_for_hosturl(host, port, pmap)
         if hosturl:
@@ -140,7 +132,17 @@ class BaseClient(object):
             port = hosturl['port']
             args.append(self._get_endpoint_from_hosturl(hosturl))
 
-        args = [str(x) for x in args]
+        # Copying args since we don't really want them edited
+        if not args:
+            args = []
+        else:
+            # See ticket:5516 To prevent issues on systems where the base
+            # class of path.path is unicode, we will encode all unicode
+            # strings here.
+            args = [arg.encode("utf-8") if isinstance(arg, str)
+                    else arg for arg in args]
+
+        args = [bytes_to_native_str(x) for x in args]
 
         # Equiv to multiple constructors. #######################
         if id is None:
@@ -301,7 +303,7 @@ class BaseClient(object):
             # Register Object Factory
             try:
                 import ObjectFactoryRegistrar as ofr
-            except ModuleNotFoundError:
+            except ImportError:
                 from . import ObjectFactoryRegistrar as ofr
             ofr.registerObjectFactory(self.__ic, self)
 

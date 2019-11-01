@@ -434,7 +434,7 @@ class ITest(object):
             return y
 
         def f2(x, y):
-            return old_div((x + y), 2)
+            return (x + y) // 2
 
         def f3(x, y):
             return x
@@ -1307,7 +1307,7 @@ class AbstractRepoTest(ITest):
     def create_file(self, mrepo1, filename):
         rfs = mrepo1.file(filename, "rw")
         try:
-            rfs.write("hi", 0, 2)
+            rfs.write(b"hi", 0, 2)
             ofile = rfs.save()
             return ofile
         finally:
@@ -1423,12 +1423,12 @@ class AbstractRepoTest(ITest):
     def assert_write(self, mrepo2, filename, ofile):
         def _write(rfs):
             try:
-                rfs.write("bye", 0, 3)
-                assert "bye" == rfs.read(0, 3)
+                rfs.write(b"bye", 0, 3)
+                assert b"bye" == rfs.read(0, 3)
                 # Resetting for other expectations
                 rfs.truncate(2)
-                rfs.write("hi", 0, 2)
-                assert "hi" == rfs.read(0, 2)
+                rfs.write(b"hi", 0, 2)
+                assert b"hi" == rfs.read(0, 2)
             finally:
                 rfs.close()
 
@@ -1443,8 +1443,8 @@ class AbstractRepoTest(ITest):
         def _nowrite(rfs):
             try:
                 pytest.raises(omero.SecurityViolation,
-                              rfs.write, "bye", 0, 3)
-                assert "hi" == rfs.read(0, 2)
+                              rfs.write, b"bye", 0, 3)
+                assert b"hi" == rfs.read(0, 2)
             finally:
                 rfs.close()
 
@@ -1476,7 +1476,7 @@ class AbstractRepoTest(ITest):
     def assert_read(self, mrepo2, filename, ofile, ctx=None):
         def _read(rfs):
             try:
-                assert "hi" == rfs.read(0, 2)
+                assert b"hi" == rfs.read(0, 2)
             finally:
                 rfs.close()
 

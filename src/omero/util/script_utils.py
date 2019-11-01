@@ -189,7 +189,7 @@ def calc_sha1(filename):
     @return:            The hash of the file
     """
 
-    with open(filename) as file_handle:
+    with open(filename, 'rb') as file_handle:
         h = hash_sha1()
         h.update(file_handle.read())
         hash = h.hexdigest()
@@ -356,7 +356,7 @@ def download_file(raw_file_store, original_file, file_path=None):
     file_size = original_file.getSize().getValue()
     block_size = min(max_block_size, file_size)
     cnt = 0
-    with open(file_path, 'w') as file_handle:
+    with open(file_path, 'wb') as file_handle:
         while cnt < file_size:
             block = raw_file_store.read(cnt, block_size)
             cnt = cnt + block_size
@@ -1529,7 +1529,7 @@ def numpy_save_as_image(plane, min_max, dtype, name):
     image = numpy_to_image(plane, min_max, dtype)
     try:
         image.save(name)
-    except (IOError, KeyError) as e:
+    except (IOError, KeyError, ValueError) as e:
         msg = "Cannot save the array as an image: %s: %s" % (
             name, e)
         logging.error(msg)

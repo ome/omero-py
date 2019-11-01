@@ -118,7 +118,7 @@ def prep_directory(client, mrepo):
         try:
             tmp.write_text("THIS IS A PLACEHOLDER")
             hash = client.sha1(tmp)
-            with open(tmp, "r") as source:
+            with open(tmp, "rb") as source:
                 client.write_stream(source, prx)
         finally:
             prx.close()
@@ -614,12 +614,16 @@ Examples:
         """
 
         from omero.grid import ManagedRepositoryPrx as MRepo
+        from functools import cmp_to_key
+
+        def my_cmp(a, b):
+            return cmp(a[0].id.val, b[0].id.val)
 
         client = self.ctx.conn(args)
         shared = client.sf.sharedResources()
         repos = shared.repositories()
         repos = list(zip(repos.descriptions, repos.proxies))
-        repos.sort(lambda a, b: cmp(a[0].id.val, b[0].id.val))
+        repos.sort(key = cmp_to_key(my_cmp))
 
         tb = self._table(args)
         tb.cols(["Id", "UUID", "Type", "Path"])

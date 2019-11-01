@@ -290,7 +290,7 @@ class TestDBHelper(object):
         @param content:     String containing the content of the file
         @return:            OriginalFileWrapper
         """
-        sio = BytesIO(content)
+        sio = BytesIO(content.encode("utf-8"))
         f = self.gateway.createOriginalFileFromFileObj(
             sio, parentpath, filename, len(content))
         return f

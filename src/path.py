@@ -49,6 +49,7 @@ from builtins import map
 from builtins import str
 from past.builtins import basestring
 from past.utils import old_div
+from builtins import bytes
 from builtins import object
 
 import sys
@@ -900,18 +901,18 @@ class path(str):
                 text = text.replace(u('\n'), linesep)
             if encoding is None:
                 encoding = sys.getdefaultencoding()
-            bytes = text.encode(encoding, errors)
+            _bytes = text.encode(encoding, errors)
         else:
             # It is an error to specify an encoding if 'text' is
             # an 8-bit string.
             assert encoding is None
 
             if linesep is not None:
-                text = (text.replace('\r\n', '\n')
-                            .replace('\r', '\n'))
-                bytes = text.replace('\n', linesep)
+                text = (text.replace(b'\r\n', b'\n')
+                            .replace(b'\r', b'\n'))
+                _bytes = text.replace(b'\n', bytes(linesep, 'utf-8'))
 
-        self.write_bytes(bytes, append)
+        self.write_bytes(_bytes, append)
 
     def lines(self, encoding=None, errors='strict', retain=True):
         r""" Open this file, read all lines, return them in a list.
