@@ -118,7 +118,7 @@ def prep_directory(client, mrepo):
         try:
             tmp.write_text("THIS IS A PLACEHOLDER")
             hash = client.sha1(tmp)
-            with open(tmp, "r") as source:
+            with open(tmp, "rb") as source:
                 client.write_stream(source, prx)
         finally:
             prx.close()
