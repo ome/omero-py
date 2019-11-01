@@ -37,6 +37,22 @@ Examples:
 """
 
 
+class StdOutHandle():
+    """
+    File handle for writing bytes to std.out in python 2 and python 3
+    """
+    # https://github.com/pexpect/pexpect/pull/31/files
+    @staticmethod
+    def write(b):
+        # Handle stdout.write for bytes
+        try:
+            # Try writing bytes... python 2
+            return sys.stdout.write(b)
+        except TypeError:
+            # python 3: If String was expected, convert to String
+            return sys.stdout.write(b.decode('ascii', 'replace'))
+
+
 class DownloadControl(BaseControl):
 
     def _configure(self, parser):
@@ -61,7 +77,7 @@ class DownloadControl(BaseControl):
 
         try:
             if target_file == "-":
-                client.download(orig_file, filehandle=sys.stdout)
+                client.download(orig_file, filehandle=StdOutHandle())
                 sys.stdout.flush()
             else:
                 client.download(orig_file, target_file)
