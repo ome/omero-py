@@ -10,6 +10,8 @@
 """
 from builtins import str
 from builtins import object
+from past.builtins import long
+import sys
 import pytest
 import omero
 import omero.model  # For Image
@@ -30,7 +32,10 @@ class TestModel(object):
         # Unsupported
         # assert rdouble(0) == rtype(Double.valueOf(0))
         assert rfloat(0) == rtype(float(0))
-        assert rlong(0) == rtype(int(0))
+        if sys.version_info < (3, 0, 0):
+            assert rlong(0) == rtype(long(0))
+        else:
+            assert rint(0) == rtype(long(0))
         assert rint(0) == rtype(int(0))
         assert rstring("string") == rtype("string")
         # Unsupported
