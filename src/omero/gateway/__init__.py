@@ -6434,7 +6434,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             q = self._conn.getQueryService()
             params = omero.sys.Parameters()
             params.map = {}
-            params.map["oid"] = omero_type(self.getId())
+            params.map["oid"] = rlong(self.getId())
             query = ("select well from Well as well "
                      "join fetch well.details.creationEvent "
                      "join fetch well.details.owner "
