@@ -140,12 +140,12 @@ def fileread(fin, fsize, bufsize):
     :param fsize: total number of bytes to read
     :type bufsize: int
     :param fsize: size of each chunk of data read from fin
-    :rtype: string
-    :return: string buffer holding the contents read from the file
+    :rtype: bytes
+    :return: bytes buffer holding the contents read from the file
     """
     # Read it all in one go
     p = 0
-    rv = ''
+    rv = b''
     try:
         while p < fsize:
             s = min(bufsize, fsize-p)
@@ -9563,7 +9563,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         dims = self.splitChannelDims(
             border=border)[self.isGreyscaleRenderingModel() and 'g' or 'c']
-        canvas = Image.new('RGBA', (dims['width'], dims['height']), '#fff')
+        canvas = Image.new('RGB', (dims['width'], dims['height']), '#fff')
         cmap = [
             ch.isActive() and i+1 or 0
             for i, ch in enumerate(self.getChannels())]
