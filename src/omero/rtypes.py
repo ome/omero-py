@@ -22,7 +22,7 @@ omero.rtypes as well as the omero/rtypes.{h,cpp} files.
 """
 
 from builtins import str
-from past.builtins import basestring
+from past.builtins import basestring, long
 import omero
 import Ice
 import IceImport
@@ -54,7 +54,7 @@ def rtype(val):
         return rbool(val)
     elif isinstance(val, int):
         return rint(val)
-    elif isinstance(val, int):
+    elif isinstance(val, long):  # Maintains Py2 compatibility
         return rlong(val)
     elif isinstance(val, float):
         return rfloat(val)
@@ -562,7 +562,7 @@ class RIntI(omero.RInt):
 class RLongI(omero.RLong):
 
     def __init__(self, value):
-        omero.RLong.__init__(self, int(value))
+        omero.RLong.__init__(self, long(value))
 
     def getValue(self, current=None):
         return self._val
@@ -618,7 +618,7 @@ class RLongI(omero.RLong):
 class RTimeI(omero.RTime):
 
     def __init__(self, value):
-        omero.RTime.__init__(self, int(value))
+        omero.RTime.__init__(self, long(value))
 
     def getValue(self, current=None):
         return self._val
