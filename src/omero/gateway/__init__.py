@@ -760,7 +760,7 @@ class BlitzObjectWrapper (object):
             params = omero.sys.Parameters()
         if not params.map:
             params.map = {}
-        params.map["dsid"] = omero_type(self._oid)
+        params.map["dsid"] = rlong(self._oid)
         query = "select c from %s as c" % self.LINK_CLASS
         if ns is not None:
             params.map["ns"] = omero_type(ns)

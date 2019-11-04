@@ -470,16 +470,13 @@ class ImageEntry (ObjectEntry):
             except OSError:
                 print("!!Please make sure the 'omero' executable is in PATH")
                 return None
-            # print ' '.join(exe)
-            # [0].strip() #re.search(
-            #     'Saving pixels id: (\d*)', p.communicate()[0]).group(1)
+
             pid = p.communicate()
-            # print pid
             try:
                 img = omero.gateway.ImageWrapper(
                     dataset._conn,
                     dataset._conn.getQueryService().find(
-                        'Pixels', int(pid[0].split('\n')[0].strip())).image)
+                        'Pixels', int(pid[0].split(b'\n')[0].strip())).image)
             except ValueError:
                 print(pid)
                 raise
