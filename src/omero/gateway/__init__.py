@@ -3403,7 +3403,11 @@ class _BlitzGateway (object):
         if attributes is not None:
             for k, v in list(attributes.items()):
                 clauses.append('obj.%s=:%s' % (k, k))
-                baseParams.map[k] = omero_type(v)
+                if k == 'id':
+                    rv = rlong(v)
+                else:
+                    rv = omero_type(v)
+                baseParams.map[k] = rv
         if clauses:
             query += " where " + (" and ".join(clauses))
 
