@@ -1019,7 +1019,10 @@ present, the user will enter a console""")
         from omero.util.cleanse import removepyramids
         client = self.ctx.conn(args)
         client.getSessionId()
-        wait = args.wait if args.wait is not None and int(args.wait) > 0 else 25
+        if args.wait is not None and int(args.wait) > 0:
+            wait = args.wait
+        else:
+            wait = 25
         if args.limit is not None and int(args.limit) > 0:
             limit = args.limit
         else:
@@ -1420,6 +1423,7 @@ present, the user will enter a console""")
                        % (val, os.environ.get(val, "(unset)")))
             self.ctx.out("")
         env_val("OMERO_HOME")
+        env_val("OMERODIR")
         env_val("OMERO_NODE")
         env_val("OMERO_MASTER")
         env_val("OMERO_USERDIR")
@@ -1449,13 +1453,14 @@ present, the user will enter a console""")
                     self._item("%s %s port" % (s, port_type),
                                "%s" % value or "Not found")
                     self.ctx.out("")
+                s = s.decode("utf-8")
                 p2 = self.ctx.popen(
                     self._cmd("-e", "application describe %s" % s))
                 io2 = p2.communicate()
                 if io2[1]:
-                    self.ctx.err(io2[1].strip())
+                    self.ctx.err(io2[1].strip().decode("utf-8"))
                 elif io2[0]:
-                    ssl_port, tcp_port = get_ports(io2[0])
+                    ssl_port, tcp_port = get_ports(io2[0].decode("utf-8"))
                     port_val("SSL", ssl_port)
                     port_val("TCP", tcp_port)
                 else:
