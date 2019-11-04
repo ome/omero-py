@@ -12,6 +12,7 @@ from builtins import zip
 from builtins import range
 from builtins import object
 from future.utils import bytes_to_native_str
+from future.utils import native_str
 __save__ = __name__
 __name__ = 'omero'
 try:
@@ -143,6 +144,8 @@ class BaseClient(object):
                     else arg for arg in args]
 
         args = [bytes_to_native_str(x) for x in args]
+        # Under Python 2 this can still leave us with 'unicode'
+        args = [native_str(x) for x in args]
 
         # Equiv to multiple constructors. #######################
         if id is None:
