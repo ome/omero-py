@@ -852,9 +852,9 @@ class ParsingContext(object):
 
     def parse(self):
         if self.file.endswith(".gz"):
-            data = gzip.open(self.file, "rb")
+            data = gzip.open(self.file, "rt")
         else:
-            data = open(self.file, 'U')
+            data = open(self.file, "rt")
 
         try:
             return self.parse_from_handle(data)
