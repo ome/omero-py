@@ -10,7 +10,7 @@ from builtins import str
 from builtins import zip
 from builtins import range
 from builtins import object
-from future.utils import native
+from future.utils import native, bytes_to_native_str, isbytes
 from past.builtins import basestring
 import time
 import numpy
@@ -423,8 +423,12 @@ class HdfStorage(object):
         cols = []
         for i in range(len(types)):
             t = types[i]
+            if isbytes(t):
+                t = bytes_to_native_str(t)
             n = names[i]
             d = descs[i]
+            if isbytes(d):
+                d = bytes_to_native_str(d)
             try:
                 col = ic.findObjectFactory(t).create(t)
                 col.name = n

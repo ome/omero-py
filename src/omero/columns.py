@@ -20,6 +20,7 @@ to PyTables types.
 from builtins import zip
 from builtins import range
 from builtins import object
+from future.utils import native, bytes_to_native_str, isbytes
 import omero
 import Ice
 import IceImport
@@ -277,6 +278,12 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
                 None, None, "String size must be > 0 (Column: %s)"
                 % self.name)
         return tables.StringCol(pos=pos, itemsize=self.size)
+
+    def fromrows(self, rows):
+        AbstractColumn.fromrows(self, rows)
+        for i, val in enumerate(self.values):
+            if isbytes(val):
+                self.values[i] = bytes_to_native_str(val)
 
 
 class AbstractArrayColumn(AbstractColumn):
