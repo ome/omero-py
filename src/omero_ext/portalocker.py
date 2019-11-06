@@ -94,8 +94,9 @@ if os.name == 'nt':
             win32file.LockFileEx(hfile, flags, 0, -0x10000, __overlapped)
         except pywintypes.error as exc_value:
             # error: (33, 'LockFileEx', 'The process cannot access the file because another process has locked a portion of the file.')
-            if exc_value[0] == 33:
-                raise LockException(LockException.LOCK_FAILED, exc_value[2])
+            if exc_value.args[0] == 33:
+                raise LockException(
+                    LockException.LOCK_FAILED, exc_value.args[2])
             else:
                 # Q:  Are there exceptions/codes we should be dealing with here?
                 raise
@@ -121,8 +122,9 @@ elif os.name == 'posix':
             #  IOError: [Errno 11] Resource temporarily unavailable
             #  Following added by Glencoe Software, Inc. using LOCK_NB|LOCK_EX on Mac 10.4
             #  IOError: [Errno 35] Resource temporarily unavailable
-            if exc_value[0] == 11 or exc_value[0] == 35:
-                raise LockException(LockException.LOCK_FAILED, exc_value[1])
+            if exc_value.args[0] == 11 or exc_value.args[0] == 35:
+                raise LockException(
+                    LockException.LOCK_FAILED, exc_value.args[1])
             else:
                 raise
 

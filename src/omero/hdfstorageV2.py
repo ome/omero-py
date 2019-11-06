@@ -27,7 +27,7 @@ import omero.callbacks
 
 # For ease of use
 from omero.columns import columns2definition
-from omero.rtypes import rfloat, rint, rlong, rstring, unwrap
+from omero.rtypes import rfloat, rlong, rstring, unwrap
 from omero.util.decorators import locked
 from omero_ext import portalocker
 from functools import wraps
@@ -35,6 +35,15 @@ from functools import wraps
 
 sys = __import__("sys")  # Python sys
 tables = __import__("tables")  # Pytables
+
+
+try:
+    # long only exists on Python 2
+    # Recent versions of PyTables may have treated Python 2 int and long
+    # identically anyway so treat the same
+    TABLES_METADATA_INT_TYPES = (int, numpy.int64, long)
+except NameError:
+    TABLES_METADATA_INT_TYPES = (int, numpy.int64)
 
 VERSION = '2'
 
@@ -439,9 +448,7 @@ class HdfStorage(object):
             val = attr[key]
             if isinstance(val, float):
                 val = rfloat(val)
-            elif isinstance(val, int):
-                val = rint(val)
-            elif isinstance(val, int):
+            elif isinstance(val, TABLES_METADATA_INT_TYPES):
                 val = rlong(val)
             elif isinstance(val, basestring):
                 val = rstring(val)
