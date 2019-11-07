@@ -3407,7 +3407,12 @@ class _BlitzGateway (object):
                     rv = rlong(v)
                 else:
                     # lookup type of attribute from class
-                    klass = wrapper.OMERO_TYPE
+                    if wrapper.OMERO_CLASS is not None:
+                        klass = getattr(omero.model,
+                                        "%sI" % wrapper.OMERO_CLASS)
+                    else:
+                        # AnnotationWrappers don't have OMERO_CLASS
+                        klass = wrapper.OMERO_TYPE
                     rtype = getattr(klass._field_info, k).wrapper(1)
                     rv = rtype.__class__(v)
                 baseParams.map[k] = rv
