@@ -313,6 +313,8 @@ class HdfStorage(object):
         except KeyError:
             k = 'version'
             v = self.__mea.attrs[k]
+            if isbytes(v):
+                v = bytes_to_native_str(v)
             if v == 'v1':
                 return '1'
 
