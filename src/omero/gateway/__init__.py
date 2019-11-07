@@ -4328,7 +4328,7 @@ class _BlitzGateway (object):
 
         type = obj.__class__.__name__.rstrip('I')
         delete = Delete2(targetObjects={type: [obj.getId().val]})
-        self.c.submit(delete, self.SERVICE_OPTS)
+        self.c.submit(delete, ctx=self.SERVICE_OPTS)
 
     def deleteObject(self, obj):
         """
