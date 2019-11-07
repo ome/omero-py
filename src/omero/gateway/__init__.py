@@ -3406,7 +3406,10 @@ class _BlitzGateway (object):
                 if k == 'id':
                     rv = rlong(v)
                 else:
-                    rv = omero_type(v)
+                    # lookup type of attribute from class
+                    klass = wrapper.OMERO_TYPE
+                    rtype = getattr(klass._field_info, k).wrapper(1)
+                    rv = rtype.__class__(v)
                 baseParams.map[k] = rv
         if clauses:
             query += " where " + (" and ".join(clauses))
