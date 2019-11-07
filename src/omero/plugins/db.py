@@ -145,7 +145,7 @@ class DatabaseControl(BaseControl):
         return value.strip()
 
     def _copy(self, input_path, output, func, cfg=None):
-            input = open(str(input_path))
+            input = open(str(input_path), encoding='utf-8')
             try:
                 for s in input:
                         try:
@@ -206,7 +206,7 @@ class DatabaseControl(BaseControl):
         else:
             script = "%s__%s.sql" % (db_vers, db_patch)
             location = old_div(path.getcwd(), script)
-            output = open(location, 'w')
+            output = open(location, 'w', encoding='utf-8')
             self.ctx.out("Saving to " + location)
 
         try:
