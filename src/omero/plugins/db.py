@@ -33,7 +33,7 @@ from past.utils import old_div
 from omero.cli import BaseControl
 from omero.cli import CLI
 
-from omero_ext.argparse import FileType, SUPPRESS
+from argparse import FileType, SUPPRESS
 
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
@@ -64,8 +64,13 @@ class DatabaseControl(BaseControl):
         script = sub.add_parser(
             "script", help="Generates a DB creation script")
         script.set_defaults(func=self.script)
+        try:
+            # Python 3
+            ft = FileType(mode="w", encoding='utf-8')
+        except TypeError:
+            ft = FileType(mode="w")
         script.add_argument(
-            "-f", "--file", type=FileType(mode="w"),
+            "-f", "--file", type=ft,
             help="Optional file to save to. Use '-' for stdout.")
 
         script.add_argument("posversion", nargs="?", help=SUPPRESS)
