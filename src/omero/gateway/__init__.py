@@ -3405,8 +3405,8 @@ class _BlitzGateway (object):
                 clauses.append('obj.%s=:%s' % (k, k))
                 if k == 'id':
                     rv = rlong(v)
-                else:
-                    # lookup type of attribute from class
+                elif isinstance(v, IntType):
+                    # lookup rint vv rlong from class
                     if wrapper.OMERO_CLASS is not None:
                         klass = getattr(omero.model,
                                         "%sI" % wrapper.OMERO_CLASS)
@@ -3415,6 +3415,8 @@ class _BlitzGateway (object):
                         klass = wrapper.OMERO_TYPE
                     rtype = getattr(klass._field_info, k).wrapper(1)
                     rv = rtype.__class__(v)
+                else:
+                    rv = omero_type(v)
                 baseParams.map[k] = rv
         if clauses:
             query += " where " + (" and ".join(clauses))
