@@ -322,8 +322,8 @@ class ITest(object):
             raise Exception("import failed: [%r] %s\n%s\n%s" % (
                 args, rc, out, err))
         pix_ids = []
-        for x in out.split("\n"):
-            if x and x.find("Created") < 0 and x.find("#") < 0:
+        for x in out.split(b"\n"):
+            if x and x.find(b"Created") < 0 and x.find(b"#") < 0:
                 try:    # if the line has an image ID...
                     image_id = str(int(x.strip()))
                     # Occasionally during tests an id is duplicated on stdout
@@ -1010,7 +1010,7 @@ class ITest(object):
         if mimetype is None:
             mimetype = "application/octet-stream"
         if binary is None:
-            binary = "12345678910"
+            binary = b"12345678910"
         if name is None:
             name = str(self.uuid())
 

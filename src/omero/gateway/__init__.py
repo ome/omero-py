@@ -5304,7 +5304,7 @@ class _OriginalFileAsFileObj(object):
         return self.pos
 
     def read(self, n=-1):
-        buf = ''
+        buf = b''
         if n < 0:
             endpos = self.rfs.size()
         else:
