@@ -3414,7 +3414,6 @@ class _BlitzGateway (object):
                         # AnnotationWrappers don't have OMERO_CLASS
                         klass = wrapper.OMERO_TYPE
                     rv = getattr(klass._field_info, k).wrapper(v)
-                    rv = rtype.__class__(v)
                 else:
                     rv = omero_type(v)
                 baseParams.map[k] = rv
