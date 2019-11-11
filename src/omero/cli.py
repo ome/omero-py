@@ -1388,7 +1388,7 @@ class CLI(cmd.Cmd, Context):
 
     def _env(self):
         """
-        Configure environment with PYTHONPATH as
+        Configure environment with PYTHONPATH and PATH as
         setup by bin/omero
 
         This list needs to be kept in line with OmeroPy/bin/omero
@@ -1409,6 +1409,16 @@ class CLI(cmd.Cmd, Context):
             else:
                 pypath = "%s%s%s" % (pypath, os.path.pathsep, paths)
         env["PYTHONPATH"] = pypath
+
+        ospath = env.get("PATH", None)
+        binpypath = os.path.dirname(sys.executable)
+        if ospath:
+            if binpypath not in os.path.split(os.path.pathsep):
+                ospath = os.path.pathsep.join([ospath, binpypath])
+        else:
+            ospath = binpypath
+        env["PATH"] = ospath
+
         return env
 
     def _cwd(self, cwd):
