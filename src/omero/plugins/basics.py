@@ -24,7 +24,7 @@ import sys
 
 from collections import defaultdict
 
-from omero_ext.argparse import FileType
+from argparse import FileType
 
 from omero.cli import BaseControl
 from omero.cli import CLI

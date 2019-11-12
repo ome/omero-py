@@ -46,7 +46,7 @@ from omero.rtypes import unwrap
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.cli import UserGroupControl, CLI, admin_only
-from omero_ext.argparse import SUPPRESS
+from argparse import SUPPRESS
 from omero.model.enums import AdminPrivilegeSudo
 
 HELP = """Control and create user sessions

@@ -51,7 +51,7 @@ from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
-from omero_ext.argparse import FileType
+from argparse import FileType
 from omero_version import ice_compatibility
 
 

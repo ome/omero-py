@@ -34,7 +34,7 @@ import sys
 import shlex
 import fileinput
 
-from omero_ext.argparse import SUPPRESS
+from argparse import SUPPRESS
 from omero.cli import BaseControl, CLI, ExceptionHandler
 from omero.rtypes import rlong
 
