@@ -457,6 +457,8 @@ class HdfStorage(object):
             elif isinstance(val, TABLES_METADATA_INT_TYPES):
                 val = rlong(val)
             elif isinstance(val, basestring):
+                if isbytes(val):
+                    val = bytes_to_native_str(val)
                 val = rstring(val)
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))
