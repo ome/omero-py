@@ -33,7 +33,7 @@ from past.utils import old_div
 from omero.cli import BaseControl
 from omero.cli import CLI
 
-from omero_ext.argparse import FileType, SUPPRESS
+from argparse import FileType, SUPPRESS
 
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
@@ -64,8 +64,13 @@ class DatabaseControl(BaseControl):
         script = sub.add_parser(
             "script", help="Generates a DB creation script")
         script.set_defaults(func=self.script)
+        try:
+            # Python 3
+            ft = FileType(mode="w", encoding='utf-8')
+        except TypeError:
+            ft = FileType(mode="w")
         script.add_argument(
-            "-f", "--file", type=FileType(mode="w"),
+            "-f", "--file", type=ft,
             help="Optional file to save to. Use '-' for stdout.")
 
         script.add_argument("posversion", nargs="?", help=SUPPRESS)
@@ -145,7 +150,10 @@ class DatabaseControl(BaseControl):
         return value.strip()
 
     def _copy(self, input_path, output, func, cfg=None):
-            input = open(str(input_path))
+            try:
+                input = open(str(input_path), encoding='utf-8')
+            except TypeError:
+                input = open(str(input_path))
             try:
                 for s in input:
                         try:
@@ -206,7 +214,10 @@ class DatabaseControl(BaseControl):
         else:
             script = "%s__%s.sql" % (db_vers, db_patch)
             location = old_div(path.getcwd(), script)
-            output = open(location, 'w')
+            try:
+                output = open(location, 'w', encoding='utf-8')
+            except TypeError:
+                output = open(location, 'w')
             self.ctx.out("Saving to " + location)
 
         try:
