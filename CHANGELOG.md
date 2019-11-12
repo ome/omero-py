@@ -1,3 +1,8 @@
+# 5.6.dev4 (November 2019)
+
+- Fix DB creation script (#110)
+- Fix tables and getObjects
+
 # 5.6.dev3 (November 2019)
 
 - Fixes primarily focused on byte return types
