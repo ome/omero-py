@@ -1383,7 +1383,7 @@ class ThreadedNotifier(threading.Thread, Notifier):
         Stop notifier's loop. Stop notification. Join the thread.
         """
         self._stop_event.set()
-        os.write(self._pipe[1], 'stop')
+        os.write(self._pipe[1], b'stop')
         threading.Thread.join(self)
         Notifier.stop(self)
         self._pollobj.unregister(self._pipe[0])
