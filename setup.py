@@ -231,6 +231,9 @@ setup(
             'PyYAML==5.1.2',
             'tables==3.6.1',
         ],
+        'testlib': [
+            'mox3',
+        ],
     },
     tests_require=[
         'pytest<3',
