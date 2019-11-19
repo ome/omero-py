@@ -182,7 +182,7 @@ class SessionsControl(UserGroupControl):
             # Read sessions directory from OMERO_SESSIONDIR envvar
             session_dir = None
             if base_dir:
-                from path import path
+                from omero_ext.path import path
                 session_dir = path(base_dir) / "omero" / "sessions"
             sessions_dir = os.environ.get('OMERO_SESSIONDIR', session_dir)
 

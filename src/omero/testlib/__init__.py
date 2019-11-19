@@ -71,7 +71,7 @@ from omero.model.enums import PixelsTypedouble
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.sys import ParametersI
 from omero.util.temp_files import create_path
-from path import path
+from omero_ext.path import path
 
 import hashlib
 

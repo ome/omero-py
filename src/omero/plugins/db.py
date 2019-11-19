@@ -37,7 +37,7 @@ from argparse import FileType, SUPPRESS
 
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
-from path import path
+from omero_ext.path import path
 
 import omero.java
 import platform

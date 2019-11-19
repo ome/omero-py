@@ -33,7 +33,7 @@ from past.utils import old_div
 import omero.constants
 from omero.util import get_omero_userdir, make_logname
 from omero.rtypes import rlong
-from path import path
+from omero_ext.path import path
 
 try:
     from urllib.parse import quote, unquote
