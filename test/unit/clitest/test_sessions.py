@@ -86,7 +86,7 @@ class TestSessions(object):
             session_args):
         from argparse import Namespace
         from omero.util import get_user_dir
-        from path import path
+        from omero_ext.path import path
 
         for var in list(environment.keys()):
             if environment[var]:

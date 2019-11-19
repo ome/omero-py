@@ -11,7 +11,7 @@ from __future__ import division
 
 from builtins import object
 from past.utils import old_div
-import omero_ext.path
+import omero_ext.path as path
 
 
 class TestPath(object):
