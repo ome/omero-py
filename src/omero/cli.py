@@ -1646,7 +1646,7 @@ class CLI(cmd.Cmd, Context):
 
     def loadpath(self, pathobj):
         if pathobj.isdir():
-            for plugin in pathobj.walkfiles("*.py"):
+            for plugin in sorted(pathobj.walkfiles("*.py")):
                 if -1 == plugin.find("#"):  # Omit emacs files
                     self.loadpath(path(plugin))
         else:
