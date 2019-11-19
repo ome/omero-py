@@ -18,7 +18,7 @@ import warnings
 import mimetypes
 
 from omero.cli import BaseControl, CLI
-import omero_ext.path
+import omero_ext.path as path
 
 try:
     import hashlib

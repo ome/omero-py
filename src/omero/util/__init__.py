@@ -29,7 +29,7 @@ import uuid
 import omero.ObjectFactoryRegistrar as ofr
 
 from omero.util.decorators import locked
-import omero_ext.path
+import omero_ext.path as path
 
 LOGDIR = os.path.join("var", "log")
 LOGFORMAT = "%(asctime)s %(levelname)-5.5s [%(name)40s] " \

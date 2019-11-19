@@ -22,7 +22,7 @@ import logging
 import omero.cli
 import omero.util
 import omero.util.temp_files
-import omero_ext.path
+import omero_ext.path as path
 import uuid
 
 command_pattern = r"^\s*(\w+)(\((.*)\))?(:(.*))?$"
