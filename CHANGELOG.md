@@ -7,6 +7,20 @@
 
 - Fixes primarily focused on byte return types
 
+## API Changes
+
+- omero.gateway.FileAnnotationWrapper.getFileInChunks returns bytes
+- omero.gateway.ImageWrapper.exportOmeTiff returns bytes
+- omero.gateway.BlitzGateawy.createOriginalFileFromFileObj takes BytesIO
+- several return values should now be _wrapped_ by BytesIO:
+  - image.renderSplitChannel()
+  - image.renderBirdsEyeView()
+  - image.renderJpegRegion()
+  - image.renderJpeg()
+- `rlong` instances now require explicit mapping:
+  - `omero_type(longValue)` defaults to `rint`
+  - `omero.rtypes.wrap(longValue)` defaults to `rint`
+
 # 5.6.dev2 (October 2019)
 
 - Even more Python 3 fixes
