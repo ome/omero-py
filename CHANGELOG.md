@@ -9,7 +9,8 @@
 
 ## API Changes
 
-- getFileInChunks now returns a bytes-generator
+- omero.gateway.FileAnnotationWrapper.getFileInChunks returns bytes
+- omero.gateway.ImageWrapper.exportOmeTiff returns bytes
 
 # 5.6.dev2 (October 2019)
 
