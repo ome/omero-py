@@ -7,6 +7,10 @@
 
 - Fixes primarily focused on byte return types
 
+## API Changes
+
+- getFileInChunks now returns a bytes-generator
+
 # 5.6.dev2 (October 2019)
 
 - Even more Python 3 fixes
