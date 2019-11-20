@@ -3668,7 +3668,7 @@ class _BlitzGateway (object):
         else:
             # for multiple parents, we first need to find annotations linked to
             # ALL of them, then exclude those from query
-            p.map["oids"] = omero.rtypes.wrap(parent_ids)
+            p.map["oids"] = omero.rtypes.wrap([rlong(id) for id in parent_ids])
             query = ("select link.child.id, count(link.id) "
                      "from %sAnnotationLink link where link.parent.id in "
                      "(:oids)%s group by link.child.id"
