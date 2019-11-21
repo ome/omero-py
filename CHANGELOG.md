@@ -1,3 +1,7 @@
+# 5.6.dev5 (November 2019)
+
+- Fix pyinotify for DropBox (#119)
+
 # 5.6.dev4 (November 2019)
 
 - Fix DB creation script (#110)
