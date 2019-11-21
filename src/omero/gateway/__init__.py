@@ -3679,7 +3679,8 @@ class _BlitzGateway (object):
                           q.projection(query, p, self.SERVICE_OPTS)
                           if e[1].getValue() == len(parent_ids)]
             if len(usedAnnIds) > 0:
-                p.map["usedAnnIds"] = omero.rtypes.wrap(usedAnnIds)
+                p.map["usedAnnIds"] = omero.rtypes.wrap(
+                        [rlong(id) for id in usedAnnIds])
                 wheres.append("an.id not in (:usedAnnIds)")
 
         if ns is None:
