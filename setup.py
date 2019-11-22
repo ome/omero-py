@@ -209,6 +209,7 @@ setup(
     install_requires=[
         'zeroc-ice>=3.6.4,<3.7',
         'future',
+        'Pillow',
     ],
     tests_require=[
         'pytest<3',
