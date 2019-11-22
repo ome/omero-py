@@ -8262,7 +8262,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return self._obj.getPrimaryPixels().getId().val
 
     # @setsessiongroup
-    def _prepareTB(self, _r=False, rdefId=None):
+    def _prepareTB(self, _r=False, rdefId=None, use_cached_ts=True):
         """
         Prepares Thumbnail Store for the image.
 
@@ -8271,6 +8271,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :type _r:           Boolean
         :param rdefId:      Rendering def ID to use for rendering thumbnail
         :type rdefId:       Long
+        :param use_cached_ts: If true (default) use the cached ThumbnailStore,
+                              else create a new one.
         :return:            Thumbnail Store or None
         :rtype:             :class:`ProxyObjectWrapper`
         """
@@ -8278,7 +8280,11 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         pid = self.getPrimaryPixels().id
         if rdefId is None:
             rdefId = self._getRDef()
-        tb = self._conn.createThumbnailStore()
+
+        if use_cached_ts:
+            tb = self._conn.createThumbnailStore()
+        else:
+            tb = ProxyObjectWrapper(self._conn, 'createThumbnailStore')
 
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
@@ -8395,7 +8401,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
     # @setsessiongroup
     def getThumbnail(self, size=(64, 64), z=None, t=None, direct=True,
-                     rdefId=None):
+                     rdefId=None, use_cached_ts=True):
         """
         Returns a string holding a rendered JPEG of the thumbnail.
 
@@ -8416,12 +8422,14 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :param direct:      If true, force creation of new thumbnail
                             (don't use cached)
         :param rdefId:      The rendering def to apply to the thumbnail.
+        :param use_cached_ts: If true (default) use the cached ThumbnailStore,
+                              else create a new one.
         :rtype:             string or None
         :return:            the rendered JPEG, or None if there was an error.
         """
         tb = None
         try:
-            tb = self._prepareTB(rdefId=rdefId)
+            tb = self._prepareTB(rdefId=rdefId, use_cached_ts=use_cached_ts)
             if tb is None:
                 return None
             if isinstance(size, IntType):
