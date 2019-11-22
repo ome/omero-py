@@ -343,7 +343,7 @@ class PropertyParser(object):
         from django.conf import settings
 
         for key, values in sorted(
-                iter(settings.CUSTOM_SETTINGS_MAPPINGS.items()),
+                iter(list(settings.CUSTOM_SETTINGS_MAPPINGS.items())),
                 key=lambda k: k):
 
             p = Property()
@@ -372,8 +372,8 @@ class PropertyParser(object):
                     additional_headers[section] = Header(section)
                 headers.setdefault(additional_headers[section], []).append(x)
 
-        for key in headers.keys():
-            headers[key].sort(lambda a, b: cmp(a.key, b.key))
+        for key in list(headers.keys()):
+            headers[key].sort(key=lambda x: x.key)
         return headers
 
     def print_defaults(self):
