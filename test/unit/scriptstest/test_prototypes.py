@@ -9,6 +9,8 @@
 
 """
 
+from builtins import str
+from builtins import object
 import omero
 from omero.scripts import Long, List, validate_inputs
 from omero.rtypes import rmap, rint, rlong, rstring, rlist, rset, unwrap
@@ -106,8 +108,8 @@ class TestPrototypes(object):
     def testTicket2323Min(self):
         params = omero.grid.JobParams()
         # Copied from integration/scripts.py:testUploadOfficialScripts
-        param = Long('longParam', True, description='theDesc', min=long(1),
-                     max=long(10), values=[rlong(5)])
+        param = Long('longParam', True, description='theDesc', min=int(1),
+                     max=int(10), values=[rlong(5)])
         assert 1 == param.min.getValue(), \
             "Min value not correct:" + str(param.min)
         assert 10 == param.max.getValue(), \

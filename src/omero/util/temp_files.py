@@ -7,7 +7,13 @@
 """
 OMERO Support for temporary files and directories
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import input
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import os
 import sys
 import atexit
@@ -49,8 +55,8 @@ class TempFileManager(object):
         self.is_win32 = (sys.platform == "win32")
         self.prefix = prefix
 
-        self.userdir = self.tmpdir() / ("%s_%s" %
-                                        (self.prefix, self.username()))
+        self.userdir = old_div(self.tmpdir(), ("%s_%s" %
+                                        (self.prefix, self.username())))
         """
         User-accessible directory of the form $TMPDIR/omero_$USERNAME.
         If the given directory is not writable, an attempt is made
@@ -65,7 +71,7 @@ class TempFileManager(object):
                     break
             raise Exception(
                 "Failed to create temporary directory: %s" % self.userdir)
-        self.dir = self.userdir / self.pid()
+        self.dir = old_div(self.userdir, self.pid())
         """
         Directory under which all temporary files and folders will be created.
         An attempt to remove a path not in this directory will lead to an
@@ -80,7 +86,7 @@ class TempFileManager(object):
 
         self.lock = None
         try:
-            self.lock = open(str(self.dir / ".lock"), "a+")
+            self.lock = open(str(old_div(self.dir, ".lock")), "a+")
             """
             .lock file under self.dir which is used to prevent other
             TempFileManager instances (also in other languages) from
@@ -149,7 +155,7 @@ class TempFileManager(object):
         targets = []
         if custom_tmpdir:
             targets.append(path(custom_tmpdir))
-        targets.append(get_omero_userdir() / "tmp")
+        targets.append(old_div(get_omero_userdir(), "tmp"))
         targets.append(path(tempfile.gettempdir()) / "omero" / "tmp")
 
         # Handles existing files named tmp
@@ -194,7 +200,7 @@ class TempFileManager(object):
                         except:
                             self.logger.debug("Failed os.remove(%s)", name)
 
-            except Exception, e:
+            except Exception as e:
                 if "Operation not permitted" in str(e) or \
                    "Operation not supported" in str(e):
 
@@ -237,7 +243,7 @@ class TempFileManager(object):
         """
         dir = path(dir)
         if not dir.exists():
-            dir.makedirs(0700)
+            dir.makedirs(0o700)
             return True
         return False
 
@@ -322,7 +328,7 @@ class TempFileManager(object):
             if str(dir) == str(self.dir):
                 self.logger.debug("Skipping self: %s", dir)
                 continue
-            lock = dir / ".lock"
+            lock = old_div(dir, ".lock")
             if lock.exists():  # 1962, on Windows this fails if lock is missing
                 f = open(str(lock), "r")
                 try:
@@ -331,10 +337,10 @@ class TempFileManager(object):
                     # Must close for Windows, otherwise "...other process"
                     f.close()
                 except:
-                    print "Locked: %s" % dir
+                    print("Locked: %s" % dir)
                     continue
             dir.rmtree(onerror=self.on_rmtree)
-            print "Deleted: %s" % dir
+            print("Deleted: %s" % dir)
 
     def on_rmtree(self, func, name, exc):
         self.logger.error(
@@ -388,13 +394,13 @@ if __name__ == "__main__":
         manager.clean_userdir()
         sys.exit(0)
     elif "dir" in args:
-        print manager.gettempdir()
+        print(manager.gettempdir())
         sys.exit(0)
     elif "lock" in args:
-        print "Locking %s" % manager.gettempdir()
-        raw_input("Waiting on user input...")
+        print("Locking %s" % manager.gettempdir())
+        input("Waiting on user input...")
         sys.exit(0)
 
-    print "Usage: %s clean" % sys.argv[0]
-    print "   or: %s dir  " % sys.argv[0]
+    print("Usage: %s clean" % sys.argv[0])
+    print("   or: %s dir  " % sys.argv[0])
     sys.exit(2)

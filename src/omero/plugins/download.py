@@ -11,6 +11,7 @@
 
 """
 
+from builtins import str
 import sys
 import omero
 import re
@@ -34,6 +35,22 @@ Examples:
     # Works only with single files imported with OMERO 5.0.0 and above
     bin/omero download Image:5 original_image
 """
+
+
+class StdOutHandle():
+    """
+    File handle for writing bytes to std.out in python 2 and python 3
+    """
+    # https://github.com/pexpect/pexpect/pull/31/files
+    @staticmethod
+    def write(b):
+        # Handle stdout.write for bytes
+        try:
+            # Try writing bytes... python 2
+            return sys.stdout.write(b)
+        except TypeError:
+            # python 3: If String was expected, convert to String
+            return sys.stdout.write(b.decode('ascii', 'replace'))
 
 
 class DownloadControl(BaseControl):
@@ -60,15 +77,15 @@ class DownloadControl(BaseControl):
 
         try:
             if target_file == "-":
-                client.download(orig_file, filehandle=sys.stdout)
+                client.download(orig_file, filehandle=StdOutHandle())
                 sys.stdout.flush()
             else:
                 client.download(orig_file, target_file)
-        except omero.ValidationException, ve:
+        except omero.ValidationException as ve:
             # Possible, though unlikely after previous check
             self.ctx.die(67, "Unknown ValidationException: %s"
                          % ve.message)
-        except omero.ResourceError, re:
+        except omero.ResourceError as re:
             # ID exists in DB, but not on FS
             self.ctx.die(67, "ResourceError: %s" % re.message)
 
@@ -77,7 +94,7 @@ class DownloadControl(BaseControl):
         query = session.getQueryService()
         if ':' not in value:
             try:
-                ofile = query.get("OriginalFile", long(value),
+                ofile = query.get("OriginalFile", int(value),
                                   {'omero.group': '-1'})
                 return ofile
             except ValueError:
@@ -139,7 +156,7 @@ class DownloadControl(BaseControl):
         m = pattern.match(value)
         if not m:
             return
-        return long(m.group('id'))
+        return int(m.group('id'))
 
 try:
     register("download", DownloadControl, HELP)

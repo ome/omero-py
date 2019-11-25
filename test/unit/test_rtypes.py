@@ -8,6 +8,10 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
+from builtins import str
+from builtins import object
+from past.builtins import long
+import sys
 import pytest
 import omero
 import omero.model  # For Image
@@ -28,7 +32,10 @@ class TestModel(object):
         # Unsupported
         # assert rdouble(0) == rtype(Double.valueOf(0))
         assert rfloat(0) == rtype(float(0))
-        assert rlong(0) == rtype(long(0))
+        if sys.version_info < (3, 0, 0):
+            assert rlong(0) == rtype(long(0))
+        else:
+            assert rint(0) == rtype(long(0))
         assert rint(0) == rtype(int(0))
         assert rstring("string") == rtype("string")
         # Unsupported
@@ -229,7 +236,7 @@ class TestModel(object):
 
     def testMapCreationEqualsHash(self):
 
-        id = rlong(1L)
+        id = rlong(1)
         map_notnull1 = rmap({"ids": id})
         map_notnull2 = rmap({"ids": id})
         # Equals based on content
@@ -446,7 +453,7 @@ class TestModel(object):
         ctor2 = myLongFromString.__class__("5")
         assert ctor1.val == ctor2.val
 
-    u = unicode("u")
+    u = str("u")
     cn = '中國'
     cnu = u'中國'
 

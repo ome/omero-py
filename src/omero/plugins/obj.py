@@ -27,6 +27,8 @@ and tests.
 """
 
 
+from builtins import str
+from builtins import object
 import re
 import sys
 import shlex
@@ -39,7 +41,7 @@ from omero.rtypes import rlong
 
 class TxField(object):
 
-    ARG_RE = re.compile(("(?P<FIELD>[a-zA-Z][a-zA-Z0-9]*)"
+    ARG_RE = re.compile((r"(?P<FIELD>[a-zA-Z][a-zA-Z0-9]*)"
                          "(?P<OPER>[@])?="
                          "(?P<VALUE>.*)"))
 
@@ -55,7 +57,7 @@ class TxField(object):
         self.oper = m.group("OPER")
         if self.oper == "@":
             # Treat value like an array lookup
-            if re.match('\d+$', self.value):
+            if re.match(r'\d+$', self.value):
                 self.value = tx_state.get_row(int(self.value))
             elif re.match(TxCmd.VAR_NAME + '$', self.value):
                 self.value = tx_state.get_var(self.value)
@@ -68,10 +70,10 @@ class TxField(object):
 
 class TxCmd(object):
 
-    VAR_NAME = "(?P<DEST>[a-zA-Z][a-zA-Z0-9]*)"
-    VAR_RE = re.compile(("^\s*%s"
-                         "\s*=\s"
-                         "(?P<REST>.*)$") % VAR_NAME)
+    VAR_NAME = r"(?P<DEST>[a-zA-Z][a-zA-Z0-9]*)"
+    VAR_RE = re.compile((r"^\s*%s"
+                         r"\s*=\s"
+                         r"(?P<REST>.*)$") % VAR_NAME)
 
     def __init__(self, tx_state, arg_list=None, line=None):
         """
@@ -147,8 +149,8 @@ class TxAction(object):
     def obj_id(self):
         parts = self.tx_cmd.type.split(":")
         try:
-            return long(parts[1])
-        except:
+            return int(parts[1])
+        except Exception:
             return None
 
     def instance(self, ctx):
@@ -176,7 +178,7 @@ class NewObjectTxAction(TxAction):
         total = dict(obj._field_info._asdict())
         for arg in completed:
             del total[arg]
-        for remaining, info in total.items():
+        for remaining, info in list(total.items()):
             if info.nullable is False:
                 missing.append(remaining)
 
@@ -196,13 +198,13 @@ class NewObjectTxAction(TxAction):
             try:
                 setter(obj)
                 completed.append(field)
-            except omero.ClientError, ce:
+            except omero.ClientError as ce:
                 ctx.die(333, "%s" % ce)
 
         self.check_requirements(ctx, obj, completed)
         try:
             out = up.saveAndReturnObject(obj)
-        except omero.ServerError, se:
+        except omero.ServerError as se:
             ctx.die(336, "Failed to create %s - %s" %
                     (kls, se.message))
         proxy = "%s:%s" % (kls, out.id.val)
@@ -230,12 +232,12 @@ class UpdateObjectTxAction(TxAction):
         for field, setter in self.tx_cmd.setters():
             try:
                 setter(obj)
-            except omero.ClientError, ce:
+            except omero.ClientError as ce:
                 ctx.die(335, "%s" % ce)
 
         try:
             out = up.saveAndReturnObject(obj)
-        except omero.ServerError, se:
+        except omero.ServerError as se:
             ctx.die(336, "Failed to update %s:%s - %s" %
                     (kls, obj.id.val, se.message))
         proxy = "%s:%s" % (kls, out.id.val)
@@ -271,7 +273,7 @@ class NonFieldTxAction(TxAction):
         import omero
         try:
             out = self.update.saveAndReturnObject(self.obj)
-        except omero.ServerError, se:
+        except omero.ServerError as se:
             ctx.die(336, "Failed to update %s:%s - %s" % (
                 self.kls, self.obj.id.val, se.message))
         proxy = "%s:%s" % (self.kls, out.id.val)
@@ -355,8 +357,9 @@ class ObjGetTxAction(NonFieldTxAction):
             field = self.tx_cmd.arg_list[2]
             try:
                 proxy = self.get_field(field)
-            except AttributeError, ae:
-                ctx.die(336, ae.message)
+            except AttributeError as ae:
+                message = ae.args
+                ctx.die(336, message)
         else:
             proxy = ""
             for attr in dir(self.obj):
@@ -410,9 +413,10 @@ class ObjGetTxAction(NonFieldTxAction):
                     raise AttributeError(
                         "Error: field '%s' for %s:%s : no val, id or value" % (
                             field, self.kls, self.obj.id.val))
-            except AttributeError, ae:
+            except AttributeError as ae:
+                message = ae.args
                 raise AttributeError("Error: field '%s' for %s:%s : %s" % (
-                    field, self.kls, self.obj.id.val, ae.message))
+                    field, self.kls, self.obj.id.val, message))
 
         return proxy
 
@@ -445,9 +449,10 @@ class ListGetTxAction(NonFieldTxAction):
                                  + str(item.value) + ")")
                     else:
                         proxy = str(item)
-                except IndexError, ie:
+                except IndexError as ie:
+                    message = ie.args
                     ctx.die(336, "Error: field '%s[%s]' for %s:%s, %s" % (
-                        field, index, self.kls, self.obj.id.val, ie.message))
+                        field, index, self.kls, self.obj.id.val, message))
             else:
                 ctx.die(336, "Field '%s' for %s:%s is not a list" % (
                     field, self.kls, self.obj.id.val))

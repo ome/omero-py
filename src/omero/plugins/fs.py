@@ -22,7 +22,15 @@
 """
 fs plugin for querying repositories, filesets, and the like.
 """
+from __future__ import division
+from __future__ import print_function
 
+from past.builtins import cmp
+from builtins import zip
+from builtins import str
+from builtins import map
+from builtins import object
+from past.utils import old_div
 import platform
 import sys
 
@@ -69,7 +77,7 @@ def contents(mrepo, path, ctx=None):
     tree = unwrap(mrepo.treeList(path, ctx))
 
     def parse(tree, level=0):
-        for k, v in tree.items():
+        for k, v in list(tree.items()):
             yield Entry(level, v.get("id"),
                         k, v.get("mimetype"))
             if "files" in v:
@@ -110,7 +118,7 @@ def prep_directory(client, mrepo):
         try:
             tmp.write_text("THIS IS A PLACEHOLDER")
             hash = client.sha1(tmp)
-            with open(tmp, "r") as source:
+            with open(tmp, "rb") as source:
                 client.write_stream(source, prx)
         finally:
             prx.close()
@@ -124,7 +132,7 @@ def prep_directory(client, mrepo):
             handle.close()
 
         dir = unwrap(mrepo.treeList(fs.templatePrefix.val))
-        oid = dir.items()[0][1].get("id")
+        oid = list(dir.items())[0][1].get("id")
         ofile = client.sf.getQueryService().get("OriginalFile", oid)
 
         delete1 = Delete2(targetObjects={'Fileset': [fs.id.val]})
@@ -305,7 +313,7 @@ class FsControl(CmdControl):
         usage.add_login_arguments()
         usage.add_style_argument()
         usage.add_argument(
-            "--wait", type=long,
+            "--wait", type=int,
             help="Number of seconds to wait for the processing to complete "
             "(Indefinite < 0; No wait=0).", default=-1)
         usage.add_argument(
@@ -381,7 +389,7 @@ class FsControl(CmdControl):
                 rsp = cb.getResponse()
             finally:
                 cb.close(True)
-        except Exception, e:
+        except Exception as e:
             self.ctx.dbg("Error on MIB: %s" % e)
 
         if rsp is None:
@@ -532,7 +540,7 @@ moved.
                 self.ctx.die(110, "Cannot edit Fileset:%s" % fid)
             elif oid != uid and not isAdmin:
                 self.ctx.die(111, "Fileset:%s belongs to %s" % (fid, oid))
-        except ServerError, se:
+        except ServerError as se:
             self.ctx.die(
                 112, "Could not load Fileset:%s- %s" % (fid, se.message))
 
@@ -573,7 +581,7 @@ moved.
                 self.ctx.err("Moving %s to %s" % (from_path, to_path))
                 try:
                     self.ctx.get_client().submit(raw)
-                except CmdError, ce:
+                except CmdError as ce:
                     self.ctx.die(114, ce.err)
         else:
             self.ctx.err(
@@ -606,12 +614,16 @@ Examples:
         """
 
         from omero.grid import ManagedRepositoryPrx as MRepo
+        from functools import cmp_to_key
+
+        def my_cmp(a, b):
+            return cmp(a[0].id.val, b[0].id.val)
 
         client = self.ctx.conn(args)
         shared = client.sf.sharedResources()
         repos = shared.repositories()
-        repos = zip(repos.descriptions, repos.proxies)
-        repos.sort(lambda a, b: cmp(a[0].id.val, b[0].id.val))
+        repos = list(zip(repos.descriptions, repos.proxies))
+        repos.sort(key = cmp_to_key(my_cmp))
 
         tb = self._table(args)
         tb.cols(["Id", "UUID", "Type", "Path"])
@@ -749,11 +761,11 @@ Examples:
                     raw = RawAccessRequest()
                     raw.repoUuid = desc.hash.val
                     raw.command = "checksum"
-                    raw.args = map(str, row)
+                    raw.args = list(map(str, row))
                     try:
                         cb = client.submit(raw)
                         cb.close(True)
-                    except CmdError, ce:
+                    except CmdError as ce:
                         err = ce.err
                         self.ctx.dbg(err)
 
@@ -774,7 +786,7 @@ Examples:
 
         defaultdict(list)
         for ofile in fileset.listFiles():
-            print ofile.path + ofile.name
+            print(ofile.path + ofile.name)
 
     def logfile(self, args):
         """Return the logfile associated with a fileset"""
@@ -794,11 +806,11 @@ Examples:
                         sys.stdout.flush()
                     else:
                         client.download(log, target_file)
-                except ValidationException, ve:
+                except ValidationException as ve:
                     # This should effectively be handled by None being
                     # returned from the logfile query above.
                     self.ctx.die(115, "ValidationException: %s" % ve.message)
-                except ResourceError, re:
+                except ResourceError as re:
                     # ID exists in DB, but not on FS
                     self.ctx.die(116, "ResourceError: %s" % re.message)
         else:
@@ -814,7 +826,7 @@ Examples:
 
         shared = client.sf.sharedResources()
         repos = shared.repositories()
-        repos = zip(repos.descriptions, repos.proxies)
+        repos = list(zip(repos.descriptions, repos.proxies))
         repos.sort(lambda a, b: cmp(a[0].id.val, b[0].id.val))
 
         for idx, pair in enumerate(repos):
@@ -889,7 +901,7 @@ Examples:
                 if '*' in parts[1]:
                     classes.add(klass)
                 else:
-                    ids = [long(id) for id in parts[1].split(",")]
+                    ids = [int(id) for id in parts[1].split(",")]
                     objects.setdefault(klass, []).extend(ids)
             except:
                 raise ValueError("Bad object: ", o)
@@ -902,8 +914,8 @@ Examples:
         """
         oneK = 1024.0
         powers = {'K': 1, 'M': 2, 'G': 3, 'T': 4, 'P': 5}
-        if units in powers.keys():
-            return round(size/oneK**powers[units], 1)
+        if units in list(powers.keys()):
+            return round(old_div(size,oneK**powers[units]), 1)
         else:
             raise ValueError("Unrecognized units: ", units)
 
@@ -955,9 +967,9 @@ Examples:
 
         subtotals = {}
         if "component" in sum_by:
-            for userGroup in rsp.bytesUsedByReferer.keys():
-                for (element, size) in rsp.bytesUsedByReferer[
-                        userGroup].items():
+            for userGroup in list(rsp.bytesUsedByReferer.keys()):
+                for (element, size) in list(rsp.bytesUsedByReferer[
+                        userGroup].items()):
                     files = rsp.fileCountByReferer[userGroup][element]
                     keyList = []
                     if "user" in sum_by:
@@ -966,13 +978,13 @@ Examples:
                         keyList.append(userGroup.second)
                     keyList.append(element)
                     key = tuple(keyList)
-                    if key in subtotals.keys():
+                    if key in list(subtotals.keys()):
                         subtotals[key][0] += size
                         subtotals[key][1] += files
                     else:
                         subtotals[key] = [size, files]
         else:
-            for userGroup in rsp.totalBytesUsed.keys():
+            for userGroup in list(rsp.totalBytesUsed.keys()):
                 size = rsp.totalBytesUsed[userGroup]
                 files = rsp.totalFileCount[userGroup]
                 keyList = []
@@ -981,13 +993,13 @@ Examples:
                 if "group" in sum_by:
                     keyList.append(userGroup.second)
                 key = tuple(keyList)
-                if key in subtotals.keys():
+                if key in list(subtotals.keys()):
                     subtotals[key][0] += size
                     subtotals[key][1] += files
                 else:
                     subtotals[key] = [size, files]
 
-        for key in subtotals.keys():
+        for key in list(subtotals.keys()):
             row = list(key)
             row.extend(subtotals[key])
             tb.row(*tuple(row))
@@ -1042,7 +1054,7 @@ Examples:
             self.ctx.die(29, "provide fileset or request summary")
 
 
-class ImportTime:
+class ImportTime(object):
 
     def __init__(self, ctx, query):
         self.cli_ctx = ctx
@@ -1338,7 +1350,7 @@ class ImportTime:
             for [name, value] in results:
                 phase = self.import_names_to_phases.get(name.val)
                 if phase:
-                    self.metrics[phase] = long(value.val)
+                    self.metrics[phase] = int(value.val)
 
     def write_cache(self, update):
         """Write import metrics to a map annotation on the fileset"""
@@ -1367,46 +1379,46 @@ class ImportTime:
         metrics_keys = set(self.metrics)
 
         if set(['UPLOAD', 'UPLOAD_C']) <= metrics_keys:
-            time = self.metrics['UPLOAD'] / 1000.0
+            time = old_div(self.metrics['UPLOAD'], 1000.0)
             count = self.metrics['UPLOAD_C']
             plural = "s" if count > 1 else ""
             print(("   upload time of {0:6.2f}s for "
                    "{1} file{2} ({3:.3f}s/file)")
-                  .format(time, count, plural, time/count))
+                  .format(time, count, plural, old_div(time,count)))
 
-        time = self.metrics['SET_ID'] / 1000.0
+        time = old_div(self.metrics['SET_ID'], 1000.0)
         print("    setId time of {0:6.2f}s".format(time))
 
-        time = self.metrics['METADATA'] / 1000.0
+        time = old_div(self.metrics['METADATA'], 1000.0)
         print(" metadata time of {0:6.2f}s".format(time))
 
         if set(['PIXELDATA', 'PIXELDATA_C']) <= metrics_keys:
-            time = self.metrics['PIXELDATA'] / 1000.0
+            time = old_div(self.metrics['PIXELDATA'], 1000.0)
             count = self.metrics['PIXELDATA_C']
             plural = "s" if count > 1 else ""
             print(("   pixels time of {0:6.2f}s for "
                    "{1} plane{2} ({3:.3f}s/plane)")
-                  .format(time, count, plural, time/count))
+                  .format(time, count, plural, old_div(time,count)))
 
         if 'OVERLAY' in metrics_keys:
-            time = self.metrics['OVERLAY'] / 1000.0
+            time = old_div(self.metrics['OVERLAY'], 1000.0)
             print(" overlays time of {0:6.2f}s".format(time))
 
         if set(['RDEF', 'RDEF_C']) <= metrics_keys:
-            time = self.metrics['RDEF'] / 1000.0
+            time = old_div(self.metrics['RDEF'], 1000.0)
             count = self.metrics['RDEF_C']
             plural = "s" if count > 1 else ""
             print(("    rdefs time of {0:6.2f}s for "
                    "{1} rendering setting{2} ({3:.3f}s/rdef)")
-                  .format(time, count, plural, time/count))
+                  .format(time, count, plural, old_div(time,count)))
 
         if set(['THUMBNAIL', 'THUMBNAIL_C']) <= metrics_keys:
-            time = self.metrics['THUMBNAIL'] / 1000.0
+            time = old_div(self.metrics['THUMBNAIL'], 1000.0)
             count = self.metrics['THUMBNAIL_C']
             plural = "s" if count > 1 else ""
             print(("thumbnail time of {0:6.2f}s for "
                    "{1} thumbnail{2} ({3:.3f}s/thumbnail)")
-                  .format(time, count, plural, time/count))
+                  .format(time, count, plural, old_div(time,count)))
 
     def print_summary(self):
         """Report import metrics from map annotations on filesets"""
@@ -1426,7 +1438,7 @@ class ImportTime:
             self.ice_ctx)
 
         if not results:
-            print "no import times to report"
+            print("no import times to report")
             return
 
         columns = ['fileset']
@@ -1442,7 +1454,7 @@ class ImportTime:
                 self.fileset_id = result[0].val
             phase = self.import_names_to_phases.get(result[1].val)
             if phase:
-                self.metrics[phase] = long(result[2].val)
+                self.metrics[phase] = int(result[2].val)
         self.print_summary_line()
 
     def print_summary_line(self):

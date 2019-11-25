@@ -3,6 +3,8 @@
 """
 ...
 """
+from __future__ import division
+from __future__ import print_function
 
 #
 #  Copyright (C) 2009 University of Dundee. All rights reserved.
@@ -23,6 +25,12 @@
 #
 
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import tempfile
 import logging
 import time
@@ -32,7 +40,7 @@ import re
 from threading import Thread
 from getpass import getpass
 from getopt import getopt, GetoptError
-from Queue import Queue
+from queue import Queue
 
 from omero.rtypes import rdouble, rstring, rint, unwrap
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ImageI, \
@@ -52,7 +60,7 @@ log = logging.getLogger("omero.util.populate_roi")
 def usage(error):
     """Prints usage so that we don't have to. :)"""
     cmd = sys.argv[0]
-    print """%s
+    print("""%s
 Usage: %s [-s hostname] [-u username | -k session_key] <-p port> [plate_id]
 Runs measurement population code for a given plate.
 
@@ -69,7 +77,7 @@ Options:
 Examples:
   %s -s localhost -p 4063 -u bob 27
 
-Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
+Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd))
     sys.exit(2)
 
 ###
@@ -93,12 +101,12 @@ class Worker(Thread):
             func, args, kargs = self.tasks.get()
             try:
                 func(*args, **kargs)
-            except Exception, e:
+            except Exception as e:
                 log.exception(e)
             self.tasks.task_done()
 
 
-class ThreadPool:
+class ThreadPool(object):
 
     """Pool of threads consuming tasks from a queue"""
 
@@ -157,13 +165,13 @@ class DownloadingOriginalFileProvider(object):
         """
         log.info("Downloading original file: %d" % original_file.id.val)
         self.raw_file_store.setFileId(original_file.id.val)
-        temporary_file = tempfile.TemporaryFile(mode='rU+', dir=str(self.dir))
+        temporary_file = tempfile.TemporaryFile(mode='rt+', dir=str(self.dir))
         size = original_file.size.val
-        for i in range((size / self.BUFFER_SIZE) + 1):
+        for i in range((old_div(size, self.BUFFER_SIZE)) + 1):
             index = i * self.BUFFER_SIZE
             data = self.raw_file_store.read(index, self.BUFFER_SIZE)
-            temporary_file.write(data)
-        temporary_file.seek(0L)
+            temporary_file.write(data.decode("utf-8"))
+        temporary_file.seek(0)
         temporary_file.truncate(size)
         return temporary_file
 
@@ -207,7 +215,7 @@ class AbstractPlateAnalysisCtx(object):
     def colrow_from_wellnumber(self, width, wellnumber):
         x = wellnumber - 1
         col = x % width
-        row = x / width
+        row = old_div(x, width)
         return (col, row)
 
     def image_from_wellnumber(self, wellnumber):
@@ -260,11 +268,11 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     datetime_format = '%Y-%m-%d-%Hh%Mm%Ss'
 
     # Regular expression matching a log filename
-    log_regex = re.compile('.*log(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
+    log_regex = re.compile(r'.*log(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
 
     # Regular expression matching a result filename
     detail_regex = re.compile(
-        '^Well(\d+)_(.*)_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
+        r'^Well(\d+)_(.*)_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
 
     # Companion file format
     companion_format = 'Companion/MIAS'
@@ -334,10 +342,10 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     is_this_type = classmethod(is_this_type)
 
     def get_measurement_count(self):
-        return len(self.measurements.keys())
+        return len(list(self.measurements.keys()))
 
     def get_measurement_ctx(self, index):
-        key = self.log_files.keys()[index]
+        key = list(self.log_files.keys())[index]
         sf = self.service_factory
         original_file = self.log_files[key]
         result_files = self.measurements[key]
@@ -346,7 +354,7 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
                                   result_files)
 
     def get_result_file_count(self, measurement_index):
-        key = self.log_files.keys()[measurement_index]
+        key = list(self.log_files.keys())[measurement_index]
         return len(self.measurements[key])
 
 
@@ -373,7 +381,7 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
             format = original_file.mimetype.val
             if format == self.companion_format and name.endswith('.res'):
                 path_original_file_map[path] = original_file
-        self.measurements = path_original_file_map.values()
+        self.measurements = list(path_original_file_map.values())
 
     ###
     # Abstract method implementations
@@ -426,7 +434,7 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
             format = original_file.mimetype.val
             if format == self.companion_format and name.endswith('.xml'):
                 path_original_file_map[path] = original_file
-        self.measurements = path_original_file_map.values()
+        self.measurements = list(path_original_file_map.values())
 
     ###
     # Abstract method implementations
@@ -881,7 +889,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
                 batch_no += 1
         self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
         self.thread_pool.wait_completion()
-        batch_keys = batches.keys()
+        batch_keys = list(batches.keys())
         batch_keys.sort()
         for k in batch_keys:
             columns[self.ROI_COL].values += batches[k]
@@ -920,7 +928,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
                 batch_no += 1
         self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
         self.thread_pool.wait_completion()
-        batch_keys = batches.keys()
+        batch_keys = list(batches.keys())
         batch_keys.sort()
         for k in batch_keys:
             columns[self.ROI_COL].values += batches[k]
@@ -1037,7 +1045,7 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
                 for result in results:
                     name = result.get('name')
                     columns[name].values.append(float(result.text))
-        return MeasurementParsingResult([columns.values()])
+        return MeasurementParsingResult([list(columns.values())])
 
     def parse_and_populate_roi(self, columns):
         pass
@@ -1144,10 +1152,10 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                     except:
                         log.exception("ERROR: Failed to get well images")
                         continue
-                    self.check_sparse_data(cells_columns.values())
-                    self.check_sparse_data(nuclei_columns.values())
-                    self.check_sparse_data(organelles_columns.values())
-                    cell = long(element.get('cell'))
+                    self.check_sparse_data(list(cells_columns.values()))
+                    self.check_sparse_data(list(nuclei_columns.values()))
+                    self.check_sparse_data(list(organelles_columns.values()))
+                    cell = int(element.get('cell'))
                     cells_columns['Cell'].values.append(cell)
                     nuclei_columns['Cell'].values.append(cell)
                     organelles_columns['Cell'].values.append(cell)
@@ -1182,13 +1190,13 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                 else:
                     element.clear()
             # Final row sparseness check
-            self.check_sparse_data(cells_columns.values())
-            self.check_sparse_data(nuclei_columns.values())
-            self.check_sparse_data(organelles_columns.values())
+            self.check_sparse_data(list(cells_columns.values()))
+            self.check_sparse_data(list(nuclei_columns.values()))
+            self.check_sparse_data(list(organelles_columns.values()))
             log.info("Total ROI: %d" % n_roi)
             log.info("Total measurements: %d" % n_measurements)
-            sets_of_columns = [cells_columns.values(), nuclei_columns.values(),
-                               organelles_columns.values()]
+            sets_of_columns = [list(cells_columns.values()), list(nuclei_columns.values()),
+                               list(organelles_columns.values())]
             return MeasurementParsingResult(sets_of_columns)
         finally:
             data.close()
@@ -1256,7 +1264,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                 batch_no += 1
         self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
         self.thread_pool.wait_completion()
-        batch_keys = batches.keys()
+        batch_keys = list(batches.keys())
         batch_keys.sort()
         for k in batch_keys:
             columns['ROI'].values += batches[k]
@@ -1267,12 +1275,13 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
 if __name__ == "__main__":
     try:
         options, args = getopt(sys.argv[1:], "s:p:u:m:k:t:id")
-    except GetoptError, (msg, opt):
+    except GetoptError as xxx_todo_changeme:
+        (msg, opt) = xxx_todo_changeme.args
         usage(msg)
 
     try:
         plate_id, = args
-        plate_id = long(plate_id)
+        plate_id = int(plate_id)
     except ValueError:
         usage("Plate ID must be a specified and a number!")
 
@@ -1328,8 +1337,8 @@ if __name__ == "__main__":
         if info:
             for i in range(n_measurements):
                 n_result_files = analysis_ctx.get_result_file_count(i)
-                print "Measurement %d has %d result files." % \
-                    (i, n_result_files)
+                print("Measurement %d has %d result files." % \
+                    (i, n_result_files))
             sys.exit(0)
         if measurement is not None:
             measurement_ctx = analysis_ctx.get_measurement_ctx(measurement)

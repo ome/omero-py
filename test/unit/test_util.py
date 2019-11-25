@@ -23,10 +23,17 @@
 """
 Test of various things under omero.util
 """
+from __future__ import division
+from __future__ import unicode_literals
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import json
 import pytest
 from path import path
+from os import linesep
 
 from omero.util.text import CSVStyle, JSONStyle, PlainStyle, TableBuilder
 from omero.util.upgrade_check import UpgradeCheck
@@ -71,29 +78,29 @@ class MockTable(object):
 
 tables = (
     MockTable(("c1", "c2"), (("a", "b"),),
-              ['c1,c2'], ['a,b\r\n'],
+              ['c1,c2'], ['a,b'],
               ' c1 | c2 \n----+----\n', [' a  | b  '],
               [{"c1": "a", "c2": "b"}],
               ),
     MockTable(("c1", "c2"), (("a,b", "c"),),
-              ['c1,c2'], ['"a,b",c\r\n'],
+              ['c1,c2'], ['"a,b",c'],
               ' c1  | c2 \n-----+----\n', [' a,b | c  '],
               [{"c1": "a,b", "c2": "c"}],
               ),
     MockTable(("c1", "c2"), (("'a b'", "c"),),
-              ['c1,c2'], ["'a b',c\r\n"],
+              ['c1,c2'], ["'a b',c"],
               ' c1    | c2 \n-------+----\n', [" 'a b' | c  "],
               [{"c1": "'a b'", "c2": "c"}],
               ),
     MockTable(("c1", "c2"), (("a", "b"), ("c", "d")),
-              ['c1,c2'], ['a,b\r\n', 'c,d\r\n'],
+              ['c1,c2'], ['a,b', 'c,d'],
               ' c1 | c2 \n----+----\n', [' a  | b  ', ' c  | d  '],
               [{"c1": "a", "c2": "b"}, {"c1": "c", "c2": "d"}],
               ),
     MockTable(("c1", "c2"), (("£ö", "b"),),
-              ['c1,c2'], ['£ö,b\r\n'],
+              ['c1,c2'], ['£ö,b'],
               ' c1 | c2 \n----+----\n', [' £ö | b  '],
-              [{"c1": u"£ö", "c2": "b"}],
+              [{"c1": "£ö", "c2": "b"}],
               ),
     )
 
@@ -204,9 +211,9 @@ class TestTempFileManager(object):
          'OMERO_TEMPDIR': 'tempdir',
          'OMERO_TMPDIR': 'tmpdir'}))
     def testTmpdirEnvironment(self, monkeypatch, tmpdir, environment):
-        for var in environment.keys():
+        for var in list(environment.keys()):
             if environment[var]:
-                monkeypatch.setenv(var, tmpdir / environment.get(var))
+                monkeypatch.setenv(var, old_div(tmpdir, environment.get(var)))
             else:
                 monkeypatch.delenv(var, raising=False)
 
@@ -214,7 +221,7 @@ class TestTempFileManager(object):
             pytest.deprecated_call(manager.tmpdir)
 
         if environment.get('OMERO_TMPDIR'):
-            tdir = tmpdir / environment.get('OMERO_TMPDIR')
+            tdir = old_div(tmpdir, environment.get('OMERO_TMPDIR'))
         elif environment.get('OMERO_TEMPDIR'):
             tdir = tmpdir / environment.get('OMERO_TEMPDIR') / "omero" / "tmp"
         elif environment.get('OMERO_USERDIR'):
@@ -226,20 +233,20 @@ class TestTempFileManager(object):
 
     def testTmpdir2805_1(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv('OMERO_TEMPDIR', tmpdir)
+        monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
         monkeypatch.delenv('OMERO_USERDIR', raising=False)
-        tmpfile = tmpdir / 'omero'
+        tmpfile = old_div(tmpdir, 'omero')
         tmpfile.write('')
 
         assert manager.tmpdir() == path(get_user_dir()) / "omero" / "tmp"
 
     def testTmpdir2805_2(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv('OMERO_TEMPDIR', tmpdir)
+        monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
         monkeypatch.delenv('OMERO_USERDIR', raising=False)
-        tempdir = tmpdir / 'omero'
+        tempdir = old_div(tmpdir, 'omero')
         tempdir.mkdir()
-        tmpfile = tempdir / 'tmp'
+        tmpfile = old_div(tempdir, 'tmp')
         tmpfile.write('')
 
         assert manager.tmpdir() == path(get_user_dir()) / "omero" / "tmp"

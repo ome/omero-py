@@ -23,6 +23,7 @@
 Test of the omero/plugins/tx.py module
 """
 
+from builtins import object
 import pytest
 from omero.api import IQueryPrx
 from omero.api import IUpdatePrx
@@ -34,8 +35,7 @@ from omero.plugins.obj import NewObjectTxAction
 from omero.plugins.obj import TxCmd
 from omero.plugins.obj import ObjControl
 from omero.plugins.obj import TxState
-from omero_ext.mox import IgnoreArg
-from omero_ext.mox import Mox
+from mox3 import mox
 
 
 class MockCLI(CLI):
@@ -56,7 +56,7 @@ class MockCLI(CLI):
 class TxBase(object):
 
     def setup_method(self, method):
-        self.mox = Mox()
+        self.mox = mox.Mox()
         self.client = self.mox.CreateMock(BaseClient)
         self.sf = self.mox.CreateMock(ServiceFactoryPrx)
         self.query = self.mox.CreateMock(IQueryPrx)
@@ -72,11 +72,11 @@ class TxBase(object):
 
     def queries(self, obj):
         self.sf.getQueryService().AndReturn(self.query)
-        self.query.get(IgnoreArg(), IgnoreArg(), IgnoreArg()).AndReturn(obj)
+        self.query.get(mox.IgnoreArg(), mox.IgnoreArg(), mox.IgnoreArg()).AndReturn(obj)
 
     def saves(self, obj):
         self.sf.getUpdateService().AndReturn(self.update)
-        self.update.saveAndReturnObject(IgnoreArg()).AndReturn(obj)
+        self.update.saveAndReturnObject(mox.IgnoreArg()).AndReturn(obj)
 
 
 class TestNewObjectTxAction(TxBase):

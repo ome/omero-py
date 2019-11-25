@@ -22,6 +22,7 @@ Read text-based dictionary file formats such as YAML and JSON
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+from past.builtins import basestring
 import os
 import json
 import re
@@ -67,10 +68,10 @@ def load(fileobj, filetype=None, single=True, session=None):
     except ValueError:
         pass
 
-    m = re.match('originalfile:(\d+)$', fileobj, re.I)
+    m = re.match(r'originalfile:(\d+)$', fileobj, re.I)
     if m:
         rawdata, filetype = get_format_originalfileid(
-            long(m.group(1)), filetype, session)
+            int(m.group(1)), filetype, session)
     else:
         rawdata, filetype = get_format_filename(fileobj, filetype)
 
@@ -122,11 +123,12 @@ def _format_from_name(filename):
 
 
 def get_format_filename(filename, filetype):
+    """Returns bytes from the named json or yaml file."""
     if not filetype:
         filetype = _format_from_name(filename)
     if filetype not in ('json', 'yaml'):
         raise ValueError('Unknown file format: %s' % filename)
-    with open(filename, 'r') as f:
+    with open(filename, 'rb') as f:
         rawdata = f.read()
     return rawdata, filetype
 

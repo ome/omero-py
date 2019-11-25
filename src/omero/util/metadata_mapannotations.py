@@ -23,6 +23,9 @@
 Utilities for manipulating map-annotations used as metadata
 """
 
+from builtins import str
+from builtins import range
+from builtins import object
 import logging
 from omero.model import NamedValue
 from omero.rtypes import rstring, unwrap
@@ -108,7 +111,7 @@ class CanonicalMapAnnotation(object):
         parentid: An OMERO object ID (integer)
         """
         if not isinstance(parenttype, str) or not isinstance(
-                parentid, (int, long)):
+                parentid, int):
             raise ValueError('Expected parenttype:str parentid:integer')
         self.parents.add((parenttype, parentid))
 
@@ -136,7 +139,7 @@ class MapAnnotationManager(object):
     Handles creation and de-duplication of MapAnnotations
     """
     # Policies for combining/replacing MapAnnotations
-    MA_APPEND, MA_OLD, MA_NEW = range(3)
+    MA_APPEND, MA_OLD, MA_NEW = list(range(3))
 
     def __init__(self, combine=MA_APPEND):
         """
@@ -187,7 +190,7 @@ class MapAnnotationManager(object):
             self.mapanns[cma.primary] = cma
 
     def get_map_annotations(self):
-        return self.mapanns.values() + self.nokey
+        return list(self.mapanns.values()) + self.nokey
 
     def add_from_namespace_query(self, session, ns, primary_keys):
         """

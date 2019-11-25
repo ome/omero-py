@@ -17,6 +17,10 @@ type hierarchy which know how to convert themselves
 to PyTables types.
 """
 
+from builtins import zip
+from builtins import range
+from builtins import object
+from future.utils import native, bytes_to_native_str, isbytes
 import omero
 import Ice
 import IceImport
@@ -68,7 +72,7 @@ class AbstractColumn(object):
                 pass
             self._types = [None] * len(cols)
             self._subnames = [None] * len(cols)
-            for k, v in cols.items():
+            for k, v in list(cols.items()):
                 self._types[v._v_pos] = v.recarrtype
                 self._subnames[v._v_pos] = "/" + k
 
@@ -136,7 +140,7 @@ class AbstractColumn(object):
         type/size at initialisation- this is mostly a problem for array types
         """
         names = [self.name + sn for sn in self._subnames]
-        return zip(names, self._types)
+        return list(zip(names, self._types))
 
     def fromrows(self, rows):
         """
@@ -274,6 +278,12 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
                 None, None, "String size must be > 0 (Column: %s)"
                 % self.name)
         return tables.StringCol(pos=pos, itemsize=self.size)
+
+    def fromrows(self, rows):
+        AbstractColumn.fromrows(self, rows)
+        for i, val in enumerate(self.values):
+            if isbytes(val):
+                self.values[i] = bytes_to_native_str(val)
 
 
 class AbstractArrayColumn(AbstractColumn):
@@ -460,14 +470,14 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         AbstractColumn.readCoordinates(self, tbl, rowNumbers)
         masks = self._getmasks(tbl)
         if rowNumbers is None or len(rowNumbers) == 0:
-            rowNumbers = range(masks.nrows)
+            rowNumbers = list(range(masks.nrows))
         self.getbytes(masks, rowNumbers)
 
     def read(self, tbl, start, stop):
         self.__sanitycheck()
         AbstractColumn.read(self, tbl, start, stop)  # calls fromrows
         masks = self._getmasks(tbl)
-        rowNumbers = range(start, stop)
+        rowNumbers = list(range(start, stop))
         self.getbytes(masks, rowNumbers)
 
     def getbytes(self, masks, rowNumbers):

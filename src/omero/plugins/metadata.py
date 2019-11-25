@@ -7,7 +7,13 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
 
+from builtins import str
+from future.utils import native_str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import logging
 import mimetypes
 import os
@@ -36,7 +42,7 @@ GUI clients.
 
 
 ANNOTATION_TYPES = [t for t in dir(omero.model)
-                    if re.match('[A-Za-z0-9]+Annotation$', t)]
+                    if re.match(r'[A-Za-z0-9]+Annotation$', t)]
 
 
 def guess_mimetype(filename):
@@ -152,7 +158,7 @@ class MetadataControl(BaseControl):
         pixelsize = parser.add(sub, self.pixelsize)
 
         populate.add_argument("--batch",
-                              type=long,
+                              type=int,
                               default=1000,
                               help="Number of objects to process at once")
         self._add_wait(populate)
@@ -196,12 +202,12 @@ class MetadataControl(BaseControl):
         datafile = populate.add_mutually_exclusive_group()
         datafile.add_argument("--file", help="Input file")
         datafile.add_argument(
-            "--fileid", type=long, help="Input OriginalFile ID")
+            "--fileid", type=int, help="Input OriginalFile ID")
 
         cfgfile = populate.add_mutually_exclusive_group()
         cfgfile.add_argument("--cfg", help="YAML configuration file")
         cfgfile.add_argument(
-            "--cfgid", type=long, help="YAML configuration OriginalFile ID")
+            "--cfgid", type=int, help="YAML configuration OriginalFile ID")
 
         populate.add_argument("--attach", action="store_true", help=(
             "Upload input or configuration files and attach to parent object"))
@@ -489,7 +495,7 @@ class MetadataControl(BaseControl):
                 ms = 0
             else:
                 ms = 5000
-                loops = int((wait * 1000) / ms) + 1
+                loops = int(old_div((wait * 1000), ms)) + 1
             ctx.write_to_omero(batch_size=args.batch, loops=loops, ms=ms)
 
     def rois(self, args):
@@ -623,7 +629,7 @@ class MetadataControl(BaseControl):
                 pixel.setPhysicalSizeZ(omero.model.LengthI(args.z, unit))
 
         groupId = pixels[0].getDetails().getGroup().getId().getValue()
-        ctx = {'omero.group': str(groupId)}
+        ctx = {'omero.group': native_str(groupId)}
         conn.getUpdateService().saveArray(pixels, ctx)
 
 

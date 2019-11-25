@@ -40,6 +40,12 @@
 # </small>
 # @since 3.0-Beta4
 #
+from __future__ import division
+from builtins import str
+from builtins import map
+from builtins import range
+from past.utils import old_div
+from builtins import object
 from omero.model.enums import UnitsLength
 from omero.model import LengthI
 from omero.model import EllipseI
@@ -120,7 +126,7 @@ def abstract():
 #
 
 
-class ShapeSettingsData:
+class ShapeSettingsData(object):
 
     ##
     # Initialises the default values of the ShapeSettings.
@@ -222,7 +228,7 @@ class ShapeSettingsData:
 #
 
 
-class ROICoordinate:
+class ROICoordinate(object):
 
     ##
     # Initialise the ROICoordinate.
@@ -261,7 +267,7 @@ class ROICoordinate:
 #
 
 
-class ROIDrawingI:
+class ROIDrawingI(object):
 
     def acceptVisitor(self, visitor):
         warnings.warn(
@@ -273,7 +279,7 @@ class ROIDrawingI:
 #
 
 
-class ShapeData:
+class ShapeData(object):
 
     ##
     # Constructor sets up the coord, shapeSettings and ROI objects.
@@ -812,7 +818,7 @@ class PolygonData(ShapeData, ROIDrawingI):
         elements = []
         list = pointString.split(',')
         numTokens = len(list)
-        for tokenPair in range(0, numTokens / 2):
+        for tokenPair in range(0, old_div(numTokens, 2)):
             elements.append(
                 (int(list[tokenPair * 2]), int(list[tokenPair * 2 + 1])))
         return elements
@@ -900,7 +906,7 @@ class PolylineData(ShapeData, ROIDrawingI):
         elements = []
         list = pointString.split(',')
         numTokens = len(list)
-        for tokenPair in range(0, numTokens / 2):
+        for tokenPair in range(0, old_div(numTokens, 2)):
             elements.append(
                 (int(list[tokenPair * 2]), int(list[tokenPair * 2 + 1])))
         return elements

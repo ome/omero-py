@@ -25,11 +25,15 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 """
+from __future__ import division
 
+from future.utils import bytes_to_native_str
+from future.utils import isbytes
+from past.utils import old_div
 from omero.cli import BaseControl
 from omero.cli import CLI
 
-from omero_ext.argparse import FileType, SUPPRESS
+from argparse import FileType, SUPPRESS
 
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
@@ -39,6 +43,11 @@ import omero.java
 import platform
 import sys
 import time
+
+if sys.version_info >= (3, 0, 0):
+    # Keep str behavior on Python 2
+    from builtins import str
+
 
 HELP = """Database tools for creating scripts, setting passwords, etc."""
 
@@ -55,8 +64,13 @@ class DatabaseControl(BaseControl):
         script = sub.add_parser(
             "script", help="Generates a DB creation script")
         script.set_defaults(func=self.script)
+        try:
+            # Python 3
+            ft = FileType(mode="w", encoding='utf-8')
+        except TypeError:
+            ft = FileType(mode="w")
         script.add_argument(
-            "-f", "--file", type=FileType(mode="w"),
+            "-f", "--file", type=ft,
             help="Optional file to save to. Use '-' for stdout.")
 
         script.add_argument("posversion", nargs="?", help=SUPPRESS)
@@ -136,15 +150,19 @@ class DatabaseControl(BaseControl):
         return value.strip()
 
     def _copy(self, input_path, output, func, cfg=None):
-            input = open(str(input_path))
             try:
-                for s in input.xreadlines():
+                input = open(str(input_path), encoding='utf-8')
+            except TypeError:
+                input = open(str(input_path))
+            try:
+                for s in input:
                         try:
                             if cfg:
                                 output.write(func(s) % cfg)
                             else:
                                 output.write(func(s))
-                        except Exception, e:
+                        except Exception as e:
+                            self.ctx.dbg(str(e))
                             self.ctx.die(
                                 154, "Failed to map line: %s\nError: %s"
                                 % (s, e))
@@ -152,11 +170,15 @@ class DatabaseControl(BaseControl):
                 input.close()
 
     def _make_replace(self, root_pass, db_vers, db_patch):
+        def fix(str_in):
+            if isbytes(str_in):
+                str_in = bytes_to_native_str(str_in)
+            return str_in
         def replace_method(str_in):
-                str_out = str_in.replace("@ROOTPASS@", root_pass)
-                str_out = str_out.replace("@DBVERSION@", db_vers)
-                str_out = str_out.replace("@DBPATCH@", db_patch)
-                return str_out
+            str_out = str_in.replace("@ROOTPASS@", fix(root_pass))
+            str_out = str_out.replace("@DBVERSION@", fix(db_vers))
+            str_out = str_out.replace("@DBPATCH@", fix(db_patch))
+            return str_out
         return replace_method
 
     def _db_profile(self):
@@ -191,14 +213,17 @@ class DatabaseControl(BaseControl):
             script = "<filename here>"
         else:
             script = "%s__%s.sql" % (db_vers, db_patch)
-            location = path.getcwd() / script
-            output = open(location, 'w')
+            location = old_div(path.getcwd(), script)
+            try:
+                output = open(location, 'w', encoding='utf-8')
+            except TypeError:
+                output = open(location, 'w')
             self.ctx.out("Saving to " + location)
 
         try:
             dbprofile = self._db_profile()
-            header = sql_directory / ("%s-header.sql" % dbprofile)
-            footer = sql_directory / ("%s-footer.sql" % dbprofile)
+            header = old_div(sql_directory, ("%s-header.sql" % dbprofile))
+            footer = old_div(sql_directory, ("%s-footer.sql" % dbprofile))
             if header.exists():
                 # 73 multiple DB support. OMERO 4.3+
                 cfg = {
@@ -206,8 +231,8 @@ class DatabaseControl(BaseControl):
                     "DIR": sql_directory,
                     "SCRIPT": script}
                 self._copy(header, output, str, cfg)
-                self._copy(sql_directory/"schema.sql", output, str)
-                self._copy(sql_directory/"views.sql", output, str)
+                self._copy(old_div(sql_directory,"schema.sql"), output, str)
+                self._copy(old_div(sql_directory,"views.sql"), output, str)
                 self._copy(
                     footer, output,
                     self._make_replace(password_hash, db_vers, db_patch), cfg)
@@ -229,11 +254,11 @@ class DatabaseControl(BaseControl):
 
 BEGIN;
                 """ % (time.ctime(time.time()), sql_directory, script))
-                self._copy(sql_directory/"schema.sql", output, str)
+                self._copy(old_div(sql_directory,"schema.sql"), output, str)
                 self._copy(
-                    sql_directory/"data.sql", output,
+                    old_div(sql_directory,"data.sql"), output,
                     self._make_replace(password_hash, db_vers, db_patch))
-                self._copy(sql_directory/"views.sql", output, str)
+                self._copy(old_div(sql_directory,"views.sql"), output, str)
                 output.write("COMMIT;\n")
 
         finally:
@@ -252,7 +277,7 @@ BEGIN;
                 old_prompt = False
         try:
             root_pass = args.password
-        except Exception, e:
+        except Exception as e:
             self.ctx.dbg("While getting arguments:" + str(e))
         if args.empty:
             password_hash = ""
@@ -269,7 +294,7 @@ BEGIN;
             data2 = self.ctx.initData({})
             output = self.ctx.readDefaults()
             self.ctx.parsePropertyFile(data2, output)
-        except Exception, e:
+        except Exception as e:
             self.ctx.dbg(str(e))
             data2 = None
         return data2

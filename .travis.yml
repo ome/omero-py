@@ -2,23 +2,36 @@ sudo: required
 
 language: python
 
-python:
-  - "2.7"
+matrix:
+  include:
+    - python: "2.7"
+      env: TOX=py27
+    - python: "3.6"
+      env: TOX=py36
+    - python: "3.7"
+      env: TOX=py37
+    - python: "3.6"
+      env: TOX=no
 
-services:
-  - docker
-
-before_install:
-  - sudo apt-get install -y openssl
-  - pip install "zeroc-ice>3.6.4,<3.7"
-  - python -c "import Ice; print Ice.stringVersion()"
+install:
+  - |
+    if [ "$TOX" = "no" ]; then
+      pip install https://github.com/ome/zeroc-ice-py-manylinux/releases/download/0.1.0/zeroc_ice-3.6.5-cp36-cp36m-manylinux2010_x86_64.whl
+      pip install restructuredtext-lint
+    else
+      pip install tox
+    fi
 
 script:
-  - python setup.py sdist
-  - pip install dist/omero-py*gz
-  - python -c "import omero_version; print omero_version.omero_version"
-  - omero version
-  - docker build -t test .
+  - |
+    if [ "$TOX" = "no" ]; then
+      rst-lint README.rst
+      python setup.py sdist
+      pip install dist/omero-py*gz
+      omero version
+    else
+      tox -e $TOX
+    fi
 
 deploy:
   provider: pypi
@@ -26,3 +39,4 @@ deploy:
   password: $PYPI_PASSWORD
   on:
     tags: true
+    condition: "$TOX = no"

@@ -24,7 +24,10 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 """
+from __future__ import division
 
+from builtins import str
+from past.utils import old_div
 import os
 import sys
 import Ice
@@ -184,7 +187,7 @@ class SessionsControl(UserGroupControl):
             sessions_dir = os.environ.get('OMERO_SESSIONDIR', session_dir)
 
             return self.FACTORY(sessions_dir)
-        except OSError, ose:
+        except OSError as ose:
             filename = getattr(ose, "filename", sessions_dir)
             self.ctx.die(155, "Could not access session dir: %s" % filename)
 
@@ -212,7 +215,7 @@ class SessionsControl(UserGroupControl):
         timeout.add_argument(
             "seconds",
             nargs="?",
-            type=long,
+            type=int,
             help="Number of seconds to set the timeToIdle value to")
         timeout.add_argument(
             "--session",
@@ -263,7 +266,7 @@ class SessionsControl(UserGroupControl):
     def _configure_login(self, login):
         login.add_login_arguments()
         login.add_argument(
-            "-t", "--timeout", type=long,
+            "-t", "--timeout", type=int,
             help="Timeout for session. After this many inactive seconds, the"
             " session will be closed")
         login.add_argument(
@@ -299,8 +302,8 @@ class SessionsControl(UserGroupControl):
         sess = svc.createSessionWithTimeout(p, (int(args.timeout)
                                                 * 1000))
         sessId = sess.getUuid().val
-        tti = sess.getTimeToIdle().val / 1000
-        ttl = sess.getTimeToLive().val / 1000
+        tti = old_div(sess.getTimeToIdle().val, 1000)
+        ttl = old_div(sess.getTimeToLive().val, 1000)
 
         msg = "Session created for user %s" % username
         if groupname:
@@ -439,19 +442,19 @@ class SessionsControl(UserGroupControl):
                             self.ctx.out("Previously logged in to %s:%s as %s"
                                          % (previous[0], previous[3],
                                             previous[1]))
-                    except Exception, e:
+                    except Exception as e:
                         self.ctx.out("Previous session expired for %s on"
                                      " %s:%s" % (previous[1], previous[0],
                                                  previous[3]))
                         self.ctx.dbg("Exception on attach: %s"
-                                     % traceback.format_exc(e))
+                                     % traceback.format_exception(None, e, sys.exc_info()[2]))
                         try:
                             store.remove(*previous[:-1])
-                        except OSError, ose:
+                        except OSError as ose:
                             self.ctx.dbg("Session file missing: %s" % ose)
                         except:
                             self.ctx.dbg("Exception on remove: %s"
-                                         % traceback.format_exc(e))
+                                         % traceback.format_exception(None, e, sys.exc_info()[2]))
                             # Could tell user to manually clear here and then
                             # self.ctx.die()
                             self.ctx.err("Failed to remove session: %s" % e)
@@ -526,14 +529,14 @@ class SessionsControl(UserGroupControl):
                                               required=True)
                     rv = store.create(name, pasw, props, sudo=args.sudo)
                     break
-                except PermissionDeniedException, pde:
+                except PermissionDeniedException as pde:
                     tries -= 1
                     if not tries:
                         self.ctx.die(524, "3 incorrect password attempts")
                     else:
                         self.ctx.err(pde.reason)
                         pasw = None
-                except omero.RemovedSessionException, rse:
+                except omero.RemovedSessionException as rse:
                     self.ctx.die(525, "User account error: %s." % rse.message)
                 except Ice.ConnectionRefusedException:
                     if port:
@@ -545,9 +548,9 @@ class SessionsControl(UserGroupControl):
                 except Ice.DNSException:
                     self.ctx.die(555, "Ice.DNSException: bad host name: '%s'"
                                  % server)
-                except omero.SecurityViolation, sv:
+                except omero.SecurityViolation as sv:
                     self.ctx.die(557, "SecurityViolation: %s" % sv.message)
-                except Exception, e:
+                except Exception as e:
                     exc = traceback.format_exc()
                     self.ctx.dbg(exc)
                     self.ctx.die(556, "InternalException: Failed to connect:"
@@ -588,7 +591,7 @@ class SessionsControl(UserGroupControl):
                 rv = store.attach(server, name, uuid, set_current=set_current)
             else:
                 rv = store.create(name, name, props, set_current=set_current)
-        except Exception, e:
+        except Exception as e:
             self.ctx.dbg("Removing %s: %s" % (uuid, e))
             store.clear(server, name, uuid)
         return rv
@@ -638,7 +641,7 @@ class SessionsControl(UserGroupControl):
         try:
             rv = store.attach(*previous[:-1])
             rv[0].killSession()
-        except Exception, e:
+        except Exception as e:
             self.ctx.dbg("Exception on logout: %s" % e)
         store.remove(*previous[:-1])
         # Last is still useful. Not resetting.
@@ -655,7 +658,7 @@ class SessionsControl(UserGroupControl):
             return ec.groupName
 
         try:
-            group_id = long(args.target)
+            group_id = int(args.target)
             group_name = admin.getGroup(group_id).name.val
         except ValueError:
             group_name = args.target
@@ -675,7 +678,7 @@ class SessionsControl(UserGroupControl):
                     sf.getAdminService().getEventContext())
                 self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)" % (
                     old_name, old_id, group_name, group_id))
-            except omero.SecurityViolation, sv:
+            except omero.SecurityViolation as sv:
                     self.ctx.die(564, "SecurityViolation: %s" % sv.message)
 
     def timeout(self, args):
@@ -693,7 +696,7 @@ class SessionsControl(UserGroupControl):
 
         if args.seconds is None:
             # Query only
-            secs = unwrap(obj.timeToIdle)/1000.0
+            secs = old_div(unwrap(obj.timeToIdle),1000.0)
             self.ctx.out(secs)
             return secs
 
@@ -703,7 +706,7 @@ class SessionsControl(UserGroupControl):
         try:
             cb = client.submit(req)  # Response is "OK"
             cb.close(True)
-        except omero.CmdError, ce:
+        except omero.CmdError as ce:
             self.ctx.dbg(str(ce.err))
             self.ctx.die(558, "CmdError: %s" % ce.err.name)
         except:
@@ -717,9 +720,9 @@ class SessionsControl(UserGroupControl):
 
         headers = ("Server", "User", "Group", "Session", "Active", "Started")
         results = dict([(x, []) for x in headers])
-        for server, names in s.items():
-            for name, sessions in names.items():
-                for uuid, props in sessions.items():
+        for server, names in list(s.items()):
+            for name, sessions in list(names.items()):
+                for uuid, props in list(sessions.items()):
                     rv = None
                     msg = "True"
                     grp = "Unknown"
@@ -734,13 +737,13 @@ class SessionsControl(UserGroupControl):
                             grp = a_s.getEventContext().groupName
                             s_s = rv[0].sf.getSessionService()
                             started = s_s.getSession(uuid).started.val
-                            started = time.ctime(started / 1000.0)
+                            started = time.ctime(old_div(started, 1000.0))
                         finally:
                             if rv:
                                 rv[0].closeSession()
-                    except PermissionDeniedException, pde:
+                    except PermissionDeniedException as pde:
                         msg = pde.reason
-                    except Exception, e:
+                    except Exception as e:
                         self.ctx.dbg("Exception on attach: %s" % e)
                         msg = "Unknown exception"
 
@@ -750,7 +753,7 @@ class SessionsControl(UserGroupControl):
                                          % (server, name, uuid))
                             store.remove(server, name, uuid)
                             continue
-                        except IOError, ioe:
+                        except IOError as ioe:
                             self.ctx.dbg("Aborting session purging. %s" % ioe)
                             break
 
@@ -792,7 +795,7 @@ class SessionsControl(UserGroupControl):
 
             # Preparse data to find extra columns
             for idx, s in enumerate(rsp.sessions):
-                for k in rsp.data[idx].keys():
+                for k in list(rsp.data[idx].keys()):
                     extra.add(k)
             for add in sorted(extra):
                 headers.append(add)
@@ -803,12 +806,12 @@ class SessionsControl(UserGroupControl):
                 data = unwrap(rsp.data[idx])
                 # Handle missing keys
                 for k in extra:
-                    if k not in data.keys():
+                    if k not in list(data.keys()):
                         results[k].append("---")
                 for k, v in sorted(data.items()):
                     try:
                         if k.endswith("Time"):
-                            t = v / 1000.0
+                            t = old_div(v, 1000.0)
                             t = time.localtime(t)
                             v = time.strftime('%Y-%m-%d %H:%M:%S', t)
                     except:
@@ -817,7 +820,7 @@ class SessionsControl(UserGroupControl):
                 results["name"].append(ec.userName)
                 results["group"].append(ec.groupName)
                 if s is not None:
-                    t = s.started.val / 1000.0
+                    t = old_div(s.started.val, 1000.0)
                     t = time.localtime(t)
                     t = time.strftime("%Y-%m-%d %H:%M:%S", t)
                     if uuid == ec.sessionUuid:
@@ -837,10 +840,10 @@ class SessionsControl(UserGroupControl):
             from omero.util.text import Table, Column
             columns = tuple([Column(x, results[x]) for x in headers])
             self.ctx.out(str(Table(*columns)))
-        except omero.CmdError, ce:
+        except omero.CmdError as ce:
             self.ctx.dbg(str(ce.err))
             self.ctx.die(560, "CmdError: %s" % ce.err.name)
-        except omero.ClientError, ce:
+        except omero.ClientError as ce:
             if ce.message == "Null handle":
                 v = client.sf.getConfigService().getVersion()
                 self.ctx.die(561,
@@ -870,7 +873,7 @@ class SessionsControl(UserGroupControl):
                     try:
                         self.client.sf.keepAlive(None)
                         self.event.wait(args.frequency)
-                    except Exception, e:
+                    except Exception as e:
                         self.err("Keep alive failed: %s" % str(e))
                         return
         t = T()
@@ -932,7 +935,7 @@ class SessionsControl(UserGroupControl):
         """Parse a connection string of form (user@)server(:port)"""
 
         import re
-        pat = '^((?P<name>.+)@)?(?P<server>.*?)(:(?P<port>\d{1,5}))?$'
+        pat = r'^((?P<name>.+)@)?(?P<server>.*?)(:(?P<port>\d{1,5}))?$'
         match = re.match(pat, server)
         server = match.group('server')
         name = match.group('name')

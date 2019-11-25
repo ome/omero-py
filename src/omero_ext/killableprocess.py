@@ -47,6 +47,7 @@ forcefully killing the process.
 Note: On Windows, this module requires Windows 2000 or higher (no support for
 Windows 95, 98, or NT 4.0).
 """
+from __future__ import absolute_import
 
 import subprocess
 import sys
@@ -58,7 +59,7 @@ from subprocess import CalledProcessError
 mswindows = (sys.platform == "win32")
 
 if mswindows:
-    import winprocess
+    from . import winprocess
 else:
     import signal
 
@@ -125,7 +126,7 @@ class Popen(subprocess.Popen):
                     c2pread, c2pwrite,
                     errread, errwrite) = args_tuple
 
-            if not isinstance(args, types.StringTypes):
+            if not isinstance(args, (str,)):
                 args = subprocess.list2cmdline(args)
 
             if startupinfo is None:

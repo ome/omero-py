@@ -21,7 +21,13 @@
 """
 Utility methods for dealing with scripts.
 """
+from __future__ import division
+from future.utils import native_str
 
+from builtins import hex
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import logging
 import os
 import warnings
@@ -153,7 +159,7 @@ def rmdir_recursive(dir):
         # on Windows, if we don't have write permission we can't remove
         # the file/directory either, so turn that on
         if not os.access(full_name, os.W_OK):
-            os.chmod(full_name, 0600)
+            os.chmod(full_name, 0o600)
         if os.path.isdir(full_name):
             rmdir_recursive(full_name)
         else:
@@ -183,7 +189,7 @@ def calc_sha1(filename):
     @return:            The hash of the file
     """
 
-    with open(filename) as file_handle:
+    with open(filename, 'rb') as file_handle:
         h = hash_sha1()
         h.update(file_handle.read())
         hash = h.hexdigest()
@@ -350,7 +356,7 @@ def download_file(raw_file_store, original_file, file_path=None):
     file_size = original_file.getSize().getValue()
     block_size = min(max_block_size, file_size)
     cnt = 0
-    with open(file_path, 'w') as file_handle:
+    with open(file_path, 'wb') as file_handle:
         while cnt < file_size:
             block = raw_file_store.read(cnt, block_size)
             cnt = cnt + block_size
@@ -623,7 +629,7 @@ def readFlimImageFile(rawPixelsStore, pixels):
     id = pixels.getId().getValue()
     pixelsType = pixels.getPixelsType().getValue().getValue()
     rawPixelsStore.setPixelsId(id, False)
-    cRange = range(0, sizeC)
+    cRange = list(range(0, sizeC))
     stack = zeros(
         (sizeC, sizeX, sizeY), dtype=pixelstypetopython.toNumpy(pixelsType))
     for c in cRange:
@@ -667,7 +673,7 @@ def download_plane(raw_pixels_store, pixels, z, c, t):
     size_x = pixels.getSizeX().getValue()
     size_y = pixels.getSizeY().getValue()
     pixel_type = pixels.getPixelsType().getValue().getValue()
-    convert_type = '>' + str(size_x * size_y) + \
+    convert_type = '>' + native_str(size_x * size_y) + \
         pixelstypetopython.toPython(pixel_type)
     converted_plane = unpack(convert_type, raw_plane)
     numpy_type = pixelstypetopython.toNumpy(pixel_type)
@@ -813,7 +819,7 @@ def uploadDirAsImages(sf, queryService, updateService,
 
     # code below here is very similar to combineImages.py
     # create an image in OMERO and populate the planes with numpy 2D arrays
-    channelList = range(sizeC)
+    channelList = list(range(sizeC))
     imageId = pixelsService.createImage(
         sizeX, sizeY, sizeZ, sizeT, channelList,
         pixelsType, imageName, description)
@@ -1523,7 +1529,7 @@ def numpy_save_as_image(plane, min_max, dtype, name):
     image = numpy_to_image(plane, min_max, dtype)
     try:
         image.save(name)
-    except (IOError, KeyError) as e:
+    except (IOError, KeyError, ValueError) as e:
         msg = "Cannot save the array as an image: %s: %s" % (
             name, e)
         logging.error(msg)
@@ -1546,7 +1552,7 @@ def convert_numpy_array(plane, min_max, type):
         val_range = max_val - min_val
         if (val_range == 0):
             val_range = 1
-        scaled = (plane - min_val) * (float(255) / val_range)
+        scaled = (plane - min_val) * (old_div(float(255), val_range))
         conv_array = zeros(plane.shape, dtype=type)
         try:
             conv_array += scaled

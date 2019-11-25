@@ -28,7 +28,15 @@ pyinotify
 @license: MIT License
 @contact: seb@dbzteam.org
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import map
+from builtins import hex
+from builtins import str
+from past.builtins import basestring
+from past.utils import old_div
+from builtins import object
 class PyinotifyError(Exception):
     """Indicates exceptions raised by a Pyinotify class."""
     pass
@@ -141,7 +149,8 @@ class PyinotifyLogger(logging.Logger):
     Pyinotify logger used for logging unicode strings.
     """
     def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None,
-                   extra=None):
+                   extra=None, sinfo=None):
+
         rv = UnicodeLogRecord(name, level, fn, lno, msg, args, exc_info, func)
         if extra is not None:
             for key in extra:
@@ -165,7 +174,7 @@ class UnicodeLogRecord(logging.LogRecord):
 
     def getMessage(self):
         msg = self.msg
-        if not isinstance(msg, (unicode, str)):
+        if not isinstance(msg, str):
             try:
                 msg = str(self.msg)
             except UnicodeError:
@@ -176,13 +185,13 @@ class UnicodeLogRecord(logging.LogRecord):
                     """Return unicode string."""
                     if not isinstance(s, str):
                         return s
-                    return unicode(s, sys.getfilesystemencoding())
+                    return str(s, sys.getfilesystemencoding())
                 args = tuple([str_to_unicode(m) for m in self.args])
             else:
                 args = self.args
             msg = msg % args
-        if not isinstance(msg, unicode):
-            msg = unicode(msg, sys.getfilesystemencoding())
+        if not isinstance(msg, str):
+            msg = str(msg, sys.getfilesystemencoding())
         return msg
 
 
@@ -202,7 +211,7 @@ log = logger_init()
 
 
 # inotify's variables
-class SysCtlINotify:
+class SysCtlINotify(object):
     """
     Access (read, write) inotify's variables through sysctl. Usually it
     requires administrator rights to update them.
@@ -268,7 +277,7 @@ for attrname in ('max_queued_events', 'max_user_instances', 'max_user_watches'):
     globals()[attrname] = SysCtlINotify(attrname)
 
 
-class EventsCodes:
+class EventsCodes(object):
     """
     Set of codes corresponding to each kind of events.
     Some of these flags are used to communicate with inotify, whereas
@@ -380,7 +389,7 @@ class EventsCodes:
 # So let's now turn the configuration into code
 EventsCodes.ALL_FLAGS = {}
 EventsCodes.ALL_VALUES = {}
-for flagc, valc in EventsCodes.FLAG_COLLECTIONS.items():
+for flagc, valc in list(EventsCodes.FLAG_COLLECTIONS.items()):
     # Make the collections' members directly accessible through the
     # class dictionary
     setattr(EventsCodes, flagc, valc)
@@ -390,18 +399,18 @@ for flagc, valc in EventsCodes.FLAG_COLLECTIONS.items():
 
     # Make the individual masks accessible as 'constants' at globals() scope
     # and masknames accessible by values.
-    for name, val in valc.items():
+    for name, val in list(valc.items()):
         globals()[name] = val
         EventsCodes.ALL_VALUES[val] = name
 
 
 # all 'normal' events
-ALL_EVENTS = reduce(lambda x, y: x | y, EventsCodes.OP_FLAGS.values())
+ALL_EVENTS = reduce(lambda x, y: x | y, list(EventsCodes.OP_FLAGS.values()))
 EventsCodes.ALL_FLAGS['ALL_EVENTS'] = ALL_EVENTS
 EventsCodes.ALL_VALUES[ALL_EVENTS] = 'ALL_EVENTS'
 
 
-class _Event:
+class _Event(object):
     """
     Event structure, represent events raised by the system. This
     is the base class and should be subclassed.
@@ -414,7 +423,7 @@ class _Event:
         @param dict_: Set of attributes.
         @type dict_: dictionary
         """
-        for tpl in dict_.items():
+        for tpl in list(dict_.items()):
             setattr(self, *tpl)
 
     def __repr__(self):
@@ -423,7 +432,7 @@ class _Event:
         @rtype: str
         """
         s = ''
-        for attr, value in sorted(self.__dict__.items(), key=lambda x: x[0]):
+        for attr, value in sorted(list(self.__dict__.items()), key=lambda x: x[0]):
             if attr.startswith('_'):
                 continue
             if attr == 'mask':
@@ -470,7 +479,7 @@ class _RawEvent(_Event):
         d = {'wd': wd,
              'mask': mask,
              'cookie': cookie,
-             'name': name.rstrip('\0')}
+             'name': name.rstrip(b'\0')}
         _Event.__init__(self, d)
         log.debug(str(self))
 
@@ -520,7 +529,7 @@ class Event(_Event):
                                                              self.name))
             else:
                 self.pathname = os.path.abspath(self.path)
-        except AttributeError, err:
+        except AttributeError as err:
             # Usually it is not an error some events are perfectly valids
             # despite the lack of these attributes.
             log.debug(err)
@@ -538,7 +547,7 @@ class ProcessEventError(PyinotifyError):
         PyinotifyError.__init__(self, err)
 
 
-class _ProcessEvent:
+class _ProcessEvent(object):
     """
     Abstract processing event class.
     """
@@ -611,7 +620,7 @@ class _SysProcessEvent(_ProcessEvent):
         """
         date_cur_ = datetime.now()
         for seq in [self._mv_cookie, self._mv]:
-            for k in seq.keys():
+            for k in list(seq.keys()):
                 if (date_cur_ - seq[k][1]) > timedelta(minutes=1):
                     log.debug('Cleanup: deleting entry %s', seq[k][0])
                     del seq[k]
@@ -718,7 +727,7 @@ class _SysProcessEvent(_ProcessEvent):
             # The next loop renames all watches with src_path as base path.
             # It seems that IN_MOVE_SELF does not provide IN_ISDIR information
             # therefore the next loop is iterated even if raw_event is a file.
-            for w in self._watch_manager.watches.values():
+            for w in list(self._watch_manager.watches.values()):
                 if w.path.startswith(src_path):
                     # Note that dest_path is a normalized path.
                     w.path = os.path.join(dest_path, w.path[src_path_len:])
@@ -954,15 +963,15 @@ class Stats(ProcessEvent):
         if elapsed < 60:
             elapsed_str = str(elapsed) + 'sec'
         elif 60 <= elapsed < 3600:
-            elapsed_str = '%dmn%dsec' % (elapsed / 60, elapsed % 60)
+            elapsed_str = '%dmn%dsec' % (old_div(elapsed, 60), elapsed % 60)
         elif 3600 <= elapsed < 86400:
-            elapsed_str = '%dh%dmn' % (elapsed / 3600, (elapsed % 3600) / 60)
+            elapsed_str = '%dh%dmn' % (old_div(elapsed, 3600), old_div((elapsed % 3600), 60))
         elif elapsed >= 86400:
-            elapsed_str = '%dd%dh' % (elapsed / 86400, (elapsed % 86400) / 3600)
+            elapsed_str = '%dd%dh' % (old_div(elapsed, 86400), old_div((elapsed % 86400), 3600))
         stats['ElapsedTime'] = elapsed_str
 
         l = []
-        for ev, value in sorted(stats.items(), key=lambda x: x[0]):
+        for ev, value in sorted(list(stats.items()), key=lambda x: x[0]):
             l.append(' %s=%s' % (output_format.field_name(ev),
                                  output_format.field_value(value)))
         s = '<%s%s >' % (output_format.class_name(self.__class__.__name__),
@@ -978,7 +987,7 @@ class Stats(ProcessEvent):
         @type filename: string
         """
         flags = os.O_WRONLY|os.O_CREAT|os.O_NOFOLLOW|os.O_EXCL
-        fd = os.open(filename, flags, 0600)
+        fd = os.open(filename, flags, 0o600)
         os.write(fd, str(self))
         os.close(fd)
 
@@ -988,14 +997,14 @@ class Stats(ProcessEvent):
             return ''
 
         m = max(stats.values())
-        unity = float(scale) / m
+        unity = old_div(float(scale), m)
         fmt = '%%-26s%%-%ds%%s' % (len(output_format.field_value('@' * scale))
                                    + 1)
         def func(x):
             return fmt % (output_format.field_name(x[0]),
                           output_format.field_value('@' * int(x[1] * unity)),
                           output_format.simple('%d' % x[1], 'yellow'))
-        s = '\n'.join(map(func, sorted(stats.items(), key=lambda x: x[0])))
+        s = '\n'.join(map(func, sorted(list(stats.items()), key=lambda x: x[0])))
         return s
 
 
@@ -1012,7 +1021,7 @@ class NotifierError(PyinotifyError):
         PyinotifyError.__init__(self, err)
 
 
-class Notifier:
+class Notifier(object):
     """
     Read notifications, process events.
 
@@ -1121,7 +1130,7 @@ class Notifier:
                 if timeout is None:
                     timeout = self._timeout
                 ret = self._pollobj.poll(timeout)
-            except select.error, err:
+            except select.error as err:
                 if err[0] == errno.EINTR:
                     continue # interrupted, retry
                 else:
@@ -1152,7 +1161,7 @@ class Notifier:
         try:
             # Read content from file
             r = os.read(self._fd, queue_size)
-        except Exception, msg:
+        except Exception as msg:
             raise NotifierError(msg)
         log.debug('Event queue size: %d', queue_size)
         rsum = 0  # counter
@@ -1228,7 +1237,7 @@ class Notifier:
                 if (pid == 0):
                     # child
                     os.chdir('/')
-                    os.umask(022)
+                    os.umask(0o22)
                 else:
                     # parent 2
                     os._exit(0)
@@ -1238,9 +1247,9 @@ class Notifier:
 
             fd_inp = os.open(stdin, os.O_RDONLY)
             os.dup2(fd_inp, 0)
-            fd_out = os.open(stdout, os.O_WRONLY|os.O_CREAT, 0600)
+            fd_out = os.open(stdout, os.O_WRONLY|os.O_CREAT, 0o600)
             os.dup2(fd_out, 1)
-            fd_err = os.open(stderr, os.O_WRONLY|os.O_CREAT, 0600)
+            fd_err = os.open(stderr, os.O_WRONLY|os.O_CREAT, 0o600)
             os.dup2(fd_err, 2)
 
         # Detach task
@@ -1249,7 +1258,7 @@ class Notifier:
         # Write pid
         if pid_file != False:
             flags = os.O_WRONLY|os.O_CREAT|os.O_NOFOLLOW|os.O_EXCL
-            fd_pid = os.open(pid_file, flags, 0600)
+            fd_pid = os.open(pid_file, flags, 0o600)
             os.write(fd_pid, str(os.getpid()) + '\n')
             os.close(fd_pid)
             # Register unlink function
@@ -1374,7 +1383,7 @@ class ThreadedNotifier(threading.Thread, Notifier):
         Stop notifier's loop. Stop notification. Join the thread.
         """
         self._stop_event.set()
-        os.write(self._pipe[1], 'stop')
+        os.write(self._pipe[1], b'stop')
         threading.Thread.join(self)
         Notifier.stop(self)
         self._pollobj.unregister(self._pipe[0])
@@ -1440,7 +1449,7 @@ class AsyncNotifier(asyncore.file_dispatcher, Notifier):
         self.process_events()
 
 
-class Watch:
+class Watch(object):
     """
     Represent a watch, i.e. a file or directory being watched.
 
@@ -1490,7 +1499,7 @@ class Watch:
         return s
 
 
-class ExcludeFilter:
+class ExcludeFilter(object):
     """
     ExcludeFilter is an exclusion filter.
     """
@@ -1567,7 +1576,7 @@ class WatchManagerError(Exception):
         Exception.__init__(self, msg)
 
 
-class WatchManager:
+class WatchManager(object):
     """
     Provide operations for watching files and directories. Its internal
     dictionary is used to reference watched items. When used inside
@@ -1632,7 +1641,7 @@ class WatchManager:
         """
         try:
             del self._wmd[wd]
-        except KeyError, err:
+        except KeyError as err:
             log.error(str(err))
 
     @property
@@ -1654,7 +1663,7 @@ class WatchManager:
         # it receives an ctypes.create_unicode_buffer instance as argument.
         # Therefore even wd are indexed with bytes string and not with
         # unicode paths.
-        if isinstance(path, unicode):
+        if isinstance(path, str):
             path = path.encode(sys.getfilesystemencoding())
         return os.path.normpath(path)
 
@@ -1791,7 +1800,7 @@ class WatchManager:
             root = os.path.normpath(root)
             # recursion
             lend = len(root)
-            for iwd in self._wmd.items():
+            for iwd in list(self._wmd.items()):
                 cur = iwd[1].path
                 pref = os.path.commonprefix([root, cur])
                 if root == os.sep or (len(pref) == lend and \
@@ -1895,7 +1904,7 @@ class WatchManager:
         @rtype: int or None
         """
         path = self.__format_path(path)
-        for iwd in self._wmd.items():
+        for iwd in list(self._wmd.items()):
             if iwd[1].path == path:
                 return iwd[0]
 
@@ -2014,7 +2023,7 @@ class WatchManager:
                               exclude_filter=lambda path: False)
 
 
-class RawOutputFormat:
+class RawOutputFormat(object):
     """
     Format string representations.
     """

@@ -50,6 +50,8 @@ Author: Jonathan Feinberg <jdf@pobox.com>,
 Version: $Id: portalocker.py 5474 2008-05-16 20:53:50Z lowell $
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 
 __all__ = [
@@ -82,7 +84,7 @@ elif os.name == 'posix':
     LOCK_SH = fcntl.LOCK_SH
     LOCK_NB = fcntl.LOCK_NB
 else:
-    raise RuntimeError, "PortaLocker only defined for nt and posix platforms"
+    raise RuntimeError("PortaLocker only defined for nt and posix platforms")
 
 if os.name == 'nt':
 
@@ -90,10 +92,11 @@ if os.name == 'nt':
         hfile = win32file._get_osfhandle(fileno)
         try:
             win32file.LockFileEx(hfile, flags, 0, -0x10000, __overlapped)
-        except pywintypes.error, exc_value:
+        except pywintypes.error as exc_value:
             # error: (33, 'LockFileEx', 'The process cannot access the file because another process has locked a portion of the file.')
-            if exc_value[0] == 33:
-                raise LockException(LockException.LOCK_FAILED, exc_value[2])
+            if exc_value.args[0] == 33:
+                raise LockException(
+                    LockException.LOCK_FAILED, exc_value.args[2])
             else:
                 # Q:  Are there exceptions/codes we should be dealing with here?
                 raise
@@ -102,7 +105,7 @@ if os.name == 'nt':
         hfile = win32file._get_osfhandle(fileno)
         try:
             win32file.UnlockFileEx(hfile, 0, -0x10000, __overlapped)
-        except pywintypes.error, exc_value:
+        except pywintypes.error as exc_value:
             if exc_value[0] == 158:
                 # error: (158, 'UnlockFileEx', 'The segment is already unlocked.')
                 # To match the 'posix' implementation, silently ignore this error
@@ -115,12 +118,13 @@ elif os.name == 'posix':
     def lockno(fileno, flags):
         try:
             fcntl.flock(fileno, flags)
-        except IOError, exc_value:
+        except IOError as exc_value:
             #  IOError: [Errno 11] Resource temporarily unavailable
             #  Following added by Glencoe Software, Inc. using LOCK_NB|LOCK_EX on Mac 10.4
             #  IOError: [Errno 35] Resource temporarily unavailable
-            if exc_value[0] == 11 or exc_value[0] == 35:
-                raise LockException(LockException.LOCK_FAILED, exc_value[1])
+            if exc_value.args[0] == 11 or exc_value.args[0] == 35:
+                raise LockException(
+                    LockException.LOCK_FAILED, exc_value.args[1])
             else:
                 raise
 
@@ -139,7 +143,7 @@ def unlock(file):
 if __name__ == '__main__':
     from time import time, strftime, localtime
     import sys
-    import portalocker
+    from . import portalocker
 
     log = open('log.txt', "a+")
     portalocker.lock(log, portalocker.LOCK_EX)
@@ -147,7 +151,7 @@ if __name__ == '__main__':
     timestamp = strftime("%m/%d/%Y %H:%M:%S\n", localtime(time()))
     log.write( timestamp )
 
-    print "Wrote lines. Hit enter to release lock."
+    print("Wrote lines. Hit enter to release lock.")
     dummy = sys.stdin.readline()
 
     log.close()

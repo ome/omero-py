@@ -20,6 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+from builtins import object
 import pytest
 
 import omero
@@ -28,8 +29,7 @@ from omero.plugins.sessions import SessionsControl
 from omero.rtypes import rstring
 
 from omero.testlib import ITest
-from omero_ext.mox import Mox
-
+from mox3 import mox
 
 class AbstractCLITest(ITest):
 
@@ -40,7 +40,7 @@ class AbstractCLITest(ITest):
         cls.cli.register("sessions", SessionsControl, "TEST")
 
     def setup_mock(self):
-        self.mox = Mox()
+        self.mox = mox.Mox()
 
     def teardown_mock(self):
         self.mox.UnsetStubs()
@@ -155,7 +155,8 @@ def get_user_ids(out, sort_key=None):
                 new_value = ids[-1]
             else:
                 new_value = elements[columns[sort_key]].strip()
-            assert new_value >= last_value
+            if last_value is not None:
+                assert new_value >= last_value
             last_value = new_value
     return ids
 
@@ -175,6 +176,7 @@ def get_group_ids(out, sort_key=None):
                 new_value = ids[-1]
             else:
                 new_value = elements[1].strip()
-            assert new_value >= last_value
+            if last_value is not None:
+                assert new_value >= last_value
             last_value = new_value
     return ids

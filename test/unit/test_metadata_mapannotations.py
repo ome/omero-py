@@ -24,6 +24,9 @@ Test of metadata_mapannotation classes
 """
 
 
+from __future__ import unicode_literals
+from builtins import str
+from builtins import object
 import pytest
 
 from omero.model import MapAnnotationI, NamedValue

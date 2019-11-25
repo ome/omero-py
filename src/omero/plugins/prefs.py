@@ -12,7 +12,11 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
 
+from builtins import zip
+from builtins import str
+from past.utils import old_div
 import sys
 import traceback
 import os
@@ -261,7 +265,7 @@ class PrefsControl(WriteableConfigControl):
             return ConfigXml(str(cfg_xml))
         except portalocker.LockException:
             self.ctx.die(112, "Could not acquire lock on %s" % cfg_xml)
-        except Exception, e:
+        except Exception as e:
             self.ctx.die(113, str(e))
 
     def assert_valid_property_name(self, key):
@@ -366,7 +370,7 @@ class PrefsControl(WriteableConfigControl):
             from omeroweb import settings
             setting = settings.CUSTOM_SETTINGS_MAPPINGS.get(key)
             default = setting[2](setting[1]) if setting else []
-        except Exception, e:
+        except Exception as e:
             self.ctx.dbg(traceback.format_exc())
             self.ctx.die(514,
                          "Cannot retrieve default value for property %s: %s" %
@@ -378,7 +382,7 @@ class PrefsControl(WriteableConfigControl):
     @with_rw_config
     def append(self, args, config):
         import json
-        if args.KEY in config.keys():
+        if args.KEY in list(config.keys()):
             list_value = self.get_list_value(args, config)
         elif args.KEY.startswith('omero.web.'):
             list_value = self.get_omeroweb_default(args.KEY)
@@ -394,7 +398,7 @@ class PrefsControl(WriteableConfigControl):
 
     @with_rw_config
     def remove(self, args, config):
-        if args.KEY not in config.keys():
+        if args.KEY not in list(config.keys()):
             if args.KEY.startswith('omero.web.'):
                 list_value = self.get_omeroweb_default(args.KEY)
             else:
@@ -451,7 +455,7 @@ class PrefsControl(WriteableConfigControl):
     def load(self, args, config):
         keys = None
         if not args.q:
-            keys = config.keys()
+            keys = list(config.keys())
 
         # Handle all lines before updating config in case of error.
         new_config = dict(config)
@@ -473,10 +477,10 @@ class PrefsControl(WriteableConfigControl):
                         f.close()
         except NonZeroReturnCode:
             raise
-        except Exception, e:
+        except Exception as e:
             self.ctx.dbg(traceback.format_exc())
             self.ctx.die(968, "Cannot read %s: %s" % (args.file, e))
-        for key, value in new_config.items():
+        for key, value in list(new_config.items()):
             config[key] = value
 
     @with_rw_config
@@ -488,7 +492,7 @@ class PrefsControl(WriteableConfigControl):
         temp_file = create_path()
         try:
             edit_path(temp_file, start_text)
-        except RuntimeError, re:
+        except RuntimeError as re:
             self.ctx.dbg(traceback.format_exc())
             self.ctx.die(954, "%s: Failed to edit %s"
                          % (getattr(re, "pid", "Unknown"), temp_file))
@@ -500,7 +504,7 @@ class PrefsControl(WriteableConfigControl):
         try:
             self.load(args, config)
         except Exception as e:
-            for key, value in old_config.items():
+            for key, value in list(old_config.items()):
                 config[key] = value
             raise e
         finally:
@@ -521,13 +525,13 @@ class PrefsControl(WriteableConfigControl):
     @with_rw_config
     def upgrade(self, args, config):
         self.ctx.out("Importing pre-4.2 preferences")
-        txt = getprefs(["get"], str(self.ctx.dir / "lib"))
+        txt = getprefs(["get"], str(old_div(self.ctx.dir, "lib")))
 
         # Handle all lines before updating config in case of error.
         new_config = dict(config)
         for line in txt.split("\n"):
             self.handle_line(line, new_config, None)
-        for key, value in new_config.items():
+        for key, value in list(new_config.items()):
             config[key] = value
 
         # Upgrade procedure for 4.2
@@ -553,7 +557,7 @@ re-run"""
             raise ValueError("%s != %s\nLDAP properties in pre-4.2"
                              " configuration are invalid.\n%s"
                              % (attributes, values, MSG))
-        pairs = zip(attributes, values)
+        pairs = list(zip(attributes, values))
         if pairs:
             if len(pairs) == 1:
                 user_filter = "(%s=%s)" % (tuple(pairs[0]))
@@ -583,7 +587,7 @@ re-run"""
 
         _key = parts[0]
         _new = parts[1]
-        if _key in config.keys():
+        if _key in list(config.keys()):
             _old = config[_key]
         else:
             self.assert_valid_property_name(_key)
@@ -598,7 +602,7 @@ re-run"""
         config[_key] = _new
 
     def old(self, args):
-        self.ctx.out(getprefs(args.target, str(self.ctx.dir / "lib")))
+        self.ctx.out(getprefs(args.target, str(old_div(self.ctx.dir, "lib"))))
 
 try:
     register("config", PrefsControl, HELP)

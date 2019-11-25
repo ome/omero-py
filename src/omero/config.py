@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+from __future__ import print_function
+from __future__ import unicode_literals
+
 """
 ::
 
@@ -15,6 +19,7 @@ see ticket:800
 see ticket:2213 - Replacing Java Preferences API
 """
 
+from builtins import object, str
 import os
 import path
 import time
@@ -140,9 +145,9 @@ class ConfigXml(object):
         self.source = None
         if not self.read_only:
             try:
-                self.source = open(self.filename, "a+")  # Open file handle
+                self.source = open(self.filename, "a+b")  # Open file handle
             except IOError:
-                self.logger.debug("open('%s', 'a+') failed" % self.filename)
+                self.logger.debug("open('%s', 'a+b') failed" % self.filename)
                 if not os.path.isfile(self.filename):
                     raise
                 # Before we're forced to open read-only, we need to check
@@ -161,7 +166,7 @@ class ConfigXml(object):
             self.exclusive = False
             self.save_on_close = False
             # Open file handle read-only
-            self.source = open(self.filename, "r")
+            self.source = open(self.filename, "rb")
 
     def _open_lock(self):
         return open("%s.lock" % self.filename, "a+")
@@ -281,8 +286,8 @@ class ConfigXml(object):
         prop_list = self.properties()
         for id, p in prop_list:
             props = self.props_to_dict(p)
-            print "# ===> %s <===" % id
-            print self.dict_to_text(props)
+            print("# ===> %s <===" % id)
+            print(self.dict_to_text(props))
 
     def save(self):
         """
@@ -331,7 +336,7 @@ class ConfigXml(object):
         temp_file = path.path(self.filename + ".temp")
         try:
             # Copying etree usage from ome-model
-            with open(temp_file, "w") as o:
+            with open(temp_file, "wb") as o:
                 ElementTree(icegrid).write(o, encoding="UTF-8")
             if sys.platform == "win32":
                 os.remove(self.filename)
@@ -340,7 +345,7 @@ class ConfigXml(object):
                 self._close_lock()
             except:
                 self.logger.error("Failed to close lock", exc_info=1)
-        except Exception, e:
+        except Exception as e:
             try:
                 temp_file.remove()
             except:
@@ -381,7 +386,7 @@ class ConfigXml(object):
             return
 
         rv = ""
-        for k, v in parsed.items():
+        for k, v in list(parsed.items()):
             rv += "%s=%s" % (k, v)
         return rv
 
@@ -408,7 +413,7 @@ class ConfigXml(object):
         return self.props_to_dict(self.properties(self.default()))
 
     def keys(self):
-        return self.as_map().keys()
+        return list(self.as_map().keys())
 
     def __getitem__(self, key):
         return self.props_to_dict(self.properties(self.default()))[key]
@@ -421,7 +426,7 @@ class ConfigXml(object):
             props = SubElement(self.XML, "properties", {"id": default})
             SubElement(props, "property", name=self.KEY, value=self.VERSION)
 
-        if not isinstance(value, unicode):
+        if not isinstance(value, str):
             value = value.decode("utf-8")
 
         for x in props.findall("./property"):

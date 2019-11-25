@@ -6,6 +6,12 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+from builtins import str
+from builtins import zip
+from builtins import range
+from builtins import object
+from future.utils import native, bytes_to_native_str, isbytes
+from past.builtins import basestring
 import time
 import numpy
 import logging
@@ -21,7 +27,7 @@ import omero.callbacks
 
 # For ease of use
 from omero.columns import columns2definition
-from omero.rtypes import rfloat, rint, rlong, rstring, unwrap
+from omero.rtypes import rfloat, rlong, rstring, unwrap
 from omero.util.decorators import locked
 from omero_ext import portalocker
 from functools import wraps
@@ -29,6 +35,15 @@ from functools import wraps
 
 sys = __import__("sys")  # Python sys
 tables = __import__("tables")  # Pytables
+
+
+try:
+    # long only exists on Python 2
+    # Recent versions of PyTables may have treated Python 2 int and long
+    # identically anyway so treat the same
+    TABLES_METADATA_INT_TYPES = (int, numpy.int64, long)
+except NameError:
+    TABLES_METADATA_INT_TYPES = (int, numpy.int64)
 
 VERSION = '2'
 
@@ -130,7 +145,7 @@ class HdfList(object):
                 hdffile.close()
                 raise
 
-        if fileno in self.__filenos.keys():
+        if fileno in list(self.__filenos.keys()):
             hdffile.close()
             raise omero.LockTimeout(
                 None, None, "File already opened by process: %s" % hdfpath, 0)
@@ -220,7 +235,7 @@ class HdfStorage(object):
                             self.__hdf_path, mode))
                     mode = "r"
 
-            return tables.open_file(str(self.__hdf_path), mode=mode,
+            return tables.open_file(native(str(self.__hdf_path)), mode=mode,
                                     title="OMERO HDF Measurement Storage",
                                     rootUEP="/")
         except (tables.HDF5ExtError, IOError) as e:
@@ -293,11 +308,13 @@ class HdfStorage(object):
         k = '__version'
         try:
             v = self.__mea.attrs[k]
-            if isinstance(v, str):
+            if isinstance(v, basestring):
                 return v
         except KeyError:
             k = 'version'
             v = self.__mea.attrs[k]
+            if isbytes(v):
+                v = bytes_to_native_str(v)
             if v == 'v1':
                 return '1'
 
@@ -408,8 +425,12 @@ class HdfStorage(object):
         cols = []
         for i in range(len(types)):
             t = types[i]
+            if isbytes(t):
+                t = bytes_to_native_str(t)
             n = names[i]
             d = descs[i]
+            if isbytes(d):
+                d = bytes_to_native_str(d)
             try:
                 col = ic.findObjectFactory(t).create(t)
                 col.name = n
@@ -433,11 +454,11 @@ class HdfStorage(object):
             val = attr[key]
             if isinstance(val, float):
                 val = rfloat(val)
-            elif isinstance(val, int):
-                val = rint(val)
-            elif isinstance(val, long):
+            elif isinstance(val, TABLES_METADATA_INT_TYPES):
                 val = rlong(val)
-            elif isinstance(val, str):
+            elif isinstance(val, basestring):
+                if isbytes(val):
+                    val = bytes_to_native_str(val)
                 val = rstring(val)
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))
@@ -458,7 +479,7 @@ class HdfStorage(object):
                 raise omero.ApiUsageException(None, None, msg)
 
             self.__initcheck()
-            for k, v in m.iteritems():
+            for k, v in m.items():
                 if internal_attr(k):
                     raise omero.ApiUsageException(
                         None, None, "Reserved attribute name: %s" % k)
@@ -475,7 +496,7 @@ class HdfStorage(object):
         if not m:
             return
 
-        for k, v in m.iteritems():
+        for k, v in m.items():
             # This uses the default pytables type conversion, which may
             # convert it to a numpy type or keep it as a native Python type
             attr[k] = unwrap(v)
@@ -500,7 +521,7 @@ class HdfStorage(object):
             col.append(self.__mea)  # Potential corruption !!!
 
         # Convert column-wise data to row-wise records
-        records = numpy.array(zip(*arrays), dtype=dtypes)
+        records = numpy.array(list(zip(*arrays)), dtype=dtypes)
 
         self.__mea.append(records)
 
@@ -524,7 +545,7 @@ class HdfStorage(object):
         try:
             return self.__mea.get_where_list(condition, variables, None,
                                              start, stop, step).tolist()
-        except (NameError, SyntaxError, TypeError, ValueError), err:
+        except (NameError, SyntaxError, TypeError, ValueError) as err:
             aue = omero.ApiUsageException()
             aue.message = "Bad condition: %s, %s" % (condition, variables)
             aue.serverStackTrace = "".join(traceback.format_exc())
@@ -539,7 +560,7 @@ class HdfStorage(object):
         data.columns = cols
         data.rowNumbers = rowNumbers
         # Convert to millis since epoch
-        data.lastModification = long(self._stamp * 1000)
+        data.lastModification = int(self._stamp * 1000)
         return data
 
     @stamped
@@ -559,7 +580,7 @@ class HdfStorage(object):
 
         rows = self._getrows(start, stop)
         rv, l = self._rowstocols(rows, colNumbers, cols)
-        return self._as_data(rv, range(start, start + l))
+        return self._as_data(rv, list(range(start, start + l)))
 
     def _getrows(self, start, stop):
         return self.__mea.read(start, stop)
@@ -580,9 +601,9 @@ class HdfStorage(object):
         self.__initcheck()
 
         if colNumbers is None or len(colNumbers) == 0:
-            colNumbers = range(self.__width())
+            colNumbers = list(range(self.__width()))
         if rowNumbers is None or len(rowNumbers) == 0:
-            rowNumbers = range(self.__length())
+            rowNumbers = list(range(self.__length()))
 
         self.__sizecheck(colNumbers, rowNumbers)
         cols = self.cols(None, current)

@@ -32,7 +32,7 @@ def check_java(command):
 
 
 def makeVar(key, env):
-    if key in os.environ.keys():
+    if key in list(os.environ.keys()):
         env[key] = os.environ[key]
 
 
@@ -64,14 +64,14 @@ def cmd(args,
 
     # Prepare debugging
     if debug is None:
-        if "DEBUG" in os.environ.keys():
+        if "DEBUG" in list(os.environ.keys()):
             command += ["-Xdebug", debug_string]
     else:
         if debug:
             command += ["-Xdebug", debug_string]
 
     # Add JAVA_OPTS at the end. ticket:1439
-    if "JAVA_OPTS" in os.environ.keys():
+    if "JAVA_OPTS" in list(os.environ.keys()):
         command += shlex.split(os.environ["JAVA_OPTS"])
 
     # Do any mandatory configuration very late

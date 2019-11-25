@@ -12,7 +12,14 @@
  Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import str
+from future.utils import bytes_to_native_str
+from future.utils import isbytes
+from past.utils import old_div
+from builtins import object
 import re
 import os
 import sys
@@ -92,10 +99,10 @@ class AdminControl(DiagnosticsControl,
         and otherwise delegates to the BaseControl
         """
         for s in (" deploy ", " start ", " startasync "):
-            l = len(s)
+            length = len(s)
             i = line.find(s)
             if i >= 0:
-                f = line[i+l:]
+                f = line[i+length:]
                 return self._complete_file(f)
         return WriteableConfigControl._complete(
             self, text, line, begidx, endidx)
@@ -119,7 +126,7 @@ class AdminControl(DiagnosticsControl,
             "BAD_CONFIG", 300,
             "Bad configuration: No IceGrid.Node.Data property")
         self.add_error(
-            "WIN_CONFIG", 400, """
+            "WIN_CONFIG", 400, r"""
 
             %s is not in this directory. Aborting...
 
@@ -523,7 +530,7 @@ present, the user will enter a console""")
                 try:
                     hs = win32service.OpenService(
                         hscm, svc_name, win32service.SERVICE_ALL_ACCESS)
-                except:
+                except Exception:
                     return "DOESNOTEXIST"
                 try:
                     q = win32service.QueryServiceStatus(hs)
@@ -580,7 +587,7 @@ present, the user will enter a console""")
                         win32security.LsaAddAccountRights(
                             policy_handle, sid_obj, ('SeServiceLogonRight',))
                         win32security.LsaClose(policy_handle)
-                    except pywintypes.error, details:
+                    except pywintypes.error as details:
                         self.raise_error("SETUP", details[0], details[2])
                     if not pasw:
                         try:
@@ -621,7 +628,7 @@ present, the user will enter a console""")
                         hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
                     win32service.StartService(hs, None)
                     self.ctx.out("Starting %s Windows service." % svc_name)
-                except pywintypes.error, details:
+                except pywintypes.error as details:
                     self.ctx.out("%s service startup failed: (%s) %s"
                                  % (svc_name, details[0], details[2]))
                     win32service.DeleteService(hs)
@@ -673,11 +680,11 @@ present, the user will enter a console""")
 
     def _get_etc_dir(self):
         """Return path to directory containing configuration files"""
-        return self.ctx.dir / "etc"
+        return old_div(self.ctx.dir, "etc")
 
     def _get_grid_dir(self):
         """Return path to directory containing Gridconfiguration files"""
-        return self._get_etc_dir() / "grid"
+        return old_div(self._get_etc_dir(), "grid")
 
     def _get_templates_dir(self):
         """Return path to directory containing templates"""
@@ -706,13 +713,13 @@ present, the user will enter a console""")
             __d__ = "default.xml"
             if self._isWindows():
                 __d__ = "windefault.xml"
-            descript = self._get_grid_dir() / __d__
+            descript = old_div(self._get_grid_dir(), __d__)
             self.ctx.err("No descriptor given. Using %s"
                          % os.path.sep.join(["etc", "grid", __d__]))
         return descript
 
     def checkwindows(self, args):
-        """
+        r"""
         Checks that the templates file as defined in etc\Windows.cfg
         can be found.
         """
@@ -803,7 +810,7 @@ present, the user will enter a console""")
         self.startasync(args, config)
         try:
             self.waitup(args)
-        except NonZeroReturnCode, nzrc:
+        except NonZeroReturnCode as nzrc:
             # stop() may itself throw,
             # if it does not, then we rethrow
             # the original
@@ -864,7 +871,7 @@ present, the user will enter a console""")
                         self.ctx.rv = 0
                 finally:
                     ic.destroy()
-            except Exception, exc:
+            except Exception as exc:
                 self.ctx.rv = 1
                 self.ctx.dbg("Server not reachable: "+str(exc))
 
@@ -947,7 +954,7 @@ present, the user will enter a console""")
             args.wait = DEFAULT_WAIT
 
         total_secs = args.wait
-        loop_secs = total_secs / 30.0
+        loop_secs = old_div(total_secs, 30.0)
         return 30, loop_secs, "%s seconds" % total_secs
 
     @with_config
@@ -972,7 +979,7 @@ present, the user will enter a console""")
             command = self._cmd("-e", "node shutdown %s" % self._node())
             try:
                 self.ctx.call(command)
-            except NonZeroReturnCode, nzrc:
+            except NonZeroReturnCode as nzrc:
                 self.ctx.rv = nzrc.rv
                 self.ctx.out("Was the server already stopped?")
 
@@ -1012,8 +1019,14 @@ present, the user will enter a console""")
         from omero.util.cleanse import removepyramids
         client = self.ctx.conn(args)
         client.getSessionId()
-        wait = args.wait if args.wait > 0 else 25
-        limit = args.limit if args.limit > 0 else 500
+        if args.wait is not None and int(args.wait) > 0:
+            wait = args.wait
+        else:
+            wait = 25
+        if args.limit is not None and int(args.limit) > 0:
+            limit = args.limit
+        else:
+            limit = 500
         if args.endian == "both":
             little = None
         elif args.endian == "little":
@@ -1043,7 +1056,7 @@ present, the user will enter a console""")
         template_xml = XML(templates.text())
         try:
             rv = adjust_settings(config, template_xml)
-        except Exception, e:
+        except Exception as e:
             self.ctx.die(11, 'Cannot adjust memory settings in %s.\n%s'
                          % (templates, e))
 
@@ -1057,7 +1070,7 @@ present, the user will enter a console""")
             self.ctx.out("%s=%s" % (k, sb))
 
     def _get_omero_properties(self):
-        omero_props_file = self._get_etc_dir() / "omero.properties"
+        omero_props_file = old_div(self._get_etc_dir(), "omero.properties")
         pp = PropertyParser()
         omero_props = dict(
             (p.key, p.val) for p in pp.parse_file(omero_props_file))
@@ -1070,10 +1083,11 @@ present, the user will enter a console""")
 
     def _glacier2_icessl_xml(self, config_props):
         # Convert omero.glacier2.IceSSL.* properties to IceSSL.*
-        glacier2_icessl = dict((k[15:], v) for (k, v) in config_props.items()
+        items = list(config_props.items())
+        glacier2_icessl = dict((k[15:], v) for (k, v) in items
                                if k.startswith('omero.glacier2.IceSSL.'))
         return ['<property name="%s" value="%s"/>' % kv
-                for kv in glacier2_icessl.items()]
+                for kv in list(glacier2_icessl.items())]
 
     @with_config
     def rewrite(self, args, config, force=False):
@@ -1097,7 +1111,7 @@ present, the user will enter a console""")
         # Get some defaults from omero.properties
         config_props = self._get_omero_properties()
 
-        generated = self._get_grid_dir() / "templates.xml"
+        generated = old_div(self._get_grid_dir(), "templates.xml")
         if generated.exists():
             generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
@@ -1110,7 +1124,7 @@ present, the user will enter a console""")
 
         try:
             rv = adjust_settings(config, template_xml)
-        except Exception, e:
+        except Exception as e:
             self.ctx.die(11, 'Cannot adjust memory settings in %s.\n%s'
                          % (templates, e))
 
@@ -1156,21 +1170,22 @@ present, the user will enter a console""")
 
             with open(input_file) as template:
                 data = template.read()
-            output_file = path(output_dir / os.path.basename(input_file))
+            output_file = path(old_div(output_dir,
+                               os.path.basename(input_file)))
             if output_file.exists():
                 output_file.remove()
             with open(output_file, 'w') as f:
-                for key, value in substitutions.iteritems():
+                for key, value in substitutions.items():
                     data = re.sub(key, value, data)
                 f.write(data)
 
         # Regenerate various configuration files from templates
-        for cfg_file in glob(self._get_templates_dir() / "*.cfg"):
+        for cfg_file in glob(old_div(self._get_templates_dir(), "*.cfg")):
             copy_template(cfg_file, self._get_etc_dir())
         for xml_file in glob(
                 self._get_templates_dir() / "grid" / "*default.xml"):
-            copy_template(xml_file, self._get_etc_dir() / "grid")
-        ice_config = self._get_templates_dir() / "ice.config"
+            copy_template(xml_file, old_div(self._get_etc_dir(), "grid"))
+        ice_config = old_div(self._get_templates_dir(), "ice.config")
         substitutions['@omero.master.host@'] = config.get(
             'omero.master.host', config.get('Ice.Default.Host', 'localhost'))
         copy_template(ice_config, self._get_etc_dir())
@@ -1187,12 +1202,12 @@ present, the user will enter a console""")
         from omero.install.jvmcfg import read_settings
 
         self.check_access(os.R_OK)
-        templates = self._get_grid_dir() / "templates.xml"
+        templates = old_div(self._get_grid_dir(), "templates.xml")
         if templates.exists():
             template_xml = XML(templates.text())
             try:
                 memory = read_settings(template_xml)
-            except Exception, e:
+            except Exception as e:
                 self.ctx.die(11, 'Cannot read memory settings in %s.\n%s'
                              % (templates, e))
         else:
@@ -1220,12 +1235,12 @@ present, the user will enter a console""")
                 return False
 
             p.wait()
-            io = p.communicate()
+            io = list(map(bytes_to_native_str, p.communicate()))
             try:
                 v = io[0].split()
                 v.extend(io[1].split())
                 v = "".join(v)
-                m = re.match("^\D*(\d[.\d]+\d)\D?.*$", v)
+                m = re.match(r"^\D*(\d[.\d]+\d)\D?.*$", v)
                 v = "%-10s" % m.group(1)
                 self.ctx.out(v, False)
                 try:
@@ -1237,12 +1252,11 @@ present, the user will enter a console""")
                         where = where[0]
                         if sz > 1:
                             where += " -- %s others" % sz
-
-                except:
+                except Exception:
                     where = "unknown"
                 self.ctx.out("(%s)" % where)
                 return True
-            except Exception, e:
+            except Exception as e:
                 self.ctx.err("error:%s" % e)
                 return False
 
@@ -1267,12 +1281,12 @@ present, the user will enter a console""")
             tcp_port = None
             for line in router_lines:
                 if not ssl_port and line.find("ROUTERPORT") >= 0:
-                    m = re.match(".*?(\d+).*?$", line)
+                    m = re.match(r".*?(\d+).*?$", line)
                     if m:
                         ssl_port = m.group(1)
 
                 if not tcp_port and line.find("INSECUREROUTER") >= 0:
-                    m = re.match("^.*?-p (\d+).*?$", line)
+                    m = re.match(r"^.*?-p (\d+).*?$", line)
                     if m:
                         tcp_port = m.group(1)
             return ssl_port, tcp_port
@@ -1297,15 +1311,16 @@ present, the user will enter a console""")
                 servers = io[0].split()
                 servers.sort()
                 for s in servers:
-                    self._item("Server", "%s" % s)
+                    decoded = s.decode("utf-8")
+                    self._item("Server", "%s" % decoded)
                     p2 = self.ctx.popen(
-                        self._cmd("-e", "server state %s" % s))  # popen
+                        self._cmd("-e", "server state %s" % decoded))  # popen
                     p2.wait()
                     io2 = p2.communicate()
                     if io2[1]:
-                        self.ctx.err(io2[1].strip())
+                        self.ctx.err(io2[1].strip().decode("utf-8"))
                     elif io2[0]:
-                        self.ctx.out(io2[0].strip())
+                        self.ctx.out(io2[0].strip().decode("utf-8"))
                     else:
                         self.ctx.err("UNKNOWN!")
             if self._isWindows():
@@ -1353,24 +1368,24 @@ present, the user will enter a console""")
             files.sort()
             for x in files:
                 self._item("Log files", x)
-                self._exists(log_dir / x)
+                self._exists(old_div(log_dir, x))
             self._item("Log files", "Total size")
             sz = 0
             for x in log_dir.walkfiles():
                 sz += x.size
-            self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
+            self.ctx.out("%-.2f MB" % (old_div(float(sz), 1000000.0)))
             self.ctx.out("")
 
             # Parsing well known issues
-            ready = re.compile(".*?ome.services.util.ServerVersionCheck\
+            ready = re.compile(r".*?ome.services.util.ServerVersionCheck\
             .*OMERO.Version.*Ready..*?")
-            db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
-            data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
-            pg_password = re.compile(".*?org.postgresql.util.PSQLException:\
+            db_ready = re.compile(r".*?Did.you.create.your.database[?].*?")
+            data_dir = re.compile(r".*?Unable.to.initialize:.FullText.*?")
+            pg_password = re.compile(r".*?org.postgresql.util.PSQLException:\
             .FATAL:.password.*?authentication.failed.for.user.*?")
-            pg_user = re.compile(""".*?org.postgresql.util.PSQLException:\
+            pg_user = re.compile(r""".*?org.postgresql.util.PSQLException:\
             .FATAL:.role.".*?".does.not.exist.*?""")
-            pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:\
+            pg_conn = re.compile(r""".*?org.postgresql.util.PSQLException:\
             .Connection.refused.""")
 
             issues = {
@@ -1389,13 +1404,13 @@ present, the user will enter a console""")
                     import fileinput
                     for line in fileinput.input([str(p)]):
                         lno = fileinput.filelineno()
-                        for k, v in issues.items():
+                        for k, v in list(issues.items()):
                             if k.match(line):
                                 self._item('Parsing %s' % file,
                                            "[line:%s] %s" % (lno, v))
                                 self.ctx.out("")
                                 break
-            except:
+            except Exception:
                 self.ctx.err("Error while parsing logs")
 
         if not args.no_logs:
@@ -1408,6 +1423,7 @@ present, the user will enter a console""")
                        % (val, os.environ.get(val, "(unset)")))
             self.ctx.out("")
         env_val("OMERO_HOME")
+        env_val("OMERODIR")
         env_val("OMERO_NODE")
         env_val("OMERO_MASTER")
         env_val("OMERO_USERDIR")
@@ -1437,13 +1453,14 @@ present, the user will enter a console""")
                     self._item("%s %s port" % (s, port_type),
                                "%s" % value or "Not found")
                     self.ctx.out("")
+                s = s.decode("utf-8")
                 p2 = self.ctx.popen(
                     self._cmd("-e", "application describe %s" % s))
                 io2 = p2.communicate()
                 if io2[1]:
-                    self.ctx.err(io2[1].strip())
+                    self.ctx.err(io2[1].strip().decode("utf-8"))
                 elif io2[0]:
-                    ssl_port, tcp_port = get_ports(io2[0])
+                    ssl_port, tcp_port = get_ports(io2[0].decode("utf-8"))
                     port_val("SSL", ssl_port)
                     port_val("TCP", tcp_port)
                 else:
@@ -1503,10 +1520,10 @@ present, the user will enter a console""")
             cb = client.submit(
                 req, loops=loops, ms=ms,
                 failonerror=True, failontimeout=True)
-        except omero.CmdError, ce:
+        except omero.CmdError as ce:
             err = ce.err
             if err.name == "no-body" and err.parameters:
-                sb = err.parameters.items()
+                sb = list(err.parameters.items())
                 sb = ["%s:%s" % (k, v) for k, v in sb]
                 sb = "\n".join(sb)
                 self.ctx.die(12, sb)
@@ -1579,7 +1596,7 @@ present, the user will enter a console""")
     def check_access(self, mask=os.R_OK | os.W_OK, config=None):
         """Check that 'var' is accessible by the current user."""
 
-        var = self.ctx.dir / 'var'
+        var = old_div(self.ctx.dir, 'var')
         if not os.path.exists(var):
             self.ctx.out("Creating directory %s" % var)
             os.makedirs(var)
@@ -1639,6 +1656,8 @@ present, the user will enter a console""")
 
         def _check(msg, vers):
             compat = ice_compatibility.split(".")
+            if isbytes(vers):
+                vers = bytes_to_native_str(vers)
             vers = vers.split(".")
             if compat[0:2] != vers[0:2]:
                 self.ctx.die(164, "%s is not compatible with %s: %s"
@@ -1664,8 +1683,8 @@ present, the user will enter a console""")
         Callers are responsible for closing the
         returned ConfigXml object.
         """
-        cfg_xml = self._get_grid_dir() / "config.xml"
-        cfg_tmp = self._get_grid_dir() / "config.xml.tmp"
+        cfg_xml = old_div(self._get_grid_dir(), "config.xml")
+        cfg_tmp = old_div(self._get_grid_dir(), "config.xml.tmp")
         grid_dir = self._get_grid_dir()
         if not cfg_xml.exists() and self.can_access(grid_dir):
             if cfg_tmp.exists() and self.can_access(cfg_tmp):
@@ -1682,7 +1701,7 @@ present, the user will enter a console""")
         try:
             try:
                 config = omero.config.ConfigXml(str(cfg_xml))
-            except Exception, e:
+            except Exception as e:
                 self.ctx.die(577, str(e))
             if config.save_on_close:
                 config.save()
@@ -1691,7 +1710,7 @@ present, the user will enter a console""")
         except portalocker.LockException:
             try:
                 config.close()
-            except:
+            except Exception:
                 pass
             self.ctx.die(111, "Could not acquire lock on %s" % cfg_xml)
 
@@ -1722,7 +1741,7 @@ present, the user will enter a console""")
                 xargs.append("-D%s=%s" % (k, v))
 
         xargs.append("-Domero.data.dir=%s" % omero_data_dir)
-        for k, v in cfg.items():
+        for k, v in list(cfg.items()):
             if k.startswith("omero.search"):
                 xargs.append("-D%s=%s" % (k, cfg[k]))
 
@@ -1756,8 +1775,8 @@ present, the user will enter a console""")
             for file in files:
                 size = os.path.getsize(file)
                 total += 0
-                print file, size
-            print "Total:", size
+                print(file, size)
+            print("Total:", size)
             yes = self.ctx.input("Enter 'y' to continue:")
             if not yes.lower().startswith("y"):
                 return
@@ -1765,7 +1784,7 @@ present, the user will enter a console""")
                 for file in files:
                     try:
                         os.remove(file)
-                    except:
+                    except Exception:
                         self.ctx.err("Failed to remove: %s", file)
 
         elif args.prepare:

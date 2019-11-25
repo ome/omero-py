@@ -20,6 +20,9 @@
 # SOFTWARE.
 #
 
+from __future__ import division
+from __future__ import with_statement
+
 """
 path.py - An object representing a path to a file or directory.
 
@@ -40,7 +43,14 @@ Modified by the OME team as follows:
  * Added parpath (2009/09/21)
 """
 
-from __future__ import with_statement
+from builtins import zip
+from builtins import chr
+from builtins import map
+from builtins import str
+from past.builtins import basestring
+from past.utils import old_div
+from builtins import bytes
+from builtins import object
 
 import sys
 import warnings
@@ -75,12 +85,12 @@ except NameError:
     basestring = str
 
 try:
-    unicode
+    str
 except NameError:
-    unicode = str
+    str = str
 
 try:
-    getcwdu = os.getcwdu
+    getcwdu = os.getcwd
 except AttributeError:
     getcwdu = os.getcwd
 
@@ -118,7 +128,7 @@ def surrogate_escape(error):
     assert len(chars) == 1
     val = ord(chars)
     val += 0xdc00
-    return unichr(val), error.end
+    return chr(val), error.end
 
 if not PY3:
     codecs.register_error('surrogateescape', surrogate_escape)
@@ -167,7 +177,7 @@ class multimethod(object):
         )
 
 
-class path(unicode):
+class path(str):
     """ Represents a filesystem path.
 
     For documentation on individual methods, consult their
@@ -206,7 +216,7 @@ class path(unicode):
         Ensure the path as retrieved from a Python API, such as os.listdir,
         is a proper Unicode string.
         """
-        if PY3 or isinstance(path, unicode):
+        if PY3 or isinstance(path, str):
             return path
         return path.decode(sys.getfilesystemencoding(), 'surrogateescape')
 
@@ -533,7 +543,7 @@ class path(unicode):
         if pattern is None:
             pattern = '*'
         return [
-            self / child
+            old_div(self, child)
             for child in map(self._always_unicode, names)
             if self._next_class(child).fnmatch(pattern)
         ]
@@ -731,7 +741,7 @@ class path(unicode):
         .. seealso:: :func:`glob.glob`
         """
         cls = self._next_class
-        return [cls(s) for s in glob.glob(self / pattern)]
+        return [cls(s) for s in glob.glob(old_div(self, pattern))]
 
     #
     # --- Reading or writing an entire file at once.
@@ -879,7 +889,7 @@ class path(unicode):
         conversion.
 
         """
-        if isinstance(text, unicode):
+        if isinstance(text, str):
             if linesep is not None:
                 # Convert all standard end-of-line sequences to
                 # ordinary newline characters.
@@ -891,18 +901,18 @@ class path(unicode):
                 text = text.replace(u('\n'), linesep)
             if encoding is None:
                 encoding = sys.getdefaultencoding()
-            bytes = text.encode(encoding, errors)
+            _bytes = text.encode(encoding, errors)
         else:
             # It is an error to specify an encoding if 'text' is
             # an 8-bit string.
             assert encoding is None
 
             if linesep is not None:
-                text = (text.replace('\r\n', '\n')
-                            .replace('\r', '\n'))
-                bytes = text.replace('\n', linesep)
+                text = (text.replace(b'\r\n', b'\n')
+                            .replace(b'\r', b'\n'))
+                _bytes = text.replace(b'\n', bytes(linesep, 'utf-8'))
 
-        self.write_bytes(bytes, append)
+        self.write_bytes(_bytes, append)
 
     def lines(self, encoding=None, errors='strict', retain=True):
         r""" Open this file, read all lines, return them in a list.
@@ -970,7 +980,7 @@ class path(unicode):
             mode = 'wb'
         with self.open(mode) as f:
             for line in lines:
-                isUnicode = isinstance(line, unicode)
+                isUnicode = isinstance(line, str)
                 if linesep is not None:
                     # Strip off any existing line-end and add the
                     # specified linesep string.
@@ -1366,7 +1376,7 @@ class path(unicode):
             if p.isabs():
                 return p
             else:
-                return (self.parent / p).abspath()
+                return (old_div(self.parent, p)).abspath()
 
     #
     # --- High-level functions from shutil
@@ -1546,7 +1556,7 @@ def _permission_mask(mode):
     >>> _permission_mask('go-x')(o777) == o766
     True
     """
-    parsed = re.match('(?P<who>[ugo]+)(?P<op>[-+])(?P<what>[rwx]+)$', mode)
+    parsed = re.match(r'(?P<who>[ugo]+)(?P<op>[-+])(?P<what>[rwx]+)$', mode)
     if not parsed:
         raise ValueError("Unrecognized symbolic mode", mode)
     spec_map = dict(r=4, w=2, x=1)
@@ -1566,7 +1576,7 @@ def _permission_mask(mode):
     return functools.partial(op_map[op], mask)
 
 
-class CaseInsensitivePattern(unicode):
+class CaseInsensitivePattern(str):
     """
     A string with a 'normcase' property, suitable for passing to
     :meth:`listdir`, :meth:`dirs`, :meth:`files`, :meth:`walk`,

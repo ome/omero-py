@@ -5,12 +5,16 @@
     Use is subject to license terms supplied in LICENSE.txt
 """
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 from omero_version import omero_version
 
 import platform
 import logging
-import urllib2
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import socket
 
 
@@ -125,21 +129,21 @@ class UpgradeCheck(object):
             params["python.version"] = platform.python_version()
             params["python.compiler"] = platform.python_compiler()
             params["python.build"] = platform.python_build()
-            params = urllib.urlencode(params)
+            params = urllib.parse.urlencode(params)
 
             old_timeout = socket.getdefaulttimeout()
             try:
                 socket.setdefaulttimeout(self.timeout)
                 full_url = "%s?%s" % (self.url, params)
-                request = urllib2.Request(full_url)
+                request = urllib.request.Request(full_url)
                 request.add_header('User-Agent', self.agent)
                 self.log.debug("Attempting to connect to %s" % full_url)
-                response = urllib2.urlopen(request)
+                response = urllib.request.urlopen(request)
                 result = response.read()
             finally:
                 socket.setdefaulttimeout(old_timeout)
 
-        except Exception, e:
+        except Exception as e:
             self.log.error(str(e), exc_info=0)
             self._set(None, e)
             return
@@ -148,5 +152,5 @@ class UpgradeCheck(object):
             self.log.info("no update needed")
             self._set(None, None)
         else:
-            self.log.warn("UPGRADE AVAILABLE:" + result)
-            self._set(result, None)
+            self.log.warn("UPGRADE AVAILABLE:" + result.decode('utf-8'))
+            self._set(result.decode('utf-8'), None)
