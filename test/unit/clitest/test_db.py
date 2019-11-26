@@ -15,7 +15,7 @@ from builtins import str
 from builtins import object
 import pytest
 import os
-from path import path
+from omero_ext.path import path
 from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode

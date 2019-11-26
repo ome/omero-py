@@ -20,9 +20,9 @@ import atexit
 import logging
 import tempfile
 
-from path import path
 from omero.util import get_omero_userdir, get_user
 from omero_ext import portalocker
+from omero_ext.path import path
 
 # Activating logging at a static level
 if "DEBUG" in os.environ:

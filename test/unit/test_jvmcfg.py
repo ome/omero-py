@@ -43,7 +43,7 @@ from omero.install.jvmcfg import usage_charts
 
 from omero.util.temp_files import create_path
 
-from path import path
+from omero_ext.path import path
 
 from xml.etree.ElementTree import SubElement
 from xml.etree.ElementTree import tostring

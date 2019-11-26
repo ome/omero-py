@@ -21,7 +21,6 @@ see ticket:2213 - Replacing Java Preferences API
 
 from builtins import object, str
 import os
-import path
 import time
 import logging
 
@@ -33,6 +32,7 @@ import xml.dom.minidom
 from xml.etree.ElementTree import (
     XML, Element, ElementTree, SubElement, Comment, tostring
 )
+import omero_ext.path as path
 from omero_ext import portalocker
 import json
 

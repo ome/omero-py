@@ -149,7 +149,8 @@ class PyinotifyLogger(logging.Logger):
     Pyinotify logger used for logging unicode strings.
     """
     def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None,
-                   extra=None):
+                   extra=None, sinfo=None):
+
         rv = UnicodeLogRecord(name, level, fn, lno, msg, args, exc_info, func)
         if extra is not None:
             for key in extra:
@@ -478,7 +479,7 @@ class _RawEvent(_Event):
         d = {'wd': wd,
              'mask': mask,
              'cookie': cookie,
-             'name': name.rstrip('\0')}
+             'name': name.rstrip(b'\0')}
         _Event.__init__(self, d)
         log.debug(str(self))
 
@@ -1382,7 +1383,7 @@ class ThreadedNotifier(threading.Thread, Notifier):
         Stop notifier's loop. Stop notification. Join the thread.
         """
         self._stop_event.set()
-        os.write(self._pipe[1], 'stop')
+        os.write(self._pipe[1], b'stop')
         threading.Thread.join(self)
         Notifier.stop(self)
         self._pollobj.unregister(self._pipe[0])

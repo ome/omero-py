@@ -13,7 +13,7 @@ from __future__ import division
 from builtins import object
 from past.utils import old_div
 import os
-from path import path
+from omero_ext.path import path
 from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.export import ExportControl
 from omero.util.temp_files import create_path

@@ -26,7 +26,7 @@ from mox3 import mox
 from omero.rtypes import rint, rstring
 
 from library import TestCase
-from path import path
+from omero_ext.path import path
 
 
 if hasattr(tables, "open_file"):
