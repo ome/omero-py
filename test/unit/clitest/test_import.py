@@ -123,10 +123,10 @@ class TestImport(object):
                 assert args.file == "/tmp/dropbox.out"
 
         self.cli.register("mock-import", MockImportControl, "HELP")
-        self.args = ['-s', 'localhost', '-p', '4064', '-k',
-                     'b0742975-03a1-4f6d-b0ac-639943f1a147']
-        self.args += ['mock-import', '---errs=/tmp/dropbox.err']
+        self.args = ['mock-import', '---errs=/tmp/dropbox.err']
         self.args += ['---file=/tmp/dropbox.out']
+        self.args += ['-s', 'localhost', '-p', '4064', '-k',
+                     'b0742975-03a1-4f6d-b0ac-639943f1a147']
         self.args += ['--', '/OMERO/DropBox/root/test.fake']
 
         self.cli.invoke(self.args)

@@ -480,7 +480,7 @@ class TestSessions(object):
     def testLogicOfConflictsOnNoLocalhostRequested(self):
         cli = MyCLI()
         cli.creates_client()
-        cli.invoke("-s testhost -u testuser -w testpass s login")
+        cli.invoke("s login -s testhost -u testuser -w testpass")
         cli.invoke("s login")  # Should work. No conflict
         cli.invoke("-p 4444 s login")
 
@@ -490,7 +490,7 @@ class TestSessions(object):
         cli.requests_host(port="4444")
         cli.requests_user()
         cli.requests_pass()
-        cli.invoke("-p 4444 s login")
+        cli.invoke("s login -p 4444")
         cli.assertReqSize(self, 0)  # All were requested
         cli.set_client(None)  # Forcing new instance
         cli.creates_client(port="4444", new=False)
