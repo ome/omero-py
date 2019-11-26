@@ -28,6 +28,7 @@ from __future__ import unicode_literals
 
 from builtins import str
 from builtins import range
+from future.utils import native_str
 from past.utils import old_div
 from builtins import object
 import json
@@ -214,12 +215,15 @@ class TestTempFileManager(object):
         for var in list(environment.keys()):
             if environment[var]:
                 monkeypatch.setenv(
-                    var, str(old_div(tmpdir, environment.get(var))))
+                    native_str(var),
+                    native_str(old_div(tmpdir, environment.get(var))))
             else:
-                monkeypatch.delenv(var, raising=False)
+                monkeypatch.delenv(native_str(var), raising=False)
 
         if environment.get('OMERO_TEMPDIR'):
-            pytest.deprecated_call(manager.tmpdir)
+            value = pytest.deprecated_call(manager.tmpdir)
+        else:
+            value = manager.tmpdir()
 
         if environment.get('OMERO_TMPDIR'):
             tdir = old_div(tmpdir, environment.get('OMERO_TMPDIR'))
@@ -230,27 +234,29 @@ class TestTempFileManager(object):
         else:
             tdir = path(get_user_dir()) / "omero" / "tmp"
 
-        assert manager.tmpdir() == str(tdir)
+        assert value == str(tdir)
 
     def testTmpdir2805_1(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
-        monkeypatch.delenv('OMERO_USERDIR', raising=False)
+        monkeypatch.setenv(native_str('OMERO_TEMPDIR'), native_str(tmpdir))
+        monkeypatch.delenv(native_str('OMERO_USERDIR'), raising=False)
         tmpfile = old_div(tmpdir, 'omero')
         tmpfile.write('')
 
-        assert manager.tmpdir() == path(get_user_dir()) / "omero" / "tmp"
+        value = pytest.deprecated_call(manager.tmpdir)
+        assert value == path(get_user_dir()) / "omero" / "tmp"
 
     def testTmpdir2805_2(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
-        monkeypatch.delenv('OMERO_USERDIR', raising=False)
+        monkeypatch.setenv(native_str('OMERO_TEMPDIR'), native_str(tmpdir))
+        monkeypatch.delenv(native_str('OMERO_USERDIR'), raising=False)
         tempdir = old_div(tmpdir, 'omero')
         tempdir.mkdir()
         tmpfile = old_div(tempdir, 'tmp')
         tmpfile.write('')
 
-        assert manager.tmpdir() == path(get_user_dir()) / "omero" / "tmp"
+        value = pytest.deprecated_call(manager.tmpdir)
+        assert value == path(get_user_dir()) / "omero" / "tmp"
 
 
 class TestImageUtils(object):
