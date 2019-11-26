@@ -1,3 +1,12 @@
+# 5.6.dev6 (November 2019)
+
+- Fix batch file annotation (#127)
+
+## Packaging Changes
+
+- Declare Pillow as a mandatory dependency of omero-py (#128)
+- Move external path module under `omero_ext` namespace (#123)
+
 # 5.6.dev5 (November 2019)
 
 - Fix pyinotify for DropBox (#119)
