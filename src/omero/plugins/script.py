@@ -32,7 +32,7 @@ from omero.cli import BaseControl
 
 from omero.util.sessions import SessionsStore
 
-from path import path
+from omero_ext.path import path
 
 MIMETYPE = "text/x-python"
 

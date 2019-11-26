@@ -869,7 +869,7 @@ class BaseClient(object):
         if not os.path.exists(filename):
             raise omero.ClientError("File does not exist: " + filename)
 
-        from path import path as __path__
+        from omero_ext.path import path as __path__
         filepath = __path__(filename)
         file = open(filename, 'rb')
         try:

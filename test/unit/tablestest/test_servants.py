@@ -23,7 +23,7 @@ import logging
 from library import TestCase
 
 from omero.columns import LongColumnI, DoubleColumnI, ObjectFactories
-from path import path
+from omero_ext.path import path
 
 logging.basicConfig(level=logging.DEBUG)
 

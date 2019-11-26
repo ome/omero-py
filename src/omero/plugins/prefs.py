@@ -20,7 +20,6 @@ from past.utils import old_div
 import sys
 import traceback
 
-from path import path
 from omero.cli import CLI
 from omero.cli import BaseControl
 from omero.cli import ExistingFile
@@ -31,6 +30,7 @@ from omero.util.decorators import wraps
 from omero.util.upgrade_check import UpgradeCheck
 from omero_ext import portalocker
 from omero_ext.argparse import SUPPRESS
+from omero_ext.path import path
 
 import omero.java
 

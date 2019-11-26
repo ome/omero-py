@@ -19,7 +19,7 @@ try:
 except ImportError:
     StringTypes = str
 
-from path import path
+from omero_ext.path import path
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 TESTIMG_URL = 'https://downloads.openmicroscopy.org/images/gateway_tests/'

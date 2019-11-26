@@ -17,7 +17,6 @@ import threading
 import traceback
 
 from os import W_OK
-from path import path
 
 import omero  # Do we need both??
 import omero.clients
@@ -27,6 +26,7 @@ import omero.callbacks
 from omero.columns import columns2definition
 from omero.rtypes import rfloat, rint, rlong, rstring, unwrap
 from omero.util.decorators import locked
+from omero_ext.path import path
 from omero_ext import portalocker
 from functools import wraps
 

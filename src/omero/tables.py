@@ -15,11 +15,10 @@ import Ice
 import time
 import traceback
 
-from path import path
-
 import omero  # Do we need both??
 import omero.clients
 import omero.callbacks
+from omero_ext.path import path
 
 # For ease of use
 from omero import LockTimeout

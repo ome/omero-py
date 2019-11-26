@@ -50,7 +50,6 @@ import time
 import shlex
 import errno
 from threading import Lock
-from path import path
 from contextlib import contextmanager
 from functools import wraps
 
@@ -63,6 +62,7 @@ from omero_ext.argparse import _SubParsersAction
 # Help text
 from omero_ext.argparse import RawTextHelpFormatter
 from omero_ext.argparse import SUPPRESS
+from omero_ext.path import path
 
 from omero.util.concurrency import get_event
 
