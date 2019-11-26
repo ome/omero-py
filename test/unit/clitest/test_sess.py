@@ -20,7 +20,7 @@ import pytest
 import Glacier2
 import uuid
 
-from path import path
+from omero_ext.path import path
 from omero.cli import CLI, NonZeroReturnCode
 from omero.util import get_user
 from omero.util.sessions import SessionsStore

@@ -32,7 +32,7 @@ from past.utils import old_div
 from builtins import object
 import json
 import pytest
-from path import path
+from omero_ext.path import path
 from os import linesep
 
 from omero.util.text import CSVStyle, JSONStyle, PlainStyle, TableBuilder

@@ -19,7 +19,7 @@ from builtins import object
 from past.utils import old_div
 import os
 import pytest
-from path import path
+from omero_ext.path import path
 import omero.clients
 import uuid
 from omero.cli import CLI, NonZeroReturnCode

@@ -1,6 +1,38 @@
+# 5.6.dev6 (November 2019)
+
+- Fix batch file annotation (#127)
+
+## Packaging Changes
+
+- Declare Pillow as a mandatory dependency of omero-py (#128)
+- Move external path module under `omero_ext` namespace (#123)
+
+# 5.6.dev5 (November 2019)
+
+- Fix pyinotify for DropBox (#119)
+
+# 5.6.dev4 (November 2019)
+
+- Fix DB creation script (#110)
+- Fix tables and getObjects
+
 # 5.6.dev3 (November 2019)
 
 - Fixes primarily focused on byte return types
+
+## API Changes
+
+- omero.gateway.FileAnnotationWrapper.getFileInChunks returns bytes
+- omero.gateway.ImageWrapper.exportOmeTiff returns bytes
+- omero.gateway.BlitzGateawy.createOriginalFileFromFileObj takes BytesIO
+- several return values should now be _wrapped_ by BytesIO:
+  - image.renderSplitChannel()
+  - image.renderBirdsEyeView()
+  - image.renderJpegRegion()
+  - image.renderJpeg()
+- `rlong` instances now require explicit mapping:
+  - `omero_type(longValue)` defaults to `rint`
+  - `omero.rtypes.wrap(longValue)` defaults to `rint`
 
 # 5.6.dev2 (October 2019)
 

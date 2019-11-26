@@ -30,7 +30,7 @@ https://github.com/jaraco/path.py
 
 Example::
 
-    from path import path
+    from omero_ext.path import path
     d = path('/home/guido/bin')
     for f in d.files('*.py'):
         f.chmod(0755)

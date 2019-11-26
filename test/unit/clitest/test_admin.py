@@ -23,7 +23,6 @@ import re
 import sys
 import pytest
 
-from path import path
 from glob import glob
 
 import omero
@@ -32,6 +31,7 @@ import omero.clients
 from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.admin import AdminControl
 from omero.plugins.prefs import PrefsControl
+from omero_ext.path import path
 
 from mocks import MockCLI
 

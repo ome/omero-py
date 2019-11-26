@@ -22,7 +22,7 @@ import os
 import sys
 import signal
 import platform
-from path import path
+from omero_ext.path import path
 
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 

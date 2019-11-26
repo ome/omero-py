@@ -13,12 +13,12 @@
 
 import sys
 import re
-import path
 import os
 import warnings
 import mimetypes
 
 from omero.cli import BaseControl, CLI
+import omero_ext.path as path
 
 try:
     import hashlib

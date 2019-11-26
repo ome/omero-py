@@ -14,7 +14,7 @@ from builtins import str
 from builtins import object
 import pytest
 
-from path import path
+from omero_ext.path import path
 
 import omero
 

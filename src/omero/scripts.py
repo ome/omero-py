@@ -445,7 +445,7 @@ def parse_file(filename):
     WARNING: This method calls "exec" on the given file's contents.
     Do NOT use this on data you don't trust.
     """
-    from path import path
+    from omero_ext.path import path
     scriptText = path(filename).text()
     return parse_text(scriptText)
 

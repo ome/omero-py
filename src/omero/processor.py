@@ -18,7 +18,6 @@ import signal
 import uuid
 from omero_ext import killableprocess as subprocess
 
-from path import path
 
 import Ice
 import omero
@@ -31,6 +30,7 @@ from omero.util import load_dotted_class
 from omero.util.temp_files import create_path, remove_path
 from omero.util.decorators import remoted, perf, locked, wraps
 from omero.rtypes import rint, rlong
+from omero_ext.path import path
 
 sys = __import__("sys")
 

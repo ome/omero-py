@@ -30,7 +30,6 @@ import time
 
 from glob import glob
 from math import ceil
-from path import path
 
 import omero
 import omero.config
@@ -50,6 +49,7 @@ from omero.plugins.prefs import \
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 from omero_ext import portalocker
+from omero_ext.path import path
 from omero_ext.which import whichall
 from argparse import FileType
 from omero_version import ice_compatibility

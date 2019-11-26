@@ -14,13 +14,13 @@
 """
 from __future__ import division
 
+from argparse import SUPPRESS
 from builtins import zip
 from builtins import str
 from past.utils import old_div
 import sys
 import traceback
 
-from path import path
 from omero.cli import CLI
 from omero.cli import BaseControl
 from omero.cli import ExistingFile
@@ -30,7 +30,7 @@ from omero.util import edit_path, get_omero_userdir
 from omero.util.decorators import wraps
 from omero.util.upgrade_check import UpgradeCheck
 from omero_ext import portalocker
-from argparse import SUPPRESS
+from omero_ext.path import path
 
 import omero.java
 
