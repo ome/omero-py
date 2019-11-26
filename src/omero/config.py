@@ -233,7 +233,7 @@ class ConfigXml(object):
             # https://trac.openmicroscopy.org/ome/ticket/2613
             # Remove any reference to the ${omero.dollar} workaround
             # then map anything of the form: ${...} to @{...}
-            if props:
+            if props is not None:
                 for x in list(props):
                     if x.get("name", "").startswith("omero.ldap"):
                         orig = x.get("value", "")
