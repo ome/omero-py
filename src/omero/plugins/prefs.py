@@ -254,7 +254,7 @@ class PrefsControl(WriteableConfigControl):
             if 'OMERODIR' in os.environ:
                 base_dir = path(os.environ.get('OMERODIR'))
             else:
-                base_dir = get_omero_userdir()
+                self.ctx.die(125, 'OMERODIR env variable not set')
             grid_dir = base_dir / "etc" / "grid"
             if not grid_dir.exists():
                 self.ctx.err("%s not found; creating %s" %
