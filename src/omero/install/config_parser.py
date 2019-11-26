@@ -412,6 +412,8 @@ class PropertyParser(object):
                 properties += "%s\n" % underline(len(p.key))
                 for line in p.txt.split("\n"):
                     if line:
+                        if isbytes(line):
+                            line = bytes_to_native_str(line)
                         properties += "%s\n" % (line)
                     else:
                         properties += "\n"
