@@ -14,6 +14,7 @@ from builtins import str
 from builtins import object
 from past.utils import old_div
 import os
+import json
 import errno
 import pytest
 from omero.config import ConfigXml, xml
@@ -284,10 +285,14 @@ class TestConfig(object):
         txt = xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
         p.write_text(txt)
 
+        def compare_json_maps(config, afterUpdate):
+            m = config.as_map()
+            beforeUpdate = m["omero.web.ui.top_links"]
+            assert json.loads(beforeUpdate) == json.loads(afterUpdate)
+
         config = ConfigXml(filename=str(p), env_config="default")
         try:
-            m = config.as_map()
-            assert m["omero.web.ui.top_links"] == afterUpdate
+            compare_json_maps(config, afterUpdate)
         finally:
             config.close()
 
@@ -296,9 +301,8 @@ class TestConfig(object):
         try:
             # Check version has been updated
             assert config.version() == "5.1.0"
-            m = config.as_map()
             # And that top_links has not been modified further
-            assert m["omero.web.ui.top_links"] == afterUpdate
+            compare_json_maps(config, afterUpdate)
         finally:
             config.close()
 
