@@ -213,7 +213,8 @@ class TestTempFileManager(object):
     def testTmpdirEnvironment(self, monkeypatch, tmpdir, environment):
         for var in list(environment.keys()):
             if environment[var]:
-                monkeypatch.setenv(var, old_div(tmpdir, environment.get(var)))
+                monkeypatch.setenv(
+                    var, str(old_div(tmpdir, environment.get(var))))
             else:
                 monkeypatch.delenv(var, raising=False)
 
