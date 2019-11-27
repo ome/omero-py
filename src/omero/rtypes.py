@@ -280,7 +280,7 @@ def rclass(val):
         return remptyclass
     elif isinstance(val, omero.RClass):
         return val
-    elif isinstance(val, str):
+    elif isinstance(val, basestring):
         if len(val) == 0:
             return remptyclass
         else:

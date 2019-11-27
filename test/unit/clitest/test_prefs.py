@@ -392,6 +392,7 @@ class TestPrefs(object):
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[]')
 
+    @pytest.mark.xfail
     @pytest.mark.broken(reason = "migrate to omero-web")
     @pytest.mark.usefixtures('configxml')
     def testAppendWithDefault(self, monkeypatch, capsys):
@@ -415,6 +416,7 @@ class TestPrefs(object):
         with pytest.raises(NonZeroReturnCode):
             self.invoke("append omero.web.notalist 1")
 
+    @pytest.mark.xfail
     @pytest.mark.broken(reason = "migrate to omero-web")
     @pytest.mark.usefixtures('configxml')
     def testRemoveWithDefault(self, monkeypatch, capsys):
@@ -444,6 +446,7 @@ class TestPrefs(object):
         self.invoke("list")
         self.assertStdoutStderr(capsys, out=data[1], strip_warning=True)
 
+    @pytest.mark.xfail
     @pytest.mark.broken(reason = "needs whitespace fixing")
     @pytest.mark.parametrize("data", (
         ("omero.a=b\nomero.c=d\n##ignore=me\n",

@@ -10,6 +10,7 @@
 """
 from builtins import str
 from builtins import object
+from future.utils import native_str
 from past.builtins import long
 import sys
 import pytest
@@ -453,7 +454,8 @@ class TestModel(object):
         ctor2 = myLongFromString.__class__("5")
         assert ctor1.val == ctor2.val
 
-    u = str("u")
+    nu = native_str("u")
+    bu = str("u")
     cn = '中國'
     cnu = u'中國'
 
@@ -466,16 +468,19 @@ class TestModel(object):
             return self.rv
 
     @pytest.mark.parametrize("data", (
-        (rstring, 1, "1"),
-        (rstring, u, "u"),
-        (rstring, u.encode("utf-8"), "u"),
-        (rstring, UStr(u), "u"),
-        (rstring, cn, cn),
-        (rstring, cnu, cn),
+        (1, rstring, 1, "1"),
+        (2, rstring, nu, "u"),
+        (3, rstring, bu, "u"),
+        (4, rstring, nu.encode("utf-8"), b"u"),
+        (5, rstring, bu.encode("utf-8"), b"u"),
+        (6, rstring, UStr(nu), "u"),
+        (7, rstring, UStr(bu), "u"),
+        (8, rstring, cn, cn),
+        (9, rstring, cnu, cn),
     ))
     def testMoreConversions(self, data):
         # Some useful conversions were not supported in 5.1.2 and
         # earlier. This tests each of those which should no longer
         # be an error condition.
-        meth, arg, expected = data
+        name, meth, arg, expected = data
         assert meth(arg).val == expected
