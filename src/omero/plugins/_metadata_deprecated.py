@@ -40,6 +40,10 @@ is typically shown in the right-hand panel of the
 GUI clients.
 """
 
+DEPRECATION_MESSAGE = (
+    "This plugin is deprecated as of OMERO 5.4.8. Use the plugin"
+    " available from https://pypi.org/project/omero-metadata/"
+    " instead.")
 
 ANNOTATION_TYPES = [t for t in dir(omero.model)
                     if re.match(r'[A-Za-z0-9]+Annotation$', t)]
@@ -285,6 +289,7 @@ class MetadataControl(BaseControl):
 
     def summary(self, args):
         "Provide a general summary of available metadata"
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         name = md.get_name()
         line = "-" * len(name)
@@ -332,6 +337,7 @@ class MetadataControl(BaseControl):
 
     def original(self, args):
         "Print the original metadata in ini format"
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         try:
             source, global_om, series_om = md.get_original()
@@ -370,6 +376,7 @@ class MetadataControl(BaseControl):
     def bulkanns(self, args):
         ("Provide a list of the NSBULKANNOTATION tables linked "
          "to the given object")
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         indent = None
         if args.report:
@@ -380,6 +387,7 @@ class MetadataControl(BaseControl):
     def measures(self, args):
         ("Provide a list of the NSMEASUREMENT tables linked "
          "to the given object")
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         indent = None
         if args.report:
@@ -394,7 +402,7 @@ class MetadataControl(BaseControl):
                 if args.nsre and not re.match(args.nsre, a.get_ns()):
                     continue
                 yield a
-
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         indent = None
         if args.report:
@@ -408,7 +416,7 @@ class MetadataControl(BaseControl):
                 if args.nsre and not re.match(args.nsre, a.get_ns()):
                     continue
                 yield a
-
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         indent = None
         if args.report:
@@ -417,6 +425,7 @@ class MetadataControl(BaseControl):
 
     def testtables(self, args):
         "Tests whether tables can be created and initialized"
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         client, conn = self._clientconn(args)
 
         sf = client.getSession()
@@ -449,6 +458,7 @@ class MetadataControl(BaseControl):
 
     def populate(self, args):
         "Add metadata (bulk-annotations) to an object"
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         client, conn = self._clientconn(args)
         # TODO: Configure logging properly
@@ -500,6 +510,7 @@ class MetadataControl(BaseControl):
 
     def rois(self, args):
         "Manage ROIs"
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         if args.delete:
             graphspec = "/%s/Roi:%d" % (md.get_type(), md.get_id())
@@ -545,6 +556,7 @@ class MetadataControl(BaseControl):
 
     def populateroi(self, args):
         "Add ROIs to an object"
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         client = self.ctx.conn(args)
         # TODO: Configure logging properly
@@ -574,6 +586,7 @@ class MetadataControl(BaseControl):
 
     def pixelsize(self, args):
         "Set physical pixel size"
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         if not args.x and not args.y and not args.z:
             self.ctx.die(100, "No pixel sizes specified.")
 
@@ -635,11 +648,7 @@ class MetadataControl(BaseControl):
 
 try:
     if "OMERO_DEV_PLUGINS" in os.environ:
-        warnings.warn(
-            "This module is deprecated as of OMERO 5.4.8. Use the metadata"
-            " CLI plugin available from"
-            " https://pypi.org/project/omero-metadata/ instead.",
-            DeprecationWarning)
+        warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
         register("metadata", MetadataControl, HELP)
 except NameError:
     if __name__ == "__main__":

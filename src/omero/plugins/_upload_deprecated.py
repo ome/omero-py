@@ -53,7 +53,7 @@ class UploadControl(BaseControl):
     def upload(self, args):
         self.ctx.err(
             "This module is deprecated as of OMERO 5.5.0. Use the module"
-            " available from https://pypi.org/project/omero-cli-upload/"
+            " available from https://pypi.org/project/omero-upload/"
             " instead.", DeprecationWarning)
         client = self.ctx.conn(args)
         objIds = []
@@ -76,7 +76,7 @@ try:
         warnings.warn(
             "This plugin is deprecated as of OMERO 5.5.0. Use the upload"
             " CLI plugin available from"
-            " https://pypi.org/project/omero-cli-upload/ instead.",
+            " https://pypi.org/project/omero-upload/ instead.",
             DeprecationWarning)
         register("upload", UploadControl, HELP)
 except NameError:
