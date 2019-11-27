@@ -199,7 +199,7 @@ setup(
     author="The Open Microscopy Team",
     author_email="ome-devel@lists.openmicroscopy.org.uk",
     url=url,
-    package_dir={"": "target/"},
+    package_dir={"": "target"},
     packages=packages,
     package_data={
         'omero.gateway': ['pilfonts/*'],
