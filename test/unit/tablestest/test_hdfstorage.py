@@ -247,14 +247,14 @@ class TestHdfStorage(TestCase):
         cols = [omero.columns.StringColumnI("name", "description", 16, None)]
         hdf.initialize(cols)
         cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
-        cols[0].values = ["foo", "αbc"]
+        cols[0].values = ["foo", "მიკროსკოპის პონი"]
         hdf.append(cols)
         rows = hdf.getWhereList(time.time(), '(name=="foo")', None, 'b', None,
                                 None, None)
         assert 1 == len(rows)
         assert 16 == hdf.readCoordinates(time.time(), [0],
                                          self.current).columns[0].size
-        rows = hdf.getWhereList(time.time(), '(name=="αbc")', None, 'b', None,
+        rows = hdf.getWhereList(time.time(), '(name=="მიკროსკოპის პონი")', None, 'b', None,
                                 None, None)
         assert 1 == len(rows)
         assert 16 == hdf.readCoordinates(time.time(), [0],
