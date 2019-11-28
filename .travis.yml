@@ -26,7 +26,7 @@ jobs:
       script:
         - tox -e py37
 
-install: python -m pip install --upgrade pip wheel pytest tox
+install: pip3 install --upgrade pip wheel pytest tox
 
 cache:
   directories:
