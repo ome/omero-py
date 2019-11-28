@@ -13,30 +13,38 @@ matrix:
     - python: "3.6"
       env: TOX=no
 
-install:
-  - |
-    if [ "$TOX" = "no" ]; then
-      pip install https://github.com/ome/zeroc-ice-py-manylinux/releases/download/0.1.0/zeroc_ice-3.6.5-cp36-cp36m-manylinux2010_x86_64.whl
-      pip install restructuredtext-lint
-    else
-      pip install tox
-    fi
 
-script:
-  - |
-    if [ "$TOX" = "no" ]; then
-      rst-lint README.rst
-      python setup.py sdist
-      pip install dist/omero-py*gz
-      omero version
-    else
-      tox -e $TOX
-    fi
+services:
+- docker
+python:
+- 3.6
+dist: trusty
+stages:
+- test
+jobs:
+  include:
+    - name: Windows
+      os: windows
+      language: sh
+      before_install:
+        - choco install python3 --version 3.6.8
+        - export PATH="/c/Python36:/c/Python36/Scripts:$PATH"
+        - python -m pip install --upgrade pip wheel pytest tox
+      script:
+        - tox -e py36
+    - name: Python36
+      python: 3.6
+      before_install:
+        - python -m pip install --upgrade pip wheel pytest tox
+      script:
+        - tox -e py36
+    - name: Python37
+      python: 3.7
+      before_install:
+        - python -m pip install --upgrade pip wheel pytest tox
+      script:
+        - tox -e py37
 
-deploy:
-  provider: pypi
-  user: $PYPI_USER
-  password: $PYPI_PASSWORD
-  on:
-    tags: true
-    condition: "$TOX = no"
+cache:
+  directories:
+  - $HOME/.cache/pip
