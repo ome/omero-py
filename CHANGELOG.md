@@ -1,3 +1,10 @@
+# 5.6.dev7 (November 2019)
+
+- Fix Windows build (#132)
+- Fix 'config parse' command (#130)
+- Rename deprecated plugins (#124)
+- Activate all unit tests (#122)
+
 # 5.6.dev6 (November 2019)
 
 - Fix batch file annotation (#127)
