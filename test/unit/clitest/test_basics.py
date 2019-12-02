@@ -66,10 +66,7 @@ class TestBasics(object):
     def testVersion(object):
         cli.invoke(["version"], strict=True)
 
-    def testLoadGlob(object, monkeypatch, tmp_path, capsys):
-        (tmp_path / 'etc').mkdir()
-        (tmp_path / 'etc' / 'grid').mkdir()
-        monkeypatch.setenv('OMERODIR', str(tmp_path))
+    def testLoadGlob(object, tmp_path, capsys):
         for i in 'abc':
             (tmp_path / (i + 'a.omero')).write_text(
                 'config set {i} {i}'.format(i=i))
