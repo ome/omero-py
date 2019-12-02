@@ -20,6 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+from __future__ import unicode_literals
 from builtins import object
 import pytest
 from omero.cli import CLI
