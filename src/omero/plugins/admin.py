@@ -1549,10 +1549,20 @@ present, the user will enter a console""")
             cb.close(True)
 
     def getdirsize(self, directory):
+        """
+        Uses os.walk to calculate the deep size of the given
+        directory. If a directory disappears during calculation,
+        an error will be printed to stderr, but the calculation
+        will continue.
+        """
         total = 0
         for values in os.walk(directory):
             for filename in values[2]:
-                total += os.path.getsize(os.path.join(values[0], filename))
+                fullpath = os.path.join(values[0], filename)
+                try:
+                    total += os.path.getsize(fullpath)
+                except Exception:
+                    self.ctx.error("Failed to get size of: %s" % fullpath)
         return total
 
     def session_manager(self, communicator):
