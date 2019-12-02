@@ -65,3 +65,17 @@ class TestBasics(object):
 
     def testVersion(object):
         cli.invoke(["version"], strict=True)
+
+    def testLoadGlob(object, monkeypatch, tmp_path, capsys):
+        (tmp_path / 'etc').mkdir()
+        (tmp_path / 'etc' / 'grid').mkdir()
+        monkeypatch.setenv('OMERODIR', str(tmp_path))
+        for i in 'abc':
+            (tmp_path / (i + 'a.omero')).write_text(
+                'config set {i} {i}'.format(i=i))
+        cli.invoke(["load", "--glob", str(tmp_path / '*.omero')], strict=True)
+        cli.invoke(["config", "get"], strict=True)
+        captured = capsys.readouterr()
+        lines = captured.out.splitlines()
+        for i in 'abc':
+            assert '{i}={i}'.format(i=i) in lines
