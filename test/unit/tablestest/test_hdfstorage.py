@@ -28,11 +28,8 @@ from omero.rtypes import rint, rstring
 from library import TestCase
 from omero_ext.path import path
 
+import omero.hdfstorageV2 as storage_module
 
-if hasattr(tables, "open_file"):
-    import omero.hdfstorageV2 as storage_module
-else:
-    import omero.hdfstorageV1 as storage_module
 
 HdfList = storage_module.HdfList
 HdfStorage = storage_module.HdfStorage
