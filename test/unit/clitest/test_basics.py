@@ -20,6 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+from __future__ import unicode_literals
 from builtins import object
 import pytest
 from omero.cli import CLI
@@ -65,3 +66,14 @@ class TestBasics(object):
 
     def testVersion(object):
         cli.invoke(["version"], strict=True)
+
+    def testLoadGlob(object, tmp_path, capsys):
+        for i in 'abc':
+            (tmp_path / (i + 'a.omero')).write_text(
+                'config set {i} {i}'.format(i=i))
+        cli.invoke(["load", "--glob", str(tmp_path / '*.omero')], strict=True)
+        cli.invoke(["config", "get"], strict=True)
+        captured = capsys.readouterr()
+        lines = captured.out.splitlines()
+        for i in 'abc':
+            assert '{i}={i}'.format(i=i) in lines
