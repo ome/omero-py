@@ -1472,7 +1472,7 @@ present, the user will enter a console""")
             dir_path_exists = os.path.exists(dir_path)
             is_writable = os.access(dir_path, os.R_OK | os.W_OK)
             if dir_size and dir_path_exists:
-                dir_size = self.getdirsize(omero_temp_dir)
+                dir_size = self.getdirsize(omero_temp_dir, False)
                 dir_size = "   (Size: %s)" % dir_size
             self._item("OMERO %s dir" % dir_name, "'%s'" % dir_path)
             self.ctx.out("Exists? %s\tIs writable? %s%s" %
@@ -1548,11 +1548,24 @@ present, the user will enter a console""")
         finally:
             cb.close(True)
 
-    def getdirsize(self, directory):
+    def getdirsize(self, directory, strict=True):
+        """
+        Uses os.walk to calculate the deep size of the given
+        directory. If strict is set, an exception will be thrown
+        if a directory disappears during calculation. Otherwise,
+        an error will be printed to stderr, but the calculation
+        will continue.
+        """
         total = 0
         for values in os.walk(directory):
             for filename in values[2]:
-                total += os.path.getsize(os.path.join(values[0], filename))
+                fullpath = os.path.join(values[0], filename)
+                try:
+                    total += os.path.getsize(fullpath)
+                except Exception:
+                    self.ctx.err("Failed to get size of: %s" % fullpath)
+                    if strict:
+                        raise
         return total
 
     def session_manager(self, communicator):
