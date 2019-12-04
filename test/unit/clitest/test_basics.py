@@ -71,7 +71,6 @@ class TestBasics(object):
         (tmp_path / 'etc').mkdir()
         (tmp_path / 'etc' / 'grid').mkdir()
         monkeypatch.setenv('OMERODIR', str(tmp_path))
-        monkeypatch.setattr(cli, 'dir', str(tmp_path))
         for i in 'abc':
             (tmp_path / (i + 'a.omero')).write_text(
                 'config set {i} {i}'.format(i=i))
