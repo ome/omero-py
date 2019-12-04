@@ -263,6 +263,25 @@ class TestHdfStorage(TestCase):
         # Doesn't work yet.
         hdf.cleanup()
 
+    def testStringColUnicodeSize(self):
+        # len("მიკროსკოპის პონი") == 16
+        # len("მიკროსკოპის პონი".encode()) == 46
+        bytesize = 45
+        hdf = HdfStorage(self.hdfpath(), self.lock)
+        cols = [omero.columns.StringColumnI(
+            "name", "description", bytesize, None)]
+        hdf.initialize(cols)
+        cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
+        cols[0].values = ["მიკროსკოპის პონი"]
+
+        with pytest.raises(omero.ValidationException) as exc_info:
+            hdf.append(cols)
+        assert exc_info.value.message == (
+            'Maximum string (byte) length in column name is 45')
+
+        # Doesn't work yet.
+        hdf.cleanup()
+
     @pytest.mark.xfail(reason=(
         "Unicode conditions broken on Python 3. "
         "See explanation in hdfstorageV2.HdfStorage.append"))
