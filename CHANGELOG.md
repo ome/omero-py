@@ -1,3 +1,9 @@
+# 5.6.dev8 (December 2019)
+
+- Add `bin/omero load --glob` support (#137)
+- Drop hdfstorageV1 (#136)
+- Require OMERODIR to be set (#14)
+
 # 5.6.dev7 (November 2019)
 
 - Fix Windows build (#132)
