@@ -21,11 +21,11 @@ from builtins import zip
 from builtins import range
 from builtins import object
 from future.utils import native, bytes_to_native_str, isbytes
-import sys
 import omero
 import Ice
 import IceImport
 IceImport.load("omero_Tables_ice")
+sys = __import__("sys")  # Python sys
 
 try:
     import numpy
