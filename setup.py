@@ -210,6 +210,7 @@ setup(
         'zeroc-ice>=3.6.4,<3.7',
         'future',
         'Pillow',
+        'numpy',
     ],
     tests_require=[
         'pytest<3',
