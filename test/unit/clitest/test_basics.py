@@ -23,12 +23,14 @@
 from __future__ import unicode_literals
 from builtins import object
 import pytest
+import os
 from omero.cli import CLI
 
 cli = CLI()
 cli.loadplugins()
 commands = list(cli.controls.keys())
 topics = list(cli.topics.keys())
+OMERODIR = os.environ.get('OMERODIR', False)
 
 
 class TestBasics(object):
@@ -67,6 +69,7 @@ class TestBasics(object):
     def testVersion(object):
         cli.invoke(["version"], strict=True)
 
+    @pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
     def testLoadGlob(object, tmp_path, capsys):
         for i in 'abc':
             (tmp_path / (i + 'a.omero')).write_text(
