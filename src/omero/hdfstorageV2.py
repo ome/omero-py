@@ -505,7 +505,9 @@ class HdfStorage(object):
     @modifies
     def append(self, cols):
         def _encode_string_array(sarray):
-            return [s.encode() for s in sarray]
+            if sys.version_info >= (3, 0, 0):
+                return [s.encode() for s in sarray]
+            return sarray
 
         self.__initcheck()
         # Optimize!
