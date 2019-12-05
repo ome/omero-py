@@ -240,17 +240,67 @@ class TestHdfStorage(TestCase):
         hdf.cleanup()
 
     def testStringCol(self):
+        # Tables size is in bytes, len("მიკროსკოპის პონი".encode()) == 46
+        bytesize = 46
         hdf = HdfStorage(self.hdfpath(), self.lock)
-        cols = [omero.columns.StringColumnI("name", "description", 16, None)]
+        cols = [omero.columns.StringColumnI(
+            "name", "description", bytesize, None)]
         hdf.initialize(cols)
         cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
-        cols[0].values = ["foo"]
+        cols[0].values = ["foo", "მიკროსკოპის პონი"]
         hdf.append(cols)
         rows = hdf.getWhereList(time.time(), '(name=="foo")', None, 'b', None,
                                 None, None)
-        assert 1 == len(rows)
-        assert 16 == hdf.readCoordinates(time.time(), [0],
-                                         self.current).columns[0].size
+        assert rows == [0]
+        assert bytesize == hdf.readCoordinates(
+            time.time(), [0], self.current).columns[0].size
+        # Unicode conditions don't work on Python 3
+        # Fetching should still work though
+        r1 = hdf.readCoordinates(time.time(), [1], self.current)
+        assert r1.columns[0].size == bytesize
+        assert r1.columns[0].values[0] == "მიკროსკოპის პონი"
+
+        # Doesn't work yet.
+        hdf.cleanup()
+
+    def testStringColUnicodeSize(self):
+        # len("მიკროსკოპის პონი") == 16
+        # len("მიკროსკოპის პონი".encode()) == 46
+        bytesize = 45
+        hdf = HdfStorage(self.hdfpath(), self.lock)
+        cols = [omero.columns.StringColumnI(
+            "name", "description", bytesize, None)]
+        hdf.initialize(cols)
+        cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
+        cols[0].values = ["მიკროსკოპის პონი"]
+
+        with pytest.raises(omero.ValidationException) as exc_info:
+            hdf.append(cols)
+        assert exc_info.value.message == (
+            'Maximum string (byte) length in column name is 45')
+
+        # Doesn't work yet.
+        hdf.cleanup()
+
+    @pytest.mark.xfail(reason=(
+        "Unicode conditions broken on Python 3. "
+        "See explanation in hdfstorageV2.HdfStorage.append"))
+    @pytest.mark.broken(reason="Unicode conditions broken on Python 3")
+    def testStringColWhereUnicode(self):
+        # Tables size is in bytes, len("მიკროსკოპის პონი".encode()) == 46
+        bytesize = 46
+        hdf = HdfStorage(self.hdfpath(), self.lock)
+        cols = [omero.columns.StringColumnI(
+            "name", "description", bytesize, None)]
+        hdf.initialize(cols)
+        cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
+        cols[0].values = ["foo", "მიკროსკოპის პონი"]
+        hdf.append(cols)
+        rows = hdf.getWhereList(time.time(), '(name=="მიკროსკოპის პონი")',
+                                None, 'b', None, None, None)
+        assert rows == [1]
+        assert bytesize == hdf.readCoordinates(
+            time.time(), [0], self.current).columns[0].size
         # Doesn't work yet.
         hdf.cleanup()
 

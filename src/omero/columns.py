@@ -25,6 +25,7 @@ import omero
 import Ice
 import IceImport
 IceImport.load("omero_Tables_ice")
+sys = __import__("sys")  # Python sys
 
 try:
     import numpy
@@ -254,9 +255,15 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         Check for strings longer than the initialised column width
         """
         for v in self.values:
-            if len(v) > self.size:
+            if sys.version_info >= (3, 0, 0):
+                vsize = len(v.encode())
+            else:
+                vsize = len(v)
+
+            if vsize > self.size:
                 raise omero.ValidationException(
-                    None, None, "Maximum string length in column %s is %d" %
+                    None, None,
+                    "Maximum string (byte) length in column %s is %d" %
                     (self.name, self.size))
         return [self.values]
 

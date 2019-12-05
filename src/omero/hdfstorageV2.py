@@ -504,6 +504,11 @@ class HdfStorage(object):
     @locked
     @modifies
     def append(self, cols):
+        def _encode_string_array(sarray):
+            if sys.version_info >= (3, 0, 0):
+                return [s.encode() for s in sarray]
+            return sarray
+
         self.__initcheck()
         # Optimize!
         arrays = []
@@ -516,8 +521,37 @@ class HdfStorage(object):
                 if sz != col.getsize():
                     raise omero.ValidationException(
                         "Columns are of differing length")
-            arrays.extend(col.arrays())
-            dtypes.extend(col.dtypes())
+            # StringColumns are actually numpy dtype 'S':
+            #   "zero-terminated bytes (not recommended)"
+            # https://github.com/ome/omero-py/blob/v5.6.dev8/src/omero/columns.py#L269
+            # https://docs.scipy.org/doc/numpy-1.15.1/reference/arrays.dtypes.html#specifying-and-constructing-data-types
+            #
+            # In any case HDF5 doesn't seem to properly support unicode,
+            # and numexpr doesn't even pretend to support it:
+            #   https://github.com/PyTables/PyTables/issues/499
+            #   https://github.com/pydata/numexpr/issues/142
+            #   https://github.com/pydata/numexpr/issues/150
+            #   https://github.com/pydata/numexpr/issues/263
+            #   https://github.com/pydata/numexpr/blob/v2.7.0/numexpr/necompiler.py#L340-L341
+            #
+            # > import numexpr
+            # > a = "£"
+            # > numexpr.evaluate('a=="£"')
+            #   ValueError: unknown type str32
+            # > b = "£".encode()
+            # > numexpr.evaluate('b=="£"')
+            #   UnicodeEncodeError: 'ascii' codec can't encode character '\xa3'
+            #     in position 0: ordinal not in range(128)
+            #
+            # You should be able to store/load unicode data but you can't use
+            # unicode in a where condition
+            dtype = col.dtypes()
+            if dtype[0][1] == 'S':
+                arrays.extend(_encode_string_array(array)
+                              for array in col.arrays())
+            else:
+                arrays.extend(col.arrays())
+            dtypes.extend(dtype)
             col.append(self.__mea)  # Potential corruption !!!
 
         # Convert column-wise data to row-wise records
