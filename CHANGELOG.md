@@ -1,3 +1,7 @@
+# 5.6.dev9 (December 2019)
+
+- Fix tables StringColumn for strings containing Unicode characters (#133)
+
 # 5.6.dev8 (December 2019)
 
 - Add `bin/omero load --glob` support (#137)
