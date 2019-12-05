@@ -25,7 +25,7 @@ import omero
 import Ice
 import IceImport
 IceImport.load("omero_Tables_ice")
-sys = __import__("sys")  # Python sys
+python_sys = __import__("sys")  # Python sys
 
 try:
     import numpy
@@ -281,7 +281,7 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         Check for strings longer than the initialised column width
         This will always return bytes
         """
-        if sys.version_info >= (3, 0, 0):
+        if python_sys.version_info >= (3, 0, 0):
             bytevalues = [v.encode() for v in self.values]
         else:
             bytevalues = self.values
