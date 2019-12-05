@@ -207,10 +207,10 @@ setup(
     py_modules=packageless,
     scripts=glob.glob(os.path.sep.join(["bin", "*"])),
     install_requires=[
-        'zeroc-ice>=3.6.4,<3.7',
         'future',
-        'Pillow',
         'numpy',
+        'Pillow',
+        'zeroc-ice>=3.6.4,<3.7',
     ],
     tests_require=[
         'pytest<3',
