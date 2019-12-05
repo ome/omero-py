@@ -45,8 +45,8 @@ See: `OMERO`_ documentation
 Usage
 -----
 
- - For OMERO python language bindings, see `OmeroPy`_.
- - For Command-line usage, see `Omero-CLI`_.
+- For OMERO python language bindings, see `OmeroPy`_.
+- For Command-line usage, see `Omero-CLI`_.
 
 Contributing
 ------------
