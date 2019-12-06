@@ -38,9 +38,15 @@ for some functionality.
 ``$OMERODIR/etc/grid/config.xml`` is used to store config.
 
 If ``OMERODIR`` is set to an OMERO.server directory,
-the ``import`` command will be enabled.
+the ``import`` and ``admin`` commands will be enabled::
 
-See: `OMERO`_ documentation
+    # If you need import or admin commands:
+    export OMERODIR=/path/to/OMERO.server/
+
+    # otherwise, can choose any location.
+    export OMERODIR=$(pwd)
+
+See: `OMERO`_ documentation for more details.
 
 Usage
 -----
