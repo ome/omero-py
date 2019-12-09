@@ -103,5 +103,5 @@ Copyright
 .. _ZeroC IcePy: https://zeroc.com/
 .. _OmeroPy: https://docs.openmicroscopy.org/latest/omero/developers/Python.html
 .. _Omero-CLI: https://docs.openmicroscopy.org/latest/omero/users/cli/index.html
-.. _OMERO: https://docs.openmicroscopy.org/latest/omero/index.html
+.. _OMERO: https://docs.openmicroscopy.org/omero/5.6/index.html
 .. _Running and writing tests: https://docs.openmicroscopy.org/latest/omero/developers/testing.html
