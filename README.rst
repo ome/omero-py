@@ -30,7 +30,7 @@ We recommend creating a virtualenv::
 
     python3.6 -mvenv venv
     . venv/bin/activate
-    pip install omero-py
+    pip install 'omero-py>=5.6.dev9'
 
 You may need to replace ``python3.6`` with ``python`` or ``python3`` depending on your Python distribution.
 
