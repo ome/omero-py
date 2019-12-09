@@ -32,6 +32,8 @@ We recommend creating a virtualenv::
     . venv/bin/activate
     pip install omero-py
 
+You may need to replace ``python3.6`` with ``python`` or ``python3`` depending on your Python distribution.
+
 Setting of the environment variable ``OMERODIR`` is required
 for some functionality.
 ``$OMERODIR/var/log/`` directory will contain log files.
