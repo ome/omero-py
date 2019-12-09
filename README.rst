@@ -52,7 +52,7 @@ Usage
 -----
 
 - For OMERO python language bindings, see `OmeroPy`_.
-- For Command-line usage, see `Omero-CLI`_.
+- For Command Line usage, see `Omero-CLI`_.
 
 Contributing
 ------------
