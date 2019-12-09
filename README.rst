@@ -101,7 +101,7 @@ Copyright
 2009-2019, The Open Microscopy Environment, Glencoe Software, Inc.
 
 .. _ZeroC IcePy: https://zeroc.com/
-.. _OmeroPy: https://docs.openmicroscopy.org/latest/omero/developers/Python.html
+.. _OmeroPy: https://docs.openmicroscopy.org/omero/5.6/developers/Python.html
 .. _Omero-CLI: https://docs.openmicroscopy.org/latest/omero/users/cli/index.html
 .. _OMERO: https://docs.openmicroscopy.org/omero/5.6/index.html
 .. _Running and writing tests: https://docs.openmicroscopy.org/latest/omero/developers/testing.html
