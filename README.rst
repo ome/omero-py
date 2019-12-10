@@ -18,17 +18,43 @@ Dependencies
 
 Direct dependencies of OMERO.py are:
 
-- `ZeroC IcePy`_
+- `ZeroC IcePy 3.6`_
+- future
+- numpy
+- Pillow
 
 Installation
 ------------
 
-See: `OMERO`_ documentation
+We recommend creating a virtualenv::
+
+    python3.6 -mvenv venv
+    . venv/bin/activate
+    pip install 'omero-py>=5.6.dev9'
+
+You may need to replace ``python3.6`` with ``python`` or ``python3`` depending on your Python distribution.
+
+Setting of the environment variable ``OMERODIR`` is required
+for some functionality.
+``$OMERODIR/var/log/`` directory will contain log files.
+``$OMERODIR/etc/grid/config.xml`` is used to store config.
+
+If ``OMERODIR`` is set to an OMERO.server directory,
+the ``import`` and ``admin`` commands will be enabled::
+
+    # If you need import or admin commands:
+    export OMERODIR=/path/to/OMERO.server/
+
+    # otherwise, can choose any location.
+    export OMERODIR=$(pwd)
+
+See: `OMERO`_ documentation for more details.
 
 Usage
 -----
 
-See: `OMERO`_ documentation
+- For OMERO python language bindings, see `OmeroPy`_.
+- For Command Line usage, see `Omero-CLI`_.
 
 Contributing
 ------------
@@ -46,7 +72,6 @@ For a development installation we recommend creating a virtualenv with the follo
 
     python3.6 -mvenv venv
     . venv/bin/activate
-    pip install zeroc-ice==3.6.5
     git clone https://github.com/ome/omero-py
     cd omero-py
     python setup.py devtarget
@@ -77,6 +102,8 @@ Copyright
 
 2009-2019, The Open Microscopy Environment, Glencoe Software, Inc.
 
-.. _ZeroC IcePy: https://zeroc.com/
-.. _OMERO: https://www.openmicroscopy.org/omero
+.. _ZeroC IcePy 3.6: https://zeroc.com/downloads/ice/3.6
+.. _OmeroPy: https://docs.openmicroscopy.org/omero/5.6/developers/Python.html
+.. _Omero-CLI: https://docs.openmicroscopy.org/omero/5.6/users/cli/index.html
+.. _OMERO: https://docs.openmicroscopy.org/omero/5.6/index.html
 .. _Running and writing tests: https://docs.openmicroscopy.org/latest/omero/developers/testing.html
