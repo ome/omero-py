@@ -210,6 +210,7 @@ setup(
         'future',
         'numpy',
         'Pillow',
+        'wheel',
         'zeroc-ice>=3.6.4,<3.7',
     ],
     tests_require=[
