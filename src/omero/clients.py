@@ -122,6 +122,8 @@ class BaseClient(object):
         # Reassigning based on argument type
 
         args, id, host, port, pmap = self._repair(args, id, host, port, pmap)
+        if not args:
+            args = []
 
         # hosturl overrides all other args
         hosturl = self._check_for_hosturl(host, port, pmap)
@@ -134,9 +136,7 @@ class BaseClient(object):
             args.append(self._get_endpoint_from_hosturl(hosturl))
 
         # Copying args since we don't really want them edited
-        if not args:
-            args = []
-        else:
+        if args:
             # See ticket:5516 To prevent issues on systems where the base
             # class of path.path is unicode, we will encode all unicode
             # strings here.

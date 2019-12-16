@@ -194,3 +194,44 @@ class TestHostUrlParsing(object):
     def test_get_endpoint_from_hosturl(self, values, expected):
         hosturl = self._get_hosturl(values)
         assert expected == self.mc._get_endpoint_from_hosturl(hosturl)
+
+
+class MockClientInit(base.BaseClient):
+
+    def _initData(self, id):
+        self.test_id = id
+
+
+class TestClientInit(object):
+
+    def setup_method(self, method):
+        self.mc = None
+
+    def teardown_method(self, method):
+        self.mc.__del__()
+
+    @pytest.mark.parametrize('args,expected', [
+        (('omero.example.org',), {
+            'omero.host': 'omero.example.org',
+            'omero.port': '4064',
+        }),
+        (('ssl://omero.example.org',), {
+            'omero.host': '',
+            'omero.url.host': 'omero.example.org',
+            'omero.port': '4064',
+            'Ice.Default.Router': 'OMERO.Glacier2/router:ssl -p 4064 '
+            '-h omero.example.org',
+        }),
+        (('wss://omero.example.org/omero-ws',), {
+            'omero.host': '',
+            'omero.url.host': 'omero.example.org',
+            'omero.port': '443',
+            'Ice.Default.Router': 'OMERO.Glacier2/router:wss -p 443 '
+            '-h omero.example.org -r /omero-ws',
+        }),
+    ])
+    def test_client_init(self, args, expected):
+        self.mc = MockClientInit(*args)
+        props = self.mc.test_id.properties
+        for k, v in expected.items():
+            assert props.getProperty(k) == v
