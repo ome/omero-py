@@ -115,9 +115,9 @@ try:
         --------------
         CWD=%s
         VERSION=%s
-        OMERO_HOME=%s
+        dist=%s
         PYTHONPATH=%s
-        """ % (os.getcwd(), sys.version.replace("\n"," "), omero_home, sys.path))
+        """ % (os.getcwd(), sys.version.replace("\n"," "), top, sys.path))
         sys.exit(2)
 
     logging.basicConfig(level=logging.WARN)
