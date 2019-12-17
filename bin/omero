@@ -95,6 +95,7 @@ try:
     try:
         import omero.cli
     except ImportError as ie:
+        OMERODIR = os.environ.get('OMERODIR', None)
         print("*"*80)
         print("""
         ERROR: Could not import omero.cli! (%s)
@@ -115,9 +116,11 @@ try:
         --------------
         CWD=%s
         VERSION=%s
-        dist=%s
+        OMERO_EXE=%s
+        OMERODIR=%s
         PYTHONPATH=%s
-        """ % (os.getcwd(), sys.version.replace("\n"," "), top, sys.path))
+        """ % (os.getcwd(), sys.version.replace("\n", " "), top,
+               OMERODIR, sys.path))
         sys.exit(2)
 
     logging.basicConfig(level=logging.WARN)
