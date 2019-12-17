@@ -60,7 +60,7 @@ def readlink(file=sys.argv[0]):
     return file
 
 if "OMERO_HOME" in os.environ:
-    print("WARN: OMERO_HOME usage is deprecated in omero-py")
+    print("WARN: OMERO_HOME usage is ignored in omero-py")
 
 exe = readlink()
 top = os.path.join(exe, os.pardir, os.pardir)
