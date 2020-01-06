@@ -415,11 +415,11 @@ filesets.
 
 Examples:
 
-    bin/omero fs images --archived       # List only OMERO4 images
-    bin/omero fs images --order=newest   # Default
-    bin/omero fs images --order=largest  # Most used space
-    bin/omero fs images --limit=500      # Longer listings
-    bin/omero fs images --extended       # More details
+    omero fs images --archived       # List only OMERO4 images
+    omero fs images --order=newest   # Default
+    omero fs images --order=largest  # Most used space
+    omero fs images --limit=500      # Longer listings
+    omero fs images --extended       # More details
         """
 
         from omero.rtypes import unwrap
@@ -604,12 +604,12 @@ imports to.
 
 Examples:
 
-    bin/omero fs repos            # Show all
-    bin/omero fs repos --managed  # Show only the managed repo
+    omero fs repos            # Show all
+    omero fs repos --managed  # Show only the managed repo
                                   # Or to print only the directory
                                   # under Unix:
 
-    bin/omero fs repos --managed --style=plain | cut -d, -f5
+    omero fs repos --managed --style=plain | cut -d, -f5
 
         """
 
@@ -650,12 +650,12 @@ which represent 1 *or more* images.
 
 Examples:
 
-    bin/omero fs sets --order=newest        # Default
-    bin/omero fs sets --order=oldest
-    bin/omero fs sets --order=largest
-    bin/omero fs sets --without-images      # Corrupt filesets
-    bin/omero fs sets --with-transfer=ln_s  # Symlinked filesets
-    bin/omero fs sets --check               # Proof the checksums
+    omero fs sets --order=newest        # Default
+    omero fs sets --order=oldest
+    omero fs sets --order=largest
+    omero fs sets --without-images      # Corrupt filesets
+    omero fs sets --with-transfer=ln_s  # Symlinked filesets
+    omero fs sets --check               # Proof the checksums
         """
 
         from omero.constants.namespaces import NSFILETRANSFER
@@ -846,20 +846,20 @@ files. These details can be displayed using the --report option.
 
 Examples:
 
-    bin/omero fs usage             # total usage for current user
-    bin/omero fs usage --report    # more detailed usage for current user
-    bin/omero fs usage --groups    # total usage for current user's groups
+    omero fs usage             # total usage for current user
+    omero fs usage --report    # more detailed usage for current user
+    omero fs usage --groups    # total usage for current user's groups
     # total usage for five images with minimal output
-    bin/omero fs usage Image:1,2,3,4,5 --size_only
+    omero fs usage Image:1,2,3,4,5 --size_only
     # total usage for all images with in a human readable format
-    bin/omero fs usage Image:* --human-readable
+    omero fs usage Image:* --human-readable
     # total usage for all users broken down by user and group
-    bin/omero fs usage Experimenter:* --report --sum-by user group
+    omero fs usage Experimenter:* --report --sum-by user group
     # total usage for two projects and one dataset Megabytes
-    bin/omero fs usage Project:1,2 Dataset:5 --units M
+    omero fs usage Project:1,2 Dataset:5 --units M
     # in this last case if the dataset was within project 1 or 2
     # then the size returned would be identical to:
-    bin/omero fs usage Project:1,2 --units M
+    omero fs usage Project:1,2 --units M
         """
         from omero.cmd import DiskUsage2
 

@@ -213,9 +213,9 @@ By default pyramids with big and little-endianness will be deleted.
 To delete pyramids with little-endianness equals to true use --endian=little.
 
 Examples:
-  bin/omero admin removepyramids --dry-run
-  bin/omero admin removepyramids --dry-run --endian=little
-  bin/omero admin removepyramids --dry-run --imported-after YYYY-mm-dd
+  omero admin removepyramids --dry-run
+  omero admin removepyramids --dry-run --endian=little
+  omero admin removepyramids --dry-run --imported-after YYYY-mm-dd
             """).parser
         # See cleanse options below
 
@@ -233,17 +233,17 @@ Examples:
 
   # Send the contents of a file to everyone
   # except inactive users.
-  bin/omero admin email --everyone Subject < some_file.text
+  omero admin email --everyone Subject < some_file.text
 
   # Include inactive users in the email
-  bin/omero admin email --everyone --inactive ...
+  omero admin email --everyone --inactive ...
 
   # Contact a single group
-  bin/omero admin email --group-name system \\
+  omero admin email --group-name system \\
                         Subject short message
 
   # Contact a list of users
-  bin/omero admin email --user-id 10 \\
+  omero admin email --user-id 10 \\
                         --user-name ralph \\
                         Subject ...
 
@@ -306,30 +306,30 @@ for more information.
 Examples:
 
   # 1. Reset the 'last indexed' counter. Defaults to 0
-  bin/omero admin reindex --reset 0
+  omero admin reindex --reset 0
 
   # 2. Delete the contents of a corrupt FullText directory
-  bin/omero admin reindex --wipe
+  omero admin reindex --wipe
 
   # 3. Run indexer in the foreground. Disable the background first
-  bin/omero admin reindex --foreground
+  omero admin reindex --foreground
   # Foreground indexing is NOT currently working.
 
 Other commands (usually unnecessary):
 
   # Index all objects in the database.
-  bin/omero admin reindex --full
+  omero admin reindex --full
 
   # Index one specific class
-  bin/omero admin reindex --class ome.model.core.Image
+  omero admin reindex --class ome.model.core.Image
 
   # Passing arguments to Java
   JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \\
-  bin/omero admin reindex --foreground
+  omero admin reindex --foreground
 
   JAVA_OPTS="-Xdebug -Xrunjdwp:server=y,transport=\
 dt_socket,address=8787,suspend=y" \\
-  bin/omero admin reindex --foreground
+  omero admin reindex --foreground
 
 """).parser
 
@@ -404,10 +404,10 @@ This command must be run on the machine where, for example, /OMERO/ is
 located.
 
 Examples:
-  bin/omero admin cleanse --dry-run /OMERO      # Lists files that will be \
+  omero admin cleanse --dry-run /OMERO      # Lists files that will be \
 deleted
-  bin/omero admin cleanse /OMERO                # Actually delete them.
-  bin/omero admin cleanse /volumes/data/OMERO   # Delete from a standard \
+  omero admin cleanse /OMERO                # Actually delete them.
+  omero admin cleanse /volumes/data/OMERO   # Delete from a standard \
 location.
 
 """).parser
@@ -827,7 +827,7 @@ present, the user will enter a console""")
 
         # TODO : Doesn't properly handle whitespace
         # Though users can workaround with something like:
-        # bin/omero admin deploy etc/grid/a\\\\ b.xml
+        # omero admin deploy etc/grid/a\\\\ b.xml
         command = ["icegridadmin", self._intcfg(), "-e",
                    " ".join(["application", "update", str(descript)] +
                             args.targets)]
@@ -845,7 +845,7 @@ present, the user will enter a console""")
             if can_force_rewrite:
                 error_msg += ' Pass --force-rewrite to the command.'
             else:
-                error_msg += ' Run bin/omero admin rewrite.'
+                error_msg += ' Run `omero admin rewrite`.'
             self.ctx.die(574, error_msg)
         command = self._cmd("-e", "node ping %s" % self._node())
         self.ctx.rv = self.ctx.popen(command).wait()  # popen

@@ -24,16 +24,16 @@ a specified filename.
 Examples:
 
     # Download OriginalFile 2 to local_file
-    bin/omero download 2 local_file
+    omero download 2 local_file
     # Download Original File 2 to the stdout
-    bin/omero download 2 -
+    omero download 2 -
 
     # Download the OriginalFile linked to FileAnnotation 20 to local_file
-    bin/omero download FileAnnotation:20 local_file
+    omero download FileAnnotation:20 local_file
 
     # Download the OriginalFile linked to Image 5
     # Works only with single files imported with OMERO 5.0.0 and above
-    bin/omero download Image:5 original_image
+    omero download Image:5 original_image
 """
 
 
