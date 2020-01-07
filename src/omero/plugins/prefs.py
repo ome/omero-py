@@ -66,6 +66,9 @@ def getprefs(args, dir):
 
 def _make_open_and_close_config(func, allow_readonly):
     def open_and_close_config(*args, **kwargs):
+        if not os.environ.get('OMERODIR'):
+            raise Exception('OMERODIR not set')
+
         args = list(args)
         self = args[0]
         argp = args[1]
