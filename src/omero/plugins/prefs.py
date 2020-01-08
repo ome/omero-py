@@ -29,7 +29,6 @@ from omero.cli import require_ctxdir
 from omero.config import ConfigXml
 from omero.util import (
     edit_path,
-    get_omero_userdir,
     get_omerodir,
 )
 from omero.util.decorators import wraps
@@ -281,17 +280,20 @@ class PrefsControl(WriteableConfigControl):
         if search(r'[^A-Za-z0-9._-]', key):
             self.ctx.die(506, 'Illegal property name: {0}'.format(key))
 
+    @require_ctxdir
     @with_config
     def all(self, args, config):
         for k, v in config.properties(None, True):
             self.ctx.out(k)
 
+    @require_ctxdir
     @with_config
     def default(self, args, config):
         if args.NAME is not None:
             self.die_on_ro(config)
         self.ctx.out(config.default(args.NAME))
 
+    @require_ctxdir
     @with_config
     def drop(self, args, config):
         try:
@@ -299,6 +301,7 @@ class PrefsControl(WriteableConfigControl):
         except KeyError:
             self.ctx.err("Unknown configuration: %s" % args.NAME)
 
+    @require_ctxdir
     @with_config
     def list(self, args, config):
         self.ctx.err('WARNING: "config list" is deprecated, '
@@ -306,6 +309,7 @@ class PrefsControl(WriteableConfigControl):
         args.KEY = []
         self.get(args, config)
 
+    @require_ctxdir
     @with_config
     def get(self, args, config):
         orig = sorted(list(config.keys()))
@@ -329,6 +333,7 @@ class PrefsControl(WriteableConfigControl):
                 else:
                     self.ctx.out("%s=%s" % (k, config[k]))
 
+    @require_ctxdir
     @with_rw_config
     def set(self, args, config):
         if "=" in args.KEY:
@@ -386,6 +391,7 @@ class PrefsControl(WriteableConfigControl):
             self.ctx.die(515, "Property %s is not a list" % key)
         return default
 
+    @require_ctxdir
     @with_rw_config
     def append(self, args, config):
         import json
@@ -403,6 +409,7 @@ class PrefsControl(WriteableConfigControl):
                 self.ctx.out(
                     'Changed: Appended %s:%s' % (args.KEY, args.VALUE))
 
+    @require_ctxdir
     @with_rw_config
     def remove(self, args, config):
         if args.KEY not in list(config.keys()):
@@ -422,6 +429,7 @@ class PrefsControl(WriteableConfigControl):
         if args.report:
             self.ctx.out('Changed: Removed %s:%s' % (args.KEY, args.VALUE))
 
+    @require_ctxdir
     @with_config
     def keys(self, args, config):
         for k in sorted(config.keys()):
@@ -459,6 +467,7 @@ class PrefsControl(WriteableConfigControl):
         else:
             pp.print_defaults()
 
+    @require_ctxdir
     @with_rw_config
     def load(self, args, config):
         keys = None
@@ -491,6 +500,7 @@ class PrefsControl(WriteableConfigControl):
         for key, value in list(new_config.items()):
             config[key] = value
 
+    @require_ctxdir
     @with_rw_config
     def edit(self, args, config, edit_path=edit_path):
         from omero.util.temp_files import create_path, remove_path
@@ -518,18 +528,22 @@ class PrefsControl(WriteableConfigControl):
         finally:
             remove_path(temp_file)
 
+    @require_ctxdir
     @with_config
     def version(self, args, config):
         self.ctx.out(config.version(config.default()))
 
+    @require_ctxdir
     @with_config
     def path(self, args, config):
         self.ctx.out(config.filename)
 
+    @require_ctxdir
     @with_rw_config
     def lock(self, args, config):
         self.ctx.input("Press enter to unlock")
 
+    @require_ctxdir
     @with_rw_config
     def upgrade(self, args, config):
         self.ctx.out("Importing pre-4.2 preferences")
