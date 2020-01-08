@@ -47,7 +47,7 @@ except ImportError:
 
 def get_blitz_location():
 
-    config_blitz_version = "5.5.4"
+    config_blitz_version = "5.5.5"
 
     # simplified strings
     defaultsect = configparser.DEFAULTSECT
