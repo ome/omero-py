@@ -23,14 +23,12 @@
 from __future__ import unicode_literals
 from builtins import object
 import pytest
-import os
 from omero.cli import CLI
 
 cli = CLI()
 cli.loadplugins()
 commands = list(cli.controls.keys())
 topics = list(cli.topics.keys())
-OMERODIR = os.environ.get('OMERODIR', False)
 
 
 class TestBasics(object):
@@ -69,8 +67,10 @@ class TestBasics(object):
     def testVersion(object):
         cli.invoke(["version"], strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
-    def testLoadGlob(object, tmp_path, capsys):
+    def testLoadGlob(object, monkeypatch, tmp_path, capsys):
+        (tmp_path / 'etc').mkdir()
+        (tmp_path / 'etc' / 'grid').mkdir()
+        monkeypatch.setenv('OMERODIR', str(tmp_path))
         for i in 'abc':
             (tmp_path / (i + 'a.omero')).write_text(
                 'config set {i} {i}'.format(i=i))
@@ -78,5 +78,4 @@ class TestBasics(object):
         cli.invoke(["config", "get"], strict=True)
         captured = capsys.readouterr()
         lines = captured.out.splitlines()
-        for i in 'abc':
-            assert '{i}={i}'.format(i=i) in lines
+        assert lines == ['a=a', 'b=b', 'c=c']
