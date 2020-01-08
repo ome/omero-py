@@ -42,6 +42,12 @@ def configxml(monkeypatch):
     monkeypatch.setattr("omero.config.ConfigXml", MockConfigXml)
 
 
+@pytest.fixture(autouse=True)
+def omerodir(monkeypatch, tmpdir):
+    monkeypatch.setattr(
+        "omero.plugins.prefs.get_omerodir", lambda throw: str(tmpdir))
+
+
 class TestPrefs(object):
 
     def setup_method(self, method):
