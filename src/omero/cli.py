@@ -64,6 +64,7 @@ from omero_ext.argparse import RawTextHelpFormatter
 from omero_ext.argparse import SUPPRESS
 from omero_ext.path import path
 
+from omero.util import get_omerodir
 from omero.util.concurrency import get_event
 
 import omero
@@ -96,7 +97,7 @@ OMEROHELP = """Type "help" for more information, "quit" or Ctrl-D to exit"""
 OMEROSUBS = """Use %(prog)s <subcommand> -h for more information."""
 OMEROSUBM = """<subcommand>"""
 OMEROCLI = path(__file__).expand().dirname()
-OMERODIR = os.getenv('OMERODIR', None)
+OMERODIR = get_omerodir(throw=False)
 if OMERODIR is not None:
     OMERODIR = path(OMERODIR)
 else:

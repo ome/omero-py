@@ -832,6 +832,23 @@ def get_user(default=None):
         return rv
 
 
+def get_omerodir(throw=True):
+    """
+    Returns OMERODIR if set and not empty
+    If throw=True raises an Exception if OMERODIR is empty
+    otherwise returns None
+
+    This is placed here so it can be easily mocked in tests
+    """
+    import os
+    omerodir = os.getenv('OMERODIR')
+    if omerodir:
+        return omerodir
+    if throw:
+        raise Exception('OMERODIR environment variable not set')
+    return None
+
+
 def get_omero_userdir():
     """Returns the OMERO user directory"""
     omero_userdir = os.environ.get('OMERO_USERDIR', None)

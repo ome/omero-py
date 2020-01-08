@@ -70,6 +70,7 @@ from omero.model.enums import PixelsTypedouble
 
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.sys import ParametersI
+from omero.util import get_omerodir
 from omero.util.temp_files import create_path
 from omero_ext.path import path
 
@@ -188,7 +189,7 @@ class ITest(object):
         searched = []
         p = path(".").abspath()
         # "" means top of directory
-        dist_dir = os.getenv('OMERODIR')
+        dist_dir = get_omerodir(throw=False)
         if dist_dir:
             dist_dir = path(dist_dir)
         while dist_dir is None:

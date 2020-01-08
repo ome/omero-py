@@ -26,7 +26,11 @@ from omero.cli import BaseControl
 from omero.cli import ExistingFile
 from omero.cli import NonZeroReturnCode
 from omero.config import ConfigXml
-from omero.util import edit_path, get_omero_userdir
+from omero.util import (
+    edit_path,
+    get_omero_userdir,
+    get_omerodir,
+)
 from omero.util.decorators import wraps
 from omero.util.upgrade_check import UpgradeCheck
 from omero_ext import portalocker
@@ -66,8 +70,7 @@ def getprefs(args, dir):
 
 def _make_open_and_close_config(func, allow_readonly):
     def open_and_close_config(*args, **kwargs):
-        if not os.environ.get('OMERODIR'):
-            raise Exception('OMERODIR not set')
+        get_omerodir(throw=True)
 
         args = list(args)
         self = args[0]
@@ -254,10 +257,10 @@ class PrefsControl(WriteableConfigControl):
             if not cfg_xml.exists():
                 self.ctx.die(124, "File not found: %s" % args.source)
         else:
-            if 'OMERODIR' in os.environ:
-                base_dir = path(os.environ.get('OMERODIR'))
-            else:
-                self.ctx.die(125, 'FATAL: OMERODIR env variable not set')
+            try:
+                base_dir = path(get_omerodir(throw=True))
+            except Exception as e:
+                self.ctx.die(125, 'FATAL: ' + e.args[0])
             grid_dir = base_dir / "etc" / "grid"
             if not grid_dir.exists():
                 self.ctx.err("%s not found; creating %s" %
