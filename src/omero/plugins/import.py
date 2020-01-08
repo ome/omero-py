@@ -32,11 +32,23 @@ from past.builtins import basestring
 from builtins import object
 import os
 import csv
+from shutil import copyfileobj
 import sys
 import shlex
 
+try:
+    from io import BytesIO
+    from urllib.request import urlopen
+except ImportError:
+    # Python 2
+    from StringIO import StringIO as BytesIO
+    from urllib import urlopen
+from zipfile import ZipFile
+
+
 from omero.cli import BaseControl, CLI
 import omero.java
+from omero.util import get_omero_userdir
 from omero_ext.argparse import SUPPRESS
 from omero_ext.path import path
 
@@ -100,6 +112,11 @@ OUTPUT_CHOICES = ["ids", "legacy", "yaml"]
 SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 NO_ARG = object()
 
+OMERO_JAVA_ZIP = (
+    'https://downloads.openmicroscopy.org/omero/5.6.0-m5/artifacts/'
+    'OMERO.java-5.6.0-m5-ice36-b129.zip'
+)
+
 
 class CommandArguments(object):
 
@@ -118,6 +135,7 @@ class CommandArguments(object):
             "port", "password", "group", "create", "func",
             "bulk", "prog", "user", "key", "path", "logprefix",
             "JAVA_DEBUG", "quiet", "server", "depth", "clientdir",
+            "fetch_jars",
             "sudo")
         self.set_login_arguments(ctx, args)
         self.set_skip_arguments(args)
@@ -315,6 +333,9 @@ class ImportControl(BaseControl):
             "--logback", type=str,
             help="Path to a logback xml file. "
             " Default: etc/logback-cli.xml")
+        add_python_argument(
+            "--fetch-jars", action="store_true",
+            help="Download OMERO.java jars")
 
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
@@ -486,11 +507,17 @@ class ImportControl(BaseControl):
         parser.set_defaults(func=self.importer)
 
     def importer(self, args):
+        if args.fetch_jars:
+            self.download_omero_java()
+            return
 
         if args.clientdir:
-            client_dir = path(args.clientdir)
+            client_dirs = [path(args.clientdir)]
         else:
-            client_dir = self.ctx.dir / "lib" / "client"
+            client_dirs = [
+                get_omero_userdir() / "jars",
+                self.ctx.dir / "lib" / "client",
+            ]
         etc_dir = old_div(self.ctx.dir, "etc")
         if args.logback:
             xml_file = path(args.logback)
@@ -498,13 +525,17 @@ class ImportControl(BaseControl):
             xml_file = old_div(etc_dir, "logback-cli.xml")
         logback = "-Dlogback.configurationFile=%s" % xml_file
 
-        try:
-            classpath = [file.abspath() for file in client_dir.files("*.jar")]
-        except OSError as e:
-            self.ctx.die(102, "Cannot get JAR files from '%s' (%s)"
-                         % (client_dir, e.strerror))
+        classpath = [
+            file.abspath()
+            for client_dir in client_dirs
+            if client_dir.exists()
+            for file in client_dir.files("*.jar")
+        ]
         if not classpath:
-            self.ctx.die(103, "No JAR files found under '%s'" % client_dir)
+            self.ctx.die(103, (
+                "No JAR files found under '%s'.\n"
+                "Run 'omero import --fetch-jars' and re-try your import" %
+                ','.join(client_dirs)))
 
         command_args = CommandArguments(self.ctx, args)
         xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
@@ -516,6 +547,23 @@ class ImportControl(BaseControl):
             self.bulk_import(command_args, xargs)
         else:
             self.do_import(command_args, xargs)
+
+    def download_omero_java(self):
+        print("Downloading %s ..." % OMERO_JAVA_ZIP, file=sys.stderr)
+        jars_dir = get_omero_userdir() / "jars"
+        if not jars_dir.exists():
+            jars_dir.mkdir()
+        resp = urlopen(OMERO_JAVA_ZIP)
+        content = resp.read()
+        content = BytesIO(content)
+        zipfile = ZipFile(content)
+        for f in zipfile.namelist():
+            if f.endswith('.jar'):
+                jar = (jars_dir / os.path.basename(f))
+                source = zipfile.open(f)
+                target = jar.open('wb')
+                with source, target:
+                    copyfileobj(source, target)
 
     def do_import(self, command_args, xargs, mode="w"):
         out = err = None
