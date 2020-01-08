@@ -42,6 +42,7 @@ from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
 from omero.cli import DiagnosticsControl
 from omero.cli import UserGroupControl
+from omero.cli import require_ctxdir
 
 from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import \
@@ -144,7 +145,8 @@ class AdminControl(DiagnosticsControl,
             def __init__(this, name, help, wait=False):
                 this.parser = sub.add_parser(name, help=help,
                                              description=help)
-                this.parser.set_defaults(func=getattr(self, name))
+                this.parser.set_defaults(
+                    func=require_ctxdir(getattr(self, name), cls=self))
                 self.actions[name] = this.parser
                 if wait:
                     this.parser.add_argument(

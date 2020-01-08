@@ -35,7 +35,11 @@ import csv
 import sys
 import shlex
 
-from omero.cli import BaseControl, CLI
+from omero.cli import (
+    BaseControl,
+    CLI,
+    require_ctxdir,
+)
 import omero.java
 from omero_ext.argparse import SUPPRESS
 from omero_ext.path import path
@@ -485,6 +489,10 @@ class ImportControl(BaseControl):
 
         parser.set_defaults(func=self.importer)
 
+    # TODO: This could be relaxed in future:
+    # - Jars can be in a different client dir
+    # - logback config file could be optional
+    @require_ctxdir
     def importer(self, args):
 
         if args.clientdir:

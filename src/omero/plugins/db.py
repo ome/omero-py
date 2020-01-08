@@ -32,6 +32,7 @@ from future.utils import isbytes
 from past.utils import old_div
 from omero.cli import BaseControl
 from omero.cli import CLI
+from omero.cli import require_ctxdir
 
 from argparse import FileType, SUPPRESS
 
@@ -267,6 +268,7 @@ BEGIN;
                 output.close()
 
     @windows_warning
+    @require_ctxdir
     def password(self, args):
         root_pass = None
         user_id = 0
@@ -300,6 +302,7 @@ BEGIN;
         return data2
 
     @windows_warning
+    @require_ctxdir
     def script(self, args):
         if args.posversion is not None:
             self.ctx.err("WARNING: Positional arguments are deprecated")

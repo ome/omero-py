@@ -29,6 +29,7 @@ import atexit
 
 from omero.cli import CLI
 from omero.cli import BaseControl
+from omero.cli import require_ctxdir
 
 from omero.util.sessions import SessionsStore
 
@@ -550,6 +551,7 @@ class ScriptControl(BaseControl):
             print_params("inputs:", job_params.inputs)
             print_params("outputs:", job_params.outputs)
 
+    @require_ctxdir
     def serve(self, args):
 
         # List of processors which have been started

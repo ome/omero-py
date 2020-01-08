@@ -25,6 +25,7 @@ from omero.cli import CLI
 from omero.cli import BaseControl
 from omero.cli import ExistingFile
 from omero.cli import NonZeroReturnCode
+from omero.cli import require_ctxdir
 from omero.config import ConfigXml
 from omero.util import (
     edit_path,
@@ -427,6 +428,7 @@ class PrefsControl(WriteableConfigControl):
             if k not in config.IGNORE:
                 self.ctx.out(k)
 
+    @require_ctxdir
     def parse(self, args):
         from omero.install.config_parser import PropertyParser
         pp = PropertyParser()

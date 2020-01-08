@@ -97,11 +97,6 @@ OMEROHELP = """Type "help" for more information, "quit" or Ctrl-D to exit"""
 OMEROSUBS = """Use %(prog)s <subcommand> -h for more information."""
 OMEROSUBM = """<subcommand>"""
 OMEROCLI = path(__file__).expand().dirname()
-OMERODIR = get_omerodir(throw=False)
-if OMERODIR is not None:
-    OMERODIR = path(OMERODIR)
-else:
-    OMERODIR = OMEROCLI.dirname().dirname().dirname()
 
 OMERO_COMPONENTS = ['common', 'model', 'romio', 'renderer', 'server', 'blitz']
 
@@ -118,6 +113,24 @@ LINEWSP = re.compile(r"^\s*\w+\s+")
 #   -- or do they all share a central memory? self.ctx["MY_VARIABLE"]
 #  - In almost all cases, mark a flag in the CLI "lastError" and continue,
 #    allowing users to do something of the form: on_success or on_fail
+
+
+def require_ctxdir(function=None, cls=None):
+    """
+    Decorator to check this object's dir attribute is not empty
+    """
+    def check_or_die(func):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            self = cls if cls else args[0]
+            if not self.dir:
+                self.ctx.die(3, 'FATAL: OMERODIR environment variable not set')
+            return func(*args, **kwargs)
+        return wrapped
+
+    if function:
+        return check_or_die(function)
+    return check_or_die
 
 
 #####################################################
@@ -467,7 +480,7 @@ class Context(object):
         if self.params is None:
             self.params = {}
         self.event = get_event(name="CLI")
-        self.dir = OMERODIR
+        self.dir = get_omerodir(throw=False)
         self.isquiet = False
         # This usage will go away and default will be False
         self.isdebug = DEBUG
@@ -721,8 +734,8 @@ class BaseControl(object):
     #
     # Mostly reusable code
     #
-    def __init__(self, ctx=None, dir=OMERODIR):
-        self.dir = path(dir)  # Guaranteed to be a path
+    def __init__(self, ctx=None, dir=None):
+        self.dir = dir
         self.ctx = ctx
         if self.ctx is None:
             self.ctx = Context()  # Prevents unncessary stop_event creation
