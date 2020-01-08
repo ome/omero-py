@@ -1,6 +1,17 @@
+# 5.6.0 (January 2020)
+
+- Bump Blitz version 5.5.5 (#158)
+- Processor passes locale to subprocess (#150)
+- omero.client ensures args is not None (#149)
+- Ignore OMERO_HOME with warning (#148)
+- Retry flakey tests up to 5 times (#144)
+- Disable new testLoadGlob when OMERODIR not set (#140)
+- Add numpy to requirements (#139)
+- admin.py: handle errors in getdirsize (#135)
+
 # 5.6.dev9 (December 2019)
 
-- Fix tables StringColumn for strings containing Unicode characters (#133)
+- Fix tables StringColumn for strings containing Unicode characters (#143)
 
 # 5.6.dev8 (December 2019)
 
