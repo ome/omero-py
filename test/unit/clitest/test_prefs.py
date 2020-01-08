@@ -45,6 +45,8 @@ def configxml(monkeypatch):
 @pytest.fixture(autouse=True)
 def omerodir(monkeypatch, tmpdir):
     monkeypatch.setattr(
+        "omero.cli.get_omerodir", lambda throw: str(tmpdir))
+    monkeypatch.setattr(
         "omero.plugins.prefs.get_omerodir", lambda throw: str(tmpdir))
 
 

@@ -24,6 +24,7 @@ from __future__ import unicode_literals
 from builtins import object
 import pytest
 from omero.cli import CLI
+import omero.util
 
 cli = CLI()
 cli.loadplugins()
@@ -70,12 +71,16 @@ class TestBasics(object):
     def testLoadGlob(object, monkeypatch, tmp_path, capsys):
         (tmp_path / 'etc').mkdir()
         (tmp_path / 'etc' / 'grid').mkdir()
-        monkeypatch.setenv('OMERODIR', str(tmp_path))
+        monkeypatch.setattr(
+            "omero.util.get_omerodir", lambda throw: str(tmp_path))
+        cli2 = CLI()
+        cli2.dir = str(tmp_path)
+        cli2.loadplugins()
         for i in 'abc':
             (tmp_path / (i + 'a.omero')).write_text(
                 'config set {i} {i}'.format(i=i))
-        cli.invoke(["load", "--glob", str(tmp_path / '*.omero')], strict=True)
-        cli.invoke(["config", "get"], strict=True)
+        cli2.invoke(["load", "--glob", str(tmp_path / '*.omero')], strict=True)
+        cli2.invoke(["config", "get"], strict=True)
         captured = capsys.readouterr()
         lines = captured.out.splitlines()
         assert lines == ['a=a', 'b=b', 'c=c']
