@@ -32,7 +32,6 @@ from past.builtins import basestring
 from builtins import object
 import os
 import csv
-from shutil import copyfileobj
 import sys
 import shlex
 
@@ -508,6 +507,8 @@ class ImportControl(BaseControl):
 
     def importer(self, args):
         if args.fetch_jars:
+            if args.path:
+                self.ctx.err('WARNING: Ignoring extra arguments')
             self.download_omero_java()
             return
 
@@ -515,8 +516,8 @@ class ImportControl(BaseControl):
             client_dirs = [path(args.clientdir)]
         else:
             client_dirs = [
-                get_omero_userdir() / "jars",
                 self.ctx.dir / "lib" / "client",
+                self._userdir_jars(),
             ]
         etc_dir = old_div(self.ctx.dir, "etc")
         if args.logback:
@@ -533,7 +534,7 @@ class ImportControl(BaseControl):
         ]
         if not classpath:
             self.ctx.die(103, (
-                "No JAR files found under '%s'.\n"
+                "No JAR files found under: %s.\n"
                 "Run 'omero import --fetch-jars' and re-try your import" %
                 ','.join(client_dirs)))
 
@@ -548,22 +549,23 @@ class ImportControl(BaseControl):
         else:
             self.do_import(command_args, xargs)
 
+    def _userdir_jars(self, parentonly=False):
+        user_jars = get_omero_userdir() / 'jars'
+        if parentonly:
+            return user_jars
+        omero_java = os.path.splitext(os.path.basename(OMERO_JAVA_ZIP))[0]
+        return user_jars / omero_java / 'libs'
+
     def download_omero_java(self):
-        print("Downloading %s ..." % OMERO_JAVA_ZIP, file=sys.stderr)
-        jars_dir = get_omero_userdir() / "jars"
+        self.ctx.err("Downloading %s" % OMERO_JAVA_ZIP)
+        jars_dir = self._userdir_jars(parentonly=True)
         if not jars_dir.exists():
             jars_dir.mkdir()
         resp = urlopen(OMERO_JAVA_ZIP)
-        content = resp.read()
-        content = BytesIO(content)
-        zipfile = ZipFile(content)
-        for f in zipfile.namelist():
-            if f.endswith('.jar'):
-                jar = (jars_dir / os.path.basename(f))
-                source = zipfile.open(f)
-                target = jar.open('wb')
-                with source, target:
-                    copyfileobj(source, target)
+        zipfile = ZipFile(BytesIO(resp.read()))
+        zipfile.extractall(jars_dir)
+        zipfile.close()
+        resp.close()
 
     def do_import(self, command_args, xargs, mode="w"):
         out = err = None
