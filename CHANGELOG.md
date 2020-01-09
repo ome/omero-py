@@ -5,7 +5,7 @@
 - Processor passes locale to subprocess (#150)
 - omero.client ensures args is not None (#149)
 - Ignore OMERO_HOME with warning (#148)
-- Retry flakey tests up to 5 times (#144)
+- Retry flaky tests up to five times (#144)
 - Disable new testLoadGlob when OMERODIR not set (#140)
 - Add numpy to requirements (#139)
 - admin.py: handle errors in getdirsize (#135)
