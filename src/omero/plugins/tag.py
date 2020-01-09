@@ -32,12 +32,12 @@ Plugin for managing and viewing OMERO user tags.
 
 Examples:
 
-    bin/omero tag list       # List all the tags, grouped by tagset
-    bin/omero tag create     # Creates a tag
+    omero tag list       # List all the tags, grouped by tagset
+    omero tag create     # Creates a tag
 
     # Create a tag set named 'data_10.28' and associate the tag number 18 wth
     # it.
-    bin/omero tag createset --tag 18 --name data_10.28
+    omero tag createset --tag 18 --name data_10.28
 """
 
 

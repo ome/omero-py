@@ -59,8 +59,8 @@ Examples:
 
  or
 
-    $ bin/omero login       # login can't take place in HERE-document
-    $ bin/omero load <<EOF
+    $ omero login       # login can't take place in HERE-document
+    $ omero load <<EOF
     user list
     group list
     EOF

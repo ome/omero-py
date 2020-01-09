@@ -23,18 +23,18 @@ Most of these commands should be run as an OMERO administrator such as root.
 
 Examples:
 
-  bin/omero login root
-  bin/omero ldap active
-  bin/omero ldap list
-  bin/omero ldap getdn --user-name jack         # Get DN of user.
-  bin/omero ldap setdn --user-name jack true    # Enable LDAP login.
-  bin/omero ldap setdn --user-name jack false   # Disable LDAP login.
-  bin/omero ldap getdn --group-name mylab       # Get DN of user group.
-  bin/omero ldap setdn --group-name mylab true  # Mark group as LDAP group.
-  bin/omero ldap setdn --group-name mylab false # Mark group as local.
-  bin/omero ldap discover
-  bin/omero ldap discover --groups
-  bin/omero ldap create bob                     # User bob must exist in LDAP
+  omero login root
+  omero ldap active
+  omero ldap list
+  omero ldap getdn --user-name jack         # Get DN of user.
+  omero ldap setdn --user-name jack true    # Enable LDAP login.
+  omero ldap setdn --user-name jack false   # Disable LDAP login.
+  omero ldap getdn --group-name mylab       # Get DN of user group.
+  omero ldap setdn --group-name mylab true  # Mark group as LDAP group.
+  omero ldap setdn --group-name mylab false # Mark group as local.
+  omero ldap discover
+  omero ldap discover --groups
+  omero ldap create bob                     # User bob must exist in LDAP
 
 """
 

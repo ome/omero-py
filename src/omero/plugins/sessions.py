@@ -53,7 +53,7 @@ HELP = """Control and create user sessions
 
 Sessions are stored locally on disk. Several can
 be active simultaneously, but only one will be used
-for a single invocation of bin/omero.
+for a single invocation of omero.
 
 """
 
@@ -65,77 +65,77 @@ To list these options, use "%(prog)s -h"
 Options for logging in:
 
     # Provide all values interactively
-    $ bin/omero sessions login
+    $ omero sessions login
     Server: [localhost:4064]
     Username: [root]
     Password:
 
     # Pass values as the target
-    $ bin/omero sessions login user@omero.example.com
+    $ omero sessions login user@omero.example.com
     Password:
-    $ bin/omero sessions login user@omero.example.com:24064
+    $ omero sessions login user@omero.example.com:24064
     Password:
 
     # Pass some values via arguments
-    $ bin/omero -s localhost sessions login
+    $ omero -s localhost sessions login
     Username: [user]
     Password:
-    $ bin/omero -p 24064 sessions login
+    $ omero -p 24064 sessions login
     Server: [localhost:24064]
     Username: [user]
     Password:
 
     # Pass all non-password values via arguments
-    $ bin/omero -s localhost -u john sessions login
+    $ omero -s localhost -u john sessions login
     Password:
 
     # Use a session ID to login without a password
-    $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
+    $ omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
     sessions login
 
     # Arguments can also go earlier
-    $ bin/omero -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
+    $ omero -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
 
     # The *last* "@" symbol is used
-    $ bin/omero sessions login my.email@example.com@omero.example.com
+    $ omero sessions login my.email@example.com@omero.example.com
     Password:
 
     # System administrators can use "--sudo" to login as others
-    $ bin/omero sessions login --sudo=root example@localhost
+    $ omero sessions login --sudo=root example@localhost
     Password for root:
 
 Other sessions commands:
 
     # Logging out of the currently active sessions
-    $ bin/omero sessions logout
+    $ omero sessions logout
 
     # List all locally available sessions (purging the expired ones)
-    $ bin/omero sessions list
+    $ omero sessions list
 
     # List all local sessions
-    $ bin/omero sessions list --no-purge
+    $ omero sessions list --no-purge
 
     # List all active server sessions
-    $ bin/omero sessions who
+    $ omero sessions who
 
     # List or change the group for the session
-    $ bin/omero sessions group
-    $ bin/omero sessions group mygroup
-    $ bin/omero sessions group 123
+    $ omero sessions group
+    $ omero sessions group mygroup
+    $ omero sessions group 123
 
     # List or change the timeToLive for the session
-    $ bin/omero sessions timeout
-    $ bin/omero sessions timeout 300.0 # Seconds
-    $ bin/omero sessions timeout 300.0 --session=$UUID
+    $ omero sessions timeout
+    $ omero sessions timeout 300.0 # Seconds
+    $ omero sessions timeout 300.0 --session=$UUID
 
 Custom sessions directory:
 
     # Specify a custom session directory using OMERO_SESSIONDIR
     $ export OMERO_SESSIONDIR=/tmp/my_sessions
     # Create a new session stored under OMERO_SESSIONDIR
-    $ bin/omero sessions login
-    $ bin/omero sessions file
-    $ bin/omero sessions list
+    $ omero sessions login
+    $ omero sessions file
+    $ omero sessions list
 """
 
 LISTHELP = """
@@ -335,11 +335,11 @@ class SessionsControl(UserGroupControl):
          "Alternatively, a session KEY can be passed with '-k'.\n"
          "Admin users can use --sudo=ADMINUSER to login for others.\n\n"
          "Examples:\n"
-         "  bin/omero login example.com\n"
-         "  bin/omero login user@example.com\n"
-         "  bin/omero login user@example.com:24064\n"
-         "  bin/omero login -k SESSIONKEY example.com\n"
-         "  bin/omero login --sudo=root user@example\n"
+         "  omero login example.com\n"
+         "  omero login user@example.com\n"
+         "  omero login user@example.com:24064\n"
+         "  omero login -k SESSIONKEY example.com\n"
+         "  omero login --sudo=root user@example\n"
          "\n")
 
         """
