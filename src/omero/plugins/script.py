@@ -307,7 +307,7 @@ class ScriptControl(BaseControl):
             self.ctx.out(title)
             if method:
                 cmd = "%s %s" % (method.__name__, " ".join(arguments))
-                cmd = "\t| COMMAND: bin/omero script %-40.40s | " % cmd
+                cmd = "\t| COMMAND: omero script %-40.40s | " % cmd
                 self.ctx.out(cmd)
             self.ctx.out("\t+" + ("-"*68) + "+")
             self.ctx.out(" ")

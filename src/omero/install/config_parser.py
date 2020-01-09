@@ -105,7 +105,7 @@ using the :program:`omero config set` command:
 
 ::
 
-    $ bin/omero config set <parameter> <value>
+    $ omero config set <parameter> <value>
 
 When supplying a value with spaces or multiple elements, use **single
 quotes**. The quotes will not be saved as part of the value (see below).
@@ -115,7 +115,7 @@ mentioned), simply omit the value:
 
 ::
 
-    $ bin/omero config set <parameter>
+    $ omero config set <parameter>
 
 These options will be stored in a file: ``etc/grid/config.xml`` which
 you can read for reference. **DO NOT** edit this file directly.
@@ -124,7 +124,7 @@ You can also review all your settings by using:
 
 ::
 
-    $ bin/omero config get
+    $ omero config get
 
 which should return values without quotation marks.
 
@@ -132,7 +132,7 @@ A final useful option of :program:`omero config edit` is:
 
 ::
 
-    $ bin/omero config edit
+    $ omero config edit
 
 which will allow for editing the configuration in a system-default text
 editor.

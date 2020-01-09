@@ -82,17 +82,17 @@ EXAMPLES = """
 Examples:
 
   # Display help
-  $ bin/omero import -h
+  $ omero import -h
   # Import foo.tiff using current login
-  $ bin/omero import ~/Data/my_file.dv
+  $ omero import ~/Data/my_file.dv
   # Import foo.tiff using input credentials
-  $ bin/omero import -s localhost -u user -w password foo.tiff
+  $ omero import -s localhost -u user -w password foo.tiff
   # Set Java debugging level to ALL
-  $ bin/omero import foo.tiff -- --debug=ALL
+  $ omero import foo.tiff -- --debug=ALL
   # Display used files for importing foo.tiff
-  $ bin/omero import foo.tiff -f
+  $ omero import foo.tiff -f
   # Limit debugging output
-  $ bin/omero import -- --debug=ERROR foo.tiff
+  $ omero import -- --debug=ERROR foo.tiff
 
 For additional information, see:
 https://docs.openmicroscopy.org/latest/omero/users/cli/import.html
@@ -588,7 +588,7 @@ class ImportControl(BaseControl):
                         self.ctx.out(rv)
                     else:
                         with open(command_args.dry_run % incr, "w") as o:
-                            # FIXME: this assumes 'bin/omero'
+                            # FIXME: this assumes 'omero'
                             print(sys.argv[0], "import", rv, file=o)
                 else:
                     self.do_import(command_args, xargs)

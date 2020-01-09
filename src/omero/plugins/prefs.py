@@ -44,7 +44,7 @@ HELP = """Commands for server configuration
 A config.xml file will be modified under your etc/grid directory. If you do
 not have one, "upgrade" will create a new 4.2 configuration file.
 
-The configuration values are used by bin/omero admin {start,deploy} to set
+The configuration values are used by `omero admin {start,deploy}` to set
 properties on launch. See etc/grid/(win)default.xml. The "Profile" block
 contains a reference to "__ACTIVE__" which is the current value in config.xml
 

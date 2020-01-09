@@ -172,39 +172,13 @@ class ITest(object):
 
     @classmethod
     def omerodistdir(cls):
-        def travers(p):
-            dist = None
-            for root, dirs, files in os.walk(p):
-                for f in files:
-                    t = path(os.path.join(root, f))
-                    # find OMERO dist by searching for bin/omero
-                    # exclude OmeroPy as is a source
-                    if (str(t.dirname().dirname().basename())
-                            not in ('OmeroPy', 'build', 'target') and
-                            str(t.basename()) == 'omero' and
-                            str(t.dirname().basename()) == 'bin'):
-                        dist = t.dirname().dirname()
-            return dist
-        count = 10
-        searched = []
-        p = path(".").abspath()
-        # "" means top of directory
         dist_dir = get_omerodir(throw=False)
         if dist_dir:
             dist_dir = path(dist_dir)
-        while dist_dir is None:
-            dist_dir = travers(p)
-            searched.append(p)
-            p = old_div(p, "..")  # Walk up, in case test runner entered a subdirectory
-            p = p.abspath()
-            count -= 1
-            if not count:
-                break
         if dist_dir is not None:
             return dist_dir
         else:
-            assert False, ("Could not find bin/omero executable; "
-                           "searched %s" % searched)
+            assert False, "OMERODIR is not set"
 
     def skip_if(self, config_key, condition, message=None):
         """Skip test if configuration does not meet condition"""
@@ -302,8 +276,7 @@ class ITest(object):
         port = client.getProperty("omero.port")
         key = client.getSessionId()
 
-        args = [sys.executable]
-        args.append(str(path(".") / "bin" / "omero"))
+        args = ["omero"]
         args.extend(["-s", server, "-k", key, "-p", port, "import"])
         if skip:
             args.extend(["--skip", skip])
