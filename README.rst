@@ -26,13 +26,23 @@ Direct dependencies of OMERO.py are:
 Installation
 ------------
 
-We recommend creating a virtualenv::
+We recommend installating omero-py in a Python virtual environment.
+You can create one using either ``venv`` or ``conda`` (preferred).
+If you opt for `Conda`_, you will need
+to install it first, see `miniconda`_ for more details.
 
-    python3.6 -mvenv venv
-    . venv/bin/activate
+To install ``omero-py`` using venv::
+
+    python3.6 -m venv myenv
+    . myenv/bin/activate
     pip install 'omero-py>=5.6.dev9'
 
 You may need to replace ``python3.6`` with ``python`` or ``python3`` depending on your Python distribution.
+
+To install ``omero-py`` using conda (preferred)::
+
+    conda create -n myenv -c ome python=3.6 zeroc-ice36-python omero-py
+    conda activate myenv
 
 Setting of the environment variable ``OMERODIR`` is required
 for some functionality.
@@ -107,3 +117,5 @@ Copyright
 .. _Omero-CLI: https://docs.openmicroscopy.org/omero/5.6/users/cli/index.html
 .. _OMERO: https://docs.openmicroscopy.org/omero/5.6/index.html
 .. _Running and writing tests: https://docs.openmicroscopy.org/latest/omero/developers/testing.html
+.. _Conda: https://docs.conda.io/en/latest/
+.. _miniconda: https://docs.conda.io/en/latest/miniconda.html
