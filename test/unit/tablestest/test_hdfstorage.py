@@ -284,7 +284,7 @@ class TestHdfStorage(TestCase):
 
     @pytest.mark.xfail(reason=(
         "Unicode conditions broken on Python 3. "
-        "See explanation in hdfstorageV2.HdfStorage.append"))
+        "See explanation in omero.columns.StringColumnI"))
     @pytest.mark.broken(reason="Unicode conditions broken on Python 3")
     def testStringColWhereUnicode(self):
         # Tables size is in bytes, len("მიკროსკოპის პონი".encode()) == 46
