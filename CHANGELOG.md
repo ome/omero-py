@@ -1,5 +1,6 @@
 # 5.6.0 (January 2020)
 
+- Remove bin/omero and lib/python (#157)
 - Bump Blitz version 5.5.5 (#158)
 - Processor passes locale to subprocess (#150)
 - omero.client ensures args is not None (#149)
