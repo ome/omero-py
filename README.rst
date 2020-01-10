@@ -63,8 +63,8 @@ See: `OMERO`_ documentation for more details.
 Usage
 -----
 
-- For OMERO python language bindings, see `omero-py`_.
-- For Command Line usage, see `OMERO-CLI`_.
+- For OMERO python language bindings, see `OMERO.py`_.
+- For Command Line usage, see `OMERO.CLI`_.
 
 Contributing
 ------------
@@ -115,7 +115,7 @@ is essential.
 License
 -------
 
-omero-py is released under the GPL v2.
+OMERO.py is released under the GPL v2.
 
 Copyright
 ---------
@@ -123,8 +123,8 @@ Copyright
 2009-2019, The Open Microscopy Environment, Glencoe Software, Inc.
 
 .. _ZeroC IcePy 3.6: https://zeroc.com/downloads/ice/3.6
-.. _omero-py: https://docs.openmicroscopy.org/omero/5.6/developers/Python.html
-.. _OMERO-CLI: https://docs.openmicroscopy.org/omero/5.6/users/cli/index.html
+.. _OMERO.py: https://docs.openmicroscopy.org/omero/5.6/developers/Python.html
+.. _OMERO.CLI: https://docs.openmicroscopy.org/omero/5.6/users/cli/index.html
 .. _OMERO: https://docs.openmicroscopy.org/omero/5.6/index.html
 .. _Running and writing tests: https://docs.openmicroscopy.org/latest/omero/developers/testing.html
 .. _Conda: https://docs.conda.io/en/latest/
