@@ -69,19 +69,10 @@ top = os.path.join(exe, os.pardir, os.pardir)
 # This list needs to be kept in line with omero.cli.CLI._env
 #
 top = os.path.normpath(top)
-lib = os.path.join(top, "lib")
-lpy = os.path.join(top, "lib","python")
-ipy = os.path.join(top, "lib","fallback")
 var = os.path.join(top, "var")
 vlb = os.path.join(var, "lib")
-sys.path.append(lpy);
 sys.path.append(vlb);
-sys.path.append(ipy)
 
-if not os.path.exists(lib):
-    print("WARN: %s does not exist. It is unlikely that OMERO will run properly" % lib)
-
-#
 # Testing shortcut. If the first argument is an
 # empty string, exit sucessfully.
 #

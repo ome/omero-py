@@ -1394,10 +1394,8 @@ class CLI(cmd.Cmd, Context):
         This list needs to be kept in line with omero-py/bin/omero
 
         """
-        lpy = str(self.dir / "lib" / "python")
-        ipy = str(self.dir / "lib" / "fallback")
         vlb = str(self.dir / "var" / "lib")
-        paths = os.path.pathsep.join([lpy, vlb, ipy])
+        paths = os.path.pathsep.join([vlb])
 
         env = dict(os.environ)
         pypath = env.get("PYTHONPATH", None)
