@@ -4,8 +4,6 @@ language: python
 
 matrix:
   include:
-    - python: "2.7"
-      env: TOX=py27
     - python: "3.6"
       env: TOX=py36
     - python: "3.7"
@@ -37,6 +35,7 @@ deploy:
   provider: pypi
   user: $PYPI_USER
   password: $PYPI_PASSWORD
+  distributions: sdist bdist_wheel
   on:
     tags: true
     condition: "$TOX = no"

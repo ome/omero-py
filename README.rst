@@ -35,7 +35,7 @@ To install ``omero-py`` using venv::
 
     python3.6 -m venv myenv
     . myenv/bin/activate
-    pip install 'omero-py>=5.6.dev9'
+    pip install omero-py
 
 You may need to replace ``python3.6`` with ``python`` or ``python3`` depending on your Python distribution.
 
@@ -120,7 +120,7 @@ OMERO.py is released under the GPL v2.
 Copyright
 ---------
 
-2009-2019, The Open Microscopy Environment, Glencoe Software, Inc.
+2009-2020, The Open Microscopy Environment, Glencoe Software, Inc.
 
 .. _ZeroC IcePy 3.6: https://zeroc.com/downloads/ice/3.6
 .. _OMERO.py: https://docs.openmicroscopy.org/omero/5.6/developers/Python.html
