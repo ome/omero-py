@@ -125,8 +125,8 @@ Other sessions commands:
 
     # List or change the timeToLive for the session
     $ omero sessions timeout
-    $ omero sessions timeout 300.0 # Seconds
-    $ omero sessions timeout 300.0 --session=$UUID
+    $ omero sessions timeout 300 # Seconds
+    $ omero sessions timeout 300 --session=$UUID
 
 Custom sessions directory:
 
