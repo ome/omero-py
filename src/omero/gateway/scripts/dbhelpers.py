@@ -22,7 +22,7 @@ except ImportError:
 from omero_ext.path import path
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
-TESTIMG_URL = 'http://downloads.openmicroscopy.org/images/gateway_tests/'
+TEST_IMG_URL = 'http://downloads.openmicroscopy.org/images/gateway_tests/'
 DEFAULT_GROUP_PERMS = 'rwr---'
 
 if not omero.gateway.BlitzGateway.ICE_CONFIG:
@@ -421,10 +421,10 @@ class ImageEntry (ObjectEntry):
             else:
                 # First try to download the image
                 try:
-                    # print "Trying to get test image from " + TESTIMG_URL +
+                    # print "Trying to get test image from " + TEST_IMG_URL +
                     # self.filename
                     sys.stderr.write('<')
-                    fin = urllib.request.urlopen(TESTIMG_URL + self.filename)
+                    fin = urllib.request.urlopen(TEST_IMG_URL + self.filename)
                     with open(fpath, 'wb') as fout:
                         fout.write(fin.read())
                 except urllib.error.HTTPError:
