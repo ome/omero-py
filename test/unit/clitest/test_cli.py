@@ -12,7 +12,6 @@
 from builtins import range
 from builtins import object
 import pytest
-import os
 
 from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.basics import LoadControl
@@ -59,8 +58,8 @@ class TestCli(object):
         self.cli = CLI()
         self.cli.register("load", LoadControl, "help")
 
-        # normpath for Windows support, otherwise C:\\x becomes C:x
-        tmpfile = os.path.normpath(tmpfile)
+        # resolve for Windows support, otherwise C:\\x becomes C:x
+        tmpfile = tmpfile.resolve()
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke("load %s" % tmpfile, strict=True)
 
