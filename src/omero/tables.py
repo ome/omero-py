@@ -396,10 +396,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         self.__stores = []
 
         if storage_factory is None:
-            if hasattr(tables, "open_file"):
-                from omero.hdfstorageV2 import HDFLIST
-            else:
-                from omero.hdfstorageV1 import HDFLIST
+            from omero.hdfstorageV2 import HDFLIST
             self._storage_factory = HDFLIST
         else:
             self._storage_factory = storage_factory

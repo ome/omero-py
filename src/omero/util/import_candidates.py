@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-   Utility method for calling the equivalent of "bin/omero import -f".
+   Utility method for calling the equivalent of "omero import -f".
    Results are parsed when using as_dictionary.
 
    Copyright 2009 Glencoe Software, Inc. All rights reserved.

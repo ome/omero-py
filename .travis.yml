@@ -16,16 +16,30 @@ jobs:
       language: shell       # 'language: python' is an error on Travis CI macOS
       script:
         - tox -e py37
-    - name: Python36
-      os: trusty
-      python: "3.6"
-      script:
-        - tox -e py36
     - name: Python37
       os: xenial
       python: "3.7"
       script:
         - tox -e py37
+    - name: Python36
+      os: trusty
+      python: "3.6"
+      script:
+        - tox -e py36
+    - stage: deploy
+      os: trusty
+      python: "3.6"
+      script:
+       - |
+         pip install https://github.com/ome/zeroc-ice-py-manylinux/releases/download/0.1.0/zeroc_ice-3.6.5-cp36-cp36m-manylinux2010_x86_64.whl
+         pip install restructuredtext-lint
+      deploy:
+        provider: pypi
+        user: $PYPI_USER
+        password: $PYPI_PASSWORD
+        distributions: sdist bdist_wheel
+        on:
+          tags: true
 
 install: pip3 install --upgrade pip wheel pytest tox
 

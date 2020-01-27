@@ -763,7 +763,7 @@ class TestSessions(object):
     @pytest.mark.parametrize("purge", [True, False])
     def testListOptions(self, capsys, purge):
         """
-        Test purge options of bin/omero sessions list
+        Test purge options of omero sessions list
         """
         cli = MyCLI()
         # Create 2 sessions in store

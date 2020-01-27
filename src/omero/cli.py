@@ -85,7 +85,7 @@ if "DEBUG" in os.environ:
         DEBUG = int(os.environ["DEBUG"])
     except ValueError:
         DEBUG = 1
-    print("Deprecated warning: use the 'bin/omero --debug=x [args]' to debug")
+    print("Deprecated warning: use 'omero --debug=x [args]' to debug")
     print("Running omero with debugging == 1")
 
 OMERODOC = """
@@ -403,17 +403,17 @@ Note "trace" and "profile" cannot be used simultaneously
 Examples:
 
     # Enabled debugging at level 1 and prints tracing
-    bin/omero --debug=debug,trace admin start
+    omero --debug=debug,trace admin start
     # Enabled debugging at level 1
-    bin/omero -d1 admin start
+    omero -d1 admin start
     # Enabled debugging at level 3
-    bin/omero -d3 admin start
+    omero -d3 admin start
     # Enable profiling
-    bin/omero -dp admin start
+    omero -dp admin start
     # Fails - cannot print tracing and profiling together
-    bin/omero -dt,p admin start
+    omero -dt,p admin start
     # Disable debugging
-    bin/omero -d0 admin start
+    omero -d0 admin start
 """
 
 ENV_HELP = """Environment variables:
@@ -437,11 +437,11 @@ Below are a few examples showing how to use the sudo option
 Examples (admin or group owner only):
 
     # Import data for user *username*
-    bin/omero import --sudo root -s servername -u username image.tiff
+    omero import --sudo root -s servername -u username image.tiff
     # Create a connection as another user
-    bin/omero login --sudo root -s servername -u username -g groupname
+    omero login --sudo root -s servername -u username -g groupname
     Password for root:
-    bin/omero login --sudo owner -s servername -u username -g groupname
+    omero login --sudo owner -s servername -u username -g groupname
     Password for owner:
 """
 
@@ -1057,8 +1057,8 @@ class BaseControl(object):
 class DiagnosticsControl(BaseControl):
     """
     Superclass (and SPI-interface) for any control commands that would
-    like to provide a "diagnostics" method, like bin/omero admin diagnostics
-    and bin/omero web diagnostics. The top-level diagnostics command then
+    like to provide a "diagnostics" method, like `omero admin diagnostics`
+    and `omero web diagnostics`. The top-level diagnostics command then
     can find each such plugin and iterate over it.
     """
 
@@ -1389,15 +1389,13 @@ class CLI(cmd.Cmd, Context):
     def _env(self):
         """
         Configure environment with PYTHONPATH and PATH as
-        setup by bin/omero
+        setup by `omero`
 
-        This list needs to be kept in line with OmeroPy/bin/omero
+        This list needs to be kept in line with omero-py/bin/omero
 
         """
-        lpy = str(self.dir / "lib" / "python")
-        ipy = str(self.dir / "lib" / "fallback")
         vlb = str(self.dir / "var" / "lib")
-        paths = os.path.pathsep.join([lpy, vlb, ipy])
+        paths = os.path.pathsep.join([vlb])
 
         env = dict(os.environ)
         pypath = env.get("PYTHONPATH", None)

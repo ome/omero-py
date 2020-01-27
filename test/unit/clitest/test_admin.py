@@ -41,7 +41,7 @@ GRID_FILES = ["templates.xml", "default.xml", "windefault.xml"]
 ETC_FILES = ["ice.config", "master.cfg", "internal.cfg"]
 
 MISSING_CONFIGURATION_MSG = "Missing internal configuration."
-REWRITE_MSG = " Run bin/omero admin rewrite."
+REWRITE_MSG = " Run omero admin rewrite."
 FORCE_REWRITE_MSG = " Pass --force-rewrite to the command."
 OMERODIR = False
 if 'OMERODIR' in os.environ:
@@ -187,7 +187,7 @@ class TestAdmin(object):
 
         self.invoke("admin rewrite")
 
-        # Setup the call to bin/omero admin ice node
+        # Setup the call to omero admin ice node
         popen = self.cli.createPopen()
         popen.wait().AndReturn(1)
 
@@ -198,7 +198,7 @@ class TestAdmin(object):
 
         self.invoke("admin rewrite")
 
-        # Setup the call to bin/omero admin ice node
+        # Setup the call to omero admin ice node
         popen = self.cli.createPopen()
         popen.wait().AndReturn(0)
 
@@ -221,7 +221,7 @@ class TestAdmin(object):
         ice_config.write('omero.host=localhost\nomero.port=4064')
         monkeypatch.setenv("ICE_CONFIG", ice_config)
 
-        # Setup the call to bin/omero admin ice node
+        # Setup the call to omero admin ice node
         popen = self.cli.createPopen()
         popen.wait().AndReturn(0)
 

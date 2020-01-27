@@ -498,43 +498,43 @@ is likely useful for preparing datasets for import and similar.
 
 Examples:
 
-    $ bin/omero obj new Dataset name=foo
+    $ omero obj new Dataset name=foo
     Dataset:123
-    $ bin/omero obj update Dataset:123 description=bar
+    $ omero obj update Dataset:123 description=bar
     Dataset:123
-    $ bin/omero obj get Dataset:123 name
+    $ omero obj get Dataset:123 name
     foo
-    $ bin/omero obj get Dataset:123
+    $ omero obj get Dataset:123
     description=bar
     id=123
     name=foo
     version=
-    $ bin/omero obj null Dataset:123 description
+    $ omero obj null Dataset:123 description
     Dataset:123
-    $ bin/omero obj get Dataset:123 description
+    $ omero obj get Dataset:123 description
 
-    $ bin/omero obj new MapAnnotation ns=example.com
+    $ omero obj new MapAnnotation ns=example.com
     MapAnnotation:456
-    $ bin/omero obj map-set MapAnnotation:456 mapValue foo bar
+    $ omero obj map-set MapAnnotation:456 mapValue foo bar
     MapAnnotation:456
-    $ bin/omero obj map-set MapAnnotation:456 mapValue foo
+    $ omero obj map-set MapAnnotation:456 mapValue foo
     MapAnnotation:456
-    $ bin/omero obj map-set MapAnnotation:456 mapValue fu baa
+    $ omero obj map-set MapAnnotation:456 mapValue fu baa
     MapAnnotation:456
-    $ bin/omero obj map-get MapAnnotation:456 mapValue foo
+    $ omero obj map-get MapAnnotation:456 mapValue foo
     bar
-    $ bin/omero obj get MapAnnotation:456 mapValue
+    $ omero obj get MapAnnotation:456 mapValue
     (foo,bar),(fu,baa)
-    $ bin/omero obj list-get MapAnnotation:456 mapValue 0
+    $ omero obj list-get MapAnnotation:456 mapValue 0
     (foo,bar)
 
 Bash examples:
 
-    $ project=$(bin/omero obj new Project name='my Project')
-    $ dataset=$(bin/omero obj new Dataset name='my Dataset')
-    $ bin/omero obj new ProjectDatasetLink parent=$project child=$dataset
+    $ project=$(omero obj new Project name='my Project')
+    $ dataset=$(omero obj new Dataset name='my Dataset')
+    $ omero obj new ProjectDatasetLink parent=$project child=$dataset
     ProjectDatasetLink:456
-    $ bin/omero import -d $dataset ...
+    $ omero import -d $dataset ...
 
     """
 

@@ -25,14 +25,14 @@ HELP = """Search for object ids by string.
 
 Examples:
 
-  bin/omero search Image "my-text"
-  bin/omero search Image "with wildcard*"
-  bin/omero search Project "with wildcard*"
+  omero search Image "my-text"
+  omero search Image "with wildcard*"
+  omero search Project "with wildcard*"
 
 Examples (admin-only):
 
-  bin/omero search --index Image:1
-  bin/omero search --index Well:5
+  omero search --index Image:1
+  omero search --index Well:5
 
 See also:
 

@@ -105,7 +105,7 @@ using the :program:`omero config set` command:
 
 ::
 
-    $ bin/omero config set <parameter> <value>
+    $ omero config set <parameter> <value>
 
 When supplying a value with spaces or multiple elements, use **single
 quotes**. The quotes will not be saved as part of the value (see below).
@@ -115,7 +115,7 @@ mentioned), simply omit the value:
 
 ::
 
-    $ bin/omero config set <parameter>
+    $ omero config set <parameter>
 
 These options will be stored in a file: ``etc/grid/config.xml`` which
 you can read for reference. **DO NOT** edit this file directly.
@@ -124,7 +124,7 @@ You can also review all your settings by using:
 
 ::
 
-    $ bin/omero config get
+    $ omero config get
 
 which should return values without quotation marks.
 
@@ -132,7 +132,7 @@ A final useful option of :program:`omero config edit` is:
 
 ::
 
-    $ bin/omero config edit
+    $ omero config edit
 
 which will allow for editing the configuration in a system-default text
 editor.
@@ -343,7 +343,7 @@ class PropertyParser(object):
         from django.conf import settings
 
         for key, values in sorted(
-                iter(settings.CUSTOM_SETTINGS_MAPPINGS.items()),
+                iter(list(settings.CUSTOM_SETTINGS_MAPPINGS.items())),
                 key=lambda k: k):
 
             p = Property()
@@ -372,8 +372,8 @@ class PropertyParser(object):
                     additional_headers[section] = Header(section)
                 headers.setdefault(additional_headers[section], []).append(x)
 
-        for key in headers.keys():
-            headers[key].sort(lambda a, b: cmp(a.key, b.key))
+        for key in list(headers.keys()):
+            headers[key].sort(key=lambda x: x.key)
         return headers
 
     def print_defaults(self):
@@ -412,6 +412,8 @@ class PropertyParser(object):
                 properties += "%s\n" % underline(len(p.key))
                 for line in p.txt.split("\n"):
                     if line:
+                        if isbytes(line):
+                            line = bytes_to_native_str(line)
                         properties += "%s\n" % (line)
                     else:
                         properties += "\n"

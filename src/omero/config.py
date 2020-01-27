@@ -298,7 +298,7 @@ class ConfigXml(object):
         comment = Comment("\n".join([
             "\n",
             "\tThis file was generated at %s by the OmeroConfig system.",
-            "\tDo not edit directly but see bin/omero config for details.",
+            "\tDo not edit directly but see `omero config` for details.",
             "\tThis file may be included into your IceGrid application.",
             "\n"]) % time.ctime())
         icegrid.append(comment)

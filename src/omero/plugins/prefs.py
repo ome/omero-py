@@ -19,6 +19,7 @@ from builtins import str
 from past.utils import old_div
 import sys
 import traceback
+import os
 
 from omero.cli import CLI
 from omero.cli import BaseControl
@@ -39,7 +40,7 @@ HELP = """Commands for server configuration
 A config.xml file will be modified under your etc/grid directory. If you do
 not have one, "upgrade" will create a new 4.2 configuration file.
 
-The configuration values are used by bin/omero admin {start,deploy} to set
+The configuration values are used by `omero admin {start,deploy}` to set
 properties on launch. See etc/grid/(win)default.xml. The "Profile" block
 contains a reference to "__ACTIVE__" which is the current value in config.xml
 
@@ -250,13 +251,16 @@ class PrefsControl(WriteableConfigControl):
             if not cfg_xml.exists():
                 self.ctx.die(124, "File not found: %s" % args.source)
         else:
-            grid_dir = self.ctx.dir / "etc" / "grid"
-            if grid_dir.exists():
-                cfg_xml = old_div(grid_dir, "config.xml")
+            if 'OMERODIR' in os.environ:
+                base_dir = path(os.environ.get('OMERODIR'))
             else:
-                usr_xml = old_div(get_omero_userdir(), "config.xml")
-                self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
-                cfg_xml = usr_xml
+                self.ctx.die(125, 'FATAL: OMERODIR env variable not set')
+            grid_dir = base_dir / "etc" / "grid"
+            if not grid_dir.exists():
+                self.ctx.err("%s not found; creating %s" %
+                             (grid_dir, grid_dir))
+                os.makedirs(grid_dir)
+            cfg_xml = grid_dir / "config.xml"
         try:
             return ConfigXml(str(cfg_xml))
         except portalocker.LockException:

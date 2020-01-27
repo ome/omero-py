@@ -25,6 +25,7 @@ import omero
 import Ice
 import IceImport
 IceImport.load("omero_Tables_ice")
+python_sys = __import__("sys")  # Python sys
 
 try:
     import numpy
@@ -240,6 +241,32 @@ class LongColumnI(AbstractColumn, omero.grid.LongColumn):
 
 
 class StringColumnI(AbstractColumn, omero.grid.StringColumn):
+    """
+    StringColumns are actually numpy dtype 'S':
+      "zero-terminated bytes (not recommended)"
+    https://github.com/ome/omero-py/blob/v5.6.dev8/src/omero/columns.py#L269
+    https://docs.scipy.org/doc/numpy-1.15.1/reference/arrays.dtypes.html#specifying-and-constructing-data-types
+
+    In any case HDF5 doesn't seem to properly support unicode,
+    and numexpr doesn't even pretend to support it:
+      https://github.com/PyTables/PyTables/issues/499
+      https://github.com/pydata/numexpr/issues/142
+      https://github.com/pydata/numexpr/issues/150
+      https://github.com/pydata/numexpr/issues/263
+      https://github.com/pydata/numexpr/blob/v2.7.0/numexpr/necompiler.py#L340-L341
+
+    > import numexpr
+    > a = "£"
+    > numexpr.evaluate('a=="£"')
+    ValueError: unknown type str32
+    > b = "£".encode()
+    > numexpr.evaluate('b=="£"')
+    UnicodeEncodeError: 'ascii' codec can't encode character '\xa3'
+        in position 0: ordinal not in range(128)
+
+    You should be able to store/load unicode data but you can't use
+    unicode in a where condition
+    """
 
     def __init__(self, name="Unknown", *args):
         omero.grid.StringColumn.__init__(self, name, *args)
@@ -252,13 +279,19 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
     def arrays(self):
         """
         Check for strings longer than the initialised column width
+        This will always return bytes
         """
-        for v in self.values:
-            if len(v) > self.size:
+        if python_sys.version_info >= (3, 0, 0):
+            bytevalues = [v.encode() for v in self.values]
+        else:
+            bytevalues = self.values
+        for bv in bytevalues:
+            if len(bv) > self.size:
                 raise omero.ValidationException(
-                    None, None, "Maximum string length in column %s is %d" %
+                    None, None,
+                    "Maximum string (byte) length in column %s is %d" %
                     (self.name, self.size))
-        return [self.values]
+        return [bytevalues]
 
     def dtypes(self):
         """

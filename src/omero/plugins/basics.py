@@ -20,11 +20,10 @@
 from __future__ import print_function
 
 from past.builtins import cmp
+from glob import glob
 import sys
 
 from collections import defaultdict
-
-from omero_ext.argparse import FileType
 
 from omero.cli import BaseControl
 from omero.cli import CLI
@@ -60,8 +59,8 @@ Examples:
 
  or
 
-    $ bin/omero login       # login can't take place in HERE-document
-    $ bin/omero load <<EOF
+    $ omero login       # login can't take place in HERE-document
+    $ omero load <<EOF
     user list
     group list
     EOF
@@ -72,22 +71,43 @@ Examples:
 class LoadControl(BaseControl):
 
     def _configure(self, parser):
-        parser.add_argument("infile", nargs="*", type=FileType("r"),
-                            default=[sys.stdin])
+        parser.add_argument("infile", nargs="*")
+        parser.add_argument(
+            "-g", "--glob", action="store_true", default=False,
+            help=("Input paths are shell globs that should be expanded and "
+                  "sorted."))
         parser.add_argument(
             "-k", "--keep-going", action="store_true", default=False,
             help="Continue processing after an error.")
         parser.set_defaults(func=self.__call__)
 
-    def __call__(self, args):
-        for file in args.infile:
-            self.ctx.dbg("Loading file %s" % file)
-            for line in file:
-                self.ctx.invoke(line, strict=(not args.keep_going))
+    def _load_filehandle(self, fh, keep_going):
+        for line in fh:
+            self.ctx.invoke(line, strict=(not keep_going))
 
-                if self.ctx.rv != 0:
-                    self.ctx.err("Ignoring error: %s" % line)
-                    self.ctx.rv = 0
+            if self.ctx.rv != 0:
+                self.ctx.err("Ignoring error: %s" % line)
+                self.ctx.rv = 0
+
+    def __call__(self, args):
+        stdout = False
+        if args.glob:
+            infiles = []
+            for fileglob in args.infile:
+                infiles.extend(glob(fileglob))
+            infiles.sort()
+        elif not args.infile:
+            stdout = True
+        else:
+            infiles = args.infile
+
+        if stdout:
+            self._load_filehandle(sys.stdin, args.keep_going)
+        else:
+            for filename in infiles:
+                self.ctx.dbg("Loading file %s" % filename)
+                with open(filename, 'r') as fh:
+                    self._load_filehandle(fh, args.keep_going)
 
 
 class ShellControl(BaseControl):
