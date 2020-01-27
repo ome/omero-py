@@ -14,6 +14,7 @@ from builtins import str
 from builtins import object
 from past.utils import old_div
 import os
+import sys
 import json
 import errno
 import pytest
@@ -338,6 +339,8 @@ class TestConfig(object):
             else:
                 os.environ["OMERO_CONFIG"] = old
 
+    @pytest.mark.skipif(sys.platform.startswith("win"),
+                        reason="chmod requires posix")
     def testCannotCreate(self):
         d = create_path(folder=True)
         d.chmod(0o555)
@@ -357,6 +360,8 @@ class TestConfig(object):
             ConfigXml(filename).close()
         assert excinfo.value.errno == errno.EACCES
 
+    @pytest.mark.skipif(sys.platform.startswith("win"),
+                        reason="chmod requires posix")
     def testCannotRead(self):
         p = create_path()
         p.chmod(0)
