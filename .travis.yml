@@ -29,10 +29,6 @@ jobs:
     - stage: deploy
       os: trusty
       python: "3.6"
-      script:
-       - |
-         pip install https://github.com/ome/zeroc-ice-py-manylinux/releases/download/0.1.0/zeroc_ice-3.6.5-cp36-cp36m-manylinux2010_x86_64.whl
-         pip install restructuredtext-lint
       deploy:
         provider: pypi
         user: $PYPI_USER
