@@ -1,41 +1,46 @@
-sudo: required
-
 language: python
-
-matrix:
+jobs:
   include:
-    - python: "3.6"
-      env: TOX=py36
-    - python: "3.7"
-      env: TOX=py37
-    - python: "3.6"
-      env: TOX=no
+    - name: Windows
+      os: windows
+      language: sh
+      before_install:
+        - choco install python3 --version 3.7.3
+        - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
+      install: python -m pip install --upgrade pip wheel pytest tox
+      script:
+        - tox -e py37-win
+    - name: OS X
+      os: osx
+      osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
+      language: shell       # 'language: python' is an error on Travis CI macOS
+      script:
+        - tox -e py37
+    - name: Python37
+      os: xenial
+      python: "3.7"
+      script:
+        - tox -e py37
+    - name: Python36
+      os: trusty
+      python: "3.6"
+      script:
+        - tox -e py36
+    - stage: deploy
+      os: trusty
+      python: "3.6"
+      script: skip
+      skip_cleanup: true
+      deploy:
+        provider: pypi
+        user: $PYPI_USER
+        password: $PYPI_PASSWORD
+        distributions: sdist bdist_wheel
+        on:
+          tags: true
 
-install:
-  - |
-    if [ "$TOX" = "no" ]; then
-      pip install https://github.com/ome/zeroc-ice-py-manylinux/releases/download/0.1.0/zeroc_ice-3.6.5-cp36-cp36m-manylinux2010_x86_64.whl
-      pip install restructuredtext-lint
-    else
-      pip install tox
-    fi
+install: pip3 install --upgrade pip wheel pytest tox
 
-script:
-  - |
-    if [ "$TOX" = "no" ]; then
-      rst-lint README.rst
-      python setup.py sdist
-      pip install dist/omero-py*gz
-      omero version
-    else
-      tox -e $TOX
-    fi
-
-deploy:
-  provider: pypi
-  user: $PYPI_USER
-  password: $PYPI_PASSWORD
-  distributions: sdist bdist_wheel
-  on:
-    tags: true
-    condition: "$TOX = no"
+cache:
+  directories:
+  - $HOME/.cache/pip
