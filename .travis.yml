@@ -30,6 +30,7 @@ jobs:
       os: trusty
       python: "3.6"
       script: skip
+      skip_cleanup: true
       deploy:
         provider: pypi
         user: $PYPI_USER
