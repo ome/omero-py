@@ -147,7 +147,7 @@ class DatabaseControl(BaseControl):
         value = p.communicate()[0]
         if not value or len(value) == 0:
             self.ctx.die(100, "Encoded password is empty")
-        return value.strip()
+        return value.strip().decode()
 
     def _copy(self, input_path, output, func, cfg=None):
             try:
