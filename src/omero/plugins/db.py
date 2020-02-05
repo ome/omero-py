@@ -143,7 +143,8 @@ class DatabaseControl(BaseControl):
         rc = p.wait()
         if rc != 0:
             out, err = p.communicate()
-            self.ctx.die(rc, "PasswordUtil failed: %s" % err)
+            self.ctx.die(rc, "PasswordUtil failed: %s" % err.decode(
+                errors='replace'))
         value = p.communicate()[0]
         if not value or len(value) == 0:
             self.ctx.die(100, "Encoded password is empty")
