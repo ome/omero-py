@@ -542,7 +542,7 @@ class ImportControl(BaseControl):
         try:
             from yaml import safe_load
         except ImportError:
-            self.ctx.die(105, "yaml is unsupported")
+            self.ctx.die(105, "ERROR: PyYAML is not installed")
 
         old_pwd = os.getcwd()
         try:
