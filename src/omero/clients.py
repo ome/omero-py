@@ -944,7 +944,14 @@ class BaseClient(object):
             ofile = self.__sf.getQueryService().get(
                 "OriginalFile", ofile.id.val, ctx)
 
-            if ofile.size is not None and block_size > ofile.size.val:
+            if ofile.size is None:
+                name = omero.rtypes.unwrap(ofile.name)
+                mimetype = omero.rtypes.unwrap(ofile.mimetype)
+                raise omero.ClientError(
+                    ("invalid size for OriginalFile '%s' "
+                     "(mimetype:%s)") % (name, mimetype))
+
+            if block_size > ofile.size.val:
                 block_size = ofile.size.val
 
             prx.setFileId(ofile.id.val, ctx)
