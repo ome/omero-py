@@ -81,6 +81,8 @@ class DownloadControl(BaseControl):
                 sys.stdout.flush()
             else:
                 client.download(orig_file, target_file)
+        except omero.ClientError as ce:
+            self.ctx.die(67, "ClientError: %s" % ce)
         except omero.ValidationException as ve:
             # Possible, though unlikely after previous check
             self.ctx.die(67, "Unknown ValidationException: %s"
