@@ -227,8 +227,12 @@ class SessionsControl(UserGroupControl):
             "--no-purge", dest="purge", action="store_false",
             help="Do not remove inactive sessions")
 
-        parser.add(sub, self.who, (
+        who = parser.add(sub, self.who, (
             "List all active server sessions\n\n" + WHOHELP))
+        who.add_argument(
+            "--show-uuid", help="Show uuids for sessions",
+            action="store_true")
+
 
         keepalive = parser.add(
             sub, self.keepalive, "Keeps the current session alive")
@@ -777,6 +781,7 @@ class SessionsControl(UserGroupControl):
         self.ctx.out(str(Table(*columns)))
 
     def who(self, args):
+        show_uuid = args.show_uuid
         client = self.ctx.conn(args)
         uuid = self.ctx.get_event_context().sessionUuid
         req = omero.cmd.CurrentSessionsRequest()
@@ -791,12 +796,14 @@ class SessionsControl(UserGroupControl):
             extra = set()
             results = {"name": [], "group": [],
                        "logged in": [], "agent": [],
-                       "timeout": []}
+                       "timeout": [], "uuid": []}
 
             # Preparse data to find extra columns
             for idx, s in enumerate(rsp.sessions):
                 for k in list(rsp.data[idx].keys()):
                     extra.add(k)
+            if show_uuid:
+                headers.append("uuid")
             for add in sorted(extra):
                 headers.append(add)
                 results[add] = []
@@ -829,6 +836,7 @@ class SessionsControl(UserGroupControl):
                     results["agent"].append(unwrap(s.userAgent))
                     results["timeout"].append(
                         self._parse_timeout(s.timeToIdle))
+                    results["uuid"].append(ec.sessionUuid)
                 else:
                     # Insufficient privileges. The EventContext
                     # will be missing fields as well.
@@ -836,6 +844,7 @@ class SessionsControl(UserGroupControl):
                     results["logged in"].append(msg)
                     results["agent"].append(msg)
                     results["timeout"].append(msg)
+                    results["uuid"].append(msg)
 
             from omero.util.text import Table, Column
             columns = tuple([Column(x, results[x]) for x in headers])
