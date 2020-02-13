@@ -1,3 +1,14 @@
+# 5.6.1 (February 2020)
+
+- travis jobs: enable Windows ([#134](https://github.com/ome/omero-py/pull/134))
+- `CmdError`: implement `__str__` ([#151](https://github.com/ome/omero-py/pull/151))
+- tables: call delete callback ([#152](https://github.com/ome/omero-py/pull/152))
+- fix doc ([#170](https://github.com/ome/omero-py/pull/170))
+- Add show-uuid option to `sessions who` ([#174](https://github.com/ome/omero-py/pull/174))
+- `omero db password` should be a string ([#175](https://github.com/ome/omero-py/pull/175))
+- Extend output of `omero version` ([#176](https://github.com/ome/omero-py/pull/176))
+- Improve PyYAML error message ([#177](https://github.com/ome/omero-py/pull/177))
+
 # 5.6.0 (January 2020)
 
 - Remove `bin/omero` and `lib/python` ([#157](https://github.com/ome/omero-py/pull/157))
