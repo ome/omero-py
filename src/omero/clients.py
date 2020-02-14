@@ -944,13 +944,20 @@ class BaseClient(object):
             ofile = self.__sf.getQueryService().get(
                 "OriginalFile", ofile.id.val, ctx)
 
-            if block_size > ofile.size.val:
-                block_size = ofile.size.val
-
             prx.setFileId(ofile.id.val, ctx)
+            size = None
+            if prx.size() is None:
+                name = omero.rtypes.unwrap(ofile.name)
+                mimetype = omero.rtypes.unwrap(ofile.mimetype)
+                raise omero.ClientError(
+                    ("invalid size for OriginalFile '%s' "
+                     "(mimetype:%s)") % (name, mimetype))
+            else:
+                size = prx.size()
 
-            size = ofile.size.val
-            offset = 0
+            if block_size > size:
+                block_size = size
+
 
             if filehandle is None:
                 if filename is None:
@@ -962,6 +969,7 @@ class BaseClient(object):
                     raise omero.ClientError(
                         "filename and filehandle specified.")
 
+            offset = 0
             try:
                 while (offset+block_size) < size:
                     filehandle.write(prx.read(offset, block_size))
