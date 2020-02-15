@@ -1,0 +1,12 @@
+repos:
+- repo: https://github.com/ambv/black
+  rev: 19.10b0
+  hooks:
+  - id: black
+    # default black line length is 88
+    args: [--target-version=py35, --line-length=80]
+# pre-commit doesn't support flake8<3.7.0
+# - repo: https://gitlab.com/pycqa/flake8
+#   rev: 3.7.9
+#   hooks:
+#   - id: flake8

@@ -1,6 +1,10 @@
 language: python
 jobs:
   include:
+    - name: lint
+      script:
+        - pip install pre-commit
+        - pre-commit run --all-files
     - name: Windows
       os: windows
       language: sh
