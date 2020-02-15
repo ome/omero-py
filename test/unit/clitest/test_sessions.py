@@ -31,7 +31,6 @@ import pytest
 
 
 class TestSessions(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("sessions", SessionsControl, "TEST")
@@ -41,8 +40,7 @@ class TestSessions(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize(
-        "subcommand", SessionsControl().get_subcommands())
+    @pytest.mark.parametrize("subcommand", SessionsControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
@@ -52,45 +50,67 @@ class TestSessions(object):
         from omero_ext.path import path
 
         # Default store sessions dir is under user dir
-        store = self.cli.controls['sessions'].store(None)
-        assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
+        store = self.cli.controls["sessions"].store(None)
+        assert store.dir == path(get_user_dir()) / "omero" / "sessions"
 
-    @pytest.mark.parametrize('environment', (
-        {'OMERO_USERDIR': None,
-         'OMERO_SESSION_DIR': None,
-         'OMERO_SESSIONDIR': None},
-        {'OMERO_USERDIR': None,
-         'OMERO_SESSION_DIR': 'session_dir',
-         'OMERO_SESSIONDIR': None},
-        {'OMERO_USERDIR': None,
-         'OMERO_SESSION_DIR': None,
-         'OMERO_SESSIONDIR': 'sessiondir'},
-        {'OMERO_USERDIR': 'userdir',
-         'OMERO_SESSION_DIR': None,
-         'OMERO_SESSIONDIR': None},
-        {'OMERO_USERDIR': None,
-         'OMERO_SESSION_DIR': 'session_dir',
-         'OMERO_SESSIONDIR': 'sessiondir'},
-        {'OMERO_USERDIR': 'userdir',
-         'OMERO_SESSION_DIR': 'session_dir',
-         'OMERO_SESSIONDIR': None},
-        {'OMERO_USERDIR': 'userdir',
-         'OMERO_SESSION_DIR': None,
-         'OMERO_SESSIONDIR': 'sessiondir'},
-        {'OMERO_USERDIR': 'userdir',
-         'OMERO_SESSION_DIR': 'session_dir',
-         'OMERO_SESSIONDIR': 'sessiondir'}))
-    @pytest.mark.parametrize('session_args', [None, 'session_dir'])
+    @pytest.mark.parametrize(
+        "environment",
+        (
+            {
+                "OMERO_USERDIR": None,
+                "OMERO_SESSION_DIR": None,
+                "OMERO_SESSIONDIR": None,
+            },
+            {
+                "OMERO_USERDIR": None,
+                "OMERO_SESSION_DIR": "session_dir",
+                "OMERO_SESSIONDIR": None,
+            },
+            {
+                "OMERO_USERDIR": None,
+                "OMERO_SESSION_DIR": None,
+                "OMERO_SESSIONDIR": "sessiondir",
+            },
+            {
+                "OMERO_USERDIR": "userdir",
+                "OMERO_SESSION_DIR": None,
+                "OMERO_SESSIONDIR": None,
+            },
+            {
+                "OMERO_USERDIR": None,
+                "OMERO_SESSION_DIR": "session_dir",
+                "OMERO_SESSIONDIR": "sessiondir",
+            },
+            {
+                "OMERO_USERDIR": "userdir",
+                "OMERO_SESSION_DIR": "session_dir",
+                "OMERO_SESSIONDIR": None,
+            },
+            {
+                "OMERO_USERDIR": "userdir",
+                "OMERO_SESSION_DIR": None,
+                "OMERO_SESSIONDIR": "sessiondir",
+            },
+            {
+                "OMERO_USERDIR": "userdir",
+                "OMERO_SESSION_DIR": "session_dir",
+                "OMERO_SESSIONDIR": "sessiondir",
+            },
+        ),
+    )
+    @pytest.mark.parametrize("session_args", [None, "session_dir"])
     def testCustomSessionsDir(
-            self, tmpdir, monkeypatch, environment,
-            session_args):
+        self, tmpdir, monkeypatch, environment, session_args
+    ):
         from argparse import Namespace
         from omero.util import get_user_dir
         from omero_ext.path import path
 
         for var in list(environment.keys()):
             if environment[var]:
-                monkeypatch.setenv(var, "%s%s%s" % (tmpdir, os.path.sep, environment.get(var)))
+                monkeypatch.setenv(
+                    var, "%s%s%s" % (tmpdir, os.path.sep, environment.get(var))
+                )
             else:
                 monkeypatch.delenv(var, raising=False)
 
@@ -99,21 +119,27 @@ class TestSessions(object):
         if session_args:
             setattr(args, session_args, old_div(tmpdir, session_args))
 
-        if environment.get('OMERO_SESSION_DIR') or session_args:
-            store = pytest.deprecated_call(self.cli.controls['sessions'].store, args)
+        if environment.get("OMERO_SESSION_DIR") or session_args:
+            store = pytest.deprecated_call(
+                self.cli.controls["sessions"].store, args
+            )
         else:
-            store = self.cli.controls['sessions'].store(args)
+            store = self.cli.controls["sessions"].store(args)
 
         # By order of precedence
-        if environment.get('OMERO_SESSIONDIR'):
-            sdir = old_div(path(tmpdir), environment.get('OMERO_SESSIONDIR'))
-        elif environment.get('OMERO_SESSION_DIR'):
-            sdir = (path(tmpdir) / environment.get('OMERO_SESSION_DIR') /
-                    'omero' / 'sessions')
+        if environment.get("OMERO_SESSIONDIR"):
+            sdir = old_div(path(tmpdir), environment.get("OMERO_SESSIONDIR"))
+        elif environment.get("OMERO_SESSION_DIR"):
+            sdir = (
+                path(tmpdir)
+                / environment.get("OMERO_SESSION_DIR")
+                / "omero"
+                / "sessions"
+            )
         elif session_args:
-            sdir = path(getattr(args, session_args)) / 'omero' / 'sessions'
-        elif environment.get('OMERO_USERDIR'):
-            sdir = path(tmpdir) / environment.get('OMERO_USERDIR') / 'sessions'
+            sdir = path(getattr(args, session_args)) / "omero" / "sessions"
+        elif environment.get("OMERO_USERDIR"):
+            sdir = path(tmpdir) / environment.get("OMERO_USERDIR") / "sessions"
         else:
-            sdir = path(get_user_dir()) / 'omero' / 'sessions'
+            sdir = path(get_user_dir()) / "omero" / "sessions"
         assert store.dir == str(sdir)

@@ -18,7 +18,6 @@ from omero.plugins.basics import LoadControl
 
 
 class TestCli(object):
-
     def testMultipleLoad(self):
         """
         In DropBox, the loading of multiple CLIs seems to
@@ -53,7 +52,7 @@ class TestCli(object):
         assert len(threads) == len(set([t.cmp for t in threads]))
 
     def testLoad(self, tmpdir):
-        tmpfile = tmpdir.join('test')
+        tmpfile = tmpdir.join("test")
         tmpfile.write("foo")
         self.cli = CLI()
         self.cli.register("load", LoadControl, "help")

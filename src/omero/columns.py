@@ -24,11 +24,13 @@ from future.utils import native, bytes_to_native_str, isbytes
 import omero
 import Ice
 import IceImport
+
 IceImport.load("omero_Tables_ice")
 python_sys = __import__("sys")  # Python sys
 
 try:
     import numpy
+
     tables = __import__("tables")  # Pytables
     has_pytables = True
     if hasattr(tables, "open_file"):
@@ -50,7 +52,8 @@ def columns2definition(cols):
         instance = column.descriptor(pos=i)
         if column.name in definition:
             raise omero.ApiUsageException(
-                None, None, "Duplicate column name: %s" % column.name)
+                None, None, "Duplicate column name: %s" % column.name
+            )
         definition[column.name] = instance
         # Descriptions are handled separately
     return definition
@@ -161,7 +164,6 @@ class AbstractColumn(object):
 
 
 class FileColumnI(AbstractColumn, omero.grid.FileColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.FileColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
@@ -171,7 +173,6 @@ class FileColumnI(AbstractColumn, omero.grid.FileColumn):
 
 
 class ImageColumnI(AbstractColumn, omero.grid.ImageColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.ImageColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
@@ -181,7 +182,6 @@ class ImageColumnI(AbstractColumn, omero.grid.ImageColumn):
 
 
 class WellColumnI(AbstractColumn, omero.grid.WellColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.WellColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
@@ -191,7 +191,6 @@ class WellColumnI(AbstractColumn, omero.grid.WellColumn):
 
 
 class PlateColumnI(AbstractColumn, omero.grid.PlateColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.PlateColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
@@ -201,7 +200,6 @@ class PlateColumnI(AbstractColumn, omero.grid.PlateColumn):
 
 
 class RoiColumnI(AbstractColumn, omero.grid.RoiColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.RoiColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
@@ -211,7 +209,6 @@ class RoiColumnI(AbstractColumn, omero.grid.RoiColumn):
 
 
 class BoolColumnI(AbstractColumn, omero.grid.BoolColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.BoolColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
@@ -221,7 +218,6 @@ class BoolColumnI(AbstractColumn, omero.grid.BoolColumn):
 
 
 class DoubleColumnI(AbstractColumn, omero.grid.DoubleColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.DoubleColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
@@ -231,7 +227,6 @@ class DoubleColumnI(AbstractColumn, omero.grid.DoubleColumn):
 
 
 class LongColumnI(AbstractColumn, omero.grid.LongColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.LongColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
@@ -288,9 +283,11 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         for bv in bytevalues:
             if len(bv) > self.size:
                 raise omero.ValidationException(
-                    None, None,
-                    "Maximum string (byte) length in column %s is %d" %
-                    (self.name, self.size))
+                    None,
+                    None,
+                    "Maximum string (byte) length in column %s is %d"
+                    % (self.name, self.size),
+                )
         return [bytevalues]
 
     def dtypes(self):
@@ -308,8 +305,8 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
             return tables.StringCol(pos=pos, itemsize=1)
         if self.size < 1:
             raise omero.ApiUsageException(
-                None, None, "String size must be > 0 (Column: %s)"
-                % self.name)
+                None, None, "String size must be > 0 (Column: %s)" % self.name
+            )
         return tables.StringCol(pos=pos, itemsize=self.size)
 
     def fromrows(self, rows):
@@ -356,8 +353,11 @@ class AbstractArrayColumn(AbstractColumn):
         for v in self.values:
             if len(v) != self.size:
                 raise omero.ValidationException(
-                    None, None, "Column %s requires arrays of length %d" %
-                    (self.name, self.size))
+                    None,
+                    None,
+                    "Column %s requires arrays of length %d"
+                    % (self.name, self.size),
+                )
 
         if self.size == 1:
             return [[v[0] for v in self.values]]
@@ -371,7 +371,6 @@ class AbstractArrayColumn(AbstractColumn):
 
 
 class FloatArrayColumnI(AbstractArrayColumn, omero.grid.FloatArrayColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.FloatArrayColumn.__init__(self, name, *args)
         AbstractArrayColumn.__init__(self)
@@ -382,13 +381,12 @@ class FloatArrayColumnI(AbstractArrayColumn, omero.grid.FloatArrayColumn):
             return tables.Float32Col(pos=pos)
         if self.size < 1:
             raise omero.ApiUsageException(
-                None, None, "Array length must be > 0 (Column: %s)"
-                % self.name)
+                None, None, "Array length must be > 0 (Column: %s)" % self.name
+            )
         return tables.Float32Col(pos=pos, shape=self.size)
 
 
 class DoubleArrayColumnI(AbstractArrayColumn, omero.grid.DoubleArrayColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.DoubleArrayColumn.__init__(self, name, *args)
         AbstractArrayColumn.__init__(self)
@@ -399,13 +397,12 @@ class DoubleArrayColumnI(AbstractArrayColumn, omero.grid.DoubleArrayColumn):
             return tables.Float64Col(pos=pos)
         if self.size < 1:
             raise omero.ApiUsageException(
-                None, None, "Array length must be > 0 (Column: %s)"
-                % self.name)
+                None, None, "Array length must be > 0 (Column: %s)" % self.name
+            )
         return tables.Float64Col(pos=pos, shape=self.size)
 
 
 class LongArrayColumnI(AbstractArrayColumn, omero.grid.LongArrayColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.LongArrayColumn.__init__(self, name, *args)
         AbstractArrayColumn.__init__(self)
@@ -416,13 +413,12 @@ class LongArrayColumnI(AbstractArrayColumn, omero.grid.LongArrayColumn):
             return tables.Int64Col(pos=pos)
         if self.size < 1:
             raise omero.ApiUsageException(
-                None, None, "Array length must be > 0 (Column: %s)"
-                % self.name)
+                None, None, "Array length must be > 0 (Column: %s)" % self.name
+            )
         return tables.Int64Col(pos=pos, shape=self.size)
 
 
 class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
-
     def __init__(self, name="Unknown", *args):
         omero.grid.MaskColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
@@ -456,6 +452,7 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
             y = tables.Float64Col(pos=4)
             w = tables.Float64Col(pos=5)
             h = tables.Float64Col(pos=6)
+
         return MaskDescription()
 
     def arrays(self):
@@ -468,7 +465,7 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
             self.y,
             self.w,
             self.h,
-            ]
+        ]
         return a
 
     def getsize(self):
@@ -538,8 +535,9 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
                 # This occurs primarily in testing.
                 masks.append(numpy.array(x, dtype=tables.UInt8Atom()))
             else:
-                masks.append(numpy.fromstring(x, count=len(x),
-                                              dtype=tables.UInt8Atom()))
+                masks.append(
+                    numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom())
+                )
 
     def _getmasks(self, tbl):
         n = tbl._v_name
@@ -557,13 +555,13 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
                 masks = f.createVLArray(p, "%s_masks" % n, tables.UInt8Atom())
         return masks
 
+
 # Helpers
 # ========================================================================
 
 
 # Conversion classes are for omero.model <--> ome.model only (no python)
 class ObjectFactory(Ice.ObjectFactory):
-
     def __init__(self, cls, f):
         self.id = cls.ice_staticId()
         self.f = f
@@ -592,10 +590,13 @@ ObjectFactories = {
     LongColumnI: ObjectFactory(LongColumnI, lambda: LongColumnI()),
     StringColumnI: ObjectFactory(StringColumnI, lambda: StringColumnI()),
     FloatArrayColumnI: ObjectFactory(
-        FloatArrayColumnI, lambda: FloatArrayColumnI()),
+        FloatArrayColumnI, lambda: FloatArrayColumnI()
+    ),
     DoubleArrayColumnI: ObjectFactory(
-        DoubleArrayColumnI, lambda: DoubleArrayColumnI()),
+        DoubleArrayColumnI, lambda: DoubleArrayColumnI()
+    ),
     LongArrayColumnI: ObjectFactory(
-        LongArrayColumnI, lambda: LongArrayColumnI()),
-    MaskColumnI: ObjectFactory(MaskColumnI, lambda: MaskColumnI())
-    }
+        LongArrayColumnI, lambda: LongArrayColumnI()
+    ),
+    MaskColumnI: ObjectFactory(MaskColumnI, lambda: MaskColumnI()),
+}

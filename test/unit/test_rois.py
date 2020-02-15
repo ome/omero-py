@@ -29,34 +29,23 @@ from omero.util.roi_handling_utils import points_string_to_xy_list
 
 
 class TestRoiUtils(object):
-
     def test_old_format(self):
-        xy_list = pointsStringToXYlist((
-            "points[1,2, 3,4, 5,6] "
-        ))
+        xy_list = pointsStringToXYlist(("points[1,2, 3,4, 5,6] "))
         assert xy_list == [(1, 2), (3, 4), (5, 6)]
 
     def test_new_format(self):
-        xy_list = pointsStringToXYlist((
-            "1,2 3,4 5,6"
-        ))
+        xy_list = pointsStringToXYlist(("1,2 3,4 5,6"))
         assert xy_list == [(1, 2), (3, 4), (5, 6)]
 
     def test_bbox(self):
-        xy_list = points_string_to_xy_list((
-            "points[1,2, 3,4, 5,6] "
-        ))
+        xy_list = points_string_to_xy_list(("points[1,2, 3,4, 5,6] "))
         bbox = xyListToBbox(xy_list)
         assert bbox == (1, 2, 4, 4)
 
     def test_old_format_new_method(self):
-        xy_list = points_string_to_xy_list((
-            "points[1,2, 3,4, 5,6] "
-        ))
+        xy_list = points_string_to_xy_list(("points[1,2, 3,4, 5,6] "))
         assert xy_list == [(1, 2), (3, 4), (5, 6)]
 
     def test_new_format_new_method(self):
-        xy_list = points_string_to_xy_list((
-            "1,2 3,4 5,6"
-        ))
+        xy_list = points_string_to_xy_list(("1,2 3,4 5,6"))
         assert xy_list == [(1, 2), (3, 4), (5, 6)]

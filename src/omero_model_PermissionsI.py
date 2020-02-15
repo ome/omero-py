@@ -14,6 +14,7 @@ import omero.constants.permissions as ocp
 
 import Ice
 import IceImport
+
 IceImport.load("omero_model_Permissions_ice")
 _omero = Ice.openModule("omero")
 _omero_model = Ice.openModule("omero.model")
@@ -30,7 +31,6 @@ object #0 (::omero::model::Permissions)
 
 
 class PermissionsI(_omero_model.Permissions):
-
     def __init__(self, l=None):
         super(PermissionsI, self).__init__()
         self.__immutable = False
@@ -49,9 +49,9 @@ class PermissionsI(_omero_model.Permissions):
     def set(self, mask, shift, on):
         self.throwIfImmutable()
         if on:
-            self._perm1 = (self._perm1 | (0 | (mask << shift)))
+            self._perm1 = self._perm1 | (0 | (mask << shift))
         else:
-            self._perm1 = (self._perm1 & (-1 ^ (mask << shift)))
+            self._perm1 = self._perm1 & (-1 ^ (mask << shift))
 
     # shift 8; mask 4
     def isUserRead(self):
@@ -165,8 +165,9 @@ class PermissionsI(_omero_model.Permissions):
         takes a string.
         """
         import re
+
         base = r"([rR\-_])([aAwW\-_])"
-        regex = re.compile(r"^(L?)%s$" % (base*3))
+        regex = re.compile(r"^(L?)%s$" % (base * 3))
         match = regex.match(perms)
         if match is None:
             raise ValueError("Invalid permission string: %s" % perms)
@@ -237,8 +238,9 @@ class PermissionsI(_omero_model.Permissions):
         if it's true.
         """
         if self.__immutable:
-            raise _omero.ClientError("ImmutablePermissions: %s" %
-                                     self.__str__())
+            raise _omero.ClientError(
+                "ImmutablePermissions: %s" % self.__str__()
+            )
 
     def ice_postUnmarshal(self):
         """
@@ -274,12 +276,15 @@ class PermissionsI(_omero_model.Permissions):
                 else:
                     raise
 
+
 _omero_model.PermissionsI = PermissionsI
 
 
 def _test():
     import doctest
+
     doctest.testmod()
+
 
 if __name__ == "__main__":
     _test()

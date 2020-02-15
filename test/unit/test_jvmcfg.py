@@ -52,23 +52,23 @@ from xml.etree.ElementTree import XML
 from test.unit.test_config import initial
 
 OMERODIR = False
-if 'OMERODIR' in os.environ:
-    OMERODIR = os.environ.get('OMERODIR')
+if "OMERODIR" in os.environ:
+    OMERODIR = os.environ.get("OMERODIR")
+
 
 def write_config(data):
-        p = create_path()
-        i = initial()
-        for k, v in list(data.items()):
-            for x in i[0:2]:  # __ACTIVE__ & default
-                SubElement(x, "property", name=k, value=v)
-        string = tostring(i, 'utf-8')
-        txt = xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
-        p.write_text(txt)
-        return p
+    p = create_path()
+    i = initial()
+    for k, v in list(data.items()):
+        for x in i[0:2]:  # __ACTIVE__ & default
+            SubElement(x, "property", name=k, value=v)
+    string = tostring(i, "utf-8")
+    txt = xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
+    p.write_text(txt)
+    return p
 
 
 class TestMemoryStrip(object):
-
     def test_1(self):
         rv = strip_dict({"a.b": "c"}, prefix="a")
         assert {"b": "c"} == rv
@@ -78,16 +78,15 @@ class TestMemoryStrip(object):
         assert rv["c"] == "d"
 
     def test_3(self):
-        rv = strip_dict({
-            "omero.jvmcfg.foo": "a",
-            "something.else": "b"})
+        rv = strip_dict({"omero.jvmcfg.foo": "a", "something.else": "b"})
 
         assert rv["foo"] == "a"
         assert "something.else" not in rv
 
-    @pytest.mark.parametrize("input,output", (
-        ({"omero.jvmcfg.heap_size.blitz": "1g"}, {"heap_size": "1g"}),
-        ))
+    @pytest.mark.parametrize(
+        "input,output",
+        (({"omero.jvmcfg.heap_size.blitz": "1g"}, {"heap_size": "1g"}),),
+    )
     def test_4(self, input, output):
         p = write_config(input)
         config = ConfigXml(filename=str(p), env_config="default")
@@ -99,14 +98,11 @@ class TestMemoryStrip(object):
             config.close()
 
     def test_5(self):
-        rv = strip_dict({
-            "omero.jvmcfg.a.blitz": "b",
-        }, suffix="blitz")
+        rv = strip_dict({"omero.jvmcfg.a.blitz": "b",}, suffix="blitz")
         assert rv["a"] == "b"
 
 
 class TestSettings(object):
-
     def test_initial(self):
         s = Settings()
         assert s.perm_gen == "128m"
@@ -114,42 +110,32 @@ class TestSettings(object):
         assert s.heap_size == "512m"
 
     def test_explicit(self):
-        s = Settings({
-            "perm_gen": "xxx",
-            "heap_dump": "yyy",
-            "heap_size": "zzz",
-            })
+        s = Settings(
+            {"perm_gen": "xxx", "heap_dump": "yyy", "heap_size": "zzz",}
+        )
         assert s.perm_gen == "xxx"
         assert s.heap_dump == "yyy"
         assert s.heap_size == "zzz"
 
     def test_defaults(self):
-        s = Settings({}, {
-            "perm_gen": "xxx",
-            "heap_dump": "yyy",
-            "heap_size": "zzz",
-            })
+        s = Settings(
+            {}, {"perm_gen": "xxx", "heap_dump": "yyy", "heap_size": "zzz",}
+        )
         assert s.perm_gen == "xxx"
         assert s.heap_dump == "yyy"
         assert s.heap_size == "zzz"
 
     def test_both(self):
-        s = Settings({
-            "perm_gen": "aaa",
-            "heap_dump": "bbb",
-            "heap_size": "ccc",
-            }, {
-            "perm_gen": "xxx",
-            "heap_dump": "yyy",
-            "heap_size": "zzz",
-            })
+        s = Settings(
+            {"perm_gen": "aaa", "heap_dump": "bbb", "heap_size": "ccc",},
+            {"perm_gen": "xxx", "heap_dump": "yyy", "heap_size": "zzz",},
+        )
         assert s.perm_gen == "aaa"
         assert s.heap_dump == "bbb"
         assert s.heap_size == "ccc"
 
 
 class TestStrategy(object):
-
     def test_no_instantiate(self):
         with pytest.raises(Exception):
             Strategy("blitz")
@@ -166,8 +152,8 @@ class TestStrategy(object):
     def test_percent_usage(self):
         strategy = PercentStrategy("blitz")
         table = list(strategy.usage_table(15, 16))[0]
-        assert table[0] == 2**15
-        assert table[1] == int(2**15 * 15 / 100)
+        assert table[0] == 2 ** 15
+        assert table[1] == int(2 ** 15 * 15 / 100)
 
     def test_heap_dump_on(self):
         settings = Settings({"heap_dump": "on"})
@@ -189,7 +175,6 @@ class TestStrategy(object):
 
 
 class AdjustFixture(object):
-
     def __init__(self, input, output, name, **kwargs):
         self.input = input
         self.output = output
@@ -201,11 +186,11 @@ class AdjustFixture(object):
             assert k in rv
             found = rv[k]
             found.pop(0)  # settings
-            assert v == found, "%s.%s: %s <> %s" % (self.name, k,
-                                                    v, found)
+            assert v == found, "%s.%s: %s <> %s" % (self.name, k, v, found)
 
 
 import json
+
 f = open(__file__[:-3] + ".json", "r")
 data = json.load(f)
 AFS = []
@@ -221,12 +206,12 @@ def template_xml():
 
 
 class TestAdjustStrategy(object):
-
     @pytest.mark.skipif(OMERODIR is False, reason="Need /grid/templates.xml")
     @pytest.mark.parametrize("fixture", AFS, ids=[x.name for x in AFS])
     def test_adjust(self, fixture, monkeypatch):
-        monkeypatch.setattr(Strategy, '_system_memory_mb_java',
-                            lambda x: (2000, 4000))
+        monkeypatch.setattr(
+            Strategy, "_system_memory_mb_java", lambda x: (2000, 4000)
+        )
         p = write_config(fixture.input)
         xml = template_xml()
         config = ConfigXml(filename=str(p), env_config="default")
@@ -238,8 +223,9 @@ class TestAdjustStrategy(object):
 
     @pytest.mark.parametrize("fixture", AFS, ids=[x.name for x in AFS])
     def test_12527(self, fixture, monkeypatch):
-        monkeypatch.setattr(Strategy, '_system_memory_mb_java',
-                            lambda x: (2000, 4000))
+        monkeypatch.setattr(
+            Strategy, "_system_memory_mb_java", lambda x: (2000, 4000)
+        )
         p = write_config(fixture.input)
         old_templates = old_div(path(__file__).dirname(), "old_templates.xml")
         xml = XML(old_templates.abspath().text())
@@ -249,7 +235,6 @@ class TestAdjustStrategy(object):
 
 
 class TestChart(object):
-
     def test_percent_chart(self):
         try:
             usage_charts("target/charts.png")

@@ -37,6 +37,7 @@ def make_client(self):
 def _term(self, *args):
     self.rcode = -9
 
+
 omero.processor.ProcessI._term = _term
 omero.processor.ProcessI.make_client = make_client
 
@@ -83,25 +84,33 @@ class MockPopen(object):
 
 def with_process(func, Popen=MockPopen):
     """ Decorator for running a test with a Process """
+
     def handler(*args, **kwargs):
         self = args[0]
         self.process = omero.processor.ProcessI(
-            self.ctx, sys.executable, self.props(), self.params(),
-            Popen=Popen, callback_cast=pass_through)
+            self.ctx,
+            sys.executable,
+            self.props(),
+            self.params(),
+            Popen=Popen,
+            callback_cast=pass_through,
+        )
         try:
             func(*args, **kwargs)
         finally:
             self.process.cleanup()
+
     return wraps(func)(handler)
 
 
 class TestProcess(object):
-
     def setup_method(self, method):
         self.log = logging.getLogger("TestProcess")
         self.ctx = omero.util.ServerContext(
-            server_id='mock', communicator=None,
-            stop_event=omero.util.concurrency.get_event())
+            server_id="mock",
+            communicator=None,
+            stop_event=omero.util.concurrency.get_event(),
+        )
 
     def teardown_method(self, method):
         self.log.info("stop_event")
@@ -111,7 +120,8 @@ class TestProcess(object):
         p = {
             "omero.user": "sessionId",
             "omero.pass": "sessionId",
-            "Ice.Default.Router": "foo"}
+            "Ice.Default.Router": "foo",
+        }
         return p
 
     def params(self):
@@ -134,8 +144,9 @@ class TestProcess(object):
         env.append("PATH", os.path.join(os.getcwd(), "lib"))
 
     def testEnvironment2(self):
-        omero.processor.ProcessI(self.ctx, sys.executable,
-                                 self.props(), self.params())
+        omero.processor.ProcessI(
+            self.ctx, sys.executable, self.props(), self.params()
+        )
 
     #
     # MockPopen
@@ -184,27 +195,33 @@ class TestProcess(object):
 
     def testPopen(self):
         f = open(str(self.process.script_path), "w")
-        f.write("""
+        f.write(
+            """
 print "Hello"
-        """)
+        """
+        )
         f.close()
         self.process.activate()
         assert None != self.process.wait()
         assert None != self.process.poll()
+
     testPopen = with_process(testPopen, subprocess.Popen)
 
     def testParameters(self):
         p = self.props()
         p["omero.scripts.parse"] = "1"
         f = open(str(self.process.script_path), "w")
-        f.write("""
+        f.write(
+            """
 import omero, omero.scripts s
 client = s.client("name","description",s.Long("l"))
-        """)
+        """
+        )
         f.close()
         self.process.activate()
         self.process.wait()
         assert self.process.poll()
+
     testParameters = with_process(testParameters, subprocess.Popen)
 
     def testKillProcess(self):
@@ -215,4 +232,5 @@ client = s.client("name","description",s.Long("l"))
         self.process.activate()
         assert not self.process.poll()
         self.process.cleanup()
+
     testKillProcess = with_process(testKillProcess, subprocess.Popen)

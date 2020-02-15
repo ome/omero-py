@@ -42,6 +42,7 @@ class TestingServiceFactory(object):
     """
     Testing service factory implementation.
     """
+
     def getUpdateService(self):
         return None
 
@@ -54,6 +55,7 @@ class FromFileOriginalFileProvider(object):
     Provides a testing original file provider which provides file data
     directly from disk.
     """
+
     def __init__(self, service_factory):
         pass
 
@@ -68,12 +70,15 @@ class MIASParseRoiTest(unittest.TestCase):
 
     RESULT_FILE = "Well0001_mode1_z000_t000_detail_2008-09-18-10h48m54s.txt"
 
-    ROOT = "/Users/callan/testimages/siRNA_PRIM1_03102008/"\
+    ROOT = (
+        "/Users/callan/testimages/siRNA_PRIM1_03102008/"
         "001-365700055641/results/"
+    )
 
     def setUp(self):
-        AbstractPlateAnalysisCtx.DEFAULT_ORIGINAL_FILE_PROVIDER = \
+        AbstractPlateAnalysisCtx.DEFAULT_ORIGINAL_FILE_PROVIDER = (
             FromFileOriginalFileProvider
+        )
         original_files = list()
         # Create our container images and an original file image map
         images = list()
@@ -90,7 +95,7 @@ class MIASParseRoiTest(unittest.TestCase):
                 images.append(image)
         original_file_image_map = dict()
         # Our required original file format
-        format = rstring('Companion/MIAS')
+        format = rstring("Companion/MIAS")
         # Create original file representing the log file
         o = OriginalFileI(1, True)
         o.name = rstring(self.LOG_FILE)
@@ -107,7 +112,8 @@ class MIASParseRoiTest(unittest.TestCase):
         original_file_image_map[2] = images[0]
         sf = TestingServiceFactory()
         self.analysis_ctx = MIASPlateAnalysisCtx(
-            images, original_files, original_file_image_map, 1, sf)
+            images, original_files, original_file_image_map, 1, sf
+        )
 
     def test_get_measurement_ctx(self):
         ctx = self.analysis_ctx.get_measurement_ctx(0)
@@ -118,15 +124,15 @@ class MIASParseRoiTest(unittest.TestCase):
         columns = ctx.parse()
         self.assertNotEqual(None, columns)
         self.assertEqual(9, len(columns))
-        self.assertEqual('Image', columns[0].name)
-        self.assertEqual('ROI', columns[1].name)
-        self.assertEqual('Label', columns[2].name)
-        self.assertEqual('Row', columns[3].name)
-        self.assertEqual('Col', columns[4].name)
-        self.assertEqual('Nucleus Area', columns[5].name)
-        self.assertEqual('Cell Diam.', columns[6].name)
-        self.assertEqual('Cell Type', columns[7].name)
-        self.assertEqual('Mean Nucleus Intens.', columns[8].name)
+        self.assertEqual("Image", columns[0].name)
+        self.assertEqual("ROI", columns[1].name)
+        self.assertEqual("Label", columns[2].name)
+        self.assertEqual("Row", columns[3].name)
+        self.assertEqual("Col", columns[4].name)
+        self.assertEqual("Nucleus Area", columns[5].name)
+        self.assertEqual("Cell Diam.", columns[6].name)
+        self.assertEqual("Cell Type", columns[7].name)
+        self.assertEqual("Mean Nucleus Intens.", columns[8].name)
         for column in columns:
             if column.name == "ROI":
                 continue
@@ -140,8 +146,9 @@ class FlexParseRoiTest(unittest.TestCase):
     RESULT_FILE = "An_02_Me01_12132846(2009-06-17_11-56-17).res"
 
     def setUp(self):
-        AbstractPlateAnalysisCtx.DEFAULT_ORIGINAL_FILE_PROVIDER = \
+        AbstractPlateAnalysisCtx.DEFAULT_ORIGINAL_FILE_PROVIDER = (
             FromFileOriginalFileProvider
+        )
         original_files = list()
         # Create our container images and an original file image map
         images = list()
@@ -158,7 +165,7 @@ class FlexParseRoiTest(unittest.TestCase):
                 images.append(image)
         original_file_image_map = dict()
         # Our required original file format
-        format = rstring('Companion/Flex')
+        format = rstring("Companion/Flex")
         # Create original file representing the result file
         o = OriginalFileI(1, True)
         o.name = rstring(self.RESULT_FILE)
@@ -168,7 +175,8 @@ class FlexParseRoiTest(unittest.TestCase):
         original_file_image_map[1] = images[0]
         sf = TestingServiceFactory()
         self.analysis_ctx = FlexPlateAnalysisCtx(
-            images, original_files, original_file_image_map, 1, sf)
+            images, original_files, original_file_image_map, 1, sf
+        )
 
     def test_get_measurement_ctx(self):
         ctx = self.analysis_ctx.get_measurement_ctx(0)
@@ -190,8 +198,9 @@ class InCellParseRoiTest(unittest.TestCase):
     RESULT_FILE = "Mara_488 and hoechst_P-HisH3.xml"
 
     def setUp(self):
-        AbstractPlateAnalysisCtx.DEFAULT_ORIGINAL_FILE_PROVIDER = \
+        AbstractPlateAnalysisCtx.DEFAULT_ORIGINAL_FILE_PROVIDER = (
             FromFileOriginalFileProvider
+        )
         original_files = list()
         # Create our container images and an original file image map
         images = list()
@@ -208,7 +217,7 @@ class InCellParseRoiTest(unittest.TestCase):
                 images.append(image)
         original_file_image_map = dict()
         # Our required original file format
-        format = rstring('Companion/InCell')
+        format = rstring("Companion/InCell")
         # Create original file representing the result file
         o = OriginalFileI(1, True)
         o.name = rstring(self.RESULT_FILE)
@@ -218,7 +227,8 @@ class InCellParseRoiTest(unittest.TestCase):
         original_file_image_map[1] = image
         sf = TestingServiceFactory()
         self.analysis_ctx = InCellPlateAnalysisCtx(
-            images, original_files, original_file_image_map, 1, sf)
+            images, original_files, original_file_image_map, 1, sf
+        )
 
     def test_get_measurement_ctx(self):
         ctx = self.analysis_ctx.get_measurement_ctx(0)
@@ -229,10 +239,11 @@ class InCellParseRoiTest(unittest.TestCase):
         columns = ctx.parse()
         self.assertNotEqual(None, columns)
         for column in columns:
-            print('Column: %s' % column.name)
+            print("Column: %s" % column.name)
         self.assertEqual(33, len(columns))
         for column in columns:
             self.assertEqual(114149, len(column.values))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

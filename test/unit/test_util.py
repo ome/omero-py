@@ -42,6 +42,7 @@ from omero.util.temp_files import manager
 from omero.util import get_user_dir
 from omero_version import omero_version
 import omero.util.image_utils as image_utils
+
 try:
     from PIL import Image
 except ImportError:
@@ -50,9 +51,9 @@ import numpy
 
 
 class MockTable(object):
-
-    def __init__(self, names, data, csvheaders, csvrows, sqlheaders, sqlrows,
-                 jsondicts):
+    def __init__(
+        self, names, data, csvheaders, csvrows, sqlheaders, sqlrows, jsondicts
+    ):
         self.names = names
         self.data = data
         self.length = len(data)
@@ -78,49 +79,68 @@ class MockTable(object):
 
 
 tables = (
-    MockTable(("c1", "c2"), (("a", "b"),),
-              ['c1,c2'], ['a,b'],
-              ' c1 | c2 \n----+----\n', [' a  | b  '],
-              [{"c1": "a", "c2": "b"}],
-              ),
-    MockTable(("c1", "c2"), (("a,b", "c"),),
-              ['c1,c2'], ['"a,b",c'],
-              ' c1  | c2 \n-----+----\n', [' a,b | c  '],
-              [{"c1": "a,b", "c2": "c"}],
-              ),
-    MockTable(("c1", "c2"), (("'a b'", "c"),),
-              ['c1,c2'], ["'a b',c"],
-              ' c1    | c2 \n-------+----\n', [" 'a b' | c  "],
-              [{"c1": "'a b'", "c2": "c"}],
-              ),
-    MockTable(("c1", "c2"), (("a", "b"), ("c", "d")),
-              ['c1,c2'], ['a,b', 'c,d'],
-              ' c1 | c2 \n----+----\n', [' a  | b  ', ' c  | d  '],
-              [{"c1": "a", "c2": "b"}, {"c1": "c", "c2": "d"}],
-              ),
-    MockTable(("c1", "c2"), (("£ö", "b"),),
-              ['c1,c2'], ['£ö,b'],
-              ' c1 | c2 \n----+----\n', [' £ö | b  '],
-              [{"c1": "£ö", "c2": "b"}],
-              ),
-    )
+    MockTable(
+        ("c1", "c2"),
+        (("a", "b"),),
+        ["c1,c2"],
+        ["a,b"],
+        " c1 | c2 \n----+----\n",
+        [" a  | b  "],
+        [{"c1": "a", "c2": "b"}],
+    ),
+    MockTable(
+        ("c1", "c2"),
+        (("a,b", "c"),),
+        ["c1,c2"],
+        ['"a,b",c'],
+        " c1  | c2 \n-----+----\n",
+        [" a,b | c  "],
+        [{"c1": "a,b", "c2": "c"}],
+    ),
+    MockTable(
+        ("c1", "c2"),
+        (("'a b'", "c"),),
+        ["c1,c2"],
+        ["'a b',c"],
+        " c1    | c2 \n-------+----\n",
+        [" 'a b' | c  "],
+        [{"c1": "'a b'", "c2": "c"}],
+    ),
+    MockTable(
+        ("c1", "c2"),
+        (("a", "b"), ("c", "d")),
+        ["c1,c2"],
+        ["a,b", "c,d"],
+        " c1 | c2 \n----+----\n",
+        [" a  | b  ", " c  | d  "],
+        [{"c1": "a", "c2": "b"}, {"c1": "c", "c2": "d"}],
+    ),
+    MockTable(
+        ("c1", "c2"),
+        (("£ö", "b"),),
+        ["c1,c2"],
+        ["£ö,b"],
+        " c1 | c2 \n----+----\n",
+        [" £ö | b  "],
+        [{"c1": "£ö", "c2": "b"}],
+    ),
+)
 
 
 class TestCSVSTyle(object):
-
-    @pytest.mark.parametrize('mock_table', tables)
+    @pytest.mark.parametrize("mock_table", tables)
     def testGetRow(self, mock_table):
         assert mock_table.get_row(None) == mock_table.names
         for i in range(mock_table.length):
             assert mock_table.get_row(i) == mock_table.data[i]
 
-    @pytest.mark.parametrize('mock_table', tables)
+    @pytest.mark.parametrize("mock_table", tables)
     def testCSVModuleParsing(self, mock_table):
         style = CSVStyle()
         output = list(style.get_rows(mock_table))
         assert output == mock_table.csvheaders + mock_table.csvrows
 
-    @pytest.mark.parametrize('mock_table', tables)
+    @pytest.mark.parametrize("mock_table", tables)
     def testPlainModuleParsing(self, mock_table):
         style = PlainStyle()
         output = list(style.get_rows(mock_table))
@@ -128,17 +148,15 @@ class TestCSVSTyle(object):
 
 
 class TestJSONSTyle(object):
-
-    @pytest.mark.parametrize('mock_table', tables)
+    @pytest.mark.parametrize("mock_table", tables)
     def testPlainModuleParsing(self, mock_table):
         style = JSONStyle()
-        output = ''.join(style.get_rows(mock_table))
+        output = "".join(style.get_rows(mock_table))
         assert json.loads(output) == mock_table.jsondicts
 
 
 class TestTableBuilder(object):
-
-    @pytest.mark.parametrize('mock_table', tables)
+    @pytest.mark.parametrize("mock_table", tables)
     def testStr(self, mock_table):
         tb = TableBuilder(*mock_table.names)
         for row in mock_table.data:
@@ -147,7 +165,6 @@ class TestTableBuilder(object):
 
 
 class TestUpgradeCheck(object):
-
     def testNoActionOnNull(self):
         uc = UpgradeCheck("test", url=None)
         uc.run()
@@ -160,23 +177,27 @@ class TestUpgradeCheck(object):
         assert uc.isUpgradeNeeded() is False
         assert uc.isExceptionThrown() is False
 
-    @pytest.mark.parametrize('port', [8000, 9998])
+    @pytest.mark.parametrize("port", [8000, 9998])
     def testSlowResponse(self, port):
         uc = UpgradeCheck("test", url="http://127.0.0.1:%s" % port)
         uc.run()
         assert uc.isUpgradeNeeded() is False
         assert uc.isExceptionThrown() is True
 
-    @pytest.mark.parametrize('prefix', ['', 'XYZ'])
+    @pytest.mark.parametrize("prefix", ["", "XYZ"])
     def testBadIp(self, prefix):
-        uc = UpgradeCheck("test", url="200.200.200.200",
-                          version="%s%s" % (prefix, omero_version))
+        uc = UpgradeCheck(
+            "test",
+            url="200.200.200.200",
+            version="%s%s" % (prefix, omero_version),
+        )
         uc.run()
         assert uc.isUpgradeNeeded() is False
         assert uc.isExceptionThrown() is True
 
     @pytest.mark.parametrize(
-        'url', ("http://foo", "file://dev/null", "abcp", "abc://bar"))
+        "url", ("http://foo", "file://dev/null", "abcp", "abc://bar")
+    )
     def testBadUrl(self, url):
         uc = UpgradeCheck("test", url=url, version="XYZ" + omero_version)
         uc.run()
@@ -185,52 +206,72 @@ class TestUpgradeCheck(object):
 
 
 class TestTempFileManager(object):
-
-    @pytest.mark.parametrize('environment', (
-        {'OMERO_USERDIR': None,
-         'OMERO_TEMPDIR': None,
-         'OMERO_TMPDIR': None},
-        {'OMERO_USERDIR': None,
-         'OMERO_TEMPDIR': 'tempdir',
-         'OMERO_TMPDIR': None},
-        {'OMERO_USERDIR': None,
-         'OMERO_TEMPDIR': None,
-         'OMERO_TMPDIR': 'tmpdir'},
-        {'OMERO_USERDIR': 'userdir',
-         'OMERO_TEMPDIR': None,
-         'OMERO_TMPDIR': None},
-        {'OMERO_USERDIR': 'userdir',
-         'OMERO_TEMPDIR': 'tempdir',
-         'OMERO_TMPDIR': None},
-        {'OMERO_USERDIR': 'userdir',
-         'OMERO_TEMPDIR': None,
-         'OMERO_TMPDIR': 'tmpdir'},
-        {'OMERO_USERDIR': None,
-         'OMERO_TEMPDIR': 'tempdir',
-         'OMERO_TMPDIR': 'tmpdir'},
-        {'OMERO_USERDIR': 'userdir',
-         'OMERO_TEMPDIR': 'tempdir',
-         'OMERO_TMPDIR': 'tmpdir'}))
+    @pytest.mark.parametrize(
+        "environment",
+        (
+            {
+                "OMERO_USERDIR": None,
+                "OMERO_TEMPDIR": None,
+                "OMERO_TMPDIR": None,
+            },
+            {
+                "OMERO_USERDIR": None,
+                "OMERO_TEMPDIR": "tempdir",
+                "OMERO_TMPDIR": None,
+            },
+            {
+                "OMERO_USERDIR": None,
+                "OMERO_TEMPDIR": None,
+                "OMERO_TMPDIR": "tmpdir",
+            },
+            {
+                "OMERO_USERDIR": "userdir",
+                "OMERO_TEMPDIR": None,
+                "OMERO_TMPDIR": None,
+            },
+            {
+                "OMERO_USERDIR": "userdir",
+                "OMERO_TEMPDIR": "tempdir",
+                "OMERO_TMPDIR": None,
+            },
+            {
+                "OMERO_USERDIR": "userdir",
+                "OMERO_TEMPDIR": None,
+                "OMERO_TMPDIR": "tmpdir",
+            },
+            {
+                "OMERO_USERDIR": None,
+                "OMERO_TEMPDIR": "tempdir",
+                "OMERO_TMPDIR": "tmpdir",
+            },
+            {
+                "OMERO_USERDIR": "userdir",
+                "OMERO_TEMPDIR": "tempdir",
+                "OMERO_TMPDIR": "tmpdir",
+            },
+        ),
+    )
     def testTmpdirEnvironment(self, monkeypatch, tmpdir, environment):
         for var in list(environment.keys()):
             if environment[var]:
                 monkeypatch.setenv(
                     native_str(var),
-                    native_str(old_div(tmpdir, environment.get(var))))
+                    native_str(old_div(tmpdir, environment.get(var))),
+                )
             else:
                 monkeypatch.delenv(native_str(var), raising=False)
 
-        if environment.get('OMERO_TEMPDIR'):
+        if environment.get("OMERO_TEMPDIR"):
             value = pytest.deprecated_call(manager.tmpdir)
         else:
             value = manager.tmpdir()
 
-        if environment.get('OMERO_TMPDIR'):
-            tdir = old_div(tmpdir, environment.get('OMERO_TMPDIR'))
-        elif environment.get('OMERO_TEMPDIR'):
-            tdir = tmpdir / environment.get('OMERO_TEMPDIR') / "omero" / "tmp"
-        elif environment.get('OMERO_USERDIR'):
-            tdir = tmpdir / environment.get('OMERO_USERDIR') / "tmp"
+        if environment.get("OMERO_TMPDIR"):
+            tdir = old_div(tmpdir, environment.get("OMERO_TMPDIR"))
+        elif environment.get("OMERO_TEMPDIR"):
+            tdir = tmpdir / environment.get("OMERO_TEMPDIR") / "omero" / "tmp"
+        elif environment.get("OMERO_USERDIR"):
+            tdir = tmpdir / environment.get("OMERO_USERDIR") / "tmp"
         else:
             tdir = path(get_user_dir()) / "omero" / "tmp"
 
@@ -238,67 +279,67 @@ class TestTempFileManager(object):
 
     def testTmpdir2805_1(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv(native_str('OMERO_TEMPDIR'), native_str(tmpdir))
-        monkeypatch.delenv(native_str('OMERO_USERDIR'), raising=False)
-        tmpfile = old_div(tmpdir, 'omero')
-        tmpfile.write('')
+        monkeypatch.setenv(native_str("OMERO_TEMPDIR"), native_str(tmpdir))
+        monkeypatch.delenv(native_str("OMERO_USERDIR"), raising=False)
+        tmpfile = old_div(tmpdir, "omero")
+        tmpfile.write("")
 
         value = pytest.deprecated_call(manager.tmpdir)
         assert value == path(get_user_dir()) / "omero" / "tmp"
 
     def testTmpdir2805_2(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv(native_str('OMERO_TEMPDIR'), native_str(tmpdir))
-        monkeypatch.delenv(native_str('OMERO_USERDIR'), raising=False)
-        tempdir = old_div(tmpdir, 'omero')
+        monkeypatch.setenv(native_str("OMERO_TEMPDIR"), native_str(tmpdir))
+        monkeypatch.delenv(native_str("OMERO_USERDIR"), raising=False)
+        tempdir = old_div(tmpdir, "omero")
         tempdir.mkdir()
-        tmpfile = old_div(tempdir, 'tmp')
-        tmpfile.write('')
+        tmpfile = old_div(tempdir, "tmp")
+        tmpfile.write("")
 
         value = pytest.deprecated_call(manager.tmpdir)
         assert value == path(get_user_dir()) / "omero" / "tmp"
 
 
 class TestImageUtils(object):
-
-    @pytest.mark.parametrize(
-        'size', [4, 6, 8, 10, 12, 14, 16, 18, 20])
+    @pytest.mark.parametrize("size", [4, 6, 8, 10, 12, 14, 16, 18, 20])
     def test_get_front(self, size):
         font = image_utils.get_font(size)
         assert font is not None
 
-    @pytest.mark.parametrize("color", [
-        (255, 0, 0, 255, -16776961),     # Red
-        (0, 255, 0, 255, 16711935),      # Green
-        (0, 0, 255, 255, 65535),         # Blue
-        (0, 255, 255, 255, 16777215),    # Cyan
-        (255, 0, 255, 255, -16711681),   # Magenta
-        (255, 255, 0, 255, -65281),      # Yellow
-        (0, 0, 0, 255, 255),             # Black
-        (255, 255, 255, 255, -1),        # White
-        (0, 0, 0, 127, 127),             # Transparent black
-        (127, 127, 127, 127, 2139062143)])  # Grey
+    @pytest.mark.parametrize(
+        "color",
+        [
+            (255, 0, 0, 255, -16776961),  # Red
+            (0, 255, 0, 255, 16711935),  # Green
+            (0, 0, 255, 255, 65535),  # Blue
+            (0, 255, 255, 255, 16777215),  # Cyan
+            (255, 0, 255, 255, -16711681),  # Magenta
+            (255, 255, 0, 255, -65281),  # Yellow
+            (0, 0, 0, 255, 255),  # Black
+            (255, 255, 255, 255, -1),  # White
+            (0, 0, 0, 127, 127),  # Transparent black
+            (127, 127, 127, 127, 2139062143),
+        ],
+    )  # Grey
     def test_int_to_rgba(self, color):
         v = image_utils.int_to_rgba(color[4])
         for x in range(0, 3):
             assert color[x] == v[x]
 
-    @pytest.mark.parametrize("size", [
-        (100, 100, 50, 20, 5),
-        (100, 100, 20, 50, 5)])
+    @pytest.mark.parametrize(
+        "size", [(100, 100, 50, 20, 5), (100, 100, 20, 50, 5)]
+    )
     def test_get_zoom_factor(self, size):
         image_size = (size[0], size[1])
         r = image_utils.get_zoom_factor(image_size, size[2], size[3])
         assert r == size[4]
 
-    @pytest.mark.parametrize("size", [
-        (512, 512),
-        (256, 256)])
+    @pytest.mark.parametrize("size", [(512, 512), (256, 256)])
     def test_resize_image(self, size):
         w, h = 512, 512
         data = numpy.zeros((h, w, 3), dtype=numpy.uint8)
         data[256, 256] = [255, 0, 0]
-        img = Image.fromarray(data, 'RGB')
+        img = Image.fromarray(data, "RGB")
         result = image_utils.resize_image(img, size[0], size[1])
         assert result is not None
         width, height = result.size
@@ -308,9 +349,9 @@ class TestImageUtils(object):
     def test_paste_image(self):
         data = numpy.zeros((512, 512, 3), dtype=numpy.uint8)
         data[256, 256] = [255, 0, 0]
-        img = Image.fromarray(data, 'RGB')
+        img = Image.fromarray(data, "RGB")
 
         data_canvas = numpy.zeros((512, 512, 3), dtype=numpy.uint8)
         data_canvas[256, 256] = [255, 255, 0]
-        canvas = Image.fromarray(data_canvas, 'RGB')
+        canvas = Image.fromarray(data_canvas, "RGB")
         image_utils.paste_image(img, canvas, 0, 0)

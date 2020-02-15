@@ -97,12 +97,11 @@ Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
 OUTPUT_CHOICES = ["ids", "legacy", "yaml"]
-SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
+SKIP_CHOICES = ["all", "checksum", "minmax", "thumbnails", "upgrade"]
 NO_ARG = object()
 
 
 class CommandArguments(object):
-
     def __init__(self, ctx, args):
         self.__ctx = ctx
         self.__args = args
@@ -114,11 +113,29 @@ class CommandArguments(object):
         self.__py_additional = list()
         # Python arguments
         self.__py_keys = (
-            "javahelp", "skip", "file", "errs", "logback",
-            "port", "password", "group", "create", "func",
-            "bulk", "prog", "user", "key", "path", "logprefix",
-            "JAVA_DEBUG", "quiet", "server", "depth", "clientdir",
-            "sudo")
+            "javahelp",
+            "skip",
+            "file",
+            "errs",
+            "logback",
+            "port",
+            "password",
+            "group",
+            "create",
+            "func",
+            "bulk",
+            "prog",
+            "user",
+            "key",
+            "path",
+            "logprefix",
+            "JAVA_DEBUG",
+            "quiet",
+            "server",
+            "depth",
+            "clientdir",
+            "sudo",
+        )
         self.set_login_arguments(ctx, args)
         self.set_skip_arguments(args)
 
@@ -144,12 +161,12 @@ class CommandArguments(object):
 
     def reset_arg(self, cmd_list, idx, key, val=NO_ARG):
         arg_list = self.build_arg_list(key, val)
-        cmd_list[idx:idx+len(arg_list)] = arg_list
+        cmd_list[idx : idx + len(arg_list)] = arg_list
 
     def build_arg_list(self, key, val=NO_ARG):
         arg_list = []
         if len(key) == 1:
-            arg_list.append("-"+key)
+            arg_list.append("-" + key)
             if val != NO_ARG:
                 if isinstance(val, basestring):
                     arg_list.append(val)
@@ -158,8 +175,7 @@ class CommandArguments(object):
             if val == NO_ARG:
                 arg_list.append("--%s" % key)
             elif isinstance(val, basestring):
-                arg_list.append(
-                    "--%s=%s" % (key, val))
+                arg_list.append("--%s=%s" % (key, val))
             else:
                 arg_list.append("--%s" % key)
         return arg_list
@@ -230,9 +246,11 @@ class CommandArguments(object):
             self.__java_initial.append("-h")
 
         # Connection is required unless help arguments or -f is passed
-        connection_required = ("-h" not in self.__java_initial and
-                               not args.f and
-                               not args.advanced_help)
+        connection_required = (
+            "-h" not in self.__java_initial
+            and not args.f
+            and not args.advanced_help
+        )
         if connection_required:
             client = ctx.conn(args)
             host = client.getProperty("omero.host")
@@ -251,13 +269,13 @@ class CommandArguments(object):
     def set_skip_values(self, skip):
         """Set the arguments to skip steps during import"""
 
-        if ('all' in skip or 'checksum' in skip):
+        if "all" in skip or "checksum" in skip:
             self.__java_initial.append("--checksum-algorithm=File-Size-64")
-        if ('all' in skip or 'thumbnails' in skip):
+        if "all" in skip or "thumbnails" in skip:
             self.__java_initial.append("--no-thumbnails")
-        if ('all' in skip or 'minmax' in skip):
+        if "all" in skip or "minmax" in skip:
             self.__java_initial.append("--no-stats-info")
-        if ('all' in skip or 'upgrade' in skip):
+        if "all" in skip or "upgrade" in skip:
             self.__java_initial.append("--no-upgrade-check")
 
     def open_files(self):
@@ -286,14 +304,18 @@ class ImportControl(BaseControl):
         parser.add_login_arguments()
 
         parser.add_argument(
-            "--javahelp", "--java-help",
-            action="store_true", help="Show the Java help text")
+            "--javahelp",
+            "--java-help",
+            action="store_true",
+            help="Show the Java help text",
+        )
 
         # The following arguments are strictly used by Python
         # The "---" form is kept for backwards compatibility.
         py_group = parser.add_argument_group(
-            'Python arguments',
-            'Optional arguments which are used to configure import.')
+            "Python arguments",
+            "Optional arguments which are used to configure import.",
+        )
 
         def add_python_argument(*args, **kwargs):
             py_group.add_argument(*args, **kwargs)
@@ -302,186 +324,251 @@ class ImportControl(BaseControl):
             ("bulk", "Bulk YAML file for driving multiple imports"),
             ("logprefix", "Directory or file prefix for --file and --errs"),
             ("file", "File for storing the standard out of the Java process"),
-            ("errs", "File for storing the standard err of the Java process")
+            ("errs", "File for storing the standard err of the Java process"),
         ):
             add_python_argument("--%s" % name, nargs="?", help=help)
             add_python_argument("---%s" % name, nargs="?", help=SUPPRESS)
 
         add_python_argument(
-            "--clientdir", type=str,
+            "--clientdir",
+            type=str,
             help="Path to the directory containing the client JARs. "
-            " Default: lib/client")
+            " Default: lib/client",
+        )
         add_python_argument(
-            "--logback", type=str,
-            help="Path to a logback xml file. "
-            " Default: etc/logback-cli.xml")
+            "--logback",
+            type=str,
+            help="Path to a logback xml file. " " Default: etc/logback-cli.xml",
+        )
 
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
-            'Naming arguments', 'Optional arguments passed strictly to Java.')
+            "Naming arguments", "Optional arguments passed strictly to Java."
+        )
 
         def add_java_name_argument(*args, **kwargs):
             name_group.add_argument(*args, **kwargs)
 
         add_java_name_argument(
-            "-n", "--name",
+            "-n",
+            "--name",
             help="Image or plate name to use (**)",
-            metavar="NAME")
+            metavar="NAME",
+        )
         add_java_name_argument(
-            "-x", "--description",
+            "-x",
+            "--description",
             help="Image or plate description to use (**)",
-            metavar="DESCRIPTION")
+            metavar="DESCRIPTION",
+        )
         # Deprecated naming arguments
-        add_java_name_argument(
-            "--plate_name",
-            help=SUPPRESS)
-        add_java_name_argument(
-            "--plate_description",
-            help=SUPPRESS)
+        add_java_name_argument("--plate_name", help=SUPPRESS)
+        add_java_name_argument("--plate_description", help=SUPPRESS)
 
         # Feedback options
         feedback_group = parser.add_argument_group(
-            'Feedback arguments',
-            'Optional arguments passed strictly to Java allowing to report'
-            ' errors to the OME team.')
+            "Feedback arguments",
+            "Optional arguments passed strictly to Java allowing to report"
+            " errors to the OME team.",
+        )
 
         def add_feedback_argument(*args, **kwargs):
             feedback_group.add_argument(*args, **kwargs)
 
         add_feedback_argument(
-            "--report", action="store_true",
-            help="Report errors to the OME team (**)")
+            "--report",
+            action="store_true",
+            help="Report errors to the OME team (**)",
+        )
         add_feedback_argument(
-            "--upload", action="store_true",
-            help=("Upload broken files and log file (if any) with report."
-                  " Required --report (**)"))
+            "--upload",
+            action="store_true",
+            help=(
+                "Upload broken files and log file (if any) with report."
+                " Required --report (**)"
+            ),
+        )
         add_feedback_argument(
-            "--logs", action="store_true",
-            help=("Upload log file (if any) with report."
-                  " Required --report (**)"))
+            "--logs",
+            action="store_true",
+            help=(
+                "Upload log file (if any) with report."
+                " Required --report (**)"
+            ),
+        )
         add_feedback_argument(
             "--email",
             help="Email for reported errors. Required --report (**)",
-            metavar="EMAIL")
-        add_feedback_argument(
-            "--qa-baseurl",
-            help=SUPPRESS)
+            metavar="EMAIL",
+        )
+        add_feedback_argument("--qa-baseurl", help=SUPPRESS)
 
         # Annotation options
         annotation_group = parser.add_argument_group(
-            'Annotation arguments',
-            'Optional arguments passed strictly to Java allowing to annotate'
-            ' imports.')
+            "Annotation arguments",
+            "Optional arguments passed strictly to Java allowing to annotate"
+            " imports.",
+        )
 
         def add_annotation_argument(*args, **kwargs):
             annotation_group.add_argument(*args, **kwargs)
 
         add_annotation_argument(
-            "--annotation-ns", metavar="ANNOTATION_NS",
-            help="Namespace to use for subsequent annotation (**)")
+            "--annotation-ns",
+            metavar="ANNOTATION_NS",
+            help="Namespace to use for subsequent annotation (**)",
+        )
         add_annotation_argument(
-            "--annotation-text", metavar="ANNOTATION_TEXT",
-            help="Content for a text annotation (**)")
+            "--annotation-text",
+            metavar="ANNOTATION_TEXT",
+            help="Content for a text annotation (**)",
+        )
         add_annotation_argument(
             "--annotation-link",
             metavar="ANNOTATION_LINK",
-            help="Comment annotation ID to link all images to (**)")
+            help="Comment annotation ID to link all images to (**)",
+        )
         add_annotation_argument(
-            "--annotation_ns", metavar="ANNOTATION_NS",
-            help=SUPPRESS)
+            "--annotation_ns", metavar="ANNOTATION_NS", help=SUPPRESS
+        )
         add_annotation_argument(
-            "--annotation_text", metavar="ANNOTATION_TEXT",
-            help=SUPPRESS)
+            "--annotation_text", metavar="ANNOTATION_TEXT", help=SUPPRESS
+        )
         add_annotation_argument(
-            "--annotation_link", metavar="ANNOTATION_LINK",
-            help=SUPPRESS)
+            "--annotation_link", metavar="ANNOTATION_LINK", help=SUPPRESS
+        )
 
         java_group = parser.add_argument_group(
-            'Java arguments', 'Optional arguments passed strictly to Java.')
+            "Java arguments", "Optional arguments passed strictly to Java."
+        )
 
         def add_java_argument(*args, **kwargs):
             java_group.add_argument(*args, **kwargs)
 
         add_java_argument(
-            "-f", action="store_true",
-            help="Display the used files and exit (**)")
+            "-f",
+            action="store_true",
+            help="Display the used files and exit (**)",
+        )
         add_java_argument(
-            "-c", action="store_true",
-            help="Continue importing after errors (**)")
+            "-c",
+            action="store_true",
+            help="Continue importing after errors (**)",
+        )
         add_java_argument(
-            "-l", "--readers",
+            "-l",
+            "--readers",
             help="Use the list of readers rather than the default (**)",
-            metavar="READER_FILE")
+            metavar="READER_FILE",
+        )
         add_java_argument(
             "-d",
             help="OMERO dataset ID to import image into (**)",
-            metavar="DATASET_ID")
+            metavar="DATASET_ID",
+        )
         add_java_argument(
             "-r",
             help="OMERO screen ID to import plate into (**)",
-            metavar="SCREEN_ID")
+            metavar="SCREEN_ID",
+        )
         add_java_argument(
-            "-T", "--target",
+            "-T",
+            "--target",
             help="OMERO target specification (**)",
-            metavar="TARGET")
+            metavar="TARGET",
+        )
         add_java_argument(
-            "--debug", choices=DEBUG_CHOICES,
+            "--debug",
+            choices=DEBUG_CHOICES,
             help="Turn debug logging on (**)",
-            metavar="LEVEL", dest="JAVA_DEBUG")
+            metavar="LEVEL",
+            dest="JAVA_DEBUG",
+        )
         add_java_argument(
-            "--output", choices=OUTPUT_CHOICES,
+            "--output",
+            choices=OUTPUT_CHOICES,
             help="Set an alternative output style",
-            metavar="TYPE")
+            metavar="TYPE",
+        )
         add_java_argument(
             "--encrypted",
             choices=("true", "false"),
             help="Whether the import should use SSL or not",
-            metavar="TYPE")
+            metavar="TYPE",
+        )
 
         # Arguments previously *following" `--`
         advjava_group = parser.add_argument_group(
-            'Advanced Java arguments', (
-                'Optional arguments passed strictly to Java. '
-                'For more information, see --advanced-help.'))
+            "Advanced Java arguments",
+            (
+                "Optional arguments passed strictly to Java. "
+                "For more information, see --advanced-help."
+            ),
+        )
 
         def add_advjava_argument(*args, **kwargs):
             advjava_group.add_argument(*args, **kwargs)
 
         add_advjava_argument(
-            "--advanced-help", action="store_true",
-            help="Show the advanced help text")
+            "--advanced-help",
+            action="store_true",
+            help="Show the advanced help text",
+        )
         add_advjava_argument(
-            "--transfer", nargs="?", metavar="TYPE",
-            help="Transfer methods like in-place import")
+            "--transfer",
+            nargs="?",
+            metavar="TYPE",
+            help="Transfer methods like in-place import",
+        )
         add_advjava_argument(
-            "--exclude", nargs="?", metavar="TYPE",
-            help="Exclusion filters for preventing re-import")
+            "--exclude",
+            nargs="?",
+            metavar="TYPE",
+            help="Exclusion filters for preventing re-import",
+        )
         add_advjava_argument(
-            "--checksum-algorithm", nargs="?", metavar="TYPE",
-            help="Alternative hashing mechanisms balancing speed & accuracy")
+            "--checksum-algorithm",
+            nargs="?",
+            metavar="TYPE",
+            help="Alternative hashing mechanisms balancing speed & accuracy",
+        )
         add_advjava_argument(
-            "--no-stats-info", action="store_true", help=SUPPRESS)
+            "--no-stats-info", action="store_true", help=SUPPRESS
+        )
         add_advjava_argument(
-            "--no-thumbnails", action="store_true", help=SUPPRESS)
+            "--no-thumbnails", action="store_true", help=SUPPRESS
+        )
         add_advjava_argument(
-            "--no-upgrade-check", action="store_true", help=SUPPRESS)
+            "--no-upgrade-check", action="store_true", help=SUPPRESS
+        )
         add_advjava_argument(
-            "--parallel-upload", metavar="COUNT",
-            help="Number of file upload threads to run at the same time")
+            "--parallel-upload",
+            metavar="COUNT",
+            help="Number of file upload threads to run at the same time",
+        )
         add_advjava_argument(
-            "--parallel-fileset", metavar="COUNT",
-            help="Number of fileset candidates to import at the same time")
+            "--parallel-fileset",
+            metavar="COUNT",
+            help="Number of fileset candidates to import at the same time",
+        )
 
         # Unsure on these.
         add_python_argument(
-            "--depth", default=4, type=int,
-            help="Number of directories to scan down for files")
+            "--depth",
+            default=4,
+            type=int,
+            help="Number of directories to scan down for files",
+        )
         add_python_argument(
-            "--skip", type=str, choices=SKIP_CHOICES, action='append',
-            help="Optional step to skip during import")
+            "--skip",
+            type=str,
+            choices=SKIP_CHOICES,
+            action="append",
+            help="Optional step to skip during import",
+        )
         add_python_argument(
-            "path", nargs="*",
-            help="Path to be passed to the Java process")
+            "path", nargs="*", help="Path to be passed to the Java process"
+        )
 
         parser.set_defaults(func=self.importer)
 
@@ -501,8 +588,11 @@ class ImportControl(BaseControl):
         try:
             classpath = [file.abspath() for file in client_dir.files("*.jar")]
         except OSError as e:
-            self.ctx.die(102, "Cannot get JAR files from '%s' (%s)"
-                         % (client_dir, e.strerror))
+            self.ctx.die(
+                102,
+                "Cannot get JAR files from '%s' (%s)"
+                % (client_dir, e.strerror),
+            )
         if not classpath:
             self.ctx.die(103, "No JAR files found under '%s'" % client_dir)
 
@@ -525,8 +615,8 @@ class ImportControl(BaseControl):
             out, err = command_args.open_files()
 
             p = omero.java.popen(
-                import_command, debug=False, xargs=xargs,
-                stdout=out, stderr=err)
+                import_command, debug=False, xargs=xargs, stdout=out, stderr=err
+            )
 
             self.ctx.rv = p.wait()
 
@@ -686,6 +776,7 @@ class ImportControl(BaseControl):
 
 class TestEngine(ImportControl):
     COMMAND = [TEST_CLASS]
+
 
 try:
     register("import", ImportControl, HELP, epilog=EXAMPLES)

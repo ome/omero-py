@@ -27,6 +27,7 @@ from omero_ext.path import path
 # Activating logging at a static level
 if "DEBUG" in os.environ:
     from omero.util import configure_logging
+
     configure_logging(loglevel=logging.DEBUG)
 
 # TODO:
@@ -52,11 +53,12 @@ class TempFileManager(object):
         an atexit callback to call self.cleanup() on exit.
         """
         self.logger = logging.getLogger("omero.util.TempFileManager")
-        self.is_win32 = (sys.platform == "win32")
+        self.is_win32 = sys.platform == "win32"
         self.prefix = prefix
 
-        self.userdir = old_div(self.tmpdir(), ("%s_%s" %
-                                        (self.prefix, self.username())))
+        self.userdir = old_div(
+            self.tmpdir(), ("%s_%s" % (self.prefix, self.username()))
+        )
         """
         User-accessible directory of the form $TMPDIR/omero_$USERNAME.
         If the given directory is not writable, an attempt is made
@@ -70,7 +72,8 @@ class TempFileManager(object):
                     self.userdir = t
                     break
             raise Exception(
-                "Failed to create temporary directory: %s" % self.userdir)
+                "Failed to create temporary directory: %s" % self.userdir
+            )
         self.dir = old_div(self.userdir, self.pid())
         """
         Directory under which all temporary files and folders will be created.
@@ -94,7 +97,8 @@ class TempFileManager(object):
             """
             try:
                 portalocker.lock(
-                    self.lock, portalocker.LOCK_EX | portalocker.LOCK_NB)
+                    self.lock, portalocker.LOCK_EX | portalocker.LOCK_NB
+                )
                 atexit.register(self.cleanup)
             except:
                 lock = self.lock
@@ -138,18 +142,20 @@ class TempFileManager(object):
         locktest = None
 
         # Read temporary  files directory from deprecated OMERO_TEMPDIR envvar
-        custom_tmpdir_deprecated = os.environ.get('OMERO_TEMPDIR', None)
-        if 'OMERO_TEMPDIR' in os.environ:
+        custom_tmpdir_deprecated = os.environ.get("OMERO_TEMPDIR", None)
+        if "OMERO_TEMPDIR" in os.environ:
             import warnings
+
             warnings.warn(
                 "OMERO_TEMPDIR is deprecated. Use OMERO_TMPDIR instead.",
-                DeprecationWarning)
+                DeprecationWarning,
+            )
 
         # Read temporary files directory from OMERO_TMPDIR envvar
         default_tmpdir = None
         if custom_tmpdir_deprecated:
             default_tmpdir = path(custom_tmpdir_deprecated) / "omero" / "tmp"
-        custom_tmpdir = os.environ.get('OMERO_TMPDIR', default_tmpdir)
+        custom_tmpdir = os.environ.get("OMERO_TMPDIR", default_tmpdir)
 
         # List target base directories by order of precedence
         targets = []
@@ -177,10 +183,12 @@ class TempFileManager(object):
                 try:
                     self.create(target)
                     name = self.mkstemp(
-                        prefix=".lock_test", suffix=".tmp", dir=target)
+                        prefix=".lock_test", suffix=".tmp", dir=target
+                    )
                     locktest = open(name, "a+")
                     portalocker.lock(
-                        locktest, portalocker.LOCK_EX | portalocker.LOCK_NB)
+                        locktest, portalocker.LOCK_EX | portalocker.LOCK_NB
+                    )
                     locktest.close()
                     locktest = None
                     choice = target
@@ -192,7 +200,9 @@ class TempFileManager(object):
                         except:
                             self.logger.warn(
                                 "Failed to close locktest: %s",
-                                name, exc_info=True)
+                                name,
+                                exc_info=True,
+                            )
 
                     if name is not None:
                         try:
@@ -201,16 +211,18 @@ class TempFileManager(object):
                             self.logger.debug("Failed os.remove(%s)", name)
 
             except Exception as e:
-                if "Operation not permitted" in str(e) or \
-                   "Operation not supported" in str(e):
+                if "Operation not permitted" in str(
+                    e
+                ) or "Operation not supported" in str(e):
 
                     # This is the issue described in ticket:1653
                     # To prevent printing the warning, we just continue
                     # here.
                     self.logger.debug("%s does not support locking.", target)
                 else:
-                    self.logger.warn("Invalid tmp dir: %s" %
-                                     target, exc_info=True)
+                    self.logger.warn(
+                        "Invalid tmp dir: %s" % target, exc_info=True
+                    )
 
         if choice is None:
             raise Exception("Could not find lockable tmp dir")
@@ -261,7 +273,8 @@ class TempFileManager(object):
         This prevents various Windows issues.
         """
         fd, name = tempfile.mkstemp(
-            prefix=prefix, suffix=suffix, dir=dir, text=text)
+            prefix=prefix, suffix=suffix, dir=dir, text=text
+        )
         self.logger.debug("Added file %s", name)
         try:
             os.close(fd)
@@ -333,7 +346,8 @@ class TempFileManager(object):
                 f = open(str(lock), "r")
                 try:
                     portalocker.lock(
-                        f, portalocker.LOCK_EX | portalocker.LOCK_NB)
+                        f, portalocker.LOCK_EX | portalocker.LOCK_NB
+                    )
                     # Must close for Windows, otherwise "...other process"
                     f.close()
                 except:
@@ -344,7 +358,9 @@ class TempFileManager(object):
 
     def on_rmtree(self, func, name, exc):
         self.logger.error(
-            "rmtree error: %s('%s') => %s", func.__name__, name, exc[1])
+            "rmtree error: %s('%s') => %s", func.__name__, name, exc[1]
+        )
+
 
 manager = TempFileManager()
 """
@@ -374,6 +390,7 @@ def gettempdir():
     Returns the dir value for the global TempFileManager.
     """
     return manager.gettempdir()
+
 
 if __name__ == "__main__":
 

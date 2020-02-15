@@ -47,7 +47,6 @@ class MockAdapter(object):
 
 
 class TestHdfStorage(TestCase):
-
     def setup_method(self, method):
         TestCase.setup_method(self, method)
         self.ic = Ice.initialize()
@@ -59,9 +58,9 @@ class TestHdfStorage(TestCase):
             of.register(self.ic)
 
     def cols(self):
-        a = omero.columns.LongColumnI('a', 'first', None)
-        b = omero.columns.LongColumnI('b', 'first', None)
-        c = omero.columns.LongColumnI('c', 'first', None)
+        a = omero.columns.LongColumnI("a", "first", None)
+        b = omero.columns.LongColumnI("b", "first", None)
+        c = omero.columns.LongColumnI("c", "first", None)
         return [a, b, c]
 
     def init(self, hdf, meta=False):
@@ -85,13 +84,10 @@ class TestHdfStorage(TestCase):
         return old_div(path(tmpdir), "test.h5")
 
     def testInvalidFile(self):
-        pytest.raises(
-            omero.ApiUsageException, HdfStorage, None, None)
-        pytest.raises(
-            omero.ApiUsageException, HdfStorage, '', self.lock)
+        pytest.raises(omero.ApiUsageException, HdfStorage, None, None)
+        pytest.raises(omero.ApiUsageException, HdfStorage, "", self.lock)
         bad = path(self.tmpdir()) / "doesntexist" / "test.h5"
-        pytest.raises(
-            omero.ApiUsageException, HdfStorage, bad, self.lock)
+        pytest.raises(omero.ApiUsageException, HdfStorage, bad, self.lock)
 
     def testValidFile(self):
         hdf = HdfStorage(self.hdfpath(), self.lock)
@@ -102,7 +98,7 @@ class TestHdfStorage(TestCase):
         hdf1 = HdfStorage(tmp, self.lock)
         with pytest.raises(omero.LockTimeout) as exc_info:
             HdfStorage(tmp, self.lock)
-        assert exc_info.value.message.startswith('Path already in HdfList: ')
+        assert exc_info.value.message.startswith("Path already in HdfList: ")
         hdf1.cleanup()
         hdf3 = HdfStorage(tmp, self.lock)
         hdf3.cleanup()
@@ -154,7 +150,7 @@ class TestHdfStorage(TestCase):
         self.append(hdf, {"a": 0, "b": 0, "c": 0})
         self.append(hdf, {"a": 0, "b": 4, "c": 0})
         self.append(hdf, {"a": 0, "b": 0, "c": 0})
-        hdf.getWhereList(time.time(), '(a==0)', None, 'b', None, None, None)
+        hdf.getWhereList(time.time(), "(a==0)", None, "b", None, None, None)
         # Doesn't work yet.
         hdf.cleanup()
 
@@ -162,14 +158,14 @@ class TestHdfStorage(TestCase):
         hdf = HdfStorage(self.hdfpath(), self.lock)
 
         with pytest.raises(omero.ApiUsageException) as exc:
-            hdf.initialize([omero.columns.LongColumnI('')], None)
-        assert exc.value.message.startswith('Column unnamed:')
+            hdf.initialize([omero.columns.LongColumnI("")], None)
+        assert exc.value.message.startswith("Column unnamed:")
 
         with pytest.raises(omero.ApiUsageException) as exc:
-            hdf.initialize([omero.columns.LongColumnI('__a')], None)
-        assert exc.value.message == 'Reserved column name: __a'
+            hdf.initialize([omero.columns.LongColumnI("__a")], None)
+        assert exc.value.message == "Reserved column name: __a"
 
-        hdf.initialize([omero.columns.LongColumnI('a')], None)
+        hdf.initialize([omero.columns.LongColumnI("a")], None)
         hdf.cleanup()
 
     def testInitializationOnInitializedFileFails(self):
@@ -205,37 +201,39 @@ class TestHdfStorage(TestCase):
         hdf.cleanup()
 
     @pytest.mark.xfail
-    @pytest.mark.broken(reason = "TODO after python3 migration")
+    @pytest.mark.broken(reason="TODO after python3 migration")
     def testGetSetMetaMap(self):
         hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, False)
 
-        hdf.add_meta_map({'a': rint(1)})
+        hdf.add_meta_map({"a": rint(1)})
         m1 = hdf.get_meta_map()
         assert len(m1) == 3
-        assert m1['__initialized'].val > 0
-        assert m1['__version'] == rstring('2')
-        assert m1['a'] == rint(1)
+        assert m1["__initialized"].val > 0
+        assert m1["__version"] == rstring("2")
+        assert m1["a"] == rint(1)
 
         with pytest.raises(omero.ApiUsageException) as exc:
-            hdf.add_meta_map({'b': rint(1), '__c': rint(2)})
-        assert exc.value.message == 'Reserved attribute name: __c'
+            hdf.add_meta_map({"b": rint(1), "__c": rint(2)})
+        assert exc.value.message == "Reserved attribute name: __c"
         assert hdf.get_meta_map() == m1
 
         with pytest.raises(omero.ValidationException) as exc:
-            hdf.add_meta_map({'d': rint(None)})
-        assert exc.value.serverStackTrace.startswith('Unsupported type:')
+            hdf.add_meta_map({"d": rint(None)})
+        assert exc.value.serverStackTrace.startswith("Unsupported type:")
         assert hdf.get_meta_map() == m1
 
         hdf.add_meta_map({}, replace=True)
         m2 = hdf.get_meta_map()
         assert len(m2) == 2
         assert m2 == {
-            '__initialized': m1['__initialized'], '__version': rstring('2')}
+            "__initialized": m1["__initialized"],
+            "__version": rstring("2"),
+        }
 
-        hdf.add_meta_map({'__test': 1}, replace=True, init=True)
+        hdf.add_meta_map({"__test": 1}, replace=True, init=True)
         m3 = hdf.get_meta_map()
-        assert m3 == {'__test': rint(1)}
+        assert m3 == {"__test": rint(1)}
 
         hdf.cleanup()
 
@@ -243,17 +241,23 @@ class TestHdfStorage(TestCase):
         # Tables size is in bytes, len("მიკროსკოპის პონი".encode()) == 46
         bytesize = 46
         hdf = HdfStorage(self.hdfpath(), self.lock)
-        cols = [omero.columns.StringColumnI(
-            "name", "description", bytesize, None)]
+        cols = [
+            omero.columns.StringColumnI("name", "description", bytesize, None)
+        ]
         hdf.initialize(cols)
         cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
         cols[0].values = ["foo", "მიკროსკოპის პონი"]
         hdf.append(cols)
-        rows = hdf.getWhereList(time.time(), '(name=="foo")', None, 'b', None,
-                                None, None)
+        rows = hdf.getWhereList(
+            time.time(), '(name=="foo")', None, "b", None, None, None
+        )
         assert rows == [0]
-        assert bytesize == hdf.readCoordinates(
-            time.time(), [0], self.current).columns[0].size
+        assert (
+            bytesize
+            == hdf.readCoordinates(time.time(), [0], self.current)
+            .columns[0]
+            .size
+        )
         # Unicode conditions don't work on Python 3
         # Fetching should still work though
         r1 = hdf.readCoordinates(time.time(), [1], self.current)
@@ -268,8 +272,9 @@ class TestHdfStorage(TestCase):
         # len("მიკროსკოპის პონი".encode()) == 46
         bytesize = 45
         hdf = HdfStorage(self.hdfpath(), self.lock)
-        cols = [omero.columns.StringColumnI(
-            "name", "description", bytesize, None)]
+        cols = [
+            omero.columns.StringColumnI("name", "description", bytesize, None)
+        ]
         hdf.initialize(cols)
         cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
         cols[0].values = ["მიკროსკოპის პონი"]
@@ -277,30 +282,46 @@ class TestHdfStorage(TestCase):
         with pytest.raises(omero.ValidationException) as exc_info:
             hdf.append(cols)
         assert exc_info.value.message == (
-            'Maximum string (byte) length in column name is 45')
+            "Maximum string (byte) length in column name is 45"
+        )
 
         # Doesn't work yet.
         hdf.cleanup()
 
-    @pytest.mark.xfail(reason=(
-        "Unicode conditions broken on Python 3. "
-        "See explanation in omero.columns.StringColumnI"))
+    @pytest.mark.xfail(
+        reason=(
+            "Unicode conditions broken on Python 3. "
+            "See explanation in omero.columns.StringColumnI"
+        )
+    )
     @pytest.mark.broken(reason="Unicode conditions broken on Python 3")
     def testStringColWhereUnicode(self):
         # Tables size is in bytes, len("მიკროსკოპის პონი".encode()) == 46
         bytesize = 46
         hdf = HdfStorage(self.hdfpath(), self.lock)
-        cols = [omero.columns.StringColumnI(
-            "name", "description", bytesize, None)]
+        cols = [
+            omero.columns.StringColumnI("name", "description", bytesize, None)
+        ]
         hdf.initialize(cols)
         cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
         cols[0].values = ["foo", "მიკროსკოპის პონი"]
         hdf.append(cols)
-        rows = hdf.getWhereList(time.time(), '(name=="მიკროსკოპის პონი")',
-                                None, 'b', None, None, None)
+        rows = hdf.getWhereList(
+            time.time(),
+            '(name=="მიკროსკოპის პონი")',
+            None,
+            "b",
+            None,
+            None,
+            None,
+        )
         assert rows == [1]
-        assert bytesize == hdf.readCoordinates(
-            time.time(), [0], self.current).columns[0].size
+        assert (
+            bytesize
+            == hdf.readCoordinates(time.time(), [0], self.current)
+            .columns[0]
+            .size
+        )
         # Doesn't work yet.
         hdf.cleanup()
 
@@ -310,7 +331,7 @@ class TestHdfStorage(TestCase):
     @pytest.mark.broken
     def testMaskColumn(self):
         hdf = HdfStorage(self.hdfpath(), self.lock)
-        mask = omero.columns.MaskColumnI('mask', 'desc', None)
+        mask = omero.columns.MaskColumnI("mask", "desc", None)
         hdf.initialize([mask], None)
         mask.imageId = [1, 2]
         mask.theZ = [2, 2]
@@ -344,7 +365,6 @@ class TestHdfStorage(TestCase):
 
 
 class TestHdfList(TestCase):
-
     def setup_method(self, method):
         TestCase.setup_method(self, method)
         self.mox = mox.Mox()
@@ -354,7 +374,7 @@ class TestHdfList(TestCase):
         return old_div(path(tmpdir), "test.h5")
 
     @pytest.mark.xfail
-    @pytest.mark.broken(reason = "TODO after python3 migration")
+    @pytest.mark.broken(reason="TODO after python3 migration")
     def testLocking(self, monkeypatch):
         lock1 = threading.RLock()
         hdflist2 = HdfList()
@@ -367,35 +387,44 @@ class TestHdfList(TestCase):
         # There are multiple guards against opening the same HDF5 file
 
         # PyTables includes a check
-        monkeypatch.setattr(storage_module, 'HDFLIST', hdflist2)
+        monkeypatch.setattr(storage_module, "HDFLIST", hdflist2)
         with pytest.raises(ValueError) as exc_info:
             HdfStorage(tmp, lock2)
 
         assert exc_info.value.message.startswith(
-            "The file '%s' is already opened. " % tmp)
+            "The file '%s' is already opened. " % tmp
+        )
         monkeypatch.undo()
 
         # HdfList uses portalocker, test by mocking tables.open_file
         if hasattr(tables, "open_file"):
-            self.mox.StubOutWithMock(tables, 'open_file')
-            tables.file._FILE_OPEN_POLICY = 'default'
-            tables.open_file(tmp, mode='w',
-                             title='OMERO HDF Measurement Storage',
-                             rootUEP='/').AndReturn(open(tmp))
+            self.mox.StubOutWithMock(tables, "open_file")
+            tables.file._FILE_OPEN_POLICY = "default"
+            tables.open_file(
+                tmp,
+                mode="w",
+                title="OMERO HDF Measurement Storage",
+                rootUEP="/",
+            ).AndReturn(open(tmp))
 
             self.mox.ReplayAll()
         else:
-            self.mox.StubOutWithMock(tables, 'openFile')
-            tables.openFile(tmp, mode='w',
-                            title='OMERO HDF Measurement Storage',
-                            rootUEP='/').AndReturn(open(tmp))
+            self.mox.StubOutWithMock(tables, "openFile")
+            tables.openFile(
+                tmp,
+                mode="w",
+                title="OMERO HDF Measurement Storage",
+                rootUEP="/",
+            ).AndReturn(open(tmp))
 
-        monkeypatch.setattr(storage_module, 'HDFLIST', hdflist2)
+        monkeypatch.setattr(storage_module, "HDFLIST", hdflist2)
         with pytest.raises(omero.LockTimeout) as exc_info:
             HdfStorage(tmp, lock2)
         print(exc_info.value)
-        assert (exc_info.value.message ==
-                'Cannot acquire exclusive lock on: %s' % tmp)
+        assert (
+            exc_info.value.message
+            == "Cannot acquire exclusive lock on: %s" % tmp
+        )
 
         monkeypatch.undo()
 

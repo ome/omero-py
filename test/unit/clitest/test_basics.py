@@ -32,27 +32,26 @@ topics = list(cli.topics.keys())
 
 
 class TestBasics(object):
-
     def testHelp(self):
         self.args = ["help", "-h"]
         cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('recursive', [None, "--recursive"])
+    @pytest.mark.parametrize("recursive", [None, "--recursive"])
     def testHelpAll(self, recursive):
         self.args = ["help", "--all"]
         if recursive:
             self.args.append(recursive)
         cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('recursive', [None, "--recursive"])
-    @pytest.mark.parametrize('command', commands)
+    @pytest.mark.parametrize("recursive", [None, "--recursive"])
+    @pytest.mark.parametrize("command", commands)
     def testHelpCommand(self, command, recursive):
         self.args = ["help", command]
         if recursive:
             self.args.append(recursive)
         cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('topic', topics)
+    @pytest.mark.parametrize("topic", topics)
     def testHelpTopic(self, topic):
         self.args = ["help", topic, "-h"]
         cli.invoke(self.args, strict=True)
@@ -68,14 +67,15 @@ class TestBasics(object):
         cli.invoke(["version"], strict=True)
 
     def testLoadGlob(object, monkeypatch, tmp_path, capsys):
-        (tmp_path / 'etc').mkdir()
-        (tmp_path / 'etc' / 'grid').mkdir()
-        monkeypatch.setenv('OMERODIR', str(tmp_path))
-        for i in 'abc':
-            (tmp_path / (i + 'a.omero')).write_text(
-                'config set {i} {i}'.format(i=i))
-        cli.invoke(["load", "--glob", str(tmp_path / '*.omero')], strict=True)
+        (tmp_path / "etc").mkdir()
+        (tmp_path / "etc" / "grid").mkdir()
+        monkeypatch.setenv("OMERODIR", str(tmp_path))
+        for i in "abc":
+            (tmp_path / (i + "a.omero")).write_text(
+                "config set {i} {i}".format(i=i)
+            )
+        cli.invoke(["load", "--glob", str(tmp_path / "*.omero")], strict=True)
         cli.invoke(["config", "get"], strict=True)
         captured = capsys.readouterr()
         lines = captured.out.splitlines()
-        assert lines == ['a=a', 'b=b', 'c=c']
+        assert lines == ["a=a", "b=b", "c=c"]

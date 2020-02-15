@@ -28,7 +28,6 @@ class Cancel(Exception):
 
 
 class SubmitCLI(CLI):
-
     def __init__(self):
         CLI.__init__(self)
         self.queue = []
@@ -49,13 +48,13 @@ class SubmitCLI(CLI):
         print("Uploading")
         print(self.queue)
 
+
 HELP = """When run without arguments, submit shell is opened
 which takes commands without executing them. On save,
 the file is trasferred to the server, and executed."""
 
 
 class SubmitControl(BaseControl):
-
     def _configure(self, parser):
         parser.add_argument("arg", nargs="*", help="single command with args")
         parser.set_defaults(func=self.__call__)
@@ -75,6 +74,7 @@ class SubmitControl(BaseControl):
                 l = len(submit.queue)
                 if l > 0:
                     print(l, " items queued. Really cancel? [Yn]")
+
 
 try:
     # register("submit", SubmitControl, HELP)

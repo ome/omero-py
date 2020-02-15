@@ -52,26 +52,27 @@ if sys.version_info >= (3, 0, 0):
 HELP = """Database tools for creating scripts, setting passwords, etc."""
 
 
-if platform.system() == 'Windows':
-    HELP += ("\n\n%s" % WINDOWS_WARNING)
+if platform.system() == "Windows":
+    HELP += "\n\n%s" % WINDOWS_WARNING
 
 
 class DatabaseControl(BaseControl):
-
     def _configure(self, parser):
         sub = parser.sub()
 
-        script = sub.add_parser(
-            "script", help="Generates a DB creation script")
+        script = sub.add_parser("script", help="Generates a DB creation script")
         script.set_defaults(func=self.script)
         try:
             # Python 3
-            ft = FileType(mode="w", encoding='utf-8')
+            ft = FileType(mode="w", encoding="utf-8")
         except TypeError:
             ft = FileType(mode="w")
         script.add_argument(
-            "-f", "--file", type=ft,
-            help="Optional file to save to. Use '-' for stdout.")
+            "-f",
+            "--file",
+            type=ft,
+            help="Optional file to save to. Use '-' for stdout.",
+        )
 
         script.add_argument("posversion", nargs="?", help=SUPPRESS)
         script.add_argument("pospatch", nargs="?", help=SUPPRESS)
@@ -83,22 +84,29 @@ class DatabaseControl(BaseControl):
 
         pw = sub.add_parser(
             "password",
-            help="Prints SQL command for updating your root password")
+            help="Prints SQL command for updating your root password",
+        )
         pw.set_defaults(func=self.password)
         pw_spec = pw.add_mutually_exclusive_group()
         pw_spec.add_argument("password", nargs="?")
-        pw_spec.add_argument("--empty", action="store_true",
-                             help=("Remove the password, "
-                                   "allowing any for login when guest."))
-        pw.add_argument("--user-id",
-                        help="User ID to salt into the password. "
-                        "Defaults to '0', i.e. 'root'",
-                        default="0")
+        pw_spec.add_argument(
+            "--empty",
+            action="store_true",
+            help=("Remove the password, " "allowing any for login when guest."),
+        )
+        pw.add_argument(
+            "--user-id",
+            help="User ID to salt into the password. "
+            "Defaults to '0', i.e. 'root'",
+            default="0",
+        )
 
         for x in (pw, script):
             x.add_argument(
-                "--no-salt", action="store_true",
-                help="Disable the salting of passwords")
+                "--no-salt",
+                action="store_true",
+                help="Disable the salting of passwords",
+            )
 
     def _lookup(self, key, defaults, args):
         """
@@ -107,12 +115,12 @@ class DatabaseControl(BaseControl):
         propname = "omero.db." + key
         vdef = defaults.properties.getProperty(propname)
         varg = getattr(args, key)
-        vpos = getattr(args, 'pos' + key)
+        vpos = getattr(args, "pos" + key)
         if varg:
             if vpos:
                 self.ctx.die(
                     1, "ERROR: Flag and positional argument given for %s" % key
-                    )
+                )
             v = varg
         elif vpos:
             v = vpos
@@ -143,71 +151,89 @@ class DatabaseControl(BaseControl):
         rc = p.wait()
         if rc != 0:
             out, err = p.communicate()
-            self.ctx.die(rc, "PasswordUtil failed: %s" % err.decode(
-                errors='replace'))
+            self.ctx.die(
+                rc, "PasswordUtil failed: %s" % err.decode(errors="replace")
+            )
         value = p.communicate()[0]
         if not value or len(value) == 0:
             self.ctx.die(100, "Encoded password is empty")
         return value.strip().decode()
 
     def _copy(self, input_path, output, func, cfg=None):
-            try:
-                input = open(str(input_path), encoding='utf-8')
-            except TypeError:
-                input = open(str(input_path))
-            try:
-                for s in input:
-                        try:
-                            if cfg:
-                                output.write(func(s) % cfg)
-                            else:
-                                output.write(func(s))
-                        except Exception as e:
-                            self.ctx.dbg(str(e))
-                            self.ctx.die(
-                                154, "Failed to map line: %s\nError: %s"
-                                % (s, e))
-            finally:
-                input.close()
+        try:
+            input = open(str(input_path), encoding="utf-8")
+        except TypeError:
+            input = open(str(input_path))
+        try:
+            for s in input:
+                try:
+                    if cfg:
+                        output.write(func(s) % cfg)
+                    else:
+                        output.write(func(s))
+                except Exception as e:
+                    self.ctx.dbg(str(e))
+                    self.ctx.die(
+                        154, "Failed to map line: %s\nError: %s" % (s, e)
+                    )
+        finally:
+            input.close()
 
     def _make_replace(self, root_pass, db_vers, db_patch):
         def fix(str_in):
             if isbytes(str_in):
                 str_in = bytes_to_native_str(str_in)
             return str_in
+
         def replace_method(str_in):
             str_out = str_in.replace("@ROOTPASS@", fix(root_pass))
             str_out = str_out.replace("@DBVERSION@", fix(db_vers))
             str_out = str_out.replace("@DBPATCH@", fix(db_patch))
             return str_out
+
         return replace_method
 
     def _db_profile(self):
         from omero.install.config_parser import PropertyParser
+
         property_lines = self.ctx.get_config_property_lines(self.dir)
         for property in PropertyParser().parse_lines(property_lines):
-            if property.key == 'omero.db.profile':
+            if property.key == "omero.db.profile":
                 return property.val
-        raise KeyError('Configuration key not set: omero.db.profile')
+        raise KeyError("Configuration key not set: omero.db.profile")
 
     def _sql_directory(self, db_vers, db_patch):
         """
         See #2689
         """
         dbprofile = self._db_profile()
-        sql_directory = self.ctx.dir / "sql" / dbprofile / \
-            ("%s__%s" % (db_vers, db_patch))
+        sql_directory = (
+            self.ctx.dir / "sql" / dbprofile / ("%s__%s" % (db_vers, db_patch))
+        )
         if not sql_directory.exists():
-            self.ctx.die(2, "Invalid Database version/patch: %s does not"
-                         " exist" % sql_directory)
+            self.ctx.die(
+                2,
+                "Invalid Database version/patch: %s does not"
+                " exist" % sql_directory,
+            )
         return sql_directory
 
-    def _create(self, sql_directory, db_vers, db_patch, password_hash, args,
-                location=None):
+    def _create(
+        self,
+        sql_directory,
+        db_vers,
+        db_patch,
+        password_hash,
+        args,
+        location=None,
+    ):
         sql_directory = self._sql_directory(db_vers, db_patch)
         if not sql_directory.exists():
-            self.ctx.die(2, "Invalid Database version/patch: %s does not"
-                         " exist" % sql_directory)
+            self.ctx.die(
+                2,
+                "Invalid Database version/patch: %s does not"
+                " exist" % sql_directory,
+            )
 
         if args and args.file:
             output = args.file
@@ -216,9 +242,9 @@ class DatabaseControl(BaseControl):
             script = "%s__%s.sql" % (db_vers, db_patch)
             location = old_div(path.getcwd(), script)
             try:
-                output = open(location, 'w', encoding='utf-8')
+                output = open(location, "w", encoding="utf-8")
             except TypeError:
-                output = open(location, 'w')
+                output = open(location, "w")
             self.ctx.out("Saving to " + location)
 
         try:
@@ -230,16 +256,21 @@ class DatabaseControl(BaseControl):
                 cfg = {
                     "TIME": time.ctime(time.time()),
                     "DIR": sql_directory,
-                    "SCRIPT": script}
+                    "SCRIPT": script,
+                }
                 self._copy(header, output, str, cfg)
-                self._copy(old_div(sql_directory,"schema.sql"), output, str)
-                self._copy(old_div(sql_directory,"views.sql"), output, str)
+                self._copy(old_div(sql_directory, "schema.sql"), output, str)
+                self._copy(old_div(sql_directory, "views.sql"), output, str)
                 self._copy(
-                    footer, output,
-                    self._make_replace(password_hash, db_vers, db_patch), cfg)
+                    footer,
+                    output,
+                    self._make_replace(password_hash, db_vers, db_patch),
+                    cfg,
+                )
             else:
                 # OMERO 4.2.x and before
-                output.write("""
+                output.write(
+                    """
 --
 -- GENERATED %s from %s
 --
@@ -254,12 +285,16 @@ class DatabaseControl(BaseControl):
 --
 
 BEGIN;
-                """ % (time.ctime(time.time()), sql_directory, script))
-                self._copy(old_div(sql_directory,"schema.sql"), output, str)
+                """
+                    % (time.ctime(time.time()), sql_directory, script)
+                )
+                self._copy(old_div(sql_directory, "schema.sql"), output, str)
                 self._copy(
-                    old_div(sql_directory,"data.sql"), output,
-                    self._make_replace(password_hash, db_vers, db_patch))
-                self._copy(old_div(sql_directory,"views.sql"), output, str)
+                    old_div(sql_directory, "data.sql"),
+                    output,
+                    self._make_replace(password_hash, db_vers, db_patch),
+                )
+                self._copy(old_div(sql_directory, "views.sql"), output, str)
                 output.write("COMMIT;\n")
 
         finally:
@@ -274,7 +309,7 @@ BEGIN;
         old_prompt = True
         if self._has_user_id(args):
             user_id = args.user_id
-            if user_id != '0':  # For non-root, use new_prompt
+            if user_id != "0":  # For non-root, use new_prompt
                 old_prompt = False
         try:
             root_pass = args.password
@@ -283,11 +318,12 @@ BEGIN;
         if args.empty:
             password_hash = ""
         else:
-            password_hash = self._get_password_hash(args, root_pass,
-                                                    old_prompt)
-        self.ctx.out("UPDATE password SET hash = '%s' "
-                     "WHERE experimenter_id = %s;""" %
-                     (password_hash, user_id))
+            password_hash = self._get_password_hash(args, root_pass, old_prompt)
+        self.ctx.out(
+            "UPDATE password SET hash = '%s' "
+            "WHERE experimenter_id = %s;"
+            "" % (password_hash, user_id)
+        )
 
     @windows_warning
     def loaddefaults(self):
@@ -304,7 +340,7 @@ BEGIN;
     def script(self, args):
         if args.posversion is not None:
             self.ctx.err("WARNING: Positional arguments are deprecated")
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             self.ctx.out("\n%s\n" % WINDOWS_WARNING)
 
         defaults = self.loaddefaults()
@@ -315,7 +351,7 @@ BEGIN;
             if args.pospassword:
                 self.ctx.die(
                     1, "ERROR: Flag and positional argument given for password"
-                    )
+                )
         else:
             root_pass = args.pospassword
         if root_pass:
@@ -325,6 +361,7 @@ BEGIN;
         sql = self._sql_directory(db_vers, db_patch)
         pwhash = self._get_password_hash(args, root_pass, True)
         self._create(sql, db_vers, db_patch, pwhash, args)
+
 
 try:
     register("db", DatabaseControl, HELP)

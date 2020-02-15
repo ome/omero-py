@@ -77,7 +77,6 @@ import hashlib
 
 
 class Clients(object):
-
     def __init__(self):
         self.__clients = set()
 
@@ -99,7 +98,7 @@ class ITest(object):
     log = logging.getLogger("ITest")
     # Default permissions for the group created in setup_class
     # Can be overriden by test instances
-    DEFAULT_PERMS = 'rw----'
+    DEFAULT_PERMS = "rw----"
     # If the new user created in setup_class should own their group
     # Can be overriden by test instances
     DEFAULT_GROUP_OWNER = False
@@ -136,15 +135,18 @@ class ITest(object):
             raise
 
         cls.group = cls.new_group(perms=cls.DEFAULT_PERMS)
-        cls.user = cls.new_user(group=cls.group,
-                                owner=cls.DEFAULT_GROUP_OWNER,
-                                system=cls.DEFAULT_SYSTEM,
-                                privileges=cls.DEFAULT_PRIVILEGES)
+        cls.user = cls.new_user(
+            group=cls.group,
+            owner=cls.DEFAULT_GROUP_OWNER,
+            system=cls.DEFAULT_SYSTEM,
+            privileges=cls.DEFAULT_PRIVILEGES,
+        )
         cls.client = omero.client()  # ok because adds self
         cls.__clients.add(cls.client)
         cls.client.setAgent("OMERO.py.test")
         cls.sf = cls.client.createSession(
-            cls.user.omeName.val, cls.user.omeName.val)
+            cls.user.omeName.val, cls.user.omeName.val
+        )
         cls.ctx = cls.sf.getAdminService().getEventContext()
         cls.update = cls.sf.getUpdateService()
         cls.query = cls.sf.getQueryService()
@@ -171,7 +173,7 @@ class ITest(object):
 
     @classmethod
     def omerodistdir(cls):
-        dist_dir = os.getenv('OMERODIR')
+        dist_dir = os.getenv("OMERODIR")
         if dist_dir:
             dist_dir = path(dist_dir)
         if dist_dir is not None:
@@ -184,8 +186,10 @@ class ITest(object):
         config_service = self.root.sf.getConfigService()
         config_value = config_service.getConfigValue(config_key)
         if condition(config_value):
-            pytest.skip(message or '%s:%s does not meet condition'
-                        % (config_key, config_value))
+            pytest.skip(
+                message
+                or "%s:%s does not meet condition" % (config_key, config_value)
+            )
 
     @classmethod
     def uuid(cls):
@@ -215,8 +219,7 @@ class ITest(object):
 
     # Administrative methods
     @classmethod
-    def new_group(cls, experimenters=None, perms=None,
-                  config=None, gname=None):
+    def new_group(cls, experimenters=None, perms=None, config=None, gname=None):
         admin = cls.root.sf.getAdminService()
         if gname is None:
             gname = cls.uuid()
@@ -261,8 +264,9 @@ class ITest(object):
         client.sf.setSecurityContext(ExperimenterGroupI(gid, False))
 
     # Import methods
-    def import_image(self, filename=None, client=None, extra_args=None,
-                     skip="all", **kwargs):
+    def import_image(
+        self, filename=None, client=None, extra_args=None, skip="all", **kwargs
+    ):
         """
         Imports the specified file.
         """
@@ -286,18 +290,22 @@ class ITest(object):
             args.extend(extra_args)
         args.append(filename)
 
-        popen = subprocess.Popen(args, cwd=str(self.omero_dist),
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
+        popen = subprocess.Popen(
+            args,
+            cwd=str(self.omero_dist),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         out, err = popen.communicate()
         rc = popen.wait()
         if rc != 0:
-            raise Exception("import failed: [%r] %s\n%s\n%s" % (
-                args, rc, out, err))
+            raise Exception(
+                "import failed: [%r] %s\n%s\n%s" % (args, rc, out, err)
+            )
         pix_ids = []
         for x in out.split(b"\n"):
             if x and x.find(b"Created") < 0 and x.find(b"#") < 0:
-                try:    # if the line has an image ID...
+                try:  # if the line has an image ID...
                     image_id = str(int(x.strip()))
                     # Occasionally during tests an id is duplicated on stdout
                     if image_id not in pix_ids:
@@ -306,8 +314,15 @@ class ITest(object):
                     pass
         return pix_ids
 
-    def import_fake_file(self, images_count=1, name=None, client=None,
-                         with_companion=False, skip="all", **kwargs):
+    def import_fake_file(
+        self,
+        images_count=1,
+        name=None,
+        client=None,
+        with_companion=False,
+        skip="all",
+        **kwargs
+    ):
         """
         Creates a fake file with an images_count of images, imports
         the file and then return the list of images.
@@ -346,7 +361,8 @@ class ITest(object):
                         ini.write("%s=%s\n" % (k, v))
 
         pixel_ids = self.import_image(
-            filename=fake.abspath(), client=client, skip=skip, **kwargs)
+            filename=fake.abspath(), client=client, skip=skip, **kwargs
+        )
 
         if images_count >= 1:
             assert images_count == len(pixel_ids)
@@ -357,8 +373,16 @@ class ITest(object):
             images.append(pixels.getImage())
         return images
 
-    def import_plates(self, client=None, plates=1, plate_acqs=1, plate_cols=1,
-                      plate_rows=1, fields=1, **kwargs):
+    def import_plates(
+        self,
+        client=None,
+        plates=1,
+        plate_acqs=1,
+        plate_cols=1,
+        plate_rows=1,
+        fields=1,
+        **kwargs
+    ):
         """
         Creates fake plates and imports them.
         """
@@ -375,18 +399,29 @@ class ITest(object):
         images = [x.id.val for x in images]
 
         query = client.sf.getQueryService()
-        plates = query.findAllByQuery((
-            "select p from Plate p "
-            "join fetch p.wells as w "
-            "join fetch w.wellSamples as ws "
-            "join fetch ws.image as i "
-            "where i.id in (:ids)"),
-            omero.sys.ParametersI().addIds(images))
+        plates = query.findAllByQuery(
+            (
+                "select p from Plate p "
+                "join fetch p.wells as w "
+                "join fetch w.wellSamples as ws "
+                "join fetch ws.image as i "
+                "where i.id in (:ids)"
+            ),
+            omero.sys.ParametersI().addIds(images),
+        )
         return plates
 
-    def create_test_image(self, size_x=16, size_y=16, size_z=1, size_c=1,
-                          size_t=1, session=None, name="testImage",
-                          thumb=True):
+    def create_test_image(
+        self,
+        size_x=16,
+        size_y=16,
+        size_z=1,
+        size_c=1,
+        size_t=1,
+        session=None,
+        name="testImage",
+        thumb=True,
+    ):
         """
         Creates a test image of the required dimensions, where each pixel
         value is set to the value of x+y.
@@ -416,29 +451,42 @@ class ITest(object):
         # look up the PixelsType object from DB
         # omero::model::PixelsType
         pixels_type = query_service.findByQuery(
-            "from PixelsType as p where p.value='%s'" % p_type, None)
+            "from PixelsType as p where p.value='%s'" % p_type, None
+        )
         # if for example float32
         if pixels_type is None and p_type.startswith("float"):
             # omero::model::PixelsType
             v = PixelsTypefloat
             pixels_type = query_service.findByQuery(
-                "from PixelsType as p where p.value='%s'" % v, None)
+                "from PixelsType as p where p.value='%s'" % v, None
+            )
         if pixels_type is None:
             raise Exception("Unknown pixels type for: " % p_type)
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
         channel_list = list(range(1, size_c + 1))
-        iid = pixels_service.createImage(size_x, size_y, size_z, size_t,
-                                         channel_list, pixels_type,
-                                         name, "description")
+        iid = pixels_service.createImage(
+            size_x,
+            size_y,
+            size_z,
+            size_t,
+            channel_list,
+            pixels_type,
+            name,
+            "description",
+        )
         image_id = iid.getValue()
         image = container_service.getImages("Image", [image_id], None)[0]
 
         pixels_id = image.getPrimaryPixels().getId().getValue()
 
-        colour_map = {0: (0, 0, 255, 255), 1: (0, 255, 0, 255),
-                      2: (255, 0, 0, 255), 3: (255, 0, 255, 255)}
+        colour_map = {
+            0: (0, 0, 255, 255),
+            1: (0, 255, 0, 255),
+            2: (255, 0, 0, 255),
+            3: (255, 0, 255, 255),
+        }
         f_list = [f1, f2, f3]
         try:
             raw_pixel_store.setPixelsId(pixels_id, True)
@@ -448,22 +496,28 @@ class ITest(object):
                 f = f_list[the_c % len(f_list)]
                 for the_z in range(size_z):
                     for the_t in range(size_t):
-                        plane_2d = fromfunction(f, (size_y, size_x),
-                                                dtype=int16)
-                        script_utils.upload_plane(raw_pixel_store, plane_2d,
-                                                  the_z, the_c, the_t)
+                        plane_2d = fromfunction(
+                            f, (size_y, size_x), dtype=int16
+                        )
+                        script_utils.upload_plane(
+                            raw_pixel_store, plane_2d, the_z, the_c, the_t
+                        )
                         min_value = min(min_value, plane_2d.min())
                         max_value = max(max_value, plane_2d.max())
-                pixels_service.setChannelGlobalMinMax(pixels_id, the_c,
-                                                      float(min_value),
-                                                      float(max_value))
+                pixels_service.setChannelGlobalMinMax(
+                    pixels_id, the_c, float(min_value), float(max_value)
+                )
                 rgba = None
                 if the_c in colour_map:
                     rgba = colour_map[the_c]
-                script_utils.reset_rendering_settings(rendering_engine,
-                                                      pixels_id, the_c,
-                                                      min_value, max_value,
-                                                      rgba)
+                script_utils.reset_rendering_settings(
+                    rendering_engine,
+                    pixels_id,
+                    the_c,
+                    min_value,
+                    max_value,
+                    rgba,
+                )
         finally:
             rendering_engine.close()
             raw_pixel_store.close()
@@ -473,7 +527,7 @@ class ITest(object):
             tb = session.createThumbnailStore()
             try:
                 s = tb.getThumbnailByLongestSideSet(rint(16), [pixels_id])
-                assert s[pixels_id] != ''
+                assert s[pixels_id] != ""
 
             finally:
                 tb.close()
@@ -491,9 +545,11 @@ class ITest(object):
 
         params = omero.sys.ParametersI()
         params.addIds([x.id.val for x in i])
-        query1 = "select fs from Fileset fs "\
-            "left outer join fetch fs.images as image "\
+        query1 = (
+            "select fs from Fileset fs "
+            "left outer join fetch fs.images as image "
             "where image.id in (:ids)"
+        )
         rv = unwrap(query.projection(query1, params))
         return rv[0][0]
 
@@ -501,7 +557,8 @@ class ITest(object):
         if objs:
             for obj in objs:
                 self.root.sf.getUpdateService().indexObject(
-                    obj, {"omero.group": "-1"})
+                    obj, {"omero.group": "-1"}
+                )
 
     def wait_on_cmd(self, client, handle, loops=10, ms=500, passes=True):
         """
@@ -517,9 +574,16 @@ class ITest(object):
         return callback
 
     @classmethod
-    def new_user(cls, group=None, perms=None,
-                 owner=False, system=False, uname=None,
-                 email=None, privileges=None):
+    def new_user(
+        cls,
+        group=None,
+        perms=None,
+        owner=False,
+        system=False,
+        uname=None,
+        email=None,
+        privileges=None,
+    ):
         """
         :owner: If user is to be an owner of the created group
         :system: If user is to be a system group member
@@ -550,9 +614,10 @@ class ITest(object):
         e.ldap = rbool(False)
         e.email = rstring(email)
         list_of_groups = list()
-        list_of_groups.append(admin_service.lookupGroup('user'))
+        list_of_groups.append(admin_service.lookupGroup("user"))
         uid = admin_service.createExperimenterWithPassword(
-            e, rstring(uname), g, list_of_groups)
+            e, rstring(uname), g, list_of_groups
+        )
         e = admin_service.lookupExperimenter(uname)
         if owner:
             admin_service.setGroupOwner(g, e)
@@ -570,9 +635,18 @@ class ITest(object):
             admin_service.setAdminPrivileges(e, to_set)
         return admin_service.getExperimenter(uid)
 
-    def new_client(self, group=None, user=None, perms=None,
-                   owner=False, system=False, session=None,
-                   password=None, email=None, privileges=None):
+    def new_client(
+        self,
+        group=None,
+        user=None,
+        perms=None,
+        owner=False,
+        system=False,
+        session=None,
+        password=None,
+        email=None,
+        privileges=None,
+    ):
         """
         Like new_user() but returns an active client.
 
@@ -591,9 +665,14 @@ class ITest(object):
             if user is not None:
                 user, name = self.user_and_name(user)
             else:
-                user = self.new_user(group, perms, owner=owner,
-                                     system=system, email=email,
-                                     privileges=privileges)
+                user = self.new_user(
+                    group,
+                    perms,
+                    owner=owner,
+                    system=system,
+                    email=email,
+                    privileges=privileges,
+                )
             props["omero.user"] = user.omeName.val
             if password is not None:
                 props["omero.pass"] = password
@@ -606,13 +685,19 @@ class ITest(object):
         client.createSession()
         return client
 
-    def new_client_and_user(self, group=None, perms=None,
-                            owner=False, system=False,
-                            privileges=None):
-        user = self.new_user(group, owner=owner, system=system, perms=perms,
-                             privileges=privileges)
+    def new_client_and_user(
+        self, group=None, perms=None, owner=False, system=False, privileges=None
+    ):
+        user = self.new_user(
+            group,
+            owner=owner,
+            system=system,
+            perms=perms,
+            privileges=privileges,
+        )
         client = self.new_client(
-            group, user, perms=perms, owner=owner, system=system)
+            group, user, perms=perms, owner=owner, system=system
+        )
         return client, user
 
     def timeit(self, func, *args, **kwargs):
@@ -640,8 +725,9 @@ class ITest(object):
             name = group
             group = admin.lookupGroup(name)
         elif isinstance(group, Experimenter):
-            assert False,\
-                "group is a user! Try adding group= to your method invocation"
+            assert (
+                False
+            ), "group is a user! Try adding group= to your method invocation"
         else:
             assert False, "Unknown type: %s=%s" % (type(group), group)
 
@@ -667,8 +753,9 @@ class ITest(object):
             name = user
             user = admin.lookupExperimenter(name)
         elif isinstance(user, ExperimenterGroup):
-            assert False,\
-                "user is a group! Try adding user= to your method invocation"
+            assert (
+                False
+            ), "user is a group! Try adding user= to your method invocation"
         else:
             assert False, "Unknown type: %s=%s" % (type(user), user)
 
@@ -691,12 +778,21 @@ class ITest(object):
             client = self.client
 
         fake = create_path("missing_pyramid", "&sizeX=4000&sizeY=4000.fake")
-        pixels_id = self.import_image(filename=fake.abspath(), client=client,
-                                      skip="all")
+        pixels_id = self.import_image(
+            filename=fake.abspath(), client=client, skip="all"
+        )
         return pixels_id[0]
 
-    def create_pixels(self, x=10, y=10, z=10, c=3, t=50,
-                      pixels_type=PixelsTypeint8, client=None):
+    def create_pixels(
+        self,
+        x=10,
+        y=10,
+        z=10,
+        c=3,
+        t=50,
+        pixels_type=PixelsTypeint8,
+        client=None,
+    ):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -727,8 +823,7 @@ class ITest(object):
             return 1
         if pixels_type in [PixelsTypeint16, PixelsTypeuint16]:
             return 2
-        if pixels_type in [PixelsTypeint32, PixelsTypeuint32,
-                           PixelsTypefloat]:
+        if pixels_type in [PixelsTypeint32, PixelsTypeuint32, PixelsTypefloat]:
             return 4
         if pixels_type in [PixelsTypedouble]:
             return 8
@@ -769,8 +864,16 @@ class ITest(object):
                                     # Again assuming int8
                                     bytes_per_tile = w * h
 
-                                args = ([5] * bytes_per_tile,
-                                        z, c, t, x, y, w, h)
+                                args = (
+                                    [5] * bytes_per_tile,
+                                    z,
+                                    c,
+                                    t,
+                                    x,
+                                    y,
+                                    w,
+                                    h,
+                                )
                                 rps.setTile(*args)
 
     def login_attempt(self, name, t, pw="BAD", less=False):
@@ -797,7 +900,7 @@ class ITest(object):
                 if pw != "BAD":
                     raise
             t2 = time.time()
-            diff = (t2 - t1)
+            diff = t2 - t1
             if less:
                 assert diff < t, "%s > %s" % (diff, t)
             else:
@@ -805,8 +908,9 @@ class ITest(object):
         finally:
             c.__del__()
 
-    def do_submit(self, request, client, test_should_pass=True,
-                  omero_group=None):
+    def do_submit(
+        self, request, client, test_should_pass=True, omero_group=None
+    ):
         """
         Performs the request(s), waits on completion and checks that the
         result is not an error. The request can either be a single command
@@ -818,7 +922,7 @@ class ITest(object):
 
         sf = client.sf
         if omero_group is not None:
-            prx = sf.submit(request, {'omero.group': native_str(omero_group)})
+            prx = sf.submit(request, {"omero.group": native_str(omero_group)})
         else:
             prx = sf.submit(request)
 
@@ -835,12 +939,12 @@ class ITest(object):
             if isinstance(rsp, ERR):
                 assert False, (
                     "Found ERR when test_should_pass==true: %s (%s) params=%s"
-                    % (rsp.category, rsp.name, rsp.parameters))
+                    % (rsp.category, rsp.name, rsp.parameters)
+                )
             assert State.FAILURE not in prx.getStatus().flags
         else:
             if isinstance(rsp, OK):
-                assert False, (
-                    "Found OK when test_should_pass==false: %s" % rsp)
+                assert False, "Found OK when test_should_pass==false: %s" % rsp
             assert State.FAILURE in prx.getStatus().flags
 
         return rsp
@@ -962,8 +1066,9 @@ class ITest(object):
             dsets.append(self.new_dataset(name=name))
         return update.saveAndReturnArray(dsets)
 
-    def make_file_annotation(self, name=None, binary=None, mimetype=None,
-                             client=None, namespace=None):
+    def make_file_annotation(
+        self, name=None, binary=None, mimetype=None, client=None, namespace=None
+    ):
         """
         Creates a file annotation with an original file.
         If no name has been provided, a UUID string shall be used.
@@ -1105,7 +1210,8 @@ class ITest(object):
             client = self.client
 
         command = Chmod2(
-            targetObjects={'ExperimenterGroup': [gid]}, permissions=perms)
+            targetObjects={"ExperimenterGroup": [gid]}, permissions=perms
+        )
 
         self.do_submit(command, client)
 
@@ -1135,19 +1241,20 @@ class ITest(object):
         if name is None:
             name = "test&sizeX=4000&sizeY=4000.fake"
         fakefile = tmpdir.join(name)
-        fakefile.write('')
+        fakefile.write("")
         if client is None:
             client = self.client
-        pixels = self.import_image(filename=str(fakefile), client=client,
-                                   skip=skip)[0]
+        pixels = self.import_image(
+            filename=str(fakefile), client=client, skip=skip
+        )[0]
         id = int(float(pixels))
         assert id >= 0
         # wait for the pyramid to be generated
         self.wait_for_pyramid(id, client)
         query_service = client.sf.getQueryService()
         pix = query_service.findByQuery(
-            "select p from Pixels p where p.id = :id",
-            ParametersI().addId(id))
+            "select p from Pixels p where p.id = :id", ParametersI().addId(id)
+        )
         return pix.image.id.val
 
     def calculate_sha1(self, data):
@@ -1162,11 +1269,19 @@ class ProjectionFixture(object):
         'select x.permissions from Object x'
     """
 
-    def __init__(self, perms, writer, reader,
-                 can_read,
-                 can_annotate=False, can_delete=False,
-                 can_edit=False, can_link=False,
-                 can_chgrp=False, can_chown=False):
+    def __init__(
+        self,
+        perms,
+        writer,
+        reader,
+        can_read,
+        can_annotate=False,
+        can_delete=False,
+        can_edit=False,
+        can_link=False,
+        can_chgrp=False,
+        can_chown=False,
+    ):
         self.perms = perms
         self.writer = writer
         self.reader = reader
@@ -1246,7 +1361,6 @@ PFS = (
 
 
 class AbstractRepoTest(ITest):
-
     def setup_method(self, method):
         self.unique_dir = self.test_dir()
 
@@ -1316,14 +1430,15 @@ class AbstractRepoTest(ITest):
         system, node, release, version, machine, processor = platform.uname()
 
         client_version_info = [
-            NamedValue('omero.version', omero_version),
-            NamedValue('os.name', system),
-            NamedValue('os.version', release),
-            NamedValue('os.architecture', machine)
+            NamedValue("omero.version", omero_version),
+            NamedValue("os.name", system),
+            NamedValue("os.version", release),
+            NamedValue("os.architecture", machine),
         ]
         try:
             client_version_info.append(
-                NamedValue('locale', locale.getdefaultlocale()[0]))
+                NamedValue("locale", locale.getdefaultlocale()[0])
+            )
         except:
             pass
 
@@ -1415,8 +1530,7 @@ class AbstractRepoTest(ITest):
     def assert_no_write(self, mrepo2, filename, ofile):
         def _nowrite(rfs):
             try:
-                pytest.raises(omero.SecurityViolation,
-                              rfs.write, b"bye", 0, 3)
+                pytest.raises(omero.SecurityViolation, rfs.write, b"bye", 0, 3)
                 assert b"hi" == rfs.read(0, 2)
             finally:
                 rfs.close()
@@ -1428,8 +1542,7 @@ class AbstractRepoTest(ITest):
         _nowrite(rfs)
 
         # Can't even acquire a writeable-rfs.
-        pytest.raises(omero.SecurityViolation,
-                      mrepo2.file, filename, "rw")
+        pytest.raises(omero.SecurityViolation, mrepo2.file, filename, "rw")
 
     def assert_dir_write(self, mrepo2, dirname):
         self.create_file(mrepo2, dirname + "/file2.txt")
@@ -1437,14 +1550,16 @@ class AbstractRepoTest(ITest):
     def assert_no_dir_write(self, mrepo2, dirname):
         # Also check that it's not possible to write
         # in someone else's directory.
-        pytest.raises(omero.SecurityViolation,
-                      self.create_file, mrepo2, dirname + "/file2.txt")
+        pytest.raises(
+            omero.SecurityViolation,
+            self.create_file,
+            mrepo2,
+            dirname + "/file2.txt",
+        )
 
     def assert_no_read(self, mrepo2, filename, ofile):
-        pytest.raises(omero.SecurityViolation,
-                      mrepo2.fileById, ofile.id.val)
-        pytest.raises(omero.SecurityViolation,
-                      mrepo2.file, filename, "r")
+        pytest.raises(omero.SecurityViolation, mrepo2.fileById, ofile.id.val)
+        pytest.raises(omero.SecurityViolation, mrepo2.file, filename, "r")
 
     def assert_read(self, mrepo2, filename, ofile, ctx=None):
         def _read(rfs):
@@ -1462,8 +1577,9 @@ class AbstractRepoTest(ITest):
     def assert_listings(self, mrepo1, unique_dir):
         assert [unique_dir + "/b"] == mrepo1.list(unique_dir + "/")
         assert [unique_dir + "/b/c"] == mrepo1.list(unique_dir + "/b/")
-        assert [
-            unique_dir + "/b/c/file.txt"] == mrepo1.list(unique_dir + "/b/c/")
+        assert [unique_dir + "/b/c/file.txt"] == mrepo1.list(
+            unique_dir + "/b/c/"
+        )
 
     def assert_passes(self, cb, loops=10, wait=500):
         cb.loop(loops, wait)

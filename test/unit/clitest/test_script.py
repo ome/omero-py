@@ -26,7 +26,6 @@ import pytest
 
 
 class TestScript(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("script", ScriptControl, "TEST")

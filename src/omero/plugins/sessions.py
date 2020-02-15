@@ -170,21 +170,26 @@ class SessionsControl(UserGroupControl):
             if base_dir:
                 warnings.warn(
                     "--session-dir is deprecated. Use OMERO_SESSIONDIR"
-                    " instead.", DeprecationWarning)
+                    " instead.",
+                    DeprecationWarning,
+                )
 
             # Read base directory from deprecated OMERO_SESSION_DIR envvar
-            base_dir = os.environ.get('OMERO_SESSION_DIR', base_dir)
-            if 'OMERO_SESSION_DIR' in os.environ:
+            base_dir = os.environ.get("OMERO_SESSION_DIR", base_dir)
+            if "OMERO_SESSION_DIR" in os.environ:
                 warnings.warn(
                     "OMERO_SESSION_DIR is deprecated. Use OMERO_SESSIONDIR"
-                    " instead.", DeprecationWarning)
+                    " instead.",
+                    DeprecationWarning,
+                )
 
             # Read sessions directory from OMERO_SESSIONDIR envvar
             session_dir = None
             if base_dir:
                 from omero_ext.path import path
+
                 session_dir = path(base_dir) / "omero" / "sessions"
-            sessions_dir = os.environ.get('OMERO_SESSIONDIR', session_dir)
+            sessions_dir = os.environ.get("OMERO_SESSIONDIR", session_dir)
 
             return self.FACTORY(sessions_dir)
         except OSError as ose:
@@ -195,87 +200,121 @@ class SessionsControl(UserGroupControl):
         parser.add_login_arguments()
         sub = parser.sub()
         parser.add(sub, self.help, "Extended help")
-        login = parser.add(
-            sub, self.login, self.login.__doc__)
+        login = parser.add(sub, self.login, self.login.__doc__)
         logout = parser.add(
-            sub, self.logout, "Logout and remove current session key")
+            sub, self.logout, "Logout and remove current session key"
+        )
         self._configure_login(login)
 
         group = parser.add(
-            sub, self.group,
-            "Set the group of the given session by id or name" + GROUPHELP)
+            sub,
+            self.group,
+            "Set the group of the given session by id or name" + GROUPHELP,
+        )
         group.add_argument(
             "target",
             nargs="?",
-            help="Id or name of the group to switch this session to")
+            help="Id or name of the group to switch this session to",
+        )
 
         timeout = parser.add(
-            sub, self.timeout,
-            "Query or set the timeToIdle for the given session")
+            sub,
+            self.timeout,
+            "Query or set the timeToIdle for the given session",
+        )
         timeout.add_argument(
             "seconds",
             nargs="?",
             type=int,
-            help="Number of seconds to set the timeToIdle value to")
+            help="Number of seconds to set the timeToIdle value to",
+        )
         timeout.add_argument(
-            "--session",
-            help="Session other than the current to update")
+            "--session", help="Session other than the current to update"
+        )
 
-        list = parser.add(sub, self.list, (
-            "List all available sessions stored locally\n\n" + LISTHELP))
+        list = parser.add(
+            sub,
+            self.list,
+            ("List all available sessions stored locally\n\n" + LISTHELP),
+        )
         list.add_argument(
-            "--no-purge", dest="purge", action="store_false",
-            help="Do not remove inactive sessions")
+            "--no-purge",
+            dest="purge",
+            action="store_false",
+            help="Do not remove inactive sessions",
+        )
 
-        who = parser.add(sub, self.who, (
-            "List all active server sessions\n\n" + WHOHELP))
+        who = parser.add(
+            sub, self.who, ("List all active server sessions\n\n" + WHOHELP)
+        )
         who.add_argument(
-            "--show-uuid", help="Show uuids for sessions",
-            action="store_true")
-
+            "--show-uuid", help="Show uuids for sessions", action="store_true"
+        )
 
         keepalive = parser.add(
-            sub, self.keepalive, "Keeps the current session alive")
+            sub, self.keepalive, "Keeps the current session alive"
+        )
         keepalive.add_argument(
-            "-f", "--frequency", type=int, default=60,
-            help="Time in seconds between keep alive calls", metavar="SECS")
+            "-f",
+            "--frequency",
+            type=int,
+            default=60,
+            help="Time in seconds between keep alive calls",
+            metavar="SECS",
+        )
 
         clear = parser.add(
-            sub, self.clear, "Close and remove locally stored sessions")
+            sub, self.clear, "Close and remove locally stored sessions"
+        )
         clear.add_argument(
-            "--all", action="store_true",
-            help="Remove all locally stored sessions not just inactive ones")
+            "--all",
+            action="store_true",
+            help="Remove all locally stored sessions not just inactive ones",
+        )
 
         file = parser.add(
-            sub, self.file, "Print the path to the current session file")
+            sub, self.file, "Print the path to the current session file"
+        )
 
         key = parser.add(
-            sub, self.key, "Print the key of the current active session")
+            sub, self.key, "Print the key of the current active session"
+        )
 
         for x in (file, key, logout, keepalive, list, clear, group):
             self._configure_dir(x)
 
-        open = parser.add(sub, self.open, "Create a session for "
-                                          "the given user and group")
+        open = parser.add(
+            sub, self.open, "Create a session for " "the given user and group"
+        )
         self.add_single_user_argument(open)
         self.add_single_group_argument(open, required=False)
-        open.add_argument("--timeout", nargs="?", type=int, default=0,
-                          help="Timeout in seconds (optional; default: "
-                               "maximum possible)")
+        open.add_argument(
+            "--timeout",
+            nargs="?",
+            type=int,
+            default=0,
+            help="Timeout in seconds (optional; default: " "maximum possible)",
+        )
 
-        close = parser.add(sub, self.close, "Close the session with "
-                                            "the given session ID")
+        close = parser.add(
+            sub, self.close, "Close the session with " "the given session ID"
+        )
         close.add_argument("sessionId", nargs="?", help="The session ID")
 
     def _configure_login(self, login):
         login.add_login_arguments()
         login.add_argument(
-            "-t", "--timeout", type=int,
+            "-t",
+            "--timeout",
+            type=int,
             help="Timeout for session. After this many inactive seconds, the"
-            " session will be closed")
+            " session will be closed",
+        )
         login.add_argument(
-            "connection", nargs="?",
-            help="Connection string. See extended help for examples")
+            "connection",
+            nargs="?",
+            help="Connection string. See extended help for examples",
+        )
         self._configure_dir(login)
 
     def _configure_dir(self, parser):
@@ -303,8 +342,7 @@ class SessionsControl(UserGroupControl):
             p.group = groupname
         p.eventType = "User"
         svc = client.sf.getSessionService()
-        sess = svc.createSessionWithTimeout(p, (int(args.timeout)
-                                                * 1000))
+        sess = svc.createSessionWithTimeout(p, (int(args.timeout) * 1000))
         sessId = sess.getUuid().val
         tti = old_div(sess.getTimeToIdle().val, 1000)
         ttl = old_div(sess.getTimeToLive().val, 1000)
@@ -331,20 +369,22 @@ class SessionsControl(UserGroupControl):
             self.ctx.out("Session %s closed." % args.sessionId)
 
     def login(self, args):
-        ("Login to a given server, and store session key locally.\n\n"
-         "USER, HOST, and PORT are set as args or in a ssh-style "
-         "connection string.\n"
-         "PASSWORD can be entered interactively, or passed via "
-         "-w (insecure!).\n"
-         "Alternatively, a session KEY can be passed with '-k'.\n"
-         "Admin users can use --sudo=ADMINUSER to login for others.\n\n"
-         "Examples:\n"
-         "  omero login example.com\n"
-         "  omero login user@example.com\n"
-         "  omero login user@example.com:24064\n"
-         "  omero login -k SESSIONKEY example.com\n"
-         "  omero login --sudo=root user@example\n"
-         "\n")
+        (
+            "Login to a given server, and store session key locally.\n\n"
+            "USER, HOST, and PORT are set as args or in a ssh-style "
+            "connection string.\n"
+            "PASSWORD can be entered interactively, or passed via "
+            "-w (insecure!).\n"
+            "Alternatively, a session KEY can be passed with '-k'.\n"
+            "Admin users can use --sudo=ADMINUSER to login for others.\n\n"
+            "Examples:\n"
+            "  omero login example.com\n"
+            "  omero login user@example.com\n"
+            "  omero login user@example.com:24064\n"
+            "  omero login -k SESSIONKEY example.com\n"
+            "  omero login --sudo=root user@example\n"
+            "\n"
+        )
 
         """
         Goals:
@@ -379,8 +419,10 @@ class SessionsControl(UserGroupControl):
 
         if args.server:
             if server:
-                self.ctx.die(3, "Server specified twice: %s and %s"
-                             % (server, args.server))
+                self.ctx.die(
+                    3,
+                    "Server specified twice: %s and %s" % (server, args.server),
+                )
             else:
                 server = args.server
 
@@ -389,15 +431,17 @@ class SessionsControl(UserGroupControl):
 
         if args.user:
             if name:
-                self.ctx.die(4, "Username specified twice: %s and %s"
-                             % (name, args.user))
+                self.ctx.die(
+                    4, "Username specified twice: %s and %s" % (name, args.user)
+                )
             else:
                 name = args.user
 
         if args.port:
             if port:
-                self.ctx.die(5, "Port specified twice: %s and %s"
-                             % (port, args.port))
+                self.ctx.die(
+                    5, "Port specified twice: %s and %s" % (port, args.port)
+                )
             else:
                 port = args.port
 
@@ -424,44 +468,58 @@ class SessionsControl(UserGroupControl):
         #
         elif previous[0] and previous[1]:
 
-                server_differs = (server is not None and server != previous[0])
-                name_differs = (name is not None and name != previous[1])
-                port_differs = (port is not None and port != previous[3])
+            server_differs = server is not None and server != previous[0]
+            name_differs = name is not None and name != previous[1]
+            port_differs = port is not None and port != previous[3]
 
-                if not create and not server_differs and not name_differs \
-                        and not port_differs:
+            if (
+                not create
+                and not server_differs
+                and not name_differs
+                and not port_differs
+            ):
+                try:
+                    if previous[2] is not None:
+                        # Missing session uuid file. Deleted? See #4199
+                        conflicts = store.conflicts(
+                            previous[0], previous[1], previous[2], props, True
+                        )
+                        if conflicts:
+                            self.ctx.dbg(
+                                "Not attaching because of"
+                                " conflicts: %s" % conflicts
+                            )
+                        else:
+                            rv = store.attach(*previous[:-1])
+                            return self.handle(rv, "Using")
+                    if not self.ctx.isquiet:
+                        self.ctx.out(
+                            "Previously logged in to %s:%s as %s"
+                            % (previous[0], previous[3], previous[1])
+                        )
+                except Exception as e:
+                    self.ctx.out(
+                        "Previous session expired for %s on"
+                        " %s:%s" % (previous[1], previous[0], previous[3])
+                    )
+                    self.ctx.dbg(
+                        "Exception on attach: %s"
+                        % traceback.format_exception(None, e, sys.exc_info()[2])
+                    )
                     try:
-                        if previous[2] is not None:
-                            # Missing session uuid file. Deleted? See #4199
-                            conflicts = store.conflicts(
-                                previous[0], previous[1], previous[2], props,
-                                True)
-                            if conflicts:
-                                self.ctx.dbg("Not attaching because of"
-                                             " conflicts: %s" % conflicts)
-                            else:
-                                rv = store.attach(*previous[:-1])
-                                return self.handle(rv, "Using")
-                        if not self.ctx.isquiet:
-                            self.ctx.out("Previously logged in to %s:%s as %s"
-                                         % (previous[0], previous[3],
-                                            previous[1]))
-                    except Exception as e:
-                        self.ctx.out("Previous session expired for %s on"
-                                     " %s:%s" % (previous[1], previous[0],
-                                                 previous[3]))
-                        self.ctx.dbg("Exception on attach: %s"
-                                     % traceback.format_exception(None, e, sys.exc_info()[2]))
-                        try:
-                            store.remove(*previous[:-1])
-                        except OSError as ose:
-                            self.ctx.dbg("Session file missing: %s" % ose)
-                        except:
-                            self.ctx.dbg("Exception on remove: %s"
-                                         % traceback.format_exception(None, e, sys.exc_info()[2]))
-                            # Could tell user to manually clear here and then
-                            # self.ctx.die()
-                            self.ctx.err("Failed to remove session: %s" % e)
+                        store.remove(*previous[:-1])
+                    except OSError as ose:
+                        self.ctx.dbg("Session file missing: %s" % ose)
+                    except:
+                        self.ctx.dbg(
+                            "Exception on remove: %s"
+                            % traceback.format_exception(
+                                None, e, sys.exc_info()[2]
+                            )
+                        )
+                        # Could tell user to manually clear here and then
+                        # self.ctx.die()
+                        self.ctx.err("Failed to remove session: %s" % e)
 
         #
         # If we've reached here, then the user either does not have
@@ -494,11 +552,24 @@ class SessionsControl(UserGroupControl):
                 # did not come from a CLI login, and so we're not going to
                 # modify the value returned by store.get_current()
                 self.ctx.dbg("No local session file found for %s." % args.key)
-                rv = self.attach(store, server, args.key, args.key, props,
-                                 False, set_current=False)
+                rv = self.attach(
+                    store,
+                    server,
+                    args.key,
+                    args.key,
+                    props,
+                    False,
+                    set_current=False,
+                )
             else:
-                rv = self.check_and_attach(store, server, stored_name,
-                                           args.key, props, check_group=False)
+                rv = self.check_and_attach(
+                    store,
+                    server,
+                    stored_name,
+                    args.key,
+                    props,
+                    check_group=False,
+                )
             action = "Joined"
             if not rv:
                 if port:
@@ -509,8 +580,9 @@ class SessionsControl(UserGroupControl):
         elif not create:
             available = store.available(server, name)
             for uuid in available:
-                rv = self.check_and_attach(store, server, name, uuid, props,
-                                           check_group=True)
+                rv = self.check_and_attach(
+                    store, server, name, uuid, props, check_group=True
+                )
                 action = "Reconnected to"
 
         if not rv:
@@ -529,8 +601,9 @@ class SessionsControl(UserGroupControl):
                             prompt = "Password for %s:" % args.sudo
                         else:
                             prompt = "Password:"
-                        pasw = self.ctx.input(prompt, hidden=True,
-                                              required=True)
+                        pasw = self.ctx.input(
+                            prompt, hidden=True, required=True
+                        )
                     rv = store.create(name, pasw, props, sudo=args.sudo)
                     break
                 except PermissionDeniedException as pde:
@@ -544,27 +617,36 @@ class SessionsControl(UserGroupControl):
                     self.ctx.die(525, "User account error: %s." % rse.message)
                 except Ice.ConnectionRefusedException:
                     if port:
-                        self.ctx.die(554, "Ice.ConnectionRefusedException:"
-                                     " %s:%s isn't running" % (server, port))
+                        self.ctx.die(
+                            554,
+                            "Ice.ConnectionRefusedException:"
+                            " %s:%s isn't running" % (server, port),
+                        )
                     else:
-                        self.ctx.die(554, "Ice.ConnectionRefusedException: %s"
-                                     " isn't running" % server)
+                        self.ctx.die(
+                            554,
+                            "Ice.ConnectionRefusedException: %s"
+                            " isn't running" % server,
+                        )
                 except Ice.DNSException:
-                    self.ctx.die(555, "Ice.DNSException: bad host name: '%s'"
-                                 % server)
+                    self.ctx.die(
+                        555, "Ice.DNSException: bad host name: '%s'" % server
+                    )
                 except omero.SecurityViolation as sv:
                     self.ctx.die(557, "SecurityViolation: %s" % sv.message)
                 except Exception as e:
                     exc = traceback.format_exc()
                     self.ctx.dbg(exc)
-                    self.ctx.die(556, "InternalException: Failed to connect:"
-                                 " %s" % e)
+                    self.ctx.die(
+                        556, "InternalException: Failed to connect:" " %s" % e
+                    )
             action = "Created"
 
         return self.handle(rv, action)
 
-    def check_and_attach(self, store, server, name, uuid, props,
-                         check_group=False):
+    def check_and_attach(
+        self, store, server, name, uuid, props, check_group=False
+    ):
         """
         Checks for conflicts in the settings for this session,
         and if there are none, then attempts an "attach()". If
@@ -574,21 +656,27 @@ class SessionsControl(UserGroupControl):
         exists = store.exists(server, name, uuid)
 
         if exists:
-            conflicts = store.conflicts(server, name, uuid, props,
-                                        check_group=check_group)
+            conflicts = store.conflicts(
+                server, name, uuid, props, check_group=check_group
+            )
             if conflicts:
                 if "omero.port" in conflicts:
-                    self.ctx.dbg("Skipping session %s due to mismatching"
-                                 " ports: %s " % (uuid, conflicts))
+                    self.ctx.dbg(
+                        "Skipping session %s due to mismatching"
+                        " ports: %s " % (uuid, conflicts)
+                    )
                 elif not self.ctx.isquiet:
-                    self.ctx.err("Skipped session %s due to property"
-                                 " conflicts: %s" % (uuid, conflicts))
+                    self.ctx.err(
+                        "Skipped session %s due to property"
+                        " conflicts: %s" % (uuid, conflicts)
+                    )
                 return None
 
         return self.attach(store, server, name, uuid, props, exists)
 
-    def attach(self, store, server, name, uuid, props, exists,
-               set_current=True):
+    def attach(
+        self, store, server, name, uuid, props, exists, set_current=True
+    ):
         rv = None
         try:
             if exists:
@@ -616,12 +704,11 @@ class SessionsControl(UserGroupControl):
         host = client.getProperty("omero.host")
         port = client.getProperty("omero.port")
 
-        msg = "%s session for %s@%s:%s." \
-            % (action, ec.userName, host, port)
+        msg = "%s session for %s@%s:%s." % (action, ec.userName, host, port)
         msg += self._parse_timeout(idle, " Idle timeout: ")
         msg += self._parse_timeout(live, " Expires in : ")
 
-        msg += (" Current group: %s" % ec.groupName)
+        msg += " Current group: %s" % ec.groupName
 
         if not self.ctx.isquiet:
             self.ctx.err(msg)
@@ -672,18 +759,23 @@ class SessionsControl(UserGroupControl):
         old_id = ec.groupId
         old_name = ec.groupName
         if old_id == group_id and not self.ctx.isquiet:
-            self.ctx.err("Group '%s' (id=%s) is already active"
-                         % (group_name, group_id))
+            self.ctx.err(
+                "Group '%s' (id=%s) is already active" % (group_name, group_id)
+            )
         else:
             try:
-                sf.setSecurityContext(omero.model.ExperimenterGroupI(
-                    group_id, False))
+                sf.setSecurityContext(
+                    omero.model.ExperimenterGroupI(group_id, False)
+                )
                 self.ctx.set_event_context(
-                    sf.getAdminService().getEventContext())
-                self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)" % (
-                    old_name, old_id, group_name, group_id))
+                    sf.getAdminService().getEventContext()
+                )
+                self.ctx.out(
+                    "Group '%s' (id=%s) switched to '%s' (id=%s)"
+                    % (old_name, old_id, group_name, group_id)
+                )
             except omero.SecurityViolation as sv:
-                    self.ctx.die(564, "SecurityViolation: %s" % sv.message)
+                self.ctx.die(564, "SecurityViolation: %s" % sv.message)
 
     def timeout(self, args):
         client = self.ctx.conn(args)
@@ -700,7 +792,7 @@ class SessionsControl(UserGroupControl):
 
         if args.seconds is None:
             # Query only
-            secs = old_div(unwrap(obj.timeToIdle),1000.0)
+            secs = old_div(unwrap(obj.timeToIdle), 1000.0)
             self.ctx.out(secs)
             return secs
 
@@ -753,16 +845,20 @@ class SessionsControl(UserGroupControl):
 
                     if rv is None and args.purge:
                         try:
-                            self.ctx.dbg("Purging %s / %s / %s"
-                                         % (server, name, uuid))
+                            self.ctx.dbg(
+                                "Purging %s / %s / %s" % (server, name, uuid)
+                            )
                             store.remove(server, name, uuid)
                             continue
                         except IOError as ioe:
                             self.ctx.dbg("Aborting session purging. %s" % ioe)
                             break
 
-                    if server == previous[0] and name == previous[1] and \
-                            uuid == previous[2]:
+                    if (
+                        server == previous[0]
+                        and name == previous[1]
+                        and uuid == previous[2]
+                    ):
                         msg = "Logged in"
 
                     if port:
@@ -777,6 +873,7 @@ class SessionsControl(UserGroupControl):
                     results["Started"].append(started)
 
         from omero.util.text import Table, Column
+
         columns = tuple([Column(x, results[x]) for x in headers])
         self.ctx.out(str(Table(*columns)))
 
@@ -794,9 +891,14 @@ class SessionsControl(UserGroupControl):
 
             headers = ["name", "group", "logged in", "agent", "timeout"]
             extra = set()
-            results = {"name": [], "group": [],
-                       "logged in": [], "agent": [],
-                       "timeout": [], "uuid": []}
+            results = {
+                "name": [],
+                "group": [],
+                "logged in": [],
+                "agent": [],
+                "timeout": [],
+                "uuid": [],
+            }
 
             # Preparse data to find extra columns
             for idx, s in enumerate(rsp.sessions):
@@ -820,7 +922,7 @@ class SessionsControl(UserGroupControl):
                         if k.endswith("Time"):
                             t = old_div(v, 1000.0)
                             t = time.localtime(t)
-                            v = time.strftime('%Y-%m-%d %H:%M:%S', t)
+                            v = time.strftime("%Y-%m-%d %H:%M:%S", t)
                     except:
                         pass
                     results[k].append(v)
@@ -834,8 +936,7 @@ class SessionsControl(UserGroupControl):
                         t = t + " (*)"
                     results["logged in"].append(t)
                     results["agent"].append(unwrap(s.userAgent))
-                    results["timeout"].append(
-                        self._parse_timeout(s.timeToIdle))
+                    results["timeout"].append(self._parse_timeout(s.timeToIdle))
                     results["uuid"].append(ec.sessionUuid)
                 else:
                     # Insufficient privileges. The EventContext
@@ -847,6 +948,7 @@ class SessionsControl(UserGroupControl):
                     results["uuid"].append(msg)
 
             from omero.util.text import Table, Column
+
             columns = tuple([Column(x, results[x]) for x in headers])
             self.ctx.out(str(Table(*columns)))
         except omero.CmdError as ce:
@@ -855,8 +957,9 @@ class SessionsControl(UserGroupControl):
         except omero.ClientError as ce:
             if ce.message == "Null handle":
                 v = client.sf.getConfigService().getVersion()
-                self.ctx.die(561,
-                             "Operation unsupported. Server version: %s" % v)
+                self.ctx.die(
+                    561, "Operation unsupported. Server version: %s" % v
+                )
             else:
                 exc = traceback.format_exc()
                 self.ctx.dbg(exc)
@@ -885,14 +988,14 @@ class SessionsControl(UserGroupControl):
                     except Exception as e:
                         self.err("Keep alive failed: %s" % str(e))
                         return
+
         t = T()
         t.client = self.ctx.conn(args)
         t.err = self.ctx.err
         t.event = get_event(name="keepalive")
         t.start()
         try:
-            self.ctx.out("Running keep alive every %s seconds"
-                         % args.frequency)
+            self.ctx.out("Running keep alive every %s seconds" % args.frequency)
             self.ctx.input("Press enter to cancel.")
         finally:
             t.client = None
@@ -925,6 +1028,7 @@ class SessionsControl(UserGroupControl):
             return self.get_client()
 
         import omero
+
         try:
             data = self.initData(properties)
             self.set_client(omero.client(sys.argv, id=data))
@@ -944,11 +1048,12 @@ class SessionsControl(UserGroupControl):
         """Parse a connection string of form (user@)server(:port)"""
 
         import re
-        pat = r'^((?P<name>.+)@)?(?P<server>.*?)(:(?P<port>\d{1,5}))?$'
+
+        pat = r"^((?P<name>.+)@)?(?P<server>.*?)(:(?P<port>\d{1,5}))?$"
         match = re.match(pat, server)
-        server = match.group('server')
-        name = match.group('name')
-        port = match.group('port')
+        server = match.group("server")
+        name = match.group("name")
+        port = match.group("port")
         if not name:
             name = default_name
         return server, name, port

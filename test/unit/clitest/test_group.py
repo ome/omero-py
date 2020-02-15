@@ -26,7 +26,6 @@ from omero.cli import CLI
 
 
 class TestGroup(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("group", GroupControl, "TEST")

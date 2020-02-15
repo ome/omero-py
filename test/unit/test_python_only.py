@@ -26,12 +26,11 @@ class test_client(BaseClient):
 
 
 class TestPythonOnly(object):
-
     def testRepairArguments(self):
         t = test_client()
         ar = ["a", "b"]
         id = Ice.InitializationData()
-        pm = {'A': 1}
+        pm = {"A": 1}
         ho = "host"
         po = 4064
         no = None

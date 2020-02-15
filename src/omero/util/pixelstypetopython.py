@@ -47,77 +47,78 @@ DOUBLE = PixelsTypedouble
 
 
 def toPython(pixelType):
-    if(pixelType == INT_8):
-        return 'b'
-    if(pixelType == UINT_8):
-        return 'B'
-    if(pixelType == INT_16):
-        return 'h'
-    if(pixelType == UINT_16):
-        return 'H'
-    if(pixelType == INT_32):
-        return 'i'
-    if(pixelType == UINT_32):
-        return 'I'
-    if(pixelType == FLOAT):
-        return 'f'
-    if(pixelType == DOUBLE):
-        return 'd'
+    if pixelType == INT_8:
+        return "b"
+    if pixelType == UINT_8:
+        return "B"
+    if pixelType == INT_16:
+        return "h"
+    if pixelType == UINT_16:
+        return "H"
+    if pixelType == INT_32:
+        return "i"
+    if pixelType == UINT_32:
+        return "I"
+    if pixelType == FLOAT:
+        return "f"
+    if pixelType == DOUBLE:
+        return "d"
 
 
 def toNumpy(pixelType):
     import numpy
-    if(pixelType == INT_8):
+
+    if pixelType == INT_8:
         return numpy.int8
-    if(pixelType == UINT_8):
+    if pixelType == UINT_8:
         return numpy.uint8
-    if(pixelType == INT_16):
+    if pixelType == INT_16:
         return numpy.int16
-    if(pixelType == UINT_16):
+    if pixelType == UINT_16:
         return numpy.uint16
-    if(pixelType == INT_32):
+    if pixelType == INT_32:
         return numpy.int32
-    if(pixelType == UINT_32):
+    if pixelType == UINT_32:
         return numpy.uint32
-    if(pixelType == FLOAT):
+    if pixelType == FLOAT:
         return numpy.float
-    if(pixelType == DOUBLE):
+    if pixelType == DOUBLE:
         return numpy.double
 
 
 def toArray(pixelType):
-    if(pixelType == INT_8):
-        return 'b'
-    if(pixelType == UINT_8):
-        return 'B'
-    if(pixelType == INT_16):
-        return 'i2'
-    if(pixelType == UINT_16):
-        return 'H2'
-    if(pixelType == INT_32):
-        return 'i4'
-    if(pixelType == UINT_32):
-        return 'I4'
-    if(pixelType == FLOAT):
-        return 'f'
-    if(pixelType == DOUBLE):
-        return 'd'
+    if pixelType == INT_8:
+        return "b"
+    if pixelType == UINT_8:
+        return "B"
+    if pixelType == INT_16:
+        return "i2"
+    if pixelType == UINT_16:
+        return "H2"
+    if pixelType == INT_32:
+        return "i4"
+    if pixelType == UINT_32:
+        return "I4"
+    if pixelType == FLOAT:
+        return "f"
+    if pixelType == DOUBLE:
+        return "d"
 
 
 def toPIL(pixelType):
-    if(pixelType == INT_8):
-        return 'L'
-    if(pixelType == UINT_8):
-        return 'L'
-    if(pixelType == INT_16):
-        return 'I;16'
-    if(pixelType == UINT_16):
-        return 'I;16'
-    if(pixelType == INT_32):
-        return 'I'
-    if(pixelType == UINT_32):
-        return 'I'
-    if(pixelType == FLOAT):
-        return 'F'
-    if(pixelType == DOUBLE):
-        return 'F'
+    if pixelType == INT_8:
+        return "L"
+    if pixelType == UINT_8:
+        return "L"
+    if pixelType == INT_16:
+        return "I;16"
+    if pixelType == UINT_16:
+        return "I;16"
+    if pixelType == INT_32:
+        return "I"
+    if pixelType == UINT_32:
+        return "I"
+    if pixelType == FLOAT:
+        return "F"
+    if pixelType == DOUBLE:
+        return "F"

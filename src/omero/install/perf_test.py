@@ -29,7 +29,8 @@ command_pattern = r"^\s*(\w+)(\((.*)\))?(:(.*))?$"
 command_pattern_compiled = re.compile(command_pattern)
 log = logging.getLogger("omero.perf")
 
-FILE_FORMAT = """
+FILE_FORMAT = (
+    """
 File format:
     <blank>                                     Ignored
     # comment                                   Ignored
@@ -51,12 +52,15 @@ created dataset (or create a new one)
     # Use the "--list" command to print them all. All lines must be of the
     # form: %s
 
-""" % command_pattern
+"""
+    % command_pattern
+)
 
 
 #
 # Main classes
 #
+
 
 class ItemException(Exception):
     pass
@@ -98,11 +102,16 @@ class Item(object):
                 args = self.arguments.split(",")
                 for arg in args:
                     parts = arg.split("=", 1)
-                    value = (len(parts) == 2 and parts[1] or "")
+                    value = len(parts) == 2 and parts[1] or ""
                     self.props[parts[0]] = value
 
-            log.debug("Found line: %s, %s, %s, %s", self.command,
-                      self.arguments, self.path, self.props)
+            log.debug(
+                "Found line: %s, %s, %s, %s",
+                self.command,
+                self.arguments,
+                self.path,
+                self.props,
+            )
 
     def repeat(self):
         return int(self.props.get("repeat", "1"))
@@ -158,7 +167,8 @@ class Item(object):
         link = ctx.query_service().findByQuery(
             "select link from %s link where link.parent.id = %s and"
             " link.child.id = %s" % (kls_name, parent.id.val, child.id.val),
-            None)
+            None,
+        )
         if link:
             log.debug("Found link %s:%s" % (kls_name, link.id.val))
         else:
@@ -178,8 +188,16 @@ class Item(object):
         out = old_div(ctx.dir, ("import_%s.out" % ctx.count))
         err = old_div(ctx.dir, ("import_%s.err" % ctx.count))
 
-        args = ["import", "---file=%s" % str(out), "---errs=%s" % str(err),
-                "-s", ctx.host(), "-k", ctx.key(), f]
+        args = [
+            "import",
+            "---file=%s" % str(out),
+            "---errs=%s" % str(err),
+            "-s",
+            ctx.host(),
+            "-k",
+            ctx.key(),
+            f,
+        ]
         s_id = self.create_obj(ctx, "Screen")
         if s_id:
             args.extend(["-r", str(s_id)])
@@ -187,8 +205,11 @@ class Item(object):
         d_id = self.create_obj(ctx, "Dataset")
         if p_id and d_id:
             self.create_link(
-                ctx, "ProjectDatasetLink", omero.model.ProjectI(p_id, False),
-                omero.model.DatasetI(d_id, False))
+                ctx,
+                "ProjectDatasetLink",
+                omero.model.ProjectI(p_id, False),
+                omero.model.DatasetI(d_id, False),
+            )
         if d_id:
             args.extend(["-d", str(d_id)])
 
@@ -238,7 +259,8 @@ class Context(object):
 
         # Adding a file logger
         handler = logging.handlers.RotatingFileHandler(
-            str(old_div(self.dir, "perf.log")), maxBytes=10000000, backupCount=5)
+            str(old_div(self.dir, "perf.log")), maxBytes=10000000, backupCount=5
+        )
         handler.setLevel(logging.DEBUG)
         formatter = logging.Formatter(omero.util.LOGFORMAT)
         handler.setFormatter(formatter)
@@ -270,26 +292,28 @@ class Context(object):
             return svc
 
     def query_service(self):
-        return self._stateless(omero.constants.QUERYSERVICE,
-                               omero.api.IQueryPrx)
+        return self._stateless(
+            omero.constants.QUERYSERVICE, omero.api.IQueryPrx
+        )
 
     def config_service(self):
-        return self._stateless(omero.constants.CONFIGSERVICE,
-                               omero.api.IConfigPrx)
+        return self._stateless(
+            omero.constants.CONFIGSERVICE, omero.api.IConfigPrx
+        )
 
     def update_service(self):
-        return self._stateless(omero.constants.UPDATESERVICE,
-                               omero.api.IUpdatePrx)
+        return self._stateless(
+            omero.constants.UPDATESERVICE, omero.api.IUpdatePrx
+        )
 
 
 class PerfHandler(object):
-
     def __init__(self, ctx=None):
         self.ctx = ctx
 
     def __call__(self, line):
 
-        (old_div(self.ctx.dir,"line.log")).write_text(line, append=True)
+        (old_div(self.ctx.dir, "line.log")).write_text(line, append=True)
 
         item = Item(line)
         if item.comment():
@@ -307,8 +331,10 @@ class PerfHandler(object):
                 log.exception("Error")
                 sys.exit(1)
             except Exception:
-                log.debug("Error during execution: %s" % item.line.strip(),
-                          exc_info=True)
+                log.debug(
+                    "Error during execution: %s" % item.line.strip(),
+                    exc_info=True,
+                )
                 errs = values.get("errs", 0)
                 errs += 1
                 values["errs"] = errs
@@ -317,7 +343,7 @@ class PerfHandler(object):
             values["avg"] = old_div(total, loops)
 
         stop = time.time()
-        total += (stop - start)
+        total += stop - start
         self.ctx.report(item.command, start, stop, loops, values)
 
 
@@ -336,7 +362,6 @@ class Reporter(object):
 
 
 class CsvReporter(Reporter):
-
     def __init__(self, dir=None):
         if dir is None:
             self.stream = sys.stdout
@@ -346,15 +371,25 @@ class CsvReporter(Reporter):
         print("Command,Start,Stop,Elapsed,Average,Values", file=self.stream)
 
     def report(self, command, start, stop, loops, values):
-        print("%s,%s,%s,%s,%s,%s" % (
-            command, start, stop, (stop-start), old_div((stop-start),loops), values), file=self.stream)
+        print(
+            "%s,%s,%s,%s,%s,%s"
+            % (
+                command,
+                start,
+                stop,
+                (stop - start),
+                old_div((stop - start), loops),
+                values,
+            ),
+            file=self.stream,
+        )
         self.stream.flush()
 
 
 class HdfReporter(Reporter):
-
     def __init__(self, dir):
         import tables
+
         self.file = str(old_div(dir, "report.hdf"))
 
         # Temporarily support old and new PyTables methods
@@ -366,29 +401,32 @@ class HdfReporter(Reporter):
             create_table = self.hdf.createTable
 
         self.hdf = open_file(self.file, "w")
-        self.tbl = create_table("/", "report", {
-            "Command": tables.StringCol(pos=0, itemsize=64),
-            "Start": tables.Float64Col(pos=1),
-            "Stop": tables.Float64Col(pos=2),
-            "Elapsed": tables.Float64Col(pos=3),
-            "Average": tables.Float64Col(pos=4),
-            "Values": tables.StringCol(pos=5, itemsize=1000)
-            })
+        self.tbl = create_table(
+            "/",
+            "report",
+            {
+                "Command": tables.StringCol(pos=0, itemsize=64),
+                "Start": tables.Float64Col(pos=1),
+                "Stop": tables.Float64Col(pos=2),
+                "Elapsed": tables.Float64Col(pos=3),
+                "Average": tables.Float64Col(pos=4),
+                "Values": tables.StringCol(pos=5, itemsize=1000),
+            },
+        )
         self.row = self.tbl.row
 
     def report(self, command, start, stop, loops, values):
         self.row["Command"] = command
         self.row["Start"] = start
         self.row["Stop"] = stop
-        self.row["Elapsed"] = (stop-start)
-        self.row["Average"] = old_div((stop-start),loops)
+        self.row["Elapsed"] = stop - start
+        self.row["Average"] = old_div((stop - start), loops)
         self.row["Values"] = values
         self.row.append()
         self.hdf.flush()
 
 
 class PlotReporter(Reporter):
-
     def __init__(self):
         return
         # import matplotlib.pyplot as plt
@@ -400,6 +438,7 @@ class PlotReporter(Reporter):
         # ax.set_ylim(-2,25)
         # ax.set_xlim(0, (last-first))
         # plt.show()
+
 
 ########################################################
 

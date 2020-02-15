@@ -26,7 +26,6 @@ from omero.plugins.tag import TagControl
 
 
 class TestTag(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("tag", TagControl, "TEST")
@@ -36,7 +35,7 @@ class TestTag(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('subcommand', TagControl().get_subcommands())
+    @pytest.mark.parametrize("subcommand", TagControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
@@ -57,9 +56,9 @@ class TestTag(object):
             self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize(
-        ('object_arg', 'tag_arg'),
-        [('Image:1', 'test'), ('Image', '1'), ('Image:image', '1'),
-         ('1', '1')])
+        ("object_arg", "tag_arg"),
+        [("Image:1", "test"), ("Image", "1"), ("Image:image", "1"), ("1", "1")],
+    )
     def testLinkFails(self, object_arg, tag_arg):
         self.args += ["link", object_arg, tag_arg]
         with pytest.raises(NonZeroReturnCode):

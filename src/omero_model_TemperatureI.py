@@ -29,6 +29,7 @@ from builtins import str
 from past.builtins import basestring
 import Ice
 import IceImport
+
 IceImport.load("omero_model_Temperature_ice")
 _omero = Ice.openModule("omero")
 _omero_model = Ice.openModule("omero.model")
@@ -51,30 +52,42 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
     CONVERSIONS = dict()
     for val in UNIT_VALUES:
         CONVERSIONS[val] = dict()
-    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.FAHRENHEIT] = \
-        Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32))  # nopep8
-    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.KELVIN] = \
-        Add(Sym("c"), Rat(Int(5463), Int(20)))  # nopep8
-    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.RANKINE] = \
-        Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100)))  # nopep8
-    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.CELSIUS] = \
-        Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9)))  # nopep8
-    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.KELVIN] = \
-        Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180)))  # nopep8
-    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.RANKINE] = \
-        Add(Sym("f"), Rat(Int(45967), Int(100)))  # nopep8
-    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.CELSIUS] = \
-        Add(Sym("k"), Rat(Int(-5463), Int(20)))  # nopep8
-    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.FAHRENHEIT] = \
-        Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100)))  # nopep8
-    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.RANKINE] = \
-        Mul(Rat(Int(9), Int(5)), Sym("k"))  # nopep8
-    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.CELSIUS] = \
-        Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20)))  # nopep8
-    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.FAHRENHEIT] = \
-        Add(Sym("r"), Rat(Int(-45967), Int(100)))  # nopep8
-    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.KELVIN] = \
-        Mul(Rat(Int(5), Int(9)), Sym("r"))  # nopep8
+    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.FAHRENHEIT] = Add(
+        Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32)
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.KELVIN] = Add(
+        Sym("c"), Rat(Int(5463), Int(20))
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.RANKINE] = Add(
+        Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100))
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.CELSIUS] = Add(
+        Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9))
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.KELVIN] = Add(
+        Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180))
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.RANKINE] = Add(
+        Sym("f"), Rat(Int(45967), Int(100))
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.CELSIUS] = Add(
+        Sym("k"), Rat(Int(-5463), Int(20))
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.FAHRENHEIT] = Add(
+        Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100))
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.RANKINE] = Mul(
+        Rat(Int(9), Int(5)), Sym("k")
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.CELSIUS] = Add(
+        Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20))
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.FAHRENHEIT] = Add(
+        Sym("r"), Rat(Int(-45967), Int(100))
+    )  # nopep8
+    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.KELVIN] = Mul(
+        Rat(Int(5), Int(9)), Sym("r")
+    )  # nopep8
     del val
 
     SYMBOLS = dict()
@@ -93,9 +106,7 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
         elif isinstance(unit, basestring):
             target = getattr(UnitsTemperature, unit)
         else:
-            raise Exception("Unknown unit: %s (%s)" % (
-                unit, type(unit)
-            ))
+            raise Exception("Unknown unit: %s (%s)" % (unit, type(unit)))
 
         if isinstance(value, _omero_model.TemperatureI):
             # This is a copy-constructor call.
@@ -143,5 +154,6 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
 
     def __str__(self):
         return self._base_string(self.getValue(), self.getUnit())
+
 
 _omero_model.TemperatureI = TemperatureI

@@ -11,6 +11,7 @@
 """
 import Ice
 import IceImport
+
 IceImport.load("omero_model_Details_ice")
 _omero = Ice.openModule("omero")
 _omero_model = Ice.openModule("omero.model")
@@ -18,7 +19,6 @@ __name__ = "omero.model"
 
 
 class DetailsI(_omero_model.Details):
-
     def __init__(self, client=None):
         super(DetailsI, self).__init__()
         self.__client = client
@@ -132,5 +132,6 @@ class DetailsI(_omero_model.Details):
                     return self.setExternalInfo(value)
                 else:
                     raise
+
 
 _omero_model.DetailsI = DetailsI

@@ -28,7 +28,7 @@ import pytest
 from omero.rtypes import wrap
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def gateway():
     """Create a BlitzGateway object."""
     return _BlitzGateway()
@@ -47,7 +47,7 @@ class TestBuildQuery(object):
         assert isinstance(wrapper(), BlitzObjectWrapper)
         assert query.startswith("select ")
         assert "where" not in query
-        assert 'None' not in query
+        assert "None" not in query
 
     @pytest.mark.parametrize("dtype", list(KNOWN_WRAPPERS.keys()))
     def test_filter_by_owner(self, gateway, dtype):
@@ -58,13 +58,13 @@ class TestBuildQuery(object):
         # Test using 'params' argument
         with_params = gateway.buildQuery(dtype, params=p)
         # Test using 'opts' dictionary
-        with_opts = gateway.buildQuery(dtype, opts={'owner': 1})
+        with_opts = gateway.buildQuery(dtype, opts={"owner": 1})
         for result in [with_params, with_opts]:
             query, params, wrapper = result
             assert isinstance(query, str)
             assert isinstance(params, Parameters)
             assert isinstance(wrapper(), BlitzObjectWrapper)
-            if dtype not in ('experimenter', 'experimentergroup'):
+            if dtype not in ("experimenter", "experimentergroup"):
                 assert "where owner" in query
             else:
                 assert "where owner" not in query
@@ -79,7 +79,7 @@ class TestBuildQuery(object):
         # Test using 'params' argument
         with_params = gateway.buildQuery(dtype, params=p)
         # Test using 'opts' dictionary
-        opts = {'offset': offset, 'limit': limit}
+        opts = {"offset": offset, "limit": limit}
         with_opts = gateway.buildQuery(dtype, opts=opts)
         for result in [with_params, with_opts]:
             query, params, wrapper = result

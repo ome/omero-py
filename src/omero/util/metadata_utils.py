@@ -36,6 +36,7 @@ import re
 # TODO: Make jinja2 mandatory?
 try:
     import jinja2
+
     JINJA2_MISSING = None
 except ImportError as j2exc:
     JINJA2_MISSING = j2exc
@@ -49,14 +50,15 @@ NSBULKANNOTATIONSRAW = namespaces.NSBULKANNOTATIONS + "/raw"
 
 
 class GroupConfig(object):
-
     def __init__(self, namespace, column_cfg):
         self.namespace = namespace
         self.columns = column_cfg
 
     def __eq__(self, other):
-        return (isinstance(other, self.__class__)
-                and self.__dict__ == other.__dict__)
+        return (
+            isinstance(other, self.__class__)
+            and self.__dict__ == other.__dict__
+        )
 
 
 class BulkAnnotationConfiguration(object):
@@ -65,17 +67,19 @@ class BulkAnnotationConfiguration(object):
     """
 
     REQUIRED = set(["name"])
-    OPTIONAL = set([
-        "clientname",
-        "clientvalue",
-        "includeclient",
-        "position",
-        "include",
-        "split",
-        "type",
-        "visible",
-        "omitempty",
-        ])
+    OPTIONAL = set(
+        [
+            "clientname",
+            "clientvalue",
+            "includeclient",
+            "position",
+            "include",
+            "split",
+            "type",
+            "visible",
+            "omitempty",
+        ]
+    )
     GROUPREQUIRED = set(["namespace", "columns"])
 
     def __init__(self, default_cfg, column_cfgs):
@@ -108,7 +112,7 @@ class BulkAnnotationConfiguration(object):
             "visible": True,
             "position": -1,
             "clientname": None,
-            "omitempty": False
+            "omitempty": False,
         }
         if not cfg:
             cfg = {}
@@ -116,7 +120,8 @@ class BulkAnnotationConfiguration(object):
         invalid = set(cfg.keys()).difference(list(default_defaults.keys()))
         if invalid:
             raise Exception(
-                "Invalid key(s) in column defaults: %s" % list(invalid))
+                "Invalid key(s) in column defaults: %s" % list(invalid)
+            )
 
         defaults = default_defaults.copy()
         defaults.update(cfg)
@@ -133,8 +138,9 @@ class BulkAnnotationConfiguration(object):
         missing = cls.REQUIRED.difference(keys)
         if missing:
             raise Exception(
-                "Required key(s) missing from column configuration: %s" %
-                list(missing))
+                "Required key(s) missing from column configuration: %s"
+                % list(missing)
+            )
 
         if not cfg["name"]:
             raise Exception("Empty name in column configuration: %s" % cfg)
@@ -142,7 +148,8 @@ class BulkAnnotationConfiguration(object):
         invalid = keys.difference(cls.OPTIONAL.union(cls.REQUIRED))
         if invalid:
             raise Exception(
-                "Invalid key(s) in column configuration: %s" % list(invalid))
+                "Invalid key(s) in column configuration: %s" % list(invalid)
+            )
 
     @classmethod
     def validate_filled_column_config(cls, cfg):
@@ -156,8 +163,10 @@ class BulkAnnotationConfiguration(object):
 
         missing = allfields.difference(keys)
         if missing:
-            raise Exception("Required key(s) missing from column+defaults "
-                            "configuration: %s" % list(missing))
+            raise Exception(
+                "Required key(s) missing from column+defaults "
+                "configuration: %s" % list(missing)
+            )
 
         if cfg["includeclient"] and not cfg["include"]:
             raise Exception("Option `includeclient` requires option `include`")
@@ -166,11 +175,12 @@ class BulkAnnotationConfiguration(object):
             raise Exception("Option `position` must be an int")
 
         if cfg["clientvalue"]:
-            subbed = re.sub(r"\{\{\s*value\s*\}\}", '', cfg["clientvalue"])
+            subbed = re.sub(r"\{\{\s*value\s*\}\}", "", cfg["clientvalue"])
             m = re.search(r"\{\{[\s\w]*}\}", subbed)
             if m:
                 raise Exception(
-                    "clientvalue template parameter not found: %s" % m.group())
+                    "clientvalue template parameter not found: %s" % m.group()
+                )
 
     @classmethod
     def validate_group_config(cls, cfg):
@@ -184,8 +194,9 @@ class BulkAnnotationConfiguration(object):
         missing = cls.GROUPREQUIRED.difference(keys)
         if missing:
             raise Exception(
-                "Required key(s) missing from group configuration: %s" %
-                list(missing))
+                "Required key(s) missing from group configuration: %s"
+                % list(missing)
+            )
 
         if not cfg["namespace"]:
             raise Exception("Empty name in group configuration: %s" % cfg)
@@ -196,19 +207,19 @@ class BulkAnnotationConfiguration(object):
         invalid = keys.difference(cls.GROUPREQUIRED)
         if invalid:
             raise Exception(
-                "Invalid key(s) in group configuration: %s" % list(invalid))
+                "Invalid key(s) in group configuration: %s" % list(invalid)
+            )
 
     def get_column_config(self, cfg):
         """
         Replace unspecified fields in a column config with defaults
         If this is a group return a GroupConfig object
         """
-        if 'group' in cfg:
-            gcfg = cfg['group']
+        if "group" in cfg:
+            gcfg = cfg["group"]
             self.validate_group_config(gcfg)
-            column_cfgs = [
-                self.get_column_config(gc) for gc in gcfg['columns']]
-            return GroupConfig(gcfg['namespace'], column_cfgs)
+            column_cfgs = [self.get_column_config(gc) for gc in gcfg["columns"]]
+            return GroupConfig(gcfg["namespace"], column_cfgs)
 
         self.validate_column_config(cfg)
         column_cfg = self.default_cfg.copy()
@@ -250,11 +261,11 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
         :param headers: A list of table headers
         """
         # TODO: decide what to do with unmentioned columns
-        super(KeyValueGroupList, self).__init__(
-            default_cfg, column_cfgs)
+        super(KeyValueGroupList, self).__init__(default_cfg, column_cfgs)
         self.headers = headers
         self.headerindexmap = OrderedDict(
-            (b, a) for (a, b) in enumerate(self.headers))
+            (b, a) for (a, b) in enumerate(self.headers)
+        )
         self.checked = set()
         self.output_configs = self.get_output_configs()
 
@@ -272,7 +283,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
             output_configs.append(GroupConfig(gcfg.namespace, output_cfg))
 
         output_defcfg = self.get_group_output_configs(self.column_cfgs, True)
-        output_configs.append(GroupConfig('', output_defcfg))
+        output_configs.append(GroupConfig("", output_defcfg))
         return output_configs
 
     def get_group_output_configs(self, column_cfgs, isdefault):
@@ -303,7 +314,8 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
             if pos > 0:
                 if pos in positioned:
                     raise Exception(
-                        "Multiple columns specified for position: %d" % pos)
+                        "Multiple columns specified for position: %d" % pos
+                    )
                 positioned[pos] = (cfg, self.headerindexmap[cfg["name"]])
             else:
                 unpositioned.append((cfg, self.headerindexmap[cfg["name"]]))
@@ -315,8 +327,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
                 if name not in self.checked:
                     cfg = self.get_column_config({"name": name})
                     assert not isinstance(cfg, GroupConfig)
-                    unpositioned.append(
-                        (cfg, self.headerindexmap[cfg["name"]]))
+                    unpositioned.append((cfg, self.headerindexmap[cfg["name"]]))
 
         # The dance- put positioned columns in the right place and fill
         # any gaps with unpositioned columns (otherwise append to end)
@@ -336,9 +347,10 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
         """
         Return a set of KeyValueListTransformer objects, one for each group
         """
-        transformers = [KeyValueListTransformer(
-            self.headers, gc.columns, gc.namespace)
-            for gc in self.output_configs]
+        transformers = [
+            KeyValueListTransformer(self.headers, gc.columns, gc.namespace)
+            for gc in self.output_configs
+        ]
         return transformers
 
 
@@ -386,8 +398,12 @@ class KeyValueListTransformer(object):
             values = [value]
 
         if cfg["omitempty"]:
-            values = [v for v in values if v is not None and (
-                not isinstance(v, basestring) or v.strip())]
+            values = [
+                v
+                for v in values
+                if v is not None
+                and (not isinstance(v, basestring) or v.strip())
+            ]
 
         if cfg["clientvalue"] is not None:
             values = [valuesub(v, cfg["clientvalue"]) for v in values]
@@ -404,6 +420,7 @@ class KeyValueListTransformer(object):
                  - 1+ if `split` option is enabled
         """
         assert len(rowvalues) == len(self.headers)
-        rowkvs = [self.transform1(rowvalues[i], c)
-                  for (c, i) in self.output_configs]
+        rowkvs = [
+            self.transform1(rowvalues[i], c) for (c, i) in self.output_configs
+        ]
         return rowkvs

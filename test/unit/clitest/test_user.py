@@ -26,7 +26,6 @@ import pytest
 
 
 class TestUser(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("user", UserControl, "TEST")

@@ -15,6 +15,7 @@
 
 import omero
 import IceImport
+
 if omero.__import_style__ is None:
     omero.__import_style__ = "min"
 

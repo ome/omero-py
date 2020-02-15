@@ -22,18 +22,19 @@ import omero_ext.path as path
 
 try:
     import hashlib
+
     hash_sha1 = hashlib.sha1
 except:
     import sha
+
     hash_sha1 = sha.new
 
 HELP = """Upload local files to the OMERO server"""
 RE = re.compile(r"\s*upload\s*")
-UNKNOWN = 'type/unknown'
+UNKNOWN = "type/unknown"
 
 
 class UploadControl(BaseControl):
-
     def _complete(self, text, line, begidx, endidx):
         """
         Returns a file after "upload" and otherwise delegates to the
@@ -41,7 +42,7 @@ class UploadControl(BaseControl):
         """
         m = RE.match(line)
         if m:
-            return self._complete_file(RE.sub('', line))
+            return self._complete_file(RE.sub("", line))
         else:
             return BaseControl._complete(self, text, line, begidx, endidx)
 
@@ -54,7 +55,9 @@ class UploadControl(BaseControl):
         self.ctx.err(
             "This module is deprecated as of OMERO 5.5.0. Use the module"
             " available from https://pypi.org/project/omero-upload/"
-            " instead.", DeprecationWarning)
+            " instead.",
+            DeprecationWarning,
+        )
         client = self.ctx.conn(args)
         objIds = []
         for file in args.file:
@@ -62,7 +65,7 @@ class UploadControl(BaseControl):
                 self.ctx.die(500, "File: %s does not exist" % file)
         for file in args.file:
             omero_format = UNKNOWN
-            if(mimetypes.guess_type(file) != (None, None)):
+            if mimetypes.guess_type(file) != (None, None):
                 omero_format = mimetypes.guess_type(file)[0]
             obj = client.upload(file, type=omero_format)
             objIds.append(obj.id.val)
@@ -71,13 +74,15 @@ class UploadControl(BaseControl):
         objIds = self._order_and_range_ids(objIds)
         self.ctx.out("OriginalFile:%s" % objIds)
 
+
 try:
     if "OMERO_NO_DEPRECATED_PLUGINS" not in os.environ:
         warnings.warn(
             "This plugin is deprecated as of OMERO 5.5.0. Use the upload"
             " CLI plugin available from"
             " https://pypi.org/project/omero-upload/ instead.",
-            DeprecationWarning)
+            DeprecationWarning,
+        )
         register("upload", UploadControl, HELP)
 except NameError:
     if __name__ == "__main__":

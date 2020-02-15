@@ -96,11 +96,16 @@ except AttributeError:
 
 PY3 = sys.version_info[0] >= 3
 if PY3:
+
     def u(x):
         return x
+
+
 else:
+
     def u(x):
         return codecs.unicode_escape_decode(x)[0]
+
 
 o777 = 511
 o766 = 502
@@ -124,18 +129,19 @@ def surrogate_escape(error):
     """
     Simulate the Python 3 surrogateescape handler, but for Python 2 only.
     """
-    chars = error.object[error.start:error.end]
+    chars = error.object[error.start : error.end]
     assert len(chars) == 1
     val = ord(chars)
-    val += 0xdc00
+    val += 0xDC00
     return chr(val), error.end
 
+
 if not PY3:
-    codecs.register_error('surrogateescape', surrogate_escape)
+    codecs.register_error("surrogateescape", surrogate_escape)
 ###############################################################
 
-__version__ = '5.2'
-__all__ = ['path', 'CaseInsensitivePattern']
+__version__ = "5.2"
+__all__ = ["path", "CaseInsensitivePattern"]
 
 
 class TreeWalkWarning(Warning):
@@ -154,6 +160,7 @@ def simple_cache(func):
             return saved_results[module]
         saved_results[module] = func(cls, module)
         return saved_results[module]
+
     return wrapper
 
 
@@ -167,12 +174,14 @@ class multimethod(object):
     Acts like a classmethod when invoked from the class and like an
     instancemethod when invoked from the instance.
     """
+
     def __init__(self, func):
         self.func = func
 
     def __get__(self, instance, owner):
         return (
-            functools.partial(self.func, owner) if instance is None
+            functools.partial(self.func, owner)
+            if instance is None
             else functools.partial(self.func, owner, instance)
         )
 
@@ -190,16 +199,16 @@ class path(str):
     .. seealso:: :mod:`os.path`
     """
 
-    def __init__(self, other=''):
+    def __init__(self, other=""):
         if other is None:
             raise TypeError("Invalid initial value for path: None")
 
     @classmethod
     @simple_cache
     def using_module(cls, module):
-        subclass_name = cls.__name__ + '_' + module.__name__
+        subclass_name = cls.__name__ + "_" + module.__name__
         bases = (cls,)
-        ns = {'module': module}
+        ns = {"module": module}
         return type(subclass_name, bases, ns)
 
     @ClassProperty
@@ -218,12 +227,12 @@ class path(str):
         """
         if PY3 or isinstance(path, str):
             return path
-        return path.decode(sys.getfilesystemencoding(), 'surrogateescape')
+        return path.decode(sys.getfilesystemencoding(), "surrogateescape")
 
     # --- Special Python methods.
 
     def __repr__(self):
-        return '%s(%s)' % (type(self).__name__, super(path, self).__repr__())
+        return "%s(%s)" % (type(self).__name__, super(path, self).__repr__())
 
     # Adding a path and a string yields a path.
     def __add__(self, more):
@@ -339,7 +348,9 @@ class path(str):
         return self._next_class(drive)
 
     parent = property(
-        dirname, None, None,
+        dirname,
+        None,
+        None,
         """ This path's parent directory, as a new path object.
 
         For example,
@@ -347,17 +358,21 @@ class path(str):
         path('/usr/local/lib')``
 
         .. seealso:: :meth:`dirname`, :func:`os.path.dirname`
-        """)
+        """,
+    )
 
     name = property(
-        basename, None, None,
+        basename,
+        None,
+        None,
         """ The name of this file or directory without the full path.
 
         For example,
         ``path('/usr/local/lib/libpython.so').name == 'libpython.so'``
 
         .. seealso:: :meth:`basename`, :func:`os.path.basename`
-        """)
+        """,
+    )
 
     def splitpath(self):
         """ p.splitpath() -> Return ``(p.parent, p.name)``.
@@ -451,7 +466,7 @@ class path(str):
         parts.reverse()
         return parts
 
-    def relpath(self, start='.'):
+    def relpath(self, start="."):
         """ Return this path as a relative path,
         based from `start`, which defaults to the current working directory.
         """
@@ -541,7 +556,7 @@ class path(str):
             else:
                 raise
         if pattern is None:
-            pattern = '*'
+            pattern = "*"
         return [
             old_div(self, child)
             for child in map(self._always_unicode, names)
@@ -574,7 +589,7 @@ class path(str):
 
         return [p for p in self.listdir(pattern) if p.isfile()]
 
-    def walk(self, pattern=None, errors='ignore'):
+    def walk(self, pattern=None, errors="ignore"):
         """ D.walk() -> iterator over files and subdirs, recursively.
 
         The iterator yields path objects naming each child item of
@@ -589,19 +604,20 @@ class path(str):
         exception.  The other allowed values are 'warn', which
         reports the error via ``warnings.warn()``, and 'ignore'.
         """
-        if errors not in ('strict', 'warn', 'ignore'):
+        if errors not in ("strict", "warn", "ignore"):
             raise ValueError("invalid errors parameter")
 
         try:
             childList = self.listdir()
         except Exception:
-            if errors == 'ignore':
+            if errors == "ignore":
                 return
-            elif errors == 'warn':
+            elif errors == "warn":
                 warnings.warn(
                     "Unable to list directory '%s': %s"
                     % (self, sys.exc_info()[1]),
-                    TreeWalkWarning)
+                    TreeWalkWarning,
+                )
                 return
             else:
                 raise
@@ -612,13 +628,14 @@ class path(str):
             try:
                 isdir = child.isdir()
             except Exception:
-                if errors == 'ignore':
+                if errors == "ignore":
                     isdir = False
-                elif errors == 'warn':
+                elif errors == "warn":
                     warnings.warn(
                         "Unable to access '%s': %s"
                         % (child, sys.exc_info()[1]),
-                        TreeWalkWarning)
+                        TreeWalkWarning,
+                    )
                     isdir = False
                 else:
                     raise
@@ -627,7 +644,7 @@ class path(str):
                 for item in child.walk(pattern, errors):
                     yield item
 
-    def walkdirs(self, pattern=None, errors='strict'):
+    def walkdirs(self, pattern=None, errors="strict"):
         """ D.walkdirs() -> iterator over subdirs, recursively.
 
         With the optional `pattern` argument, this yields only
@@ -640,19 +657,20 @@ class path(str):
         exception.  The other allowed values are 'warn', which
         reports the error via ``warnings.warn()``, and 'ignore'.
         """
-        if errors not in ('strict', 'warn', 'ignore'):
+        if errors not in ("strict", "warn", "ignore"):
             raise ValueError("invalid errors parameter")
 
         try:
             dirs = self.dirs()
         except Exception:
-            if errors == 'ignore':
+            if errors == "ignore":
                 return
-            elif errors == 'warn':
+            elif errors == "warn":
                 warnings.warn(
                     "Unable to list directory '%s': %s"
                     % (self, sys.exc_info()[1]),
-                    TreeWalkWarning)
+                    TreeWalkWarning,
+                )
                 return
             else:
                 raise
@@ -663,7 +681,7 @@ class path(str):
             for subsubdir in child.walkdirs(pattern, errors):
                 yield subsubdir
 
-    def walkfiles(self, pattern=None, errors='strict'):
+    def walkfiles(self, pattern=None, errors="strict"):
         """ D.walkfiles() -> iterator over files in D, recursively.
 
         The optional argument, `pattern`, limits the results to files
@@ -671,19 +689,20 @@ class path(str):
         ``mydir.walkfiles('*.tmp')`` yields only files with the .tmp
         extension.
         """
-        if errors not in ('strict', 'warn', 'ignore'):
+        if errors not in ("strict", "warn", "ignore"):
             raise ValueError("invalid errors parameter")
 
         try:
             childList = self.listdir()
         except Exception:
-            if errors == 'ignore':
+            if errors == "ignore":
                 return
-            elif errors == 'warn':
+            elif errors == "warn":
                 warnings.warn(
                     "Unable to list directory '%s': %s"
                     % (self, sys.exc_info()[1]),
-                    TreeWalkWarning)
+                    TreeWalkWarning,
+                )
                 return
             else:
                 raise
@@ -693,13 +712,13 @@ class path(str):
                 isfile = child.isfile()
                 isdir = not isfile and child.isdir()
             except:
-                if errors == 'ignore':
+                if errors == "ignore":
                     continue
-                elif errors == 'warn':
+                elif errors == "warn":
                     warnings.warn(
-                        "Unable to access '%s': %s"
-                        % (self, sys.exc_info()[1]),
-                        TreeWalkWarning)
+                        "Unable to access '%s': %s" % (self, sys.exc_info()[1]),
+                        TreeWalkWarning,
+                    )
                     continue
                 else:
                     raise
@@ -724,7 +743,7 @@ class path(str):
 
         .. seealso:: :func:`fnmatch.fnmatch`
         """
-        default_normcase = getattr(pattern, 'normcase', self.module.normcase)
+        default_normcase = getattr(pattern, "normcase", self.module.normcase)
         normcase = normcase or default_normcase
         name = normcase(self.name)
         pattern = normcase(pattern)
@@ -755,7 +774,7 @@ class path(str):
 
     def bytes(self):
         """ Open this file, read all bytes, return them as a string. """
-        with self.open('rb') as f:
+        with self.open("rb") as f:
             return f.read()
 
     def chunks(self, size, *args, **kwargs):
@@ -786,13 +805,13 @@ class path(str):
         Call ``p.write_bytes(bytes, append=True)`` to append instead.
         """
         if append:
-            mode = 'ab'
+            mode = "ab"
         else:
-            mode = 'wb'
+            mode = "wb"
         with self.open(mode) as f:
             f.write(bytes)
 
-    def text(self, encoding=None, errors='strict'):
+    def text(self, encoding=None, errors="strict"):
         r""" Open this file, read it in, return the content as a string.
 
         This method uses ``'U'`` mode, so ``'\r\n'`` and ``'\r'`` are
@@ -810,22 +829,30 @@ class path(str):
         """
         if encoding is None:
             # 8-bit
-            with self.open('U') as f:
+            with self.open("U") as f:
                 return f.read()
         else:
             # Unicode
-            with codecs.open(self, 'r', encoding, errors) as f:
+            with codecs.open(self, "r", encoding, errors) as f:
                 # (Note - Can't use 'U' mode here, since codecs.open
                 # doesn't support 'U' mode.)
                 t = f.read()
-            return (t.replace(u('\r\n'), u('\n'))
-                     .replace(u('\r\x85'), u('\n'))
-                     .replace(u('\r'), u('\n'))
-                     .replace(u('\x85'), u('\n'))
-                     .replace(u('\u2028'), u('\n')))
+            return (
+                t.replace(u("\r\n"), u("\n"))
+                .replace(u("\r\x85"), u("\n"))
+                .replace(u("\r"), u("\n"))
+                .replace(u("\x85"), u("\n"))
+                .replace(u("\u2028"), u("\n"))
+            )
 
-    def write_text(self, text, encoding=None, errors='strict',
-                   linesep=os.linesep, append=False):
+    def write_text(
+        self,
+        text,
+        encoding=None,
+        errors="strict",
+        linesep=os.linesep,
+        append=False,
+    ):
         r""" Write the given text to this file.
 
         The default behavior is to overwrite any existing file;
@@ -893,12 +920,14 @@ class path(str):
             if linesep is not None:
                 # Convert all standard end-of-line sequences to
                 # ordinary newline characters.
-                text = (text.replace(u('\r\n'), u('\n'))
-                            .replace(u('\r\x85'), u('\n'))
-                            .replace(u('\r'), u('\n'))
-                            .replace(u('\x85'), u('\n'))
-                            .replace(u('\u2028'), u('\n')))
-                text = text.replace(u('\n'), linesep)
+                text = (
+                    text.replace(u("\r\n"), u("\n"))
+                    .replace(u("\r\x85"), u("\n"))
+                    .replace(u("\r"), u("\n"))
+                    .replace(u("\x85"), u("\n"))
+                    .replace(u("\u2028"), u("\n"))
+                )
+                text = text.replace(u("\n"), linesep)
             if encoding is None:
                 encoding = sys.getdefaultencoding()
             _bytes = text.encode(encoding, errors)
@@ -908,13 +937,12 @@ class path(str):
             assert encoding is None
 
             if linesep is not None:
-                text = (text.replace(b'\r\n', b'\n')
-                            .replace(b'\r', b'\n'))
-                _bytes = text.replace(b'\n', bytes(linesep, 'utf-8'))
+                text = text.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+                _bytes = text.replace(b"\n", bytes(linesep, "utf-8"))
 
         self.write_bytes(_bytes, append)
 
-    def lines(self, encoding=None, errors='strict', retain=True):
+    def lines(self, encoding=None, errors="strict", retain=True):
         r""" Open this file, read all lines, return them in a list.
 
         Optional arguments:
@@ -934,13 +962,19 @@ class path(str):
         .. seealso:: :meth:`text`
         """
         if encoding is None and retain:
-            with self.open('U') as f:
+            with self.open("U") as f:
                 return f.readlines()
         else:
             return self.text(encoding, errors).splitlines(retain)
 
-    def write_lines(self, lines, encoding=None, errors='strict',
-                    linesep=os.linesep, append=False):
+    def write_lines(
+        self,
+        lines,
+        encoding=None,
+        errors="strict",
+        linesep=os.linesep,
+        append=False,
+    ):
         r""" Write the given lines of text to this file.
 
         By default this overwrites any existing file at this path.
@@ -975,9 +1009,9 @@ class path(str):
         to read the file later.
         """
         if append:
-            mode = 'ab'
+            mode = "ab"
         else:
-            mode = 'wb'
+            mode = "wb"
         with self.open(mode) as f:
             for line in lines:
                 isUnicode = isinstance(line, str)
@@ -985,15 +1019,19 @@ class path(str):
                     # Strip off any existing line-end and add the
                     # specified linesep string.
                     if isUnicode:
-                        if line[-2:] in (u('\r\n'), u('\x0d\x85')):
+                        if line[-2:] in (u("\r\n"), u("\x0d\x85")):
                             line = line[:-2]
-                        elif line[-1:] in (u('\r'), u('\n'),
-                                           u('\x85'), u('\u2028')):
+                        elif line[-1:] in (
+                            u("\r"),
+                            u("\n"),
+                            u("\x85"),
+                            u("\u2028"),
+                        ):
                             line = line[:-1]
                     else:
-                        if line[-2:] == '\r\n':
+                        if line[-2:] == "\r\n":
                             line = line[:-2]
-                        elif line[-1:] in ('\r', '\n'):
+                        elif line[-1:] in ("\r", "\n"):
                             line = line[:-1]
                     line += linesep
                 if isUnicode:
@@ -1009,7 +1047,7 @@ class path(str):
 
         .. seealso:: :meth:`read_hash`
         """
-        return self.read_hash('md5')
+        return self.read_hash("md5")
 
     def _hash(self, hash_name):
         """ Returns a hash object for the file at the current path.
@@ -1080,46 +1118,59 @@ class path(str):
         return self.module.getatime(self)
 
     atime = property(
-        getatime, None, None,
+        getatime,
+        None,
+        None,
         """ Last access time of the file.
 
         .. seealso:: :meth:`getatime`, :func:`os.path.getatime`
-        """)
+        """,
+    )
 
     def getmtime(self):
         """ .. seealso:: :attr:`mtime`, :func:`os.path.getmtime` """
         return self.module.getmtime(self)
 
     mtime = property(
-        getmtime, None, None,
+        getmtime,
+        None,
+        None,
         """ Last-modified time of the file.
 
         .. seealso:: :meth:`getmtime`, :func:`os.path.getmtime`
-        """)
+        """,
+    )
 
     def getctime(self):
         """ .. seealso:: :attr:`ctime`, :func:`os.path.getctime` """
         return self.module.getctime(self)
 
     ctime = property(
-        getctime, None, None,
+        getctime,
+        None,
+        None,
         """ Creation time of the file.
 
         .. seealso:: :meth:`getctime`, :func:`os.path.getctime`
-        """)
+        """,
+    )
 
     def getsize(self):
         """ .. seealso:: :attr:`size`, :func:`os.path.getsize` """
         return self.module.getsize(self)
 
     size = property(
-        getsize, None, None,
+        getsize,
+        None,
+        None,
         """ Size of the file, in bytes.
 
         .. seealso:: :meth:`getsize`, :func:`os.path.getsize`
-        """)
+        """,
+    )
 
-    if hasattr(os, 'access'):
+    if hasattr(os, "access"):
+
         def access(self, mode):
             """ Return true if current user has access to this path.
 
@@ -1154,10 +1205,11 @@ class path(str):
         .. seealso:: :attr:`owner`
         """
         desc = win32security.GetFileSecurity(
-            self, win32security.OWNER_SECURITY_INFORMATION)
+            self, win32security.OWNER_SECURITY_INFORMATION
+        )
         sid = desc.GetSecurityDescriptorOwner()
         account, domain, typecode = win32security.LookupAccountSid(None, sid)
-        return domain + u('\\') + account
+        return domain + u("\\") + account
 
     def __get_owner_unix(self):
         """
@@ -1172,20 +1224,24 @@ class path(str):
     def __get_owner_not_implemented(self):
         raise NotImplementedError("Ownership not available on this platform.")
 
-    if 'win32security' in globals():
+    if "win32security" in globals():
         get_owner = __get_owner_windows
-    elif 'pwd' in globals():
+    elif "pwd" in globals():
         get_owner = __get_owner_unix
     else:
         get_owner = __get_owner_not_implemented
 
     owner = property(
-        get_owner, None, None,
+        get_owner,
+        None,
+        None,
         """ Name of the owner of this file or directory.
 
-        .. seealso:: :meth:`get_owner`""")
+        .. seealso:: :meth:`get_owner`""",
+    )
 
-    if hasattr(os, 'statvfs'):
+    if hasattr(os, "statvfs"):
+
         def statvfs(self):
             """ Perform a ``statvfs()`` system call on this path.
 
@@ -1193,7 +1249,8 @@ class path(str):
             """
             return os.statvfs(self)
 
-    if hasattr(os, 'pathconf'):
+    if hasattr(os, "pathconf"):
+
         def pathconf(self, name):
             """ .. seealso:: :func:`os.pathconf` """
             return os.pathconf(self, name)
@@ -1214,7 +1271,8 @@ class path(str):
         os.chmod(self, mode)
         return self
 
-    if hasattr(os, 'chown'):
+    if hasattr(os, "chown"):
+
         def chown(self, uid=-1, gid=-1):
             """ .. seealso:: :func:`os.chown` """
             os.chown(self, uid, gid)
@@ -1337,7 +1395,8 @@ class path(str):
 
     # --- Links
 
-    if hasattr(os, 'link'):
+    if hasattr(os, "link"):
+
         def link(self, newpath):
             """ Create a hard link at `newpath`, pointing to this file.
 
@@ -1346,7 +1405,8 @@ class path(str):
             os.link(self, newpath)
             return self._next_class(newpath)
 
-    if hasattr(os, 'symlink'):
+    if hasattr(os, "symlink"):
+
         def symlink(self, newlink):
             """ Create a symbolic link at `newlink`, pointing here.
 
@@ -1355,7 +1415,8 @@ class path(str):
             os.symlink(self, newlink)
             return self._next_class(newlink)
 
-    if hasattr(os, 'readlink'):
+    if hasattr(os, "readlink"):
+
         def readlink(self):
             """ Return the path to which this symbolic link points.
 
@@ -1387,7 +1448,7 @@ class path(str):
     copy = shutil.copy
     copy2 = shutil.copy2
     copytree = shutil.copytree
-    if hasattr(shutil, 'move'):
+    if hasattr(shutil, "move"):
         move = shutil.move
     rmtree = shutil.rmtree
 
@@ -1411,12 +1472,14 @@ class path(str):
     #
     # --- Special stuff from os
 
-    if hasattr(os, 'chroot'):
+    if hasattr(os, "chroot"):
+
         def chroot(self):
             """ .. seealso:: :func:`os.chroot` """
             os.chroot(self)
 
-    if hasattr(os, 'startfile'):
+    if hasattr(os, "startfile"):
+
         def startfile(self):
             """ .. seealso:: :func:`os.startfile` """
             os.startfile(self)
@@ -1425,8 +1488,15 @@ class path(str):
     # in-place re-writing, courtesy of Martijn Pieters
     # http://www.zopatista.com/python/2013/11/26/inplace-file-rewriting/
     @contextlib.contextmanager
-    def in_place(self, mode='r', buffering=-1, encoding=None, errors=None,
-                 newline=None, backup_extension=None):
+    def in_place(
+        self,
+        mode="r",
+        buffering=-1,
+        encoding=None,
+        errors=None,
+        newline=None,
+        backup_extension=None,
+    ):
         """
         A context in which a file may be re-written in-place with new content.
 
@@ -1452,38 +1522,51 @@ class path(str):
         """
         import io
 
-        if set(mode).intersection('wa+'):
-            raise ValueError('Only read-only file modes can be used')
+        if set(mode).intersection("wa+"):
+            raise ValueError("Only read-only file modes can be used")
 
         # move existing file to backup, create new file with same permissions
         # borrowed extensively from the fileinput module
-        backup_fn = self + (backup_extension or os.extsep + 'bak')
+        backup_fn = self + (backup_extension or os.extsep + "bak")
         try:
             os.unlink(backup_fn)
         except os.error:
             pass
         os.rename(self, backup_fn)
         readable = io.open(
-            backup_fn, mode, buffering=buffering,
-            encoding=encoding, errors=errors, newline=newline)
+            backup_fn,
+            mode,
+            buffering=buffering,
+            encoding=encoding,
+            errors=errors,
+            newline=newline,
+        )
         try:
             perm = os.fstat(readable.fileno()).st_mode
         except OSError:
             writable = open(
-                self, 'w' + mode.replace('r', ''),
-                buffering=buffering, encoding=encoding, errors=errors,
-                newline=newline)
+                self,
+                "w" + mode.replace("r", ""),
+                buffering=buffering,
+                encoding=encoding,
+                errors=errors,
+                newline=newline,
+            )
         else:
             os_mode = os.O_CREAT | os.O_WRONLY | os.O_TRUNC
-            if hasattr(os, 'O_BINARY'):
+            if hasattr(os, "O_BINARY"):
                 os_mode |= os.O_BINARY
             fd = os.open(self, os_mode, perm)
             writable = io.open(
-                fd, "w" + mode.replace('r', ''),
-                buffering=buffering, encoding=encoding, errors=errors,
-                newline=newline)
+                fd,
+                "w" + mode.replace("r", ""),
+                buffering=buffering,
+                encoding=encoding,
+                errors=errors,
+                newline=newline,
+            )
             try:
-                if hasattr(os, 'chmod'):
+                if hasattr(os, "chmod"):
                     os.chmod(self, perm)
             except OSError:
                 pass
@@ -1556,23 +1639,25 @@ def _permission_mask(mode):
     >>> _permission_mask('go-x')(o777) == o766
     True
     """
-    parsed = re.match(r'(?P<who>[ugo]+)(?P<op>[-+])(?P<what>[rwx]+)$', mode)
+    parsed = re.match(r"(?P<who>[ugo]+)(?P<op>[-+])(?P<what>[rwx]+)$", mode)
     if not parsed:
         raise ValueError("Unrecognized symbolic mode", mode)
     spec_map = dict(r=4, w=2, x=1)
-    spec = reduce(operator.or_, [spec_map[perm]
-                  for perm in parsed.group('what')])
+    spec = reduce(
+        operator.or_, [spec_map[perm] for perm in parsed.group("what")]
+    )
     # now apply spec to each in who
     shift_map = dict(u=6, g=3, o=0)
-    mask = reduce(operator.or_, [spec << shift_map[subj]
-                  for subj in parsed.group('who')])
+    mask = reduce(
+        operator.or_, [spec << shift_map[subj] for subj in parsed.group("who")]
+    )
 
-    op = parsed.group('op')
+    op = parsed.group("op")
     # if op is -, invert the mask
-    if op == '-':
+    if op == "-":
         mask ^= o777
 
-    op_map = {'+': operator.or_, '-': operator.and_}
+    op_map = {"+": operator.or_, "-": operator.and_}
     return functools.partial(op_map[op], mask)
 
 
@@ -1591,4 +1676,4 @@ class CaseInsensitivePattern(str):
 
     @property
     def normcase(self):
-        return __import__('ntpath').normcase
+        return __import__("ntpath").normcase

@@ -48,15 +48,15 @@ def get_line_data(pixels, x1, y1, x2, y2, line_w=2, the_z=0, the_c=0, the_t=0):
     size_x = pixels.getSizeX()
     size_y = pixels.getSizeY()
 
-    line_x = x2-x1
-    line_y = y2-y1
+    line_x = x2 - x1
+    line_y = y2 - y1
 
-    rads = math.atan(old_div(float(line_x),line_y))
+    rads = math.atan(old_div(float(line_x), line_y))
 
     # How much extra Height do we need, top and bottom?
     extra_h = abs(math.sin(rads) * line_w)
-    bottom = int(max(y1, y2) + old_div(extra_h,2))
-    top = int(min(y1, y2) - old_div(extra_h,2))
+    bottom = int(max(y1, y2) + old_div(extra_h, 2))
+    top = int(min(y1, y2) - old_div(extra_h, 2))
 
     # How much extra width do we need, left and right?
     extra_w = abs(math.cos(rads) * line_w)
@@ -74,11 +74,11 @@ def get_line_data(pixels, x1, y1, x2, y2, line_w=2, the_z=0, the_c=0, the_t=0):
         top = 0
     y = top
     if right > size_x:
-        pad_right = right-size_x
+        pad_right = right - size_x
         right = size_x
     w = int(right - left)
     if bottom > size_y:
-        pad_bottom = bottom-size_y
+        pad_bottom = bottom - size_y
         bottom = size_y
     h = int(bottom - top)
     tile = (x, y, w, h)
@@ -119,9 +119,9 @@ def get_line_data(pixels, x1, y1, x2, y2, line_w=2, the_z=0, the_c=0, the_t=0):
     # finally we need to crop to the length of the line
     length = int(math.sqrt(math.pow(line_x, 2) + math.pow(line_y, 2)))
     rot_w, rot_h = rotated.size
-    crop_x = old_div((rot_w - length),2)
+    crop_x = old_div((rot_w - length), 2)
     crop_x2 = crop_x + length
-    crop_y = old_div((rot_h - line_w),2)
+    crop_y = old_div((rot_h - line_w), 2)
     crop_y2 = crop_y + line_w
     cropped = rotated.crop((crop_x, crop_y, crop_x2, crop_y2))
     return asarray(cropped)
@@ -137,7 +137,7 @@ def points_string_to_xy_list(string):
     if len(point_lists) < 2:
         if len(point_lists) == 1 and point_lists[0]:
             xys = point_lists[0].split()
-            xy_list = [tuple(map(float, xy.split(','))) for xy in xys]
+            xy_list = [tuple(map(float, xy.split(","))) for xy in xys]
             return xy_list
         raise ValueError("Unrecognised ROI shape 'points' string: %s" % string)
 

@@ -31,8 +31,8 @@ from omero.rtypes import rstring
 from omero.testlib import ITest
 from mox3 import mox
 
-class AbstractCLITest(ITest):
 
+class AbstractCLITest(ITest):
     @classmethod
     def setup_class(cls):
         super(AbstractCLITest, cls).setup_class()
@@ -48,21 +48,20 @@ class AbstractCLITest(ITest):
 
 
 class CLITest(AbstractCLITest):
-
     def setup_method(self, method):
         self.args = self.login_args()
 
     def create_object(self, object_type, name=""):
         # create object
-        if object_type == 'Dataset':
+        if object_type == "Dataset":
             new_object = omero.model.DatasetI()
-        elif object_type == 'Project':
+        elif object_type == "Project":
             new_object = omero.model.ProjectI()
-        elif object_type == 'Plate':
+        elif object_type == "Plate":
             new_object = omero.model.PlateI()
-        elif object_type == 'Screen':
+        elif object_type == "Screen":
             new_object = omero.model.ScreenI()
-        elif object_type == 'Image':
+        elif object_type == "Image":
             new_object = self.new_image()
         new_object.name = rstring(name)
         new_object = self.update.saveAndReturnObject(new_object)
@@ -84,7 +83,6 @@ class CLITest(AbstractCLITest):
 
 
 class RootCLITest(AbstractCLITest):
-
     def setup_method(self, method):
         self.args = self.root_login_args()
 
@@ -115,43 +113,43 @@ class ArgumentFixture(object):
 
 
 UserIdNameFixtures = (
-    ArgumentFixture('--id', 'id'),
-    ArgumentFixture('--name', 'omeName'),
-    )
+    ArgumentFixture("--id", "id"),
+    ArgumentFixture("--name", "omeName"),
+)
 
 UserFixtures = (
-    ArgumentFixture(None, 'id'),
-    ArgumentFixture(None, 'omeName'),
-    ArgumentFixture('--user-id', 'id'),
-    ArgumentFixture('--user-name', 'omeName'),
-    )
+    ArgumentFixture(None, "id"),
+    ArgumentFixture(None, "omeName"),
+    ArgumentFixture("--user-id", "id"),
+    ArgumentFixture("--user-name", "omeName"),
+)
 
 GroupIdNameFixtures = (
-    ArgumentFixture('--id', 'id'),
-    ArgumentFixture('--name', 'name'),
-    )
+    ArgumentFixture("--id", "id"),
+    ArgumentFixture("--name", "name"),
+)
 
 GroupFixtures = (
-    ArgumentFixture(None, 'id'),
-    ArgumentFixture(None, 'name'),
-    ArgumentFixture('--group-id', 'id'),
-    ArgumentFixture('--group-name', 'name'),
-    )
+    ArgumentFixture(None, "id"),
+    ArgumentFixture(None, "name"),
+    ArgumentFixture("--group-id", "id"),
+    ArgumentFixture("--group-name", "name"),
+)
 
 
 def get_user_ids(out, sort_key=None):
-    columns = {'login': 1, 'first-name': 2, 'last-name': 3, 'email': 4}
-    lines = out.split('\n')
+    columns = {"login": 1, "first-name": 2, "last-name": 3, "email": 4}
+    lines = out.split("\n")
     ids = []
     last_value = None
     for line in lines[2:]:
-        elements = line.split('|')
+        elements = line.split("|")
         if len(elements) < 8:
             continue
 
         ids.append(int(elements[0].strip()))
         if sort_key:
-            if sort_key == 'id':
+            if sort_key == "id":
                 new_value = ids[-1]
             else:
                 new_value = elements[columns[sort_key]].strip()
@@ -162,17 +160,17 @@ def get_user_ids(out, sort_key=None):
 
 
 def get_group_ids(out, sort_key=None):
-    lines = out.split('\n')
+    lines = out.split("\n")
     ids = []
     last_value = None
     for line in lines[2:]:
-        elements = line.split('|')
+        elements = line.split("|")
         if len(elements) < 4:
             continue
 
         ids.append(int(elements[0].strip()))
         if sort_key:
-            if sort_key == 'id':
+            if sort_key == "id":
                 new_value = ids[-1]
             else:
                 new_value = elements[1].strip()

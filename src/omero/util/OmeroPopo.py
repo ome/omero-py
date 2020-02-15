@@ -44,6 +44,7 @@ from omero.model import NamespaceI
 from omero.rtypes import rdouble, rint, rlong, rstring
 
 import warnings
+
 # Popo helpers #
 
 
@@ -54,13 +55,14 @@ def toCSV(list):
     @return See above.
     """
     warnings.warn(
-        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+    )
     lenList = len(list)
     cnt = 0
     str = ""
     for item in list:
         str = str + item
-        if(cnt < lenList - 1):
+        if cnt < lenList - 1:
             str = str + ","
         cnt = cnt + 1
     return str
@@ -73,11 +75,13 @@ def toList(csvString):
     @return See above.
     """
     warnings.warn(
-        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
-    list = csvString.split(',')
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+    )
+    list = csvString.split(",")
     for index in range(len(list)):
         list[index] = list[index].strip()
     return list
+
 
 ##
 # Create instance of data object this object wraps the basic OMERO types.
@@ -92,7 +96,8 @@ class DataObject(object):
 
     def __init__(self):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         self.value = None
         self.dirty = False
 
@@ -102,7 +107,7 @@ class DataObject(object):
     # @param value The value to set.
     #
     def setValue(self, value):
-        if(value is None):
+        if value is None:
             raise Exception("IObject delegate for DataObject cannot be null.")
         self.value = value
 
@@ -111,7 +116,7 @@ class DataObject(object):
     # @return See above.
     #
     def getId(self):
-        if(self.value.getId() is None):
+        if self.value.getId() is None:
             return -1
         return self.value.getId().getValue()
 
@@ -164,7 +169,7 @@ class ImageData(DataObject):
 
     def __init__(self, image=None):
         DataObject.__init__(self)
-        if(image is None):
+        if image is None:
             self.setValue(ImageI())
         else:
             self.setValue(image)
@@ -177,7 +182,7 @@ class ImageData(DataObject):
     #
     def setName(self, name):
         image = self.asIObject()
-        if(image is None):
+        if image is None:
             raise Exception("No Image specified.")
         image.setName(rstring(name))
         self.setDirty(True)
@@ -189,10 +194,10 @@ class ImageData(DataObject):
     #
     def getName(self):
         image = self.asIObject()
-        if(image is None):
+        if image is None:
             raise Exception("No Image specified.")
         name = image.getName()
-        if(name is None):
+        if name is None:
             return ""
         return name.getValue()
 
@@ -204,7 +209,7 @@ class ImageData(DataObject):
     #
     def setDescription(self, description):
         image = self.asIObject()
-        if(image is None):
+        if image is None:
             raise Exception("No Image specified.")
         image.setDescription(rstring(description))
         self.setDirty(True)
@@ -216,12 +221,13 @@ class ImageData(DataObject):
     #
     def getDescription(self):
         image = self.asIObject()
-        if(image is None):
+        if image is None:
             raise Exception("No Image specified.")
         description = image.getDescription()
-        if(description is None):
+        if description is None:
             return ""
         return description.getValue()
+
 
 ##
 # This class stores the ROI Coordinate (Z,T).
@@ -244,7 +250,7 @@ class ROICoordinate(object):
     # Overload the equals operator
     #
     def __eq__(self, obj):
-        if(self.theZ == obj.theZ and self.theT == obj.theT):
+        if self.theZ == obj.theZ and self.theT == obj.theT:
             return True
         return False
 
@@ -252,7 +258,7 @@ class ROICoordinate(object):
     # Overload the equals operator
     #
     def __ne__(self, obj):
-        if(self.theZ != obj.theZ or self.theT != obj.theT):
+        if self.theZ != obj.theZ or self.theT != obj.theT:
             return True
         return False
 
@@ -260,9 +266,9 @@ class ROICoordinate(object):
     # Overload the lessthan or equals operator
     #
     def __lt__(self, obj):
-        if(self.theT >= obj.theT):
+        if self.theT >= obj.theT:
             return False
-        if(self.theZ >= obj.theZ):
+        if self.theZ >= obj.theZ:
             return False
         return True
 
@@ -270,9 +276,9 @@ class ROICoordinate(object):
     # Overload the lessthan or equals operator
     #
     def __le__(self, obj):
-        if(self.theT < obj.theT):
+        if self.theT < obj.theT:
             return False
-        if(self.theZ < obj.theZ):
+        if self.theZ < obj.theZ:
             return False
         return True
 
@@ -280,9 +286,9 @@ class ROICoordinate(object):
     # Overload the greater than equals operator
     #
     def __gt__(self, obj):
-        if(self.theT <= obj.theT):
+        if self.theT <= obj.theT:
             return False
-        if(self.theZ <= obj.theZ):
+        if self.theZ <= obj.theZ:
             return False
         return True
 
@@ -290,9 +296,9 @@ class ROICoordinate(object):
     # Overload the greater than or equals operator
     #
     def __ge__(self, obj):
-        if(self.theT < obj.theT):
+        if self.theT < obj.theT:
             return False
-        if(self.theZ < obj.theZ):
+        if self.theZ < obj.theZ:
             return False
         return True
 
@@ -344,15 +350,16 @@ def shapeWrapper(serverSideShape):
     """
     print("ServerSideShape")
     print(serverSideShape.__class__.__name__)
-    if serverSideShape.__class__.__name__ == 'EllipseI':
+    if serverSideShape.__class__.__name__ == "EllipseI":
         return EllipseData(serverSideShape)
-    if serverSideShape.__class__.__name__ == 'RectangleI':
+    if serverSideShape.__class__.__name__ == "RectangleI":
         return RectData(serverSideShape)
-    if serverSideShape.__class__.__name__ == 'MaskI':
+    if serverSideShape.__class__.__name__ == "MaskI":
         return MaskData(serverSideShape)
-    if serverSideShape.__class__.__name__ == 'PolygonI':
+    if serverSideShape.__class__.__name__ == "PolygonI":
         return PolygonData(serverSideShape)
     return None
+
 
 ##
 # This class defines the python mapping of
@@ -368,13 +375,14 @@ class ROIData(DataObject):
 
     def __init__(self, roi=None):
         DataObject.__init__(self)
-        if(roi is None):
+        if roi is None:
             self.setValue(RoiI())
         else:
             self.setValue(roi)
         self.roiShapes = dict()
-        if(roi is not None):
+        if roi is not None:
             self.initialise()
+
     ##
     # Initialise the shape map of the ROIData object.
     #
@@ -386,9 +394,9 @@ class ROIData(DataObject):
         s = None
         for shape in shapes:
             s = shapeWrapper(shape)
-            if(s is not None):
+            if s is not None:
                 coord = ROICoordinate(s.getZ(), s.getT())
-                if(coord not in list(self.roiShapes.keys())):
+                if coord not in list(self.roiShapes.keys()):
                     self.roiShapes[coord] = list()
                 data = self.roiShapes[coord]
                 data.append(s)
@@ -399,7 +407,7 @@ class ROIData(DataObject):
     #
     def setImage(self, image):
         roi = self.asIObject()
-        if(roi is None):
+        if roi is None:
             raise Exception("No Roi specified.")
         roi.setImage(image)
         self.setDirty(True)
@@ -410,7 +418,7 @@ class ROIData(DataObject):
     #
     def getImage(self):
         roi = self.asIObject()
-        if(roi is None):
+        if roi is None:
             raise Exception("No Roi specified.")
         return roi.getImage()
 
@@ -420,11 +428,11 @@ class ROIData(DataObject):
     #
     def addShapeData(self, shape):
         roi = self.asIObject()
-        if(roi is None):
+        if roi is None:
             raise Exception("No Roi specified.")
         coord = shape.getROICoordinate()
         shapeList = None
-        if(coord not in list(self.roiShapes.keys())):
+        if coord not in list(self.roiShapes.keys()):
             shapeList = list()
             self.roiShapes[coord] = shapeList
         else:
@@ -439,7 +447,7 @@ class ROIData(DataObject):
     #
     def removeShapeData(self, shape):
         roi = self.asIObject()
-        if(roi is None):
+        if roi is None:
             raise Exception("No Roi specified.")
         coord = shape.getROICoordinate()
         shapeList = self.roiShapes[coord]
@@ -495,13 +503,12 @@ class ROIData(DataObject):
         coordList.sort()
         keyList = []
         for coord in coordList:
-            if(coord >= start and coord <= end):
+            if coord >= start and coord <= end:
                 keyList.append(coord)
         return self.roiShapes.from_keys(keyList)
 
 
 class ShapeData(DataObject):
-
     def __init__(self):
         DataObject.__init__(self)
         self.text = None
@@ -514,10 +521,10 @@ class ShapeData(DataObject):
     #
     def getZ(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         z = shape.getTheZ()
-        if(z is None):
+        if z is None:
             return 0
         else:
             return z.getValue()
@@ -528,7 +535,7 @@ class ShapeData(DataObject):
     #
     def setZ(self, theZ):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setTheZ(rint(theZ))
         self.coord.setZSection(theZ)
@@ -541,10 +548,10 @@ class ShapeData(DataObject):
     #
     def getT(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         t = shape.getTheT()
-        if(t is None):
+        if t is None:
             return 0
         else:
             return t.getValue()
@@ -555,7 +562,7 @@ class ShapeData(DataObject):
     #
     def setT(self, theT):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setTheT(rint(theT))
         self.coord.setTimePoint(theT)
@@ -567,7 +574,7 @@ class ShapeData(DataObject):
     #
     def setROICoordinate(self, coord):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         self.setZ(coord.getZSection())
         self.setT(coord.getTimePoint())
@@ -581,7 +588,7 @@ class ShapeData(DataObject):
     #
     def getROICoordinate(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         return self.coord
 
@@ -590,10 +597,10 @@ class ShapeData(DataObject):
     # @return See above.
     def getText(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         text = shape.getTextValue()
-        if(text is None):
+        if text is None:
             return ""
         else:
             return text.getValue()
@@ -603,7 +610,7 @@ class ShapeData(DataObject):
     # @param See above.
     def setText(self, text):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setTextValue(rstring(text))
         self.setDirty(True)
@@ -616,12 +623,12 @@ class ShapeData(DataObject):
     #
     def getTransform(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         transform = shape.getTransform()
-        if(transform is not None):
+        if transform is not None:
             transformValue = transform.getValue()
-            if(transformValue == "none"):
+            if transformValue == "none":
                 return ""
             else:
                 return transformValue
@@ -629,7 +636,7 @@ class ShapeData(DataObject):
 
     def setTransform(self, transform):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setTransform(rstring(transform))
         self.setDirty(True)
@@ -640,11 +647,11 @@ class ShapeData(DataObject):
     # numpy.array([m00 m01 m02], [m10 m11 m12]).
     #
     def transformToMatrix(self, str):
-        if (str == ""):
+        if str == "":
             return numpy.matrix([[1, 0, 0], [0, 1, 0]])
-        transformstr = str[str.find('(') + 1:len(str) - 1]
-        values = transformstr.split(' ')
-        b = numpy.matrix(numpy.array(values, dtype='double'))
+        transformstr = str[str.find("(") + 1 : len(str) - 1]
+        values = transformstr.split(" ")
+        b = numpy.matrix(numpy.array(values, dtype="double"))
         t = numpy.matrix(numpy.zeros((3, 3)))
         t[0, 0] = b[0, 0]
         t[0, 1] = b[0, 2]
@@ -668,6 +675,7 @@ class ShapeData(DataObject):
     def containsPoints(self):
         return []
 
+
 ##
 # Instance of the EllipseData Object
 #
@@ -681,7 +689,7 @@ class EllipseData(ShapeData):
 
     def __init__(self, shape=None):
         ShapeData.__init__(self)
-        if(shape is None):
+        if shape is None:
             self.setValue(EllipseI())
             self.setX(0)
             self.setY(0)
@@ -695,7 +703,7 @@ class EllipseData(ShapeData):
     # @param x See above.
     def setX(self, x):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setX(rdouble(x))
 
@@ -704,10 +712,10 @@ class EllipseData(ShapeData):
     # @return See Above.
     def getX(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         x = shape.getX()
-        if(x is None):
+        if x is None:
             return 0
         return x.getValue()
 
@@ -716,7 +724,7 @@ class EllipseData(ShapeData):
     # @param y See above.
     def setY(self, y):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setY(rdouble(y))
 
@@ -725,10 +733,10 @@ class EllipseData(ShapeData):
     # @return See Above.
     def getY(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         y = shape.getY()
-        if(y is None):
+        if y is None:
             return 0
         return y.getValue()
 
@@ -737,7 +745,7 @@ class EllipseData(ShapeData):
     # @param radiusx See above.
     def setRadiusX(self, radiusx):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setRadiusX(rdouble(radiusx))
 
@@ -746,10 +754,10 @@ class EllipseData(ShapeData):
     # @return See Above.
     def getRadiusX(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         radiusx = shape.getRadiusX()
-        if(radiusx is None):
+        if radiusx is None:
             return 0
         return radiusx.getValue()
 
@@ -758,7 +766,7 @@ class EllipseData(ShapeData):
     # @param radiusy See above.
     def setRadiusY(self, radiusy):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setRadiusY(rdouble(radiusy))
 
@@ -767,10 +775,10 @@ class EllipseData(ShapeData):
     # @return See Above.
     def getRadiusY(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         radiusy = shape.getRadiusY()
-        if(radiusy is None):
+        if radiusy is None:
             return 0
         return radiusy.getValue()
 
@@ -808,8 +816,8 @@ class EllipseData(ShapeData):
         rt = transform * TR
         majl = transform * MajorAxisLeft
         majr = transform * MajorAxisRight
-        o = (majr[1] - majl[1])
-        a = (majr[0] - majl[0])
+        o = majr[1] - majl[1]
+        a = majr[0] - majl[0]
         h = math.sqrt(o * o + a * a)
         majorAxisAngle = math.asin(old_div(o, h))
         boundingBoxMinX = min(lt[0], rt[0], lb[0], rb[0])
@@ -818,10 +826,12 @@ class EllipseData(ShapeData):
         boundingBoxMaxY = max(lt[1], rt[1], lb[1], rb[1])
         boundingBox = (
             (boundingBoxMinX, boundingBoxMinY),
-            (boundingBoxMaxX, boundingBoxMaxY))
+            (boundingBoxMaxX, boundingBoxMaxY),
+        )
         centredBoundingBox = (
             (boundingBox[0][0] - centre[0], boundingBox[0][1] - centre[1]),
-            (boundingBox[1][0] - centre[0], boundingBox[1][1] - centre[1]))
+            (boundingBox[1][0] - centre[0], boundingBox[1][1] - centre[1]),
+        )
         points = {}
         cx = float(centre[0])
         cy = float(centre[1])
@@ -829,15 +839,19 @@ class EllipseData(ShapeData):
         yrange = list(range(centredBoundingBox[0][1], centredBoundingBox[1][1]))
         for dx in xrange:
             for dy in yrange:
-                newX = dx * math.cos(majorAxisAngle) + dy * \
-                    math.sin(majorAxisAngle)
-                newY = -dx * math.sin(majorAxisAngle) + \
-                    dy * math.cos(majorAxisAngle)
-                val = old_div((newX * newX), (radiusx * radiusx)) + \
-                    old_div((newY * newY), (radiusy * radiusy))
-                if(val <= 1):
+                newX = dx * math.cos(majorAxisAngle) + dy * math.sin(
+                    majorAxisAngle
+                )
+                newY = -dx * math.sin(majorAxisAngle) + dy * math.cos(
+                    majorAxisAngle
+                )
+                val = old_div((newX * newX), (radiusx * radiusx)) + old_div(
+                    (newY * newY), (radiusy * radiusy)
+                )
+                if val <= 1:
                     points[(int(dx + cx), int(dy + cy))] = 1
         return points
+
 
 ##
 # Instance of Polygon object.
@@ -854,7 +868,7 @@ class PolygonData(ShapeData):
         ShapeData.__init__(self)
         self.NUMREGEX = "\\[.*\\]"
         # Regex for a data in block.
-        if(shape is None):
+        if shape is None:
             self.setValue(PolygonI())
             self.points = []
             self.points1 = []
@@ -902,7 +916,7 @@ class PolygonData(ShapeData):
     #
     def setPointsString(self, pts):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setPoints(pts)
         self.setDirty(True)
@@ -930,10 +944,10 @@ class PolygonData(ShapeData):
     # @return See above.
     def getPointsString(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         pts = shape.getPoints()
-        if(pts is None):
+        if pts is None:
             return ""
         else:
             return pts.getValue()
@@ -956,20 +970,20 @@ class PolygonData(ShapeData):
     #
     def getContents(self, string, start, end):
         lIndex = string.find(start)
-        if(lIndex == -1):
+        if lIndex == -1:
             return ""
         strFragment = string[lIndex:]
-        rIndex = strFragment.find(']')
-        if(rIndex == -1):
+        rIndex = strFragment.find("]")
+        if rIndex == -1:
             return ""
-        return string[lIndex + len(start):rIndex]
+        return string[lIndex + len(start) : rIndex]
 
     ##
     # Convert the pts string to a list
     # @return See above.
     #
     def parsePointsToList(self, pts):
-        numberList = pts.split(',')
+        numberList = pts.split(",")
         return numberList
 
     ##
@@ -980,7 +994,7 @@ class PolygonData(ShapeData):
         str = ""
         for index, pt in enumerate(pointsList):
             str = str + pt
-            if(index < len(pointsList) - 1):
+            if index < len(pointsList) - 1:
                 str = str + ","
         return str
 
@@ -1021,7 +1035,8 @@ class PolygonData(ShapeData):
         coords = []
         for index in range(old_div(len(ptsList), 2)):
             coords.append(
-                (int(ptsList[index * 2]), int(ptsList[index * 2 + 1])))
+                (int(ptsList[index * 2]), int(ptsList[index * 2 + 1]))
+            )
         return coords
 
     ##
@@ -1035,7 +1050,7 @@ class PolygonData(ShapeData):
         yrange = list(range(boundingRectangle[0][1], boundingRectangle[1][1]))
         for xx in xrange:
             for yy in yrange:
-                if(self.inPolygon((xx, yy))):
+                if self.inPolygon((xx, yy)):
                     points[(xx, yy)] = 1
         return points
 
@@ -1051,7 +1066,8 @@ class PolygonData(ShapeData):
         polygon = []
         for index in range(0, old_div(len(polypoints), 2)):
             polygon.append(
-                (int(polypoints[index * 2]), int(polypoints[index * 2 + 1])))
+                (int(polypoints[index * 2]), int(polypoints[index * 2 + 1]))
+            )
 
         n = len(polygon)
 
@@ -1073,7 +1089,7 @@ class PolygonData(ShapeData):
     # @param y2 The y of the second vector
     # @return see above.
     #
-    def Angle2D(self,  x1, y1, x2, y2):
+    def Angle2D(self, x1, y1, x2, y2):
         theta1 = math.atan2(y1, x1)
         theta2 = math.atan2(y2, x2)
         dtheta = theta2 - theta1
@@ -1082,6 +1098,7 @@ class PolygonData(ShapeData):
         while dtheta < -math.pi:
             dtheta += 2.0 * math.pi
         return dtheta
+
 
 ##
 # Instance of the Mask Object
@@ -1096,7 +1113,7 @@ class MaskData(ShapeData):
 
     def __init__(self, maskShape=None):
         ShapeData.__init__(self)
-        if(maskShape is None):
+        if maskShape is None:
             self.setValue(MaskI())
             self.setX(0)
             self.setY(0)
@@ -1111,7 +1128,7 @@ class MaskData(ShapeData):
     # @param x See above.
     def setX(self, x):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setX(rdouble(x))
 
@@ -1120,10 +1137,10 @@ class MaskData(ShapeData):
     # @return See Above.
     def getX(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         x = shape.getX()
-        if(x is None):
+        if x is None:
             return 0
         return x.getValue()
 
@@ -1132,7 +1149,7 @@ class MaskData(ShapeData):
     # @param y See above.
     def setY(self, y):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setY(rdouble(y))
 
@@ -1141,19 +1158,20 @@ class MaskData(ShapeData):
     # @return See Above.
     def getY(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         y = shape.getY()
-        if(y is None):
+        if y is None:
             return 0
         return y.getValue()
+
     ##
     # Set the width the Mask
     # @param width See above.
 
     def setWidth(self, width):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setWidth(rdouble(width))
 
@@ -1162,19 +1180,20 @@ class MaskData(ShapeData):
     # @return See Above.
     def getWidth(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         width = shape.getWidth()
-        if(width is None):
+        if width is None:
             return 0
         return width.getValue()
+
     ##
     # Set the height of the Mask
     # @param height See above.
 
     def setHeight(self, height):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setHeight(rdouble(height))
 
@@ -1183,19 +1202,20 @@ class MaskData(ShapeData):
     # @return See Above.
     def getHeight(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         height = shape.getHeight()
-        if(height is None):
+        if height is None:
             return 0
         return height.getValue()
+
     ##
     # Set the bitmask of the Mask
     # @param See Above.
 
     def setMask(self, mask):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setBytes(mask)
 
@@ -1204,10 +1224,10 @@ class MaskData(ShapeData):
     # @return See Above.
     def getMask(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         mask = shape.getBytes()
-        if(mask is None):  # ??
+        if mask is None:  # ??
             return 0
         return mask.getValue()
 
@@ -1223,7 +1243,7 @@ class RectData(ShapeData):
 
     def __init__(self, rectShape=None):
         ShapeData.__init__(self)
-        if (rectShape is None):
+        if rectShape is None:
             self.setValue(RectangleI())
             self.setX(0)
             self.setY(0)
@@ -1237,7 +1257,7 @@ class RectData(ShapeData):
     # @param x See above.
     def setX(self, x):
         shape = self.asIObject()
-        if (shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setX(rdouble(x))
 
@@ -1246,10 +1266,10 @@ class RectData(ShapeData):
     # @return See Above.
     def getX(self):
         shape = self.asIObject()
-        if (shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         x = shape.getX()
-        if (x is None):
+        if x is None:
             return 0
         return x.getValue()
 
@@ -1258,7 +1278,7 @@ class RectData(ShapeData):
     # @param y See above.
     def setY(self, y):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setY(rdouble(y))
 
@@ -1267,19 +1287,20 @@ class RectData(ShapeData):
     # @return See Above.
     def getY(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         y = shape.getY()
-        if(y is None):
+        if y is None:
             return 0
         return y.getValue()
+
     ##
     # Set the width the Rectangle
     # @param width See above.
 
     def setWidth(self, width):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setWidth(rdouble(width))
 
@@ -1288,19 +1309,20 @@ class RectData(ShapeData):
     # @return See Above.
     def getWidth(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         width = shape.getWidth()
-        if(width is None):
+        if width is None:
             return 0
         return width.getValue()
+
     ##
     # Set the height of the Rectangle
     # @param height See above.
 
     def setHeight(self, height):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         shape.setHeight(rdouble(height))
 
@@ -1309,10 +1331,10 @@ class RectData(ShapeData):
     # @return See Above.
     def getHeight(self):
         shape = self.asIObject()
-        if(shape is None):
+        if shape is None:
             raise Exception("No Shape specified.")
         height = shape.getHeight()
-        if(height is None):
+        if height is None:
             return 0
         return height.getValue()
 
@@ -1348,8 +1370,8 @@ class RectData(ShapeData):
         rt = transform * TR
         majl = lb
         majr = rb
-        o = (majr[1] - majl[1])
-        a = (majr[0] - majl[0])
+        o = majr[1] - majl[1]
+        a = majr[0] - majl[0]
         h = math.sqrt(o * o + a * a)
         angle = math.asin(old_div(o, h))
         boundingBoxMinX = min(lt[0], rt[0], lb[0], rb[0])
@@ -1358,7 +1380,8 @@ class RectData(ShapeData):
         boundingBoxMaxY = max(lt[1], rt[1], lb[1], rb[1])
         boundingBox = (
             (boundingBoxMinX, boundingBoxMinY),
-            (boundingBoxMaxX, boundingBoxMaxY))
+            (boundingBoxMaxX, boundingBoxMaxY),
+        )
         points = {}
         xrange = list(range(boundingBox[0][0], boundingBox[1][0]))
         yrange = list(range(boundingBox[0][1], boundingBox[1][1]))
@@ -1371,12 +1394,15 @@ class RectData(ShapeData):
                 newX = xx * math.cos(angle) + yy * math.sin(angle)
                 newY = -xx * math.sin(angle) + yy * math.cos(angle)
 
-                if (newX - transformedX < width
-                        and newY - transformedY < height
-                        and newX - transformedX > 0
-                        and newY - transformedY > 0):
+                if (
+                    newX - transformedX < width
+                    and newY - transformedY < height
+                    and newX - transformedX > 0
+                    and newY - transformedY > 0
+                ):
                     points[(int(x + cx), int(y + cy))] = 1
         return points
+
 
 ##
 # The workflow data object, which wraps the omero.mdoel.NamespaceI class
@@ -1384,10 +1410,9 @@ class RectData(ShapeData):
 
 
 class WorkflowData(DataObject):
-
     def __init__(self, workflow=None):
         DataObject.__init__(self)
-        if(workflow is None):
+        if workflow is None:
             self.setValue(NamespaceI())
             self.setNamespace("")
             self.setKeywords([])
@@ -1400,7 +1425,7 @@ class WorkflowData(DataObject):
     # @param namespace See above.
     def setNamespace(self, namespace):
         workflow = self.asIObject()
-        if(workflow is None):
+        if workflow is None:
             raise Exception("No workflow specified.")
         workflow.setName(rstring(namespace))
         self.setDirty(True)
@@ -1410,10 +1435,10 @@ class WorkflowData(DataObject):
     # @return See Above.
     def getNamespace(self):
         workflow = self.asIObject()
-        if(workflow is None):
+        if workflow is None:
             raise Exception("No Workflow specified.")
         namespace = workflow.getName()
-        if(namespace is None):
+        if namespace is None:
             return ""
         return namespace.getValue()
 
@@ -1422,7 +1447,7 @@ class WorkflowData(DataObject):
     # @param namespace See above.
     def setKeywords(self, keywords):
         workflow = self.asIObject()
-        if(workflow is None):
+        if workflow is None:
             raise Exception("No workflow specified.")
         workflow.setKeywords(keywords)
         self.setDirty(True)
@@ -1432,7 +1457,7 @@ class WorkflowData(DataObject):
     # @param namespace See above.
     def setKeywordsFromString(self, keywords):
         workflow = self.asIObject()
-        if(workflow is None):
+        if workflow is None:
             raise Exception("No workflow specified.")
         workflow.setKeywords(toList(keywords))
         self.setDirty(True)
@@ -1442,10 +1467,10 @@ class WorkflowData(DataObject):
     # @return See Above.
     def getKeywords(self):
         workflow = self.asIObject()
-        if(workflow is None):
+        if workflow is None:
             raise Exception("No Workflow specified.")
         keywords = workflow.getKeywords()
-        if(keywords is None):
+        if keywords is None:
             return []
         return keywords
 
@@ -1453,7 +1478,7 @@ class WorkflowData(DataObject):
     # Add a keyword to the workflow
     # @param keyword See Above.
     def addKeyword(self, keyword):
-        if(self.containsKeyword(keyword)):
+        if self.containsKeyword(keyword):
             return
         keywords = self.getKeywords()
         keywords.append(keyword)
@@ -1464,13 +1489,13 @@ class WorkflowData(DataObject):
     # @return See Above.
     def containsKeyword(self, keyword):
         keywords = self.getKeywords()
-        return (keyword in keywords)
+        return keyword in keywords
 
     ##
     # Remove the keyword from the workflow
     # @param keyword See Above.
     def removeKeyword(self, keyword):
-        if(not self.containsKeyword(keyword)):
+        if not self.containsKeyword(keyword):
             return
         newList = self.getKeywords()
         newList.remove(keyword)

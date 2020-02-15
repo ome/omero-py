@@ -49,9 +49,9 @@ from stat import ST_SIZE
 # files and reconcile with the database. Directory name key and corresponding
 # OMERO data type value.
 SEARCH_DIRECTORIES = {
-    'Pixels': 'Pixels',
-    'Files': 'OriginalFile',
-    'Thumbnails': 'Thumbnail'
+    "Pixels": "Pixels",
+    "Files": "OriginalFile",
+    "Thumbnails": "Thumbnail",
 }
 
 
@@ -60,7 +60,8 @@ def usage(error):
     Prints usage so that we don't have to. :)
     """
     cmd = sys.argv[0]
-    print("""%s
+    print(
+        """%s
 Usage: %s [--dry-run] [-u username | -k] <omero.data.dir>
 Cleanses files in the OMERO data directory that have no reference in the
 OMERO database. NOTE: As this script is designed to be run via cron or in
@@ -74,8 +75,9 @@ Options:
 Examples:
   %s --dry-run -u root /OMERO
 
-Report bugs to OME Users <ome-users@lists.openmicroscopy.org.uk>""" % \
-        (error, cmd, cmd))
+Report bugs to OME Users <ome-users@lists.openmicroscopy.org.uk>"""
+        % (error, cmd, cmd)
+    )
     sys.exit(2)
 
 
@@ -143,10 +145,10 @@ class Cleanser(object):
                     id_part = file_name.split("_")[0]
                     if file_name.endswith(self.PYRAMID_FILE):
                         object_id = omero.rtypes.rlong(int(id_part))
-                    elif (file_name.endswith(self.PYRAMID_LOCK)
-                            or file_name.endswith(self.PYRAMID_TEMP)):
-                        object_id = omero.rtypes.rlong(
-                            int(id_part.lstrip('.')))
+                    elif file_name.endswith(
+                        self.PYRAMID_LOCK
+                    ) or file_name.endswith(self.PYRAMID_TEMP):
+                        object_id = omero.rtypes.rlong(int(id_part.lstrip(".")))
                     else:
                         object_id = omero.rtypes.rlong(-1)
                 except ValueError:
@@ -154,10 +156,12 @@ class Cleanser(object):
             object_ids.append(object_id)
 
         parameters = omero.sys.Parameters()
-        parameters.map = {'ids': omero.rtypes.rlist(object_ids)}
+        parameters.map = {"ids": omero.rtypes.rlist(object_ids)}
         rows = self.query_service.projection(
             "select o.id from %s as o where o.id in (:ids)" % self.object_type,
-            parameters, {"omero.group": "-1"})
+            parameters,
+            {"omero.group": "-1"},
+        )
         existing_ids = [cols[0].val for cols in rows]
 
         for i, object_id in enumerate(object_ids):
@@ -191,8 +195,10 @@ class Cleanser(object):
         self.do_cleanse()
 
     def __str__(self):
-        return "Cleansing context: %d files (%d bytes)" % \
-            (len(self.cleansed), self.bytes_cleansed)
+        return "Cleansing context: %d files (%d bytes)" % (
+            len(self.cleansed),
+            self.bytes_cleansed,
+        )
 
 
 def initial_check(config_service, admin_service=None):
@@ -201,15 +207,18 @@ def initial_check(config_service, admin_service=None):
 
     ctx = admin_service.getEventContext()
     if not ctx.isAdmin:
-        raise Exception('SecurityViolation: Admins only!')
+        raise Exception("SecurityViolation: Admins only!")
 
     #
     # Compare server versions. See ticket #3123
     #
     if config_service is None:
-        print("No config service provided! "
-              "Waiting 10 seconds to allow cancellation")
+        print(
+            "No config service provided! "
+            "Waiting 10 seconds to allow cancellation"
+        )
         from threading import Event
+
         Event().wait(10)
 
     server_version = config_service.getVersion()
@@ -220,7 +229,7 @@ def initial_check(config_service, admin_service=None):
 
 
 def cleanse(data_dir, client, dry_run=False):
-    client.getImplicitContext().put(omero.constants.GROUP, '-1')
+    client.getImplicitContext().put(omero.constants.GROUP, "-1")
 
     admin_service = client.sf.getAdminService()
     query_service = client.sf.getQueryService()
@@ -259,7 +268,7 @@ def delete_empty_dirs(repo, root, client, dry_run):
     to_delete = []
 
     # find the empty subdirectories
-    is_empty_dir(repo, '/', False, to_delete)
+    is_empty_dir(repo, "/", False, to_delete)
 
     if dry_run:
         for directory in to_delete:
@@ -269,7 +278,7 @@ def delete_empty_dirs(repo, root, client, dry_run):
         batch_size = 20
 
         for from_index in range(0, len(to_delete), batch_size):
-            batch_to_delete = to_delete[from_index:from_index + batch_size]
+            batch_to_delete = to_delete[from_index : from_index + batch_size]
             for directory in batch_to_delete:
                 print("Removing %s%s" % (root, directory))
             handle = repo.deletePaths(batch_to_delete, True, False)
@@ -287,11 +296,15 @@ def is_empty_dir(repo, directory, may_delete_dir, to_delete):
     is_empty = True
 
     for entry in repo.listFiles(directory):
-        subdirectory = directory + entry.name.val + '/'
+        subdirectory = directory + entry.name.val + "/"
         may_delete_subdir = entry.details.permissions.canDelete()
-        if entry.mimetype is not None and \
-           entry.mimetype.val == 'Directory' and \
-           is_empty_dir(repo, subdirectory, may_delete_subdir, empty_subdirs):
+        if (
+            entry.mimetype is not None
+            and entry.mimetype.val == "Directory"
+            and is_empty_dir(
+                repo, subdirectory, may_delete_subdir, empty_subdirs
+            )
+        ):
             if may_delete_subdir:
                 # note empty subdirectories that can be deleted
                 empty_subdirs.append(subdirectory)
@@ -305,8 +318,13 @@ def is_empty_dir(repo, directory, may_delete_dir, to_delete):
     return is_empty
 
 
-def fixpyramids(data_dir, query_service,
-                dry_run=False, config_service=None, admin_service=None):
+def fixpyramids(
+    data_dir,
+    query_service,
+    dry_run=False,
+    config_service=None,
+    admin_service=None,
+):
     initial_check(config_service, admin_service)
 
     # look for any pyramid files with length 0
@@ -321,9 +339,10 @@ def fixpyramids(data_dir, query_service,
             if length == 0 and f.endswith("_pyramid"):
                 delete_pyramid = True
                 for lockfile in os.listdir(pixels_dir):
-                    if lockfile.startswith("." + f) and \
-                        (lockfile.endswith(".tmp") or
-                            lockfile.endswith(".pyr_lock")):
+                    if lockfile.startswith("." + f) and (
+                        lockfile.endswith(".tmp")
+                        or lockfile.endswith(".pyr_lock")
+                    ):
                         delete_pyramid = False
                         break
 
@@ -335,9 +354,15 @@ def fixpyramids(data_dir, query_service,
                         os.remove(pixels_file)
 
 
-def removepyramids(client, little_endian=None, dry_run=False,
-                   imported_after=None, wait=25, limit=500):
-    client.getImplicitContext().put(omero.constants.GROUP, '-1')
+def removepyramids(
+    client,
+    little_endian=None,
+    dry_run=False,
+    imported_after=None,
+    wait=25,
+    limit=500,
+):
+    client.getImplicitContext().put(omero.constants.GROUP, "-1")
     admin_service = client.sf.getAdminService()
     config_service = client.sf.getConfigService()
 
@@ -360,9 +385,9 @@ def removepyramids(client, little_endian=None, dry_run=False,
     loops = ceil(wait * 1000.0 / ms)
 
     try:
-        cb = client.submit(request, loops=loops, ms=ms,
-                           failonerror=True,
-                           failontimeout=True)
+        cb = client.submit(
+            request, loops=loops, ms=ms, failonerror=True, failontimeout=True
+        )
         rsp = cb.getResponse()
     except omero.CmdError as ce:
         print("Failed to load pyramids: %s" % ce.err.name)
@@ -385,13 +410,19 @@ def removepyramids(client, little_endian=None, dry_run=False,
             req.deletePyramid = True
             req.deleteThumbnails = True
             try:
-                cb = client.submit(req, loops=loops, ms=ms,
-                                   failonerror=True,
-                                   failontimeout=True)
+                cb = client.submit(
+                    req,
+                    loops=loops,
+                    ms=ms,
+                    failonerror=True,
+                    failontimeout=True,
+                )
                 print("Pyramid removed for image %s" % image_id)
             except omero.CmdError as ce:
-                print("Failed to remove for image %s: %s" % (
-                    image_id, ce.err.name))
+                print(
+                    "Failed to remove for image %s: %s"
+                    % (image_id, ce.err.name)
+                )
             finally:
                 if cb:
                     try:
@@ -411,9 +442,9 @@ def main():
         usage(msg)
 
     try:
-        data_dir, = args
+        (data_dir,) = args
     except:
-        usage('Expecting single OMERO data directory!')
+        usage("Expecting single OMERO data directory!")
 
     username = get_user("root")
     session_key = None
@@ -434,7 +465,7 @@ def main():
             sys.exit(2)
 
     try:
-        client = omero.client('localhost')
+        client = omero.client("localhost")
         client.setAgent("OMERO.cleanse")
         if session_key is None:
             client.createSession(username, password)
@@ -452,5 +483,5 @@ def main():
             client.closeSession()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

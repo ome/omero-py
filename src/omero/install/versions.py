@@ -46,21 +46,32 @@ def needs_upgrade(client_version, server_version, verbose=False):
         server_cleaned = REGEX.match(server_version).group(1)
         server_split = server_cleaned.split(".")
 
-        rv = (client_split < server_split)
+        rv = client_split < server_split
         if verbose:
-            LOG.info("Client=%20s (%-5s)  v.  Server=%20s (%-5s) Upgrade? %s",
-                     client_version, ".".join(client_split),
-                     server_version, ".".join(server_split), rv)
+            LOG.info(
+                "Client=%20s (%-5s)  v.  Server=%20s (%-5s) Upgrade? %s",
+                client_version,
+                ".".join(client_split),
+                server_version,
+                ".".join(server_split),
+                rv,
+            )
         return rv
 
     except:
-        LOG.warn("Bad versions: client=%s server=%s", client_version,
-                 server_version, exc_info=1)
+        LOG.warn(
+            "Bad versions: client=%s server=%s",
+            client_version,
+            server_version,
+            exc_info=1,
+        )
         return True
+
 
 if __name__ == "__main__":
 
     import sys
+
     args = list(sys.argv[1:])
 
     if "--quiet" in args:
@@ -70,7 +81,7 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.DEBUG)
 
     if "--test" in args:
-        print("="*10, "Test", "="*72)
+        print("=" * 10, "Test", "=" * 72)
         needs_upgrade("4.0", "4.1.1", True)
         needs_upgrade("4.1", "4.1.1", True)
         needs_upgrade("4.1.0", "4.1.1", True)
@@ -100,6 +111,9 @@ if __name__ == "__main__":
             rv = int(needs_upgrade(args[0], args[1], True))
         except:
             rv = 2
-            print("""    %s [--quiet] client_version server_version
-or: %s [--quiet] --test """ % (sys.argv[0], sys.argv[0]))
+            print(
+                """    %s [--quiet] client_version server_version
+or: %s [--quiet] --test """
+                % (sys.argv[0], sys.argv[0])
+            )
         sys.exit(rv)

@@ -30,7 +30,12 @@ sys = __import__("sys")
 import xml.dom.minidom
 
 from xml.etree.ElementTree import (
-    XML, Element, ElementTree, SubElement, Comment, tostring
+    XML,
+    Element,
+    ElementTree,
+    SubElement,
+    Comment,
+    tostring,
 )
 import omero_ext.path as path
 from omero_ext import portalocker
@@ -86,14 +91,16 @@ class ConfigXml(object):
     dict-like wrapper around the config.xml file usually stored
     in etc/grid. For a copy of the dict, use "as_map"
     """
+
     KEY = "omero.config.version"
     VERSION = "5.1.0"
     INTERNAL = "__ACTIVE__"
     DEFAULT = "omero.config.profile"
     IGNORE = (KEY, DEFAULT)
 
-    def __init__(self, filename, env_config=None, exclusive=True,
-                 read_only=False):
+    def __init__(
+        self, filename, env_config=None, exclusive=True, read_only=False
+    ):
         # Logs to the class name
         self.logger = logging.getLogger(self.__class__.__name__)
         self.XML = None  # Parsed XML Element
@@ -109,7 +116,8 @@ class ConfigXml(object):
         if self.exclusive:  # must be "a+"
             try:
                 portalocker.lock(
-                    self.lock, portalocker.LOCK_NB | portalocker.LOCK_EX)
+                    self.lock, portalocker.LOCK_NB | portalocker.LOCK_EX
+                )
             except portalocker.LockException:
                 self.lock = None  # Prevent deleting of the file
                 self.close()
@@ -133,13 +141,14 @@ class ConfigXml(object):
             default = self.default()
             self.XML = Element("icegrid")
             properties = SubElement(self.XML, "properties", id=self.INTERNAL)
-            SubElement(properties, "property", name=self.DEFAULT,
-                       value=default)
-            SubElement(properties, "property", name=self.KEY,
-                       value=self.VERSION)
+            SubElement(properties, "property", name=self.DEFAULT, value=default)
+            SubElement(
+                properties, "property", name=self.KEY, value=self.VERSION
+            )
             properties = SubElement(self.XML, "properties", id=default)
-            SubElement(properties, "property", name=self.KEY,
-                       value=self.VERSION)
+            SubElement(
+                properties, "property", name=self.KEY, value=self.VERSION
+            )
 
     def open_source(self):
         self.source = None
@@ -157,7 +166,8 @@ class ConfigXml(object):
                 val = self.env_config.is_non_default()
                 if val is not None:
                     raise Exception(
-                        "Non-default OMERO_CONFIG on read-only: %s" % val)
+                        "Non-default OMERO_CONFIG on read-only: %s" % val
+                    )
             else:
                 self.lock = self._open_lock()  # Open file handle for lock
 
@@ -180,8 +190,9 @@ class ConfigXml(object):
             except:
                 # On windows a WindowsError 32 can happen (file opened by
                 # another process), ignoring
-                self.logger.error("Failed to removed lock file, ignoring",
-                                  exc_info=True)
+                self.logger.error(
+                    "Failed to removed lock file, ignoring", exc_info=True
+                )
                 pass
 
     def version(self, id=None):
@@ -208,14 +219,21 @@ class ConfigXml(object):
                         val = x.get("value", "")
                         toplinks = json.loads(val)
                         defaultlinks = [
-                            ["Data", "webindex",
-                                {"title":
-                                 "Browse Data via Projects, Tags etc"}],
-                            ["History", "history",
-                                {"title": "History"}],
-                            ["Help", "https://help.openmicroscopy.org/",
-                                {"target": "new", "title":
-                                    "Open OMERO user guide in a new tab"}]]
+                            [
+                                "Data",
+                                "webindex",
+                                {"title": "Browse Data via Projects, Tags etc"},
+                            ],
+                            ["History", "history", {"title": "History"}],
+                            [
+                                "Help",
+                                "https://help.openmicroscopy.org/",
+                                {
+                                    "target": "new",
+                                    "title": "Open OMERO user guide in a new tab",
+                                },
+                            ],
+                        ]
                         toplinks = defaultlinks + toplinks
                         val = json.dumps(toplinks)
                         x.set("value", val)
@@ -240,11 +258,13 @@ class ConfigXml(object):
                         val = orig.replace("${omero.dollar}", "")
                         val = val.replace("${", "@{")
                         x.set("value", val)
-                        self.logger.info("Upgraded 4.2.0 property:  %s => %s",
-                                         orig, val)
+                        self.logger.info(
+                            "Upgraded 4.2.0 property:  %s => %s", orig, val
+                        )
         else:
-            raise Exception("Version mismatch: %s has %s" %
-                            (props.get("id"), version))
+            raise Exception(
+                "Version mismatch: %s has %s" % (props.get("id"), version)
+            )
 
     def internal(self):
         return self.properties(self.INTERNAL)
@@ -295,12 +315,18 @@ class ConfigXml(object):
         intra-element whitespace) and overwrites the file on disk.
         """
         icegrid = Element("icegrid")
-        comment = Comment("\n".join([
-            "\n",
-            "\tThis file was generated at %s by the OmeroConfig system.",
-            "\tDo not edit directly but see `omero config` for details.",
-            "\tThis file may be included into your IceGrid application.",
-            "\n"]) % time.ctime())
+        comment = Comment(
+            "\n".join(
+                [
+                    "\n",
+                    "\tThis file was generated at %s by the OmeroConfig system.",
+                    "\tDo not edit directly but see `omero config` for details.",
+                    "\tThis file may be included into your IceGrid application.",
+                    "\n",
+                ]
+            )
+            % time.ctime()
+        )
         icegrid.append(comment)
         # First step is to add a new self.INTERNAL block to it
         # which has self.DEFAULT set to the current default,
@@ -318,8 +344,9 @@ class ConfigXml(object):
         else:
             # Doesn't exist, create it
             properties = SubElement(icegrid, "properties", id=default)
-            SubElement(properties, "property", name=self.KEY,
-                       value=self.VERSION)
+            SubElement(
+                properties, "property", name=self.KEY, value=self.VERSION
+            )
 
         # Now we simply reproduce all the other blocks
         prop_list = self.properties(None, True)
@@ -391,9 +418,8 @@ class ConfigXml(object):
         return rv
 
     def element_to_xml(self, elem):
-        string = tostring(elem, 'utf-8')
-        return xml.dom.minidom.parseString(string).toprettyxml("  ", "\n",
-                                                               None)
+        string = tostring(elem, "utf-8")
+        return xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
 
     def clear_text(self, p):
         """

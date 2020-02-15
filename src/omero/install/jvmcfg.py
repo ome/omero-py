@@ -62,8 +62,8 @@ def strip_dict(map, prefix=("omero", "jvmcfg"), suffix=(), limit=1):
         ssz = len(suffix)
         if ksz <= (psz + ssz):
             return  # No way to strip if smaller
-        if key[0:psz] == prefix and key[ksz-ssz:] == suffix:
-            newkey = key[psz:ksz-ssz]
+        if key[0:psz] == prefix and key[ksz - ssz :] == suffix:
+            newkey = key[psz : ksz - ssz]
             if len(newkey) == limit:
                 newkey = ".".join(newkey)
                 rv[newkey] = v
@@ -74,7 +74,6 @@ def strip_dict(map, prefix=("omero", "jvmcfg"), suffix=(), limit=1):
 
 
 class StrategyRegistry(dict):
-
     def __init__(self, *args, **kwargs):
         super(dict, self).__init__(*args, **kwargs)
 
@@ -142,7 +141,7 @@ class Settings(object):
         rv.update(self.__global)
         if not rv:
             rv = ""
-        return 'Settings(%s)' % rv
+        return "Settings(%s)" % rv
 
 
 class Strategy(object):
@@ -199,8 +198,9 @@ class Strategy(object):
     def _system_memory_mb_psutil(self):
         try:
             import psutil
+
             pymem = psutil.virtual_memory()
-            return (old_div(pymem.free,1000000), old_div(pymem.total,1000000))
+            return (old_div(pymem.free, 1000000), old_div(pymem.total, 1000000))
         except ImportError:
             LOGGER.debug("No psutil installed")
             return None
@@ -217,8 +217,7 @@ class Strategy(object):
         o, e = list(map(bytes_to_native_str, p.communicate()))
 
         if p.poll() != 0:
-            LOGGER.warn("Failed to invoke java:\nout:%s\nerr:%s",
-                        o, e)
+            LOGGER.warn("Failed to invoke java:\nout:%s\nerr:%s", o, e)
 
         rv = dict()
         for line in o.split("\n"):
@@ -279,6 +278,7 @@ class Strategy(object):
         values = []
         if self.settings.heap_dump == "tmp":
             import tempfile
+
             tmp = tempfile.gettempdir()
             values.append("-XX:HeapDumpPath=%s" % tmp)
         return values + split(self.settings.append)
@@ -368,7 +368,7 @@ class PercentStrategy(Strategy):
         return calculated
 
     def usage_table(self, min=10, max=20):
-        total_mb = [2**x for x in range(min, max)]
+        total_mb = [2 ** x for x in range(min, max)]
         for total in total_mb:
             method = lambda: (total, total, total)
             yield total, self.calculate_heap_size(method)
@@ -389,13 +389,18 @@ def read_settings(template_xml):
             for option in server.findall("option"):
                 o = option.text
                 if o.startswith("-Xmx") | o.startswith("-XX"):
-                    rv.setdefault(server.get('id'), []).append(o)
+                    rv.setdefault(server.get("id"), []).append(o)
     return rv
 
 
-def adjust_settings(config, template_xml,
-                    blitz=None, indexer=None,
-                    pixeldata=None, repository=None):
+def adjust_settings(
+    config,
+    template_xml,
+    blitz=None,
+    indexer=None,
+    pixeldata=None,
+    repository=None,
+):
     """
     Takes an omero.config.ConfigXml object and adjusts
     the memory settings. Primary entry point to the
@@ -421,14 +426,19 @@ def adjust_settings(config, template_xml,
 
     rv = defaultdict(list)
     m = config.as_map()
-    loop = (("blitz", blitz), ("indexer", indexer),
-            ("pixeldata", pixeldata), ("repository", repository))
+    loop = (
+        ("blitz", blitz),
+        ("indexer", indexer),
+        ("pixeldata", pixeldata),
+        ("repository", repository),
+    )
 
     for name, StrategyType in loop:
         if name not in options:
             raise Exception(
                 "Cannot find %s option. Make sure templates.xml was "
-                "not copied from an older server" % name)
+                "not copied from an older server" % name
+            )
 
     for name, StrategyType in loop:
         specific = strip_dict(m, suffix=name)
@@ -478,9 +488,7 @@ def adjust_settings(config, template_xml,
     return rv
 
 
-def usage_charts(path,
-                 min=0, max=20,
-                 Strategy=PercentStrategy, name="blitz"):
+def usage_charts(path, min=0, max=20, Strategy=PercentStrategy, name="blitz"):
     # See http://matplotlib.org/examples/pylab_examples/anscombe.html
 
     from pylab import array
@@ -493,13 +501,17 @@ def usage_charts(path,
     from pylab import text
 
     points = 200
-    x = array([old_div(2 ** (old_div(x, points)), 1000)
-               for x in range(min*points, max*points)])
+    x = array(
+        [
+            old_div(2 ** (old_div(x, points)), 1000)
+            for x in range(min * points, max * points)
+        ]
+    )
     y_configs = (
-        (Settings({}), 'A'),
-        (Settings({"percent": "20"}), 'B'),
-        (Settings({}), 'C'),
-        (Settings({"max_system_memory": "10000"}), 'D'),
+        (Settings({}), "A"),
+        (Settings({"percent": "20"}), "B"),
+        (Settings({}), "C"),
+        (Settings({"max_system_memory": "10000"}), "D"),
     )
 
     def f(cfg):

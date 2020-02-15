@@ -18,22 +18,28 @@ from omero.cli import BaseControl, CLI
 from omero_ext.argparse import FileType
 import omero.install.perf_test as perf_test
 
-HELP = """Run perf_test files
+HELP = (
+    """Run perf_test files
 
 %s
 
-""" % perf_test.FILE_FORMAT
+"""
+    % perf_test.FILE_FORMAT
+)
 
 
 class PerfControl(BaseControl):
-
     def _configure(self, parser):
         parser.add_argument(
-            "-l", "--list", action="store_true",
-            help="List available commands")
+            "-l", "--list", action="store_true", help="List available commands"
+        )
         parser.add_argument(
-            "file", nargs="*", type=FileType('r'), default=None,
-            help="Read from files or standard in")
+            "file",
+            nargs="*",
+            type=FileType("r"),
+            default=None,
+            help="Read from files or standard in",
+        )
         parser.set_defaults(func=self.__call__)
         parser.add_login_arguments()
 
@@ -54,6 +60,7 @@ class PerfControl(BaseControl):
             # ctx.add_reporter(perf_test.PlotReporter())
             handler = perf_test.PerfHandler(ctx)
             perf_test.handle(handler, args.file)
+
 
 try:
     register("perf", PerfControl, HELP)

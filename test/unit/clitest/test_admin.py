@@ -44,20 +44,20 @@ MISSING_CONFIGURATION_MSG = "Missing internal configuration."
 REWRITE_MSG = " Run omero admin rewrite."
 FORCE_REWRITE_MSG = " Pass --force-rewrite to the command."
 OMERODIR = False
-if 'OMERODIR' in os.environ:
-    OMERODIR = os.environ.get('OMERODIR')
+if "OMERODIR" in os.environ:
+    OMERODIR = os.environ.get("OMERODIR")
 
 
 @pytest.fixture(autouse=True)
 def tmpadmindir(tmpdir):
-    etc_dir = tmpdir.mkdir('etc')
-    etc_dir.mkdir('grid')
-    tmpdir.mkdir('var')
-    templates_dir = etc_dir.mkdir('templates')
-    templates_dir.mkdir('grid')
+    etc_dir = tmpdir.mkdir("etc")
+    etc_dir.mkdir("grid")
+    tmpdir.mkdir("var")
+    templates_dir = etc_dir.mkdir("templates")
+    templates_dir.mkdir("grid")
 
     # Need to know where to find OMERO
-    assert 'OMERODIR' in os.environ
+    assert "OMERODIR" in os.environ
     old_etc_dir = os.path.join(OMERODIR, "..", "etc")
     old_templates_dir = os.path.join(old_etc_dir, "templates")
     for f in glob(os.path.join(old_etc_dir, "*.properties")):
@@ -66,14 +66,15 @@ def tmpadmindir(tmpdir):
         path(f).copy(path(templates_dir))
     for f in glob(os.path.join(old_templates_dir, "grid", "*.xml")):
         path(f).copy(path(old_div(templates_dir, "grid")))
-    path(os.path.join(old_templates_dir, "ice.config")).copy(path(templates_dir))
+    path(os.path.join(old_templates_dir, "ice.config")).copy(
+        path(templates_dir)
+    )
 
     return path(tmpdir)
 
 
 @pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestAdmin(object):
-
     @pytest.fixture(autouse=True)
     def setup_method(self, tmpadmindir):
         # Other setup
@@ -114,7 +115,8 @@ class TestAdmin(object):
         self.invoke("admin startasync")
         self.cli.assertCalled()
         self.cli.assertStderr(
-            ['No descriptor given. Using etc/grid/default.xml'])
+            ["No descriptor given. Using etc/grid/default.xml"]
+        )
 
     def testStopAsyncNoConfig(self):
         self.invoke("admin stopasync", fails=True)
@@ -160,7 +162,7 @@ class TestAdmin(object):
         self.cli.checksStatus(1)  # I.e. not running
         self.invoke("admin stop --force-rewrite")
         self.cli.assertStderr([])
-        self.cli.assertStdout(['Waiting on shutdown. Use CTRL-C to exit'])
+        self.cli.assertStdout(["Waiting on shutdown. Use CTRL-C to exit"])
 
     def testStop(self):
         self.invoke("admin rewrite")
@@ -169,7 +171,7 @@ class TestAdmin(object):
         self.cli.checksStatus(1)  # I.e. not running
         self.invoke("admin stop")
         self.cli.assertStderr([])
-        self.cli.assertStdout(['Waiting on shutdown. Use CTRL-C to exit'])
+        self.cli.assertStdout(["Waiting on shutdown. Use CTRL-C to exit"])
 
     #
     # STATUS
@@ -208,6 +210,7 @@ class TestAdmin(object):
 
         def sm(*args):
             raise Exception("unknown")
+
         control.session_manager = sm
 
         self.cli.mox.ReplayAll()
@@ -217,8 +220,8 @@ class TestAdmin(object):
 
         self.invoke("admin rewrite")
 
-        ice_config = old_div(tmpdir, 'ice.config')
-        ice_config.write('omero.host=localhost\nomero.port=4064')
+        ice_config = old_div(tmpdir, "ice.config")
+        ice_config.write("omero.host=localhost\nomero.port=4064")
         monkeypatch.setenv("ICE_CONFIG", ice_config)
 
         # Setup the call to omero admin ice node
@@ -230,11 +233,12 @@ class TestAdmin(object):
         control._intcfg = lambda: ""
 
         def sm(*args):
-
             class A(object):
                 def create(self, *args):
                     raise omero.WrappedCreateSessionException()
+
             return A()
+
         control.session_manager = sm
 
         self.cli.mox.ReplayAll()
@@ -242,41 +246,49 @@ class TestAdmin(object):
         assert 0 == self.cli.rv
 
 
-def check_registry(topdir, prefix='', registry=4061, **kwargs):
-    for key in ['master.cfg', 'internal.cfg']:
+def check_registry(topdir, prefix="", registry=4061, **kwargs):
+    for key in ["master.cfg", "internal.cfg"]:
         s = path(old_div(topdir, "etc" / key)).text()
-        assert 'tcp -h 127.0.0.1 -p %s%s' % (prefix, registry) in s
+        assert "tcp -h 127.0.0.1 -p %s%s" % (prefix, registry) in s
 
 
-def check_ice_config(topdir, prefix='', ssl=4064, **kwargs):
+def check_ice_config(topdir, prefix="", ssl=4064, **kwargs):
     config_text = path(old_div(topdir, "etc" / "ice.config")).text()
-    pattern = re.compile(r'^omero.port=\d+$', re.MULTILINE)
+    pattern = re.compile(r"^omero.port=\d+$", re.MULTILINE)
     matches = pattern.findall(config_text)
     assert matches == ["omero.port=%s%s" % (prefix, ssl)]
 
 
-def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, ws=4065, wss=4066,
-                      transports=None, **kwargs):
+def check_default_xml(
+    topdir,
+    prefix="",
+    tcp=4063,
+    ssl=4064,
+    ws=4065,
+    wss=4066,
+    transports=None,
+    **kwargs
+):
     if transports is None:
-        transports = ['ssl', 'tcp']
-    routerport = (
-        '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl))
+        transports = ["ssl", "tcp"]
+    routerport = '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl)
     insecure_routerport = (
         '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
-        '/router:tcp -p %s%s -h @omero.host@"/>' % (prefix, tcp))
+        '/router:tcp -p %s%s -h @omero.host@"/>' % (prefix, tcp)
+    )
     client_endpoint_list = []
     for tp in transports:
-        if tp == 'tcp':
-            client_endpoint_list.append('tcp -p %s%s' % (prefix, tcp))
-        if tp == 'ssl':
-            client_endpoint_list.append('ssl -p %s%s' % (prefix, ssl))
-        if tp == 'ws':
-            client_endpoint_list.append('ws -p %s%s' % (prefix, ws))
-        if tp == 'wss':
-            client_endpoint_list.append('wss -p %s%s' % (prefix, wss))
+        if tp == "tcp":
+            client_endpoint_list.append("tcp -p %s%s" % (prefix, tcp))
+        if tp == "ssl":
+            client_endpoint_list.append("ssl -p %s%s" % (prefix, ssl))
+        if tp == "ws":
+            client_endpoint_list.append("ws -p %s%s" % (prefix, ws))
+        if tp == "wss":
+            client_endpoint_list.append("wss -p %s%s" % (prefix, wss))
 
-    client_endpoints = 'client-endpoints="%s"' % ':'.join(client_endpoint_list)
-    for key in ['default.xml', 'windefault.xml']:
+    client_endpoints = 'client-endpoints="%s"' % ":".join(client_endpoint_list)
+    for key in ["default.xml", "windefault.xml"]:
         s = path(old_div(topdir, "etc" / "grid" / key)).text()
         assert routerport in s
         assert insecure_routerport in s
@@ -307,19 +319,24 @@ class TestJvmCfg(object):
 
         # Test non-existence of configuration files
         for f in GRID_FILES:
-            assert not os.path.exists(old_div(path(self.cli.dir), "etc" / "grid" / f))
+            assert not os.path.exists(
+                old_div(path(self.cli.dir), "etc" / "grid" / f)
+            )
         for f in ETC_FILES:
             assert not os.path.exists(old_div(path(self.cli.dir), "etc" / f))
 
         # Call the jvmcf command and test file genearation
         self.cli.invoke(self.args, strict=True)
         for f in GRID_FILES:
-            assert not os.path.exists(old_div(path(self.cli.dir), "etc" / "grid" / f))
+            assert not os.path.exists(
+                old_div(path(self.cli.dir), "etc" / "grid" / f)
+            )
         for f in ETC_FILES:
             assert not os.path.exists(old_div(path(self.cli.dir), "etc" / f))
 
     @pytest.mark.parametrize(
-        'suffix', ['', '.blitz', '.indexer', '.pixeldata', '.repository'])
+        "suffix", ["", ".blitz", ".indexer", ".pixeldata", ".repository"]
+    )
     def testInvalidJvmCfgStrategy(self, suffix, tmpdir):
         """Test invalid JVM strategy configuration leads to CLI error"""
 
@@ -346,14 +363,18 @@ class TestRewrite(object):
 
         # Test non-existence of configuration files
         for f in GRID_FILES:
-            assert not os.path.exists(old_div(path(self.cli.dir), "etc" / "grid" / f))
+            assert not os.path.exists(
+                old_div(path(self.cli.dir), "etc" / "grid" / f)
+            )
         for f in ETC_FILES:
             assert not os.path.exists(old_div(path(self.cli.dir), "etc" / f))
 
         # Call the jvmcf command and test file genearation
         self.cli.invoke(self.args, strict=True)
         for f in GRID_FILES:
-            assert os.path.exists(old_div(path(self.cli.dir), "etc" / "grid" / f))
+            assert os.path.exists(
+                old_div(path(self.cli.dir), "etc" / "grid" / f)
+            )
         for f in ETC_FILES:
             assert os.path.exists(old_div(path(self.cli.dir), "etc" / f))
 
@@ -367,24 +388,33 @@ class TestRewrite(object):
             self.cli.invoke(self.args, strict=True)
 
     def testOldTemplates(self):
-        old_templates = old_div(path(__file__).dirname(), ".." / "old_templates.xml")
+        old_templates = old_div(
+            path(__file__).dirname(), ".." / "old_templates.xml"
+        )
         old_templates.copy(
-            old_div(path(self.cli.dir), "etc" / "templates" / "grid" /
-            "templates.xml"))
+            old_div(
+                path(self.cli.dir),
+                "etc" / "templates" / "grid" / "templates.xml",
+            )
+        )
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('prefix', [None, 1])
-    @pytest.mark.parametrize('registry', [None, 111])
-    @pytest.mark.parametrize('tcp', [None, 222])
-    @pytest.mark.parametrize('ssl', [None, 333])
-    @pytest.mark.parametrize('ws_wss_transports', [
-        (None, None, None),
-        (444, None, ('ssl', 'tcp', 'wss', 'ws')),
-        (None, 555, ('ssl', 'tcp', 'wss', 'ws')),
-    ])
-    def testExplicitPorts(self, registry, ssl, tcp, prefix,
-                          ws_wss_transports, monkeypatch):
+    @pytest.mark.parametrize("prefix", [None, 1])
+    @pytest.mark.parametrize("registry", [None, 111])
+    @pytest.mark.parametrize("tcp", [None, 222])
+    @pytest.mark.parametrize("ssl", [None, 333])
+    @pytest.mark.parametrize(
+        "ws_wss_transports",
+        [
+            (None, None, None),
+            (444, None, ("ssl", "tcp", "wss", "ws")),
+            (None, 555, ("ssl", "tcp", "wss", "ws")),
+        ],
+    )
+    def testExplicitPorts(
+        self, registry, ssl, tcp, prefix, ws_wss_transports, monkeypatch
+    ):
         """
         Test the omero.ports.xxx and omero.client.icetransports
         configuration properties during the generation
@@ -408,13 +438,19 @@ class TestRewrite(object):
             kwargs["wss"] = wss
         for (k, v) in list(kwargs.items()):
             self.cli.invoke(
-                ["config", "set", "omero.ports.%s" % k, "%s" % v],
-                strict=True)
+                ["config", "set", "omero.ports.%s" % k, "%s" % v], strict=True
+            )
 
         if transports:
             self.cli.invoke(
-                ["config", "set", "omero.client.icetransports", "%s" %
-                 ','.join(transports)], strict=True)
+                [
+                    "config",
+                    "set",
+                    "omero.client.icetransports",
+                    "%s" % ",".join(transports),
+                ],
+                strict=True,
+            )
             kwargs["transports"] = transports
 
         self.cli.invoke(self.args, strict=True)
@@ -433,16 +469,21 @@ class TestRewrite(object):
         #                     lambda x, y: {})
 
         if sys.platform == "darwin":
-            expected_ciphers = '(AES)'
+            expected_ciphers = "(AES)"
         else:
-            expected_ciphers = 'ADH:!LOW:!MD5:!EXP:!3DES:@STRENGTH'
+            expected_ciphers = "ADH:!LOW:!MD5:!EXP:!3DES:@STRENGTH"
         glacier2 = [
             ("IceSSL.Ciphers", expected_ciphers),
             ("IceSSL.TestKey", "TestValue"),
         ]
-        self.cli.invoke([
-            "config", "set",
-            "omero.glacier2." + glacier2[1][0], glacier2[1][1]],
-            strict=True)
+        self.cli.invoke(
+            [
+                "config",
+                "set",
+                "omero.glacier2." + glacier2[1][0],
+                glacier2[1][1],
+            ],
+            strict=True,
+        )
         self.cli.invoke(self.args, strict=True)
         check_templates_xml(self.cli.dir, glacier2)

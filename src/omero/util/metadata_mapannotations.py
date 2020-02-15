@@ -29,6 +29,7 @@ from builtins import object
 import logging
 from omero.model import NamedValue
 from omero.rtypes import rstring, unwrap
+
 # For complicated reasons `from omero.sys import ParametersI` doesn't work
 from omero_sys_ParametersI import ParametersI
 
@@ -36,7 +37,6 @@ log = logging.getLogger("omero.util.metadata_mapannotations")
 
 
 class MapAnnotationPrimaryKeyException(Exception):
-
     def __init__(self, message):
         super(MapAnnotationPrimaryKeyException, self).__init__(message)
 
@@ -58,29 +58,32 @@ class CanonicalMapAnnotation(object):
         # TODO: should we consider data and description
         self.ma = ma
         ns = unwrap(ma.getNs())
-        self.ns = ns if ns else ''
+        self.ns = ns if ns else ""
         try:
             mapvalue = [(kv.name, kv.value) for kv in ma.getMapValue()]
         except TypeError:
             mapvalue = []
         self.kvpairs, self.primary = self.process_keypairs(
-            mapvalue, primary_keys)
+            mapvalue, primary_keys
+        )
         self.parents = set()
 
     def process_keypairs(self, kvpairs, primary_keys):
         if len(set(kvpairs)) != len(kvpairs):
-            raise ValueError('Duplicate key-value pairs found: %s' % kvpairs)
+            raise ValueError("Duplicate key-value pairs found: %s" % kvpairs)
 
         if primary_keys:
             primary_keys = set(primary_keys)
             missing = primary_keys.difference(kv[0] for kv in kvpairs)
             if missing:
                 raise MapAnnotationPrimaryKeyException(
-                    'Missing primary key fields: %s' % missing)
+                    "Missing primary key fields: %s" % missing
+                )
             # ns is always part of the primary key
             primary = (
                 self.ns,
-                frozenset((k, v) for (k, v) in kvpairs if k in primary_keys))
+                frozenset((k, v) for (k, v) in kvpairs if k in primary_keys),
+            )
         else:
             primary = None
 
@@ -110,9 +113,8 @@ class CanonicalMapAnnotation(object):
         parenttype: An OMERO type string
         parentid: An OMERO object ID (integer)
         """
-        if not isinstance(parenttype, str) or not isinstance(
-                parentid, int):
-            raise ValueError('Expected parenttype:str parentid:integer')
+        if not isinstance(parenttype, str) or not isinstance(parentid, int):
+            raise ValueError("Expected parenttype:str parentid:integer")
         self.parents.add((parenttype, parentid))
 
     def get_mapann(self):
@@ -129,15 +131,20 @@ class CanonicalMapAnnotation(object):
         return self.parents
 
     def __str__(self):
-        return 'ns:%s primary:%s keyvalues:%s parents:%s id:%s' % (
-            self.ns, self.primary, self.kvpairs, self.parents,
-            unwrap(self.ma.getId()))
+        return "ns:%s primary:%s keyvalues:%s parents:%s id:%s" % (
+            self.ns,
+            self.primary,
+            self.kvpairs,
+            self.parents,
+            unwrap(self.ma.getId()),
+        )
 
 
 class MapAnnotationManager(object):
     """
     Handles creation and de-duplication of MapAnnotations
     """
+
     # Policies for combining/replacing MapAnnotations
     MA_APPEND, MA_OLD, MA_NEW = list(range(3))
 
@@ -185,7 +192,7 @@ class MapAnnotationManager(object):
             if self.combine == self.MA_OLD:
                 current.merge_parents(cma)
                 return cma
-            raise ValueError('Invalid combine policy')
+            raise ValueError("Invalid combine policy")
         except KeyError:
             self.mapanns[cma.primary] = cma
 
@@ -209,15 +216,16 @@ class MapAnnotationManager(object):
         :param primary_keys: Primary keys
         """
         qs = session.getQueryService()
-        q = 'FROM MapAnnotation WHERE ns=:ns ORDER BY id DESC'
+        q = "FROM MapAnnotation WHERE ns=:ns ORDER BY id DESC"
         p = ParametersI()
-        p.addString('ns', ns)
+        p.addString("ns", ns)
         results = qs.findAllByQuery(q, p)
-        log.debug('Found %d MapAnnotations in ns:%s', len(results), ns)
+        log.debug("Found %d MapAnnotations in ns:%s", len(results), ns)
         for ma in results:
             cma = CanonicalMapAnnotation(ma, primary_keys)
             r = self.add(cma)
             if r:
                 raise Exception(
-                    'Duplicate MapAnnotation primary key: id:%s %s' % (
-                        unwrap(ma.getId()), str(r)))
+                    "Duplicate MapAnnotation primary key: id:%s %s"
+                    % (unwrap(ma.getId()), str(r))
+                )

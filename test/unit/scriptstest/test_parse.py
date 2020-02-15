@@ -20,8 +20,15 @@ import omero
 
 from omero.grid import JobParams
 from omero.scripts import (
-    String, List, Bool, Long, Set,
-    MissingInputs, ParseExit, compare_proto)
+    String,
+    List,
+    Bool,
+    Long,
+    Set,
+    MissingInputs,
+    ParseExit,
+    compare_proto,
+)
 from omero.scripts import client, parse_inputs, validate_inputs, parse_text
 from omero.scripts import group_params, rlist, rlong, rint, wrap, unwrap
 
@@ -33,9 +40,9 @@ except:
 
 
 class TestParse(object):
-
     def testParse(self):
         try:
+
             class mock(object):
                 def setAgent(self, *args):
                     pass
@@ -51,24 +58,50 @@ class TestParse(object):
 
                 def setOutput(self, *args):
                     pass
+
             script_client = client(
-                "testParse", "simple ping script", Long("a").inout(),
-                String("b").inout(), client=mock())
-            print("IN CLIENT: " + \
-                script_client.getProperty("omero.scripts.parse"))
+                "testParse",
+                "simple ping script",
+                Long("a").inout(),
+                String("b").inout(),
+                client=mock(),
+            )
+            print(
+                "IN CLIENT: " + script_client.getProperty("omero.scripts.parse")
+            )
             assert False, "Should have raised ParseExit"
         except ParseExit:
             pass
 
     def testMinMaxTicket2318(self):
         # Duplicating from some of the scripts to reproduce problem
-        def makeParam(paramClass, name, description=None, optional=True,
-                      min=None, max=None, values=None):
-            param = paramClass(name, optional, description=description,
-                               min=min, max=max, values=values)
+        def makeParam(
+            paramClass,
+            name,
+            description=None,
+            optional=True,
+            min=None,
+            max=None,
+            values=None,
+        ):
+            param = paramClass(
+                name,
+                optional,
+                description=description,
+                min=min,
+                max=max,
+                values=values,
+            )
             return param
-        p = makeParam(Long, "thumbSize", "The dimension of each thumbnail."
-                      " Default is 100", True, 10, 250)
+
+        p = makeParam(
+            Long,
+            "thumbSize",
+            "The dimension of each thumbnail." " Default is 100",
+            True,
+            10,
+            250,
+        )
         assert 10 == p.min.val
         assert 250 == p.max.val
 
@@ -206,10 +239,10 @@ if True:
             )"""
         params = parse_text(SCRIPT)
         inputs = {
-            "Merged_Colours": wrap(['Red', 'Green']),
+            "Merged_Colours": wrap(["Red", "Green"]),
             "Image_Labels": wrap("Datasets"),
             "Data_Type": wrap("Image"),
-            "IDs": rlist([rlong(1)])
+            "IDs": rlist([rlong(1)]),
         }
         errors = validate_inputs(params, inputs)
         assert "" == errors, errors
@@ -234,7 +267,8 @@ if True:
             "    scripts.Long('longParam', True, description='theDesc',"
             " min=rlong(1), max=rlong(10), values=[rlong(5)]) )",
             "    client.setOutput('returnMessage', rstring('Script ran"
-            " OK!'))"]
+            " OK!'))",
+        ]
         params = parse_text("\n".join(scriptLines))
         l = params.inputs["longParam"]
         assert None != l.prototype, str(l)

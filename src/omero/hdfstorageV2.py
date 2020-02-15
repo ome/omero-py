@@ -45,14 +45,14 @@ try:
 except NameError:
     TABLES_METADATA_INT_TYPES = (int, numpy.int64)
 
-VERSION = '2'
+VERSION = "2"
 
 
 def internal_attr(s):
     """
     Checks whether this attribute name is reserved for internal use
     """
-    return s.startswith('__')
+    return s.startswith("__")
 
 
 def stamped(func, update=False):
@@ -67,18 +67,21 @@ def stamped(func, update=False):
     Note: stamped implies locked
 
     """
+
     def check_and_update_stamp(*args, **kwargs):
         self = args[0]
         stamp = args[1]
         if stamp < self._stamp:
             raise omero.OptimisticLockException(
-                None, None, "Resource modified by another thread")
+                None, None, "Resource modified by another thread"
+            )
 
         try:
             return func(*args, **kwargs)
         finally:
             if update:
                 self._stamp = time.time()
+
     check_and_update_stamp = wraps(func)(check_and_update_stamp)
     return locked(check_and_update_stamp)
 
@@ -88,12 +91,14 @@ def modifies(func):
     Decorator which always calls flush() on the first argument after the
     method call
     """
+
     def flush_after(*args, **kwargs):
         self = args[0]
         try:
             return func(*args, **kwargs)
         finally:
             self.flush()
+
     return wraps(func)(flush_after)
 
 
@@ -121,12 +126,14 @@ class HdfList(object):
 
         if hdfpath in self.__paths:
             raise omero.LockTimeout(
-                None, None, "Path already in HdfList: %s" % hdfpath)
+                None, None, "Path already in HdfList: %s" % hdfpath
+            )
 
         parent = path(hdfpath).parent
         if not parent.exists():
             raise omero.ApiUsageException(
-                None, None, "Parent directory does not exist: %s" % parent)
+                None, None, "Parent directory does not exist: %s" % parent
+            )
 
         mode = read_only and "r" or "a"
         hdffile = hdfstorage.openfile(mode)
@@ -135,12 +142,16 @@ class HdfList(object):
         if not read_only:
             try:
                 portalocker.lockno(
-                    fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
+                    fileno, portalocker.LOCK_NB | portalocker.LOCK_EX
+                )
             except portalocker.LockException:
                 hdffile.close()
                 raise omero.LockTimeout(
-                    None, None,
-                    "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
+                    None,
+                    None,
+                    "Cannot acquire exclusive lock on: %s" % hdfpath,
+                    0,
+                )
             except:
                 hdffile.close()
                 raise
@@ -148,7 +159,8 @@ class HdfList(object):
         if fileno in list(self.__filenos.keys()):
             hdffile.close()
             raise omero.LockTimeout(
-                None, None, "File already opened by process: %s" % hdfpath, 0)
+                None, None, "File already opened by process: %s" % hdfpath, 0
+            )
         else:
             self.__filenos[fileno] = hdfstorage
             self.__paths[hdfpath] = hdfstorage
@@ -167,6 +179,7 @@ class HdfList(object):
     def remove(self, hdfpath, hdffile):
         del self.__filenos[hdffile.fileno()]
         del self.__paths[hdfpath]
+
 
 # Global object for maintaining files
 HDFLIST = HdfList()
@@ -223,7 +236,7 @@ class HdfStorage(object):
     def size(self):
         return self.__hdf_path.size
 
-    def openfile(self, mode, policy='default'):
+    def openfile(self, mode, policy="default"):
         tables.file._FILE_OPEN_POLICY = policy
         try:
             if self.__hdf_path.exists():
@@ -231,23 +244,29 @@ class HdfStorage(object):
                     mode = "w"
                 elif mode != "r" and not self.__hdf_path.access(W_OK):
                     self.logger.info(
-                        "%s not writable (mode=%s). Opening read-only" % (
-                            self.__hdf_path, mode))
+                        "%s not writable (mode=%s). Opening read-only"
+                        % (self.__hdf_path, mode)
+                    )
                     mode = "r"
 
-            return tables.open_file(native(str(self.__hdf_path)), mode=mode,
-                                    title="OMERO HDF Measurement Storage",
-                                    rootUEP="/")
+            return tables.open_file(
+                native(str(self.__hdf_path)),
+                mode=mode,
+                title="OMERO HDF Measurement Storage",
+                rootUEP="/",
+            )
         except (tables.HDF5ExtError, IOError) as e:
             msg = "HDFStorage initialized with bad path: %s: %s" % (
-                self.__hdf_path, e)
+                self.__hdf_path,
+                e,
+            )
             self.logger.error(msg)
             raise omero.ValidationException(None, None, msg)
         except (ValueError) as e:
 
             # trap PyTables >= 3.1 FILE_OPEN_POLICY exception
             # to provide an updated message
-            if 'FILE_OPEN_POLICY' in str(e):
+            if "FILE_OPEN_POLICY" in str(e):
                 e = ValueError(
                     "PyTables [{version}] no longer supports opening multiple "
                     "files\n"
@@ -256,9 +275,11 @@ class HdfStorage(object):
                     "and not open the same file multiple times at once,\n"
                     "upgrade the HDF5 version, or downgrade to PyTables 3.0.0 "
                     "which allows\n"
-                    "files to be opened multiple times at once\n"
-                    .format(version=tables.__version__,
-                            hdf_version=tables.get_hdf5_version()))
+                    "files to be opened multiple times at once\n".format(
+                        version=tables.__version__,
+                        hdf_version=tables.get_hdf5_version(),
+                    )
+                )
 
             raise e
 
@@ -282,11 +303,14 @@ class HdfStorage(object):
                 totcol = self.__width()
                 if maxcol >= totcol:
                     raise omero.ApiUsageException(
-                        None, None, "Column overflow: %s >= %s"
-                        % (maxcol, totcol))
+                        None,
+                        None,
+                        "Column overflow: %s >= %s" % (maxcol, totcol),
+                    )
             else:
                 raise omero.ApiUsageException(
-                    None, None, "Columns not specified: %s" % colNumbers)
+                    None, None, "Columns not specified: %s" % colNumbers
+                )
 
         if rowNumbers is not None:
             if len(rowNumbers) > 0:
@@ -294,32 +318,36 @@ class HdfStorage(object):
                 totrow = self.__length()
                 if maxrow >= totrow:
                     raise omero.ApiUsageException(
-                        None, None, "Row overflow: %s >= %s"
-                        % (maxrow, totrow))
+                        None, None, "Row overflow: %s >= %s" % (maxrow, totrow)
+                    )
             else:
                 raise omero.ApiUsageException(
-                    None, None, "Rows not specified: %s" % rowNumbers)
+                    None, None, "Rows not specified: %s" % rowNumbers
+                )
 
     def __getversion(self):
         """
         In OMERO.tables v2 the version attribute name was changed to __version
         """
         self.__initcheck()
-        k = '__version'
+        k = "__version"
         try:
             v = self.__mea.attrs[k]
             if isinstance(v, basestring):
                 return v
         except KeyError:
-            k = 'version'
+            k = "version"
             v = self.__mea.attrs[k]
             if isbytes(v):
                 v = bytes_to_native_str(v)
-            if v == 'v1':
-                return '1'
+            if v == "v1":
+                return "1"
 
         msg = "Invalid version attribute (%s=%s) in path: %s" % (
-            k, v, self.__hdf_path)
+            k,
+            v,
+            self.__hdf_path,
+        )
         self.logger.error(msg)
         raise omero.ValidationException(None, None, msg)
 
@@ -355,28 +383,33 @@ class HdfStorage(object):
         for c in cols:
             if not c.name:
                 raise omero.ApiUsageException(
-                    None, None, "Column unnamed: %s" % c)
+                    None, None, "Column unnamed: %s" % c
+                )
             if internal_attr(c.name):
                 raise omero.ApiUsageException(
-                    None, None, "Reserved column name: %s" % c.name)
+                    None, None, "Reserved column name: %s" % c.name
+                )
 
         self.__definition = columns2definition(cols)
         self.__ome = self.__hdf_file.create_group("/", "OME")
         self.__mea = self.__hdf_file.create_table(
-            self.__ome, "Measurements", self.__definition)
+            self.__ome, "Measurements", self.__definition
+        )
 
         self.__types = [x.ice_staticId() for x in cols]
         self.__descriptions = [
-            (x.description is not None) and x.description or "" for x in cols]
+            (x.description is not None) and x.description or "" for x in cols
+        ]
         self.__hdf_file.create_array(self.__ome, "ColumnTypes", self.__types)
         self.__hdf_file.create_array(
-            self.__ome, "ColumnDescriptions", self.__descriptions)
+            self.__ome, "ColumnDescriptions", self.__descriptions
+        )
 
         md = {}
         if metadata:
             md = metadata.copy()
-        md['__version'] = VERSION
-        md['__initialized'] = time.time()
+        md["__version"] = VERSION
+        md["__initialized"] = time.time()
         self.add_meta_map(md, replace=True, init=True)
 
         self.__hdf_file.flush()
@@ -385,8 +418,9 @@ class HdfStorage(object):
     @locked
     def incr(self, table):
         sz = len(self.__tables)
-        self.logger.info("Size: %s - Attaching %s to %s" %
-                         (sz, table, self.__hdf_path))
+        self.logger.info(
+            "Size: %s - Attaching %s to %s" % (sz, table, self.__hdf_path)
+        )
         if table in self.__tables:
             self.logger.warn("Already added")
             raise omero.ApiUsageException(None, None, "Already added")
@@ -397,7 +431,8 @@ class HdfStorage(object):
     def decr(self, table):
         sz = len(self.__tables)
         self.logger.info(
-            "Size: %s - Detaching %s from %s", sz, table, self.__hdf_path)
+            "Size: %s - Detaching %s from %s", sz, table, self.__hdf_path
+        )
         if not (table in self.__tables):
             self.logger.warn("Unknown table")
             raise omero.ApiUsageException(None, None, "Unknown table")
@@ -441,7 +476,8 @@ class HdfStorage(object):
             except:
                 msg = traceback.format_exc()
                 raise omero.ValidationException(
-                    None, msg, "BAD COLUMN TYPE: %s for %s" % (t, n))
+                    None, msg, "BAD COLUMN TYPE: %s for %s" % (t, n)
+                )
         return cols
 
     @locked
@@ -474,7 +510,7 @@ class HdfStorage(object):
                 # the introduction of internal metadata attributes is unlikely
                 # to affect anyone.
                 # https://trac.openmicroscopy.org/ome/ticket/12606
-                msg = 'Tables metadata is only supported for OMERO.tables >= 2'
+                msg = "Tables metadata is only supported for OMERO.tables >= 2"
                 self.logger.error(msg)
                 raise omero.ApiUsageException(None, None, msg)
 
@@ -482,11 +518,14 @@ class HdfStorage(object):
             for k, v in m.items():
                 if internal_attr(k):
                     raise omero.ApiUsageException(
-                        None, None, "Reserved attribute name: %s" % k)
-                if not isinstance(v, (
-                        omero.RString, omero.RLong, omero.RInt, omero.RFloat)):
+                        None, None, "Reserved attribute name: %s" % k
+                    )
+                if not isinstance(
+                    v, (omero.RString, omero.RLong, omero.RInt, omero.RFloat)
+                ):
                     raise omero.ValidationException(
-                        "Unsupported type: %s" % type(v))
+                        "Unsupported type: %s" % type(v)
+                    )
 
         attr = self.__mea.attrs
         if replace:
@@ -515,7 +554,8 @@ class HdfStorage(object):
             else:
                 if sz != col.getsize():
                     raise omero.ValidationException(
-                        "Columns are of differing length")
+                        "Columns are of differing length"
+                    )
             arrays.extend(col.arrays())
             dtypes.extend(col.dtypes())
             col.append(self.__mea)  # Potential corruption !!!
@@ -539,12 +579,14 @@ class HdfStorage(object):
                     getattr(self.__mea.cols, col.name)[rn] = col.values[i]
 
     @stamped
-    def getWhereList(self, stamp, condition, variables, unused,
-                     start, stop, step):
+    def getWhereList(
+        self, stamp, condition, variables, unused, start, stop, step
+    ):
         self.__initcheck()
         try:
-            return self.__mea.get_where_list(condition, variables, None,
-                                             start, stop, step).tolist()
+            return self.__mea.get_where_list(
+                condition, variables, None, start, stop, step
+            ).tolist()
         except (NameError, SyntaxError, TypeError, ValueError) as err:
             aue = omero.ApiUsageException()
             aue.message = "Bad condition: %s, %s" % (condition, variables)
@@ -633,5 +675,6 @@ class HdfStorage(object):
         hdffile = self.__hdf_file
         self.__hdf_file = None
         hdffile.close()  # Resources freed
+
 
 # End class HdfStorage

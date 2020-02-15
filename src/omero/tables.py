@@ -30,7 +30,7 @@ from omero.util.decorators import remoted, perf
 sys = __import__("sys")  # Python sys
 tables = __import__("tables")  # Pytables
 
-VERSION = '2'
+VERSION = "2"
 RETRIES = 20
 
 
@@ -50,8 +50,16 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, ctx, file_obj, factory, storage, uuid="unknown",
-                 call_context=None, adapter=None):
+    def __init__(
+        self,
+        ctx,
+        file_obj,
+        factory,
+        storage,
+        uuid="unknown",
+        call_context=None,
+        adapter=None,
+    ):
         self.id = Ice.Identity()
         self.id.name = uuid
         self.uuid = uuid
@@ -61,7 +69,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self.call_context = call_context
         self.adapter = adapter
         self.can_write = factory.getAdminService().canUpdate(
-            file_obj, call_context)
+            file_obj, call_context
+        )
         omero.util.SimpleServant.__init__(self, ctx)
 
         self.stamp = time.time()
@@ -69,12 +78,20 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
         self._closed = False
 
-        if (not self.file_obj.isLoaded() or
-                self.file_obj.getDetails() is None or
-                self.file_obj.details.group is None):
-            self.file_obj = self.ctx.getSession().getQueryService().get(
-                'omero.model.OriginalFileI', unwrap(file_obj.id),
-                {"omero.group": "-1"})
+        if (
+            not self.file_obj.isLoaded()
+            or self.file_obj.getDetails() is None
+            or self.file_obj.details.group is None
+        ):
+            self.file_obj = (
+                self.ctx.getSession()
+                .getQueryService()
+                .get(
+                    "omero.model.OriginalFileI",
+                    unwrap(file_obj.id),
+                    {"omero.group": "-1"},
+                )
+            )
 
     def assert_write(self):
         """
@@ -86,7 +103,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         """
         if not self.can_write:
             raise omero.SecurityViolation(
-                "Current user cannot write to file %s" % self.file_obj.id.val)
+                "Current user cannot write to file %s" % self.file_obj.id.val
+            )
 
     def check(self):
         """
@@ -97,15 +115,18 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         if self._closed:
             return False
 
-        idname = 'UNKNOWN'
+        idname = "UNKNOWN"
         try:
             # Quietly loading the session will mean that the last access
             # time will not be incremented so that dangling files can be
             # cleaned up. Note: this is different that the strategy of a
             # script which *wants* to keep its session alive.
             idname = self.factory.ice_getIdentity().name
-            clientSession = self.ctx.getSession().getSessionService() \
+            clientSession = (
+                self.ctx.getSession()
+                .getSessionService()
                 .getSession(idname, {"quietly": "true"})
+            )
             if clientSession.getClosed():
                 self.logger.debug("Client session closed: %s" % idname)
                 return False
@@ -143,7 +164,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         if self._closed:
             self.logger.warn(
                 "File object %d already closed",
-                unwrap(self.file_obj.id) if self.file_obj else None)
+                unwrap(self.file_obj.id) if self.file_obj else None,
+            )
             return
 
         modified = self.storage.modified()
@@ -163,7 +185,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             client_uuid = self.factory.ice_getIdentity().category[8:]
             ctx = {
                 "omero.group": native_str(gid),
-                omero.constants.CLIENTUUID: client_uuid}
+                omero.constants.CLIENTUUID: client_uuid,
+            }
             try:
                 # Size to reset the server object to (must be checked after
                 # the underlying HDF file has been closed)
@@ -171,19 +194,23 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                 try:
                     rfs.setFileId(fid, ctx)
                     if size:
-                        rfs.truncate(size, ctx)     # May do nothing
+                        rfs.truncate(size, ctx)  # May do nothing
                         rfs.write([], size, 0, ctx)  # Force an update
                     else:
-                        rfs.write([], 0, 0, ctx)    # No-op
+                        rfs.write([], 0, 0, ctx)  # No-op
                     file_obj = rfs.save(ctx)
                 finally:
                     rfs.close(ctx)
                 self.logger.info(
                     "Updated file object %s to hash=%s (%s bytes)",
-                    fid, unwrap(file_obj.hash), unwrap(file_obj.size))
+                    fid,
+                    unwrap(file_obj.hash),
+                    unwrap(file_obj.size),
+                )
             except:
-                self.logger.warn("Failed to update file object %s",
-                                 fid, exc_info=1)
+                self.logger.warn(
+                    "Failed to update file object %s", fid, exc_info=1
+                )
         else:
             self.logger.info("File object %s not updated", fid)
 
@@ -215,18 +242,27 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
     @remoted
     @perf
-    def getWhereList(self, condition, variables,
-                     start, stop, step, current=None):
+    def getWhereList(
+        self, condition, variables, start, stop, step, current=None
+    ):
         variables = unwrap(variables)
         if stop == 0:
             stop = None
         if step == 0:
             step = None
         rv = self.storage.getWhereList(
-            self.stamp, condition, variables, None, start, stop, step)
-        self.logger.info("%s.getWhereList(%s, %s, %s, %s, %s) => size=%s",
-                         self, condition, variables,
-                         start, stop, step, slen(rv))
+            self.stamp, condition, variables, None, start, stop, step
+        )
+        self.logger.info(
+            "%s.getWhereList(%s, %s, %s, %s, %s) => size=%s",
+            self,
+            condition,
+            variables,
+            start,
+            stop,
+            step,
+            slen(rv),
+        )
         return rv
 
     @remoted
@@ -234,8 +270,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def readCoordinates(self, rowNumbers, current=None):
         self.logger.info("%s.readCoordinates(size=%s)", self, slen(rowNumbers))
         try:
-            return self.storage.readCoordinates(self.stamp, rowNumbers,
-                                                current)
+            return self.storage.readCoordinates(self.stamp, rowNumbers, current)
         except tables.HDF5ExtError as err:
             aue = omero.ApiUsageException()
             aue.message = "Error reading coordinates. Most likely out of range"
@@ -250,8 +285,9 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         if start == 0 and stop == 0:
             stop = None
         try:
-            return self.storage.read(self.stamp, colNumbers,
-                                     start, stop, current)
+            return self.storage.read(
+                self.stamp, colNumbers, start, stop, current
+            )
         except tables.HDF5ExtError as err:
             aue = omero.ApiUsageException()
             aue.message = "Error reading coordinates. Most likely out of range"
@@ -263,8 +299,11 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def slice(self, colNumbers, rowNumbers, current=None):
         self.logger.info(
-            "%s.slice(size=%s, size=%s)", self,
-            slen(colNumbers), slen(rowNumbers))
+            "%s.slice(size=%s, size=%s)",
+            self,
+            slen(colNumbers),
+            slen(rowNumbers),
+        )
         return self.storage.slice(self.stamp, colNumbers, rowNumbers, current)
 
     # TABLES WRITE API ===========================
@@ -290,7 +329,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self.storage.append(cols)
         if cols and cols[0] and cols[0].getsize():
             self.logger.info(
-                "Added %s row(s) of data to %s", cols[0].getsize(), self)
+                "Added %s row(s) of data to %s", cols[0].getsize(), self
+            )
 
     @remoted
     @perf
@@ -299,7 +339,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         if data:
             self.storage.update(self.stamp, data)
             self.logger.info(
-                "Updated %s row(s) of data to %s", slen(data.rowNumbers), self)
+                "Updated %s row(s) of data to %s", slen(data.rowNumbers), self
+            )
 
     @remoted
     @perf
@@ -313,7 +354,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         # Copied from clients.py since none is available
         try:
             callback = omero.callbacks.CmdCallbackI(
-                current.adapter, handle, "Fake")
+                current.adapter, handle, "Fake"
+            )
         except:
             # Since the callback won't escape this method,
             # close the handle if requested.
@@ -380,11 +422,13 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
     """
 
     def __init__(
-            self, ctx,
-            table_cast=omero.grid.TablePrx.uncheckedCast,
-            internal_repo_cast=omero.grid.InternalRepositoryPrx.checkedCast,
-            storage_factory=None,
-            retries=None):
+        self,
+        ctx,
+        table_cast=omero.grid.TablePrx.uncheckedCast,
+        internal_repo_cast=omero.grid.InternalRepositoryPrx.checkedCast,
+        storage_factory=None,
+        retries=None,
+    ):
 
         omero.util.Servant.__init__(self, ctx, needs_session=True)
 
@@ -397,12 +441,15 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         if storage_factory is None:
             from omero.hdfstorageV2 import HDFLIST
+
             self._storage_factory = HDFLIST
         else:
             self._storage_factory = storage_factory
-        self.logger.info("Using storage factory: %s.%s",
-                         str(self._storage_factory.__module__),
-                         self._storage_factory.__class__.__name__)
+        self.logger.info(
+            "Using storage factory: %s.%s",
+            str(self._storage_factory.__module__),
+            self._storage_factory.__class__.__name__,
+        )
 
         self.repo_cfg = None
         self.repo_mgr = None
@@ -413,8 +460,10 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         try:
             config_service = ctx.getSession().getConfigService()
             prefix = "omero.cluster.read_only.runtime"
-            self.read_only = "true" in [config_service.getConfigValue(
-                "{}.{}".format(prefix, suffix)) for suffix in ["db", "repo"]]
+            self.read_only = "true" in [
+                config_service.getConfigValue("{}.{}".format(prefix, suffix))
+                for suffix in ["db", "repo"]
+            ]
         except:
             self.read_only = False
 
@@ -424,8 +473,11 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         if retries is None:
             retries = RETRIES
 
-        wait = float(self.communicator.getProperties().getPropertyWithDefault(
-            "omero.repo.wait", "1"))
+        wait = float(
+            self.communicator.getProperties().getPropertyWithDefault(
+                "omero.repo.wait", "1"
+            )
+        )
         per_loop = old_div(wait, retries)
 
         exc = None
@@ -441,7 +493,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             if self.repo_svc:
                 break
             else:
-                msg = "waiting %ss (%s of %s)" % (per_loop, x+1, retries)
+                msg = "waiting %ss (%s of %s)" % (per_loop, x + 1, retries)
                 self.logger.debug(msg)
                 self.stop_event.wait(per_loop)
 
@@ -455,12 +507,16 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         not started, and so this instance will not start.
         """
         self.repo_dir = self.communicator.getProperties().getProperty(
-            "omero.repo.dir")
+            "omero.repo.dir"
+        )
 
         if not self.repo_dir:
             # Implies this is the legacy directory. Obtain from server
-            self.repo_dir = self.ctx.getSession(
-                ).getConfigService().getConfigValue("omero.data.dir")
+            self.repo_dir = (
+                self.ctx.getSession()
+                .getConfigService()
+                .getConfigValue("omero.data.dir")
+            )
 
         self.repo_cfg = path(self.repo_dir) / ".omero" / "repository"
         if not self.repo_cfg.exists():
@@ -493,16 +549,21 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         # FileMaker
         self.repo_uuid = uuidfile.lines()[0].strip()
         if len(self.repo_uuid) != 38:
-            raise omero.ResourceError(
-                "Poorly formed UUID: %s" % self.repo_uuid)
+            raise omero.ResourceError("Poorly formed UUID: %s" % self.repo_uuid)
         self.repo_uuid = self.repo_uuid[2:]
 
         # Using the repo_uuid, find our OriginalFile object
-        self.repo_obj = self.ctx.getSession().getQueryService().findByQuery(
-            "select f from OriginalFile f where hash = :uuid",
-            omero.sys.ParametersI().add("uuid", rstring(self.repo_uuid)))
+        self.repo_obj = (
+            self.ctx.getSession()
+            .getQueryService()
+            .findByQuery(
+                "select f from OriginalFile f where hash = :uuid",
+                omero.sys.ParametersI().add("uuid", rstring(self.repo_uuid)),
+            )
+        )
         self.repo_mgr = self.communicator.stringToProxy(
-            "InternalRepository-%s" % self.repo_uuid)
+            "InternalRepository-%s" % self.repo_uuid
+        )
         self.repo_mgr = self._internal_repo_cast(self.repo_mgr)
         self.repo_svc = self.repo_mgr.getProxy()
 
@@ -532,10 +593,15 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             p.makedirs()
 
         storage = self._storage_factory.getOrCreate(file_path, self.read_only)
-        table = TableI(self.ctx, file_obj, factory, storage,
-                       uuid=Ice.generateUUID(),
-                       call_context=current.ctx,
-                       adapter=current.adapter)
+        table = TableI(
+            self.ctx,
+            file_obj,
+            factory,
+            storage,
+            uuid=Ice.generateUUID(),
+            call_context=current.ctx,
+            adapter=current.adapter,
+        )
         self.resources.add(table)
         prx = current.adapter.add(table, table.id)
         return self._table_cast(prx)

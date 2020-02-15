@@ -20,7 +20,6 @@ if __name__ == "__main__":
     omero.tables.TableI.__module__ = "omero.tables"
 
     class TablesDependency(Dependency):
-
         def __init__(self):
             Dependency.__init__(self, "tables")
 
@@ -40,7 +39,10 @@ if __name__ == "__main__":
                 return "error"
 
     app = omero.util.Server(
-        omero.tables.TablesI, "TablesAdapter", Ice.Identity("Tables", ""),
-        dependencies=(Dependency("numpy"), TablesDependency()))
+        omero.tables.TablesI,
+        "TablesAdapter",
+        Ice.Identity("Tables", ""),
+        dependencies=(Dependency("numpy"), TablesDependency()),
+    )
 
     sys.exit(app.main(sys.argv))

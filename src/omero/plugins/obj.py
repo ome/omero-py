@@ -41,9 +41,9 @@ from omero.rtypes import rlong
 
 class TxField(object):
 
-    ARG_RE = re.compile((r"(?P<FIELD>[a-zA-Z][a-zA-Z0-9]*)"
-                         "(?P<OPER>[@])?="
-                         "(?P<VALUE>.*)"))
+    ARG_RE = re.compile(
+        (r"(?P<FIELD>[a-zA-Z][a-zA-Z0-9]*)" "(?P<OPER>[@])?=" "(?P<VALUE>.*)")
+    )
 
     def __init__(self, tx_state, arg):
         self.tx_state = tx_state
@@ -57,9 +57,9 @@ class TxField(object):
         self.oper = m.group("OPER")
         if self.oper == "@":
             # Treat value like an array lookup
-            if re.match(r'\d+$', self.value):
+            if re.match(r"\d+$", self.value):
                 self.value = tx_state.get_row(int(self.value))
-            elif re.match(TxCmd.VAR_NAME + '$', self.value):
+            elif re.match(TxCmd.VAR_NAME + "$", self.value):
                 self.value = tx_state.get_var(self.value)
             else:
                 raise Exception("Invalid reference: %s" % self.value)
@@ -71,9 +71,7 @@ class TxField(object):
 class TxCmd(object):
 
     VAR_NAME = r"(?P<DEST>[a-zA-Z][a-zA-Z0-9]*)"
-    VAR_RE = re.compile((r"^\s*%s"
-                         r"\s*=\s"
-                         r"(?P<REST>.*)$") % VAR_NAME)
+    VAR_RE = re.compile((r"^\s*%s" r"\s*=\s" r"(?P<REST>.*)$") % VAR_NAME)
 
     def __init__(self, tx_state, arg_list=None, line=None):
         """
@@ -156,6 +154,7 @@ class TxAction(object):
     def instance(self, ctx):
         import omero
         import omero.all
+
         try:
             kls = getattr(omero.model, self.class_name(ctx))
             obj = kls()
@@ -172,7 +171,6 @@ class TxAction(object):
 
 
 class NewObjectTxAction(TxAction):
-
     def check_requirements(self, ctx, obj, completed):
         missing = []
         total = dict(obj._field_info._asdict())
@@ -183,11 +181,11 @@ class NewObjectTxAction(TxAction):
                 missing.append(remaining)
 
         if missing:
-            ctx.die(103, "required arguments: %s" %
-                    ", ".join(missing))
+            ctx.die(103, "required arguments: %s" % ", ".join(missing))
 
     def go(self, ctx, args):
         import omero
+
         self.tx_state.add(self)
         c = ctx.conn(args)
         up = c.sf.getUpdateService()
@@ -205,29 +203,26 @@ class NewObjectTxAction(TxAction):
         try:
             out = up.saveAndReturnObject(obj)
         except omero.ServerError as se:
-            ctx.die(336, "Failed to create %s - %s" %
-                    (kls, se.message))
+            ctx.die(336, "Failed to create %s - %s" % (kls, se.message))
         proxy = "%s:%s" % (kls, out.id.val)
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 
 class UpdateObjectTxAction(TxAction):
-
     def go(self, ctx, args):
         import omero
+
         self.tx_state.add(self)
         c = ctx.conn(args)
         q = c.sf.getQueryService()
         up = c.sf.getUpdateService()
         obj, kls = self.instance(ctx)
         if obj.id is None:
-            ctx.die(334, "No id given for %s. Use e.g. '%s:123'"
-                    % (kls, kls))
+            ctx.die(334, "No id given for %s. Use e.g. '%s:123'" % (kls, kls))
         try:
             obj = q.get(kls, obj.id.val, {"omero.group": "-1"})
         except omero.ServerError:
-            ctx.die(334, "No object found: %s:%s" %
-                    (kls, obj.id.val))
+            ctx.die(334, "No object found: %s:%s" % (kls, obj.id.val))
 
         for field, setter in self.tx_cmd.setters():
             try:
@@ -238,8 +233,10 @@ class UpdateObjectTxAction(TxAction):
         try:
             out = up.saveAndReturnObject(obj)
         except omero.ServerError as se:
-            ctx.die(336, "Failed to update %s:%s - %s" %
-                    (kls, obj.id.val, se.message))
+            ctx.die(
+                336,
+                "Failed to update %s:%s - %s" % (kls, obj.id.val, se.message),
+            )
         proxy = "%s:%s" % (kls, out.id.val)
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
@@ -252,36 +249,42 @@ class NonFieldTxAction(TxAction):
 
     def go(self, ctx, args):
         import omero
+
         self.tx_state.add(self)
         self.client = ctx.conn(args)
         self.query = self.client.sf.getQueryService()
         self.update = self.client.sf.getUpdateService()
         self.obj, self.kls = self.instance(ctx)
         if self.obj.id is None:
-            ctx.die(334, "No id given for %s. Use e.g. '%s:123'"
-                    % (self.kls, self.kls))
+            ctx.die(
+                334,
+                "No id given for %s. Use e.g. '%s:123'" % (self.kls, self.kls),
+            )
         try:
             self.obj = self.query.get(
-                self.kls, self.obj.id.val, {"omero.group": "-1"})
+                self.kls, self.obj.id.val, {"omero.group": "-1"}
+            )
         except omero.ServerError:
-            ctx.die(334, "No object found: %s:%s" %
-                    (self.kls, self.obj.id.val))
+            ctx.die(334, "No object found: %s:%s" % (self.kls, self.obj.id.val))
 
         self.on_go(ctx, args)
 
     def save_and_return(self, ctx):
         import omero
+
         try:
             out = self.update.saveAndReturnObject(self.obj)
         except omero.ServerError as se:
-            ctx.die(336, "Failed to update %s:%s - %s" % (
-                self.kls, self.obj.id.val, se.message))
+            ctx.die(
+                336,
+                "Failed to update %s:%s - %s"
+                % (self.kls, self.obj.id.val, se.message),
+            )
         proxy = "%s:%s" % (self.kls, out.id.val)
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 
 class MapSetTxAction(NonFieldTxAction):
-
     def on_go(self, ctx, args):
 
         from omero.model import NamedValue as NV
@@ -314,7 +317,6 @@ class MapSetTxAction(NonFieldTxAction):
 
 
 class MapGetTxAction(NonFieldTxAction):
-
     def on_go(self, ctx, args):
 
         if len(self.tx_cmd.arg_list) != 4:
@@ -335,7 +337,6 @@ class MapGetTxAction(NonFieldTxAction):
 
 
 class NullTxAction(NonFieldTxAction):
-
     def on_go(self, ctx, args):
 
         if len(self.tx_cmd.arg_list) != 3:
@@ -347,7 +348,6 @@ class NullTxAction(NonFieldTxAction):
 
 
 class ObjGetTxAction(NonFieldTxAction):
-
     def on_go(self, ctx, args):
 
         if len(self.tx_cmd.arg_list) not in (2, 3):
@@ -363,15 +363,17 @@ class ObjGetTxAction(NonFieldTxAction):
         else:
             proxy = ""
             for attr in dir(self.obj):
-                if (attr.startswith("_") and
-                        not (attr.startswith("__")
-                             or attr.startswith("_op_")
-                             or attr.endswith("oaded"))):
+                if attr.startswith("_") and not (
+                    attr.startswith("__")
+                    or attr.startswith("_op_")
+                    or attr.endswith("oaded")
+                ):
                     field = attr.lstrip("_")
                     if hasattr(self.obj, field):
                         try:
-                            proxy += (field + "="
-                                      + str(self.get_field(field)) + "\n")
+                            proxy += (
+                                field + "=" + str(self.get_field(field)) + "\n"
+                            )
                         except AttributeError:
                             pass
 
@@ -384,8 +386,10 @@ class ObjGetTxAction(NonFieldTxAction):
         try:
             current = getattr(self.obj, field)
         except AttributeError:
-            raise AttributeError("Unknown field '%s' for %s:%s" % (
-                field, self.kls, self.obj.id.val))
+            raise AttributeError(
+                "Unknown field '%s' for %s:%s"
+                % (field, self.kls, self.obj.id.val)
+            )
 
         if current is None:
             proxy = ""
@@ -405,24 +409,29 @@ class ObjGetTxAction(NonFieldTxAction):
                     else:
                         if isinstance(current[0], NV):
                             proxy = ",".join(
-                                ["(" + str(i.name) + "," + str(i.value) + ")"
-                                    for i in current])
+                                [
+                                    "(" + str(i.name) + "," + str(i.value) + ")"
+                                    for i in current
+                                ]
+                            )
                         else:
                             proxy = ",".join([str(i) for i in current])
                 else:
                     raise AttributeError(
-                        "Error: field '%s' for %s:%s : no val, id or value" % (
-                            field, self.kls, self.obj.id.val))
+                        "Error: field '%s' for %s:%s : no val, id or value"
+                        % (field, self.kls, self.obj.id.val)
+                    )
             except AttributeError as ae:
                 message = ae.args
-                raise AttributeError("Error: field '%s' for %s:%s : %s" % (
-                    field, self.kls, self.obj.id.val, message))
+                raise AttributeError(
+                    "Error: field '%s' for %s:%s : %s"
+                    % (field, self.kls, self.obj.id.val, message)
+                )
 
         return proxy
 
 
 class ListGetTxAction(NonFieldTxAction):
-
     def on_go(self, ctx, args):
 
         from omero.model import NamedValue as NV
@@ -434,8 +443,11 @@ class ListGetTxAction(NonFieldTxAction):
         try:
             current = getattr(self.obj, field)
         except AttributeError:
-            ctx.die(336, "Unknown field '%s' for %s:%s" % (
-                field, self.kls, self.obj.id.val))
+            ctx.die(
+                336,
+                "Unknown field '%s' for %s:%s"
+                % (field, self.kls, self.obj.id.val),
+            )
 
         index = int(self.tx_cmd.arg_list[3])
         if current is None:
@@ -445,23 +457,29 @@ class ListGetTxAction(NonFieldTxAction):
                 try:
                     item = current[index]
                     if isinstance(item, NV):
-                        proxy = ("(" + str(item.name) + ","
-                                 + str(item.value) + ")")
+                        proxy = (
+                            "(" + str(item.name) + "," + str(item.value) + ")"
+                        )
                     else:
                         proxy = str(item)
                 except IndexError as ie:
                     message = ie.args
-                    ctx.die(336, "Error: field '%s[%s]' for %s:%s, %s" % (
-                        field, index, self.kls, self.obj.id.val, message))
+                    ctx.die(
+                        336,
+                        "Error: field '%s[%s]' for %s:%s, %s"
+                        % (field, index, self.kls, self.obj.id.val, message),
+                    )
             else:
-                ctx.die(336, "Field '%s' for %s:%s is not a list" % (
-                    field, self.kls, self.obj.id.val))
+                ctx.die(
+                    336,
+                    "Field '%s' for %s:%s is not a list"
+                    % (field, self.kls, self.obj.id.val),
+                )
 
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 
 class TxState(object):
-
     def __init__(self, ctx):
         self.ctx = ctx
         self._commands = []
@@ -542,20 +560,27 @@ Bash examples:
 
         self.exc = ExceptionHandler()
         parser.add_login_arguments()
+        parser.add_argument("--file", help=SUPPRESS)
         parser.add_argument(
-            "--file", help=SUPPRESS)
+            "command",
+            nargs="?",
+            choices=(
+                "new",
+                "update",
+                "null",
+                "map-get",
+                "map-set",
+                "get",
+                "list-get",
+            ),
+            help="operation to be performed",
+        )
         parser.add_argument(
-            "command", nargs="?",
-            choices=("new", "update", "null",
-                     "map-get", "map-set",
-                     "get", "list-get"),
-            help="operation to be performed")
+            "Class", nargs="?", help="OMERO model object name, e.g. Project"
+        )
         parser.add_argument(
-            "Class", nargs="?",
-            help="OMERO model object name, e.g. Project")
-        parser.add_argument(
-            "fields", nargs="*",
-            help="fields to be set, e.g. name=foo")
+            "fields", nargs="*", help="fields to be set, e.g. name=foo"
+        )
         parser.set_defaults(func=self.process)
 
     def process(self, args):
@@ -583,9 +608,10 @@ Bash examples:
             if args.file:
                 self.ctx.err("Ignoring %s" % args.file)
             actions.append(
-                self.parse(state,
-                           arg_list=[args.command, args.Class] +
-                           args.fields))
+                self.parse(
+                    state, arg_list=[args.command, args.Class] + args.fields
+                )
+            )
 
         for action in actions:
             action.go(self.ctx, args)

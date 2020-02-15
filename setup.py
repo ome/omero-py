@@ -64,25 +64,25 @@ def get_blitz_location():
         config_blitz_url = (
             "https://artifacts.openmicroscopy.org/artifactory/ome.releases/"
             "org/openmicroscopy/omero-blitz/VERSION/"
-            "omero-blitz-VERSION-python.zip")
+            "omero-blitz-VERSION-python.zip"
+        )
 
     # load version.properties if available
-    config_path = os.environ.get("VERSION_PROPERTIES",
-                                 "artifact/version.properties")
+    config_path = os.environ.get(
+        "VERSION_PROPERTIES", "artifact/version.properties"
+    )
     if os.path.exists(config_path):
-        config_obj = configparser.RawConfigParser({
-            url_key: config_blitz_url,
-            version_key: config_blitz_version,
-        })
+        config_obj = configparser.RawConfigParser(
+            {url_key: config_blitz_url, version_key: config_blitz_version,}
+        )
         with open(config_path) as f:
-            config_str = StringIO('[%s]\n%s' % (defaultsect, f.read()))
+            config_str = StringIO("[%s]\n%s" % (defaultsect, f.read()))
         config_obj.readfp(config_str)
         config_blitz_url = config_obj.get(defaultsect, url_key)
         config_blitz_version = config_obj.get(defaultsect, version_key)
 
     # replace VERSION in the final url and return
-    config_blitz_url = config_blitz_url.replace(
-        "VERSION", config_blitz_version)
+    config_blitz_url = config_blitz_url.replace("VERSION", config_blitz_version)
     return config_blitz_url
 
 
@@ -138,7 +138,8 @@ class DevTargetCommand(Command):
     """
 
     description = (
-        'Recreate target with symlinks to files in src to ease development')
+        "Recreate target with symlinks to files in src to ease development"
+    )
     user_options = []
 
     def initialize_options(self):
@@ -148,14 +149,16 @@ class DevTargetCommand(Command):
         pass
 
     def run(self):
-        rmtree('target')
+        rmtree("target")
         download_blitz_target()
         copy_src_to_target(symlink=True)
-        print("If this is installed as an editable module re-run "
-              "`pip install -e .`")
+        print(
+            "If this is installed as an editable module re-run "
+            "`pip install -e .`"
+        )
 
 
-if not os.path.exists('target'):
+if not os.path.exists("target"):
     download_blitz_target()
     copy_src_to_target()
 
@@ -164,7 +167,7 @@ packageless = glob.glob("target/*.py")
 packageless = [x[7:-3] for x in packageless]
 packages = find_packages(where="target")
 
-url = 'https://docs.openmicroscopy.org/latest/omero/developers'
+url = "https://docs.openmicroscopy.org/latest/omero/developers"
 
 sys.path.append("target")
 from omero_version import omero_version as ov  # noqa
@@ -184,40 +187,31 @@ setup(
     description="Python bindings to the OMERO.blitz server",
     long_description=read("README.rst"),
     classifiers=[
-      'Development Status :: 5 - Production/Stable',
-      'Intended Audience :: Developers',
-      'Intended Audience :: Science/Research',
-      'Intended Audience :: System Administrators',
-      'License :: OSI Approved :: GNU General Public License v2 '
-      'or later (GPLv2+)',
-      'Natural Language :: English',
-      'Operating System :: OS Independent',
-      'Programming Language :: Python :: 3',
-      'Topic :: Software Development :: Libraries :: Python Modules',
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: System Administrators",
+        "License :: OSI Approved :: GNU General Public License v2 "
+        "or later (GPLv2+)",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],  # Get strings from
-        # http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    # http://pypi.python.org/pypi?%3Aaction=list_classifiers
     author="The Open Microscopy Team",
     author_email="ome-devel@lists.openmicroscopy.org.uk",
     url=url,
     package_dir={"": "target"},
     packages=packages,
     package_data={
-        'omero.gateway': ['pilfonts/*'],
-        'omero.gateway.scripts': ['imgs/*']},
+        "omero.gateway": ["pilfonts/*"],
+        "omero.gateway.scripts": ["imgs/*"],
+    },
     py_modules=packageless,
     scripts=glob.glob(os.path.sep.join(["bin", "*"])),
-    python_requires='>=3',
-    install_requires=[
-        'future',
-        'numpy',
-        'Pillow',
-        'zeroc-ice>=3.6.4,<3.7',
-    ],
-    tests_require=[
-        'pytest',
-        'mox3',
-    ],
-    cmdclass={
-        'devtarget': DevTargetCommand,
-    },
+    python_requires=">=3",
+    install_requires=["future", "numpy", "Pillow", "zeroc-ice>=3.6.4,<3.7",],
+    tests_require=["pytest", "mox3",],
+    cmdclass={"devtarget": DevTargetCommand,},
 )

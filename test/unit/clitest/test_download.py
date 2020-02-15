@@ -26,7 +26,6 @@ from omero.cli import CLI, NonZeroReturnCode
 
 
 class TestDownload(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("download", DownloadControl, "TEST")
@@ -37,9 +36,9 @@ class TestDownload(object):
         self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize(
-        'bad_input',
-        ['-1', 'OriginalFile:-1', 'FileAnnotation:-1', 'Image:-1'])
+        "bad_input", ["-1", "OriginalFile:-1", "FileAnnotation:-1", "Image:-1"]
+    )
     def testInvalidInput(self, bad_input):
-        self.args += [bad_input, '-']
+        self.args += [bad_input, "-"]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)

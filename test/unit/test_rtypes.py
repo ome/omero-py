@@ -25,7 +25,6 @@ ids = [rlong(1)]
 
 
 class TestModel(object):
-
     def testConversionMethod(self):
         assert None == rtype(None)
         assert rlong(1) == rtype(rlong(1))  # Returns self
@@ -456,28 +455,30 @@ class TestModel(object):
 
     nu = native_str("u")
     bu = str("u")
-    cn = '中國'
-    cnu = u'中國'
+    cn = "中國"
+    cnu = "中國"
 
     class UStr(object):
-
         def __init__(self, rv):
             self.rv = rv
 
         def __str__(self):
             return self.rv
 
-    @pytest.mark.parametrize("data", (
-        (1, rstring, 1, "1"),
-        (2, rstring, nu, "u"),
-        (3, rstring, bu, "u"),
-        (4, rstring, nu.encode("utf-8"), b"u"),
-        (5, rstring, bu.encode("utf-8"), b"u"),
-        (6, rstring, UStr(nu), "u"),
-        (7, rstring, UStr(bu), "u"),
-        (8, rstring, cn, cn),
-        (9, rstring, cnu, cn),
-    ))
+    @pytest.mark.parametrize(
+        "data",
+        (
+            (1, rstring, 1, "1"),
+            (2, rstring, nu, "u"),
+            (3, rstring, bu, "u"),
+            (4, rstring, nu.encode("utf-8"), b"u"),
+            (5, rstring, bu.encode("utf-8"), b"u"),
+            (6, rstring, UStr(nu), "u"),
+            (7, rstring, UStr(bu), "u"),
+            (8, rstring, cn, cn),
+            (9, rstring, cnu, cn),
+        ),
+    )
     def testMoreConversions(self, data):
         # Some useful conversions were not supported in 5.1.2 and
         # earlier. This tests each of those which should no longer

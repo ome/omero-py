@@ -40,8 +40,11 @@ def as_stdout(path, readers=""):
         cli.invoke(["import", "-f"] + path)
     if cli.rv != 0:
         raise omero.InternalException(
-            None, None, "'import -f' exited with a rc=%s. "
-            "See console for more information" % cli.rv)
+            None,
+            None,
+            "'import -f' exited with a rc=%s. "
+            "See console for more information" % cli.rv,
+        )
 
 
 def as_dictionary(path, readers=""):
@@ -94,4 +97,5 @@ def as_dictionary(path, readers=""):
 
 if __name__ == "__main__":
     import sys
+
     as_stdout(sys.argv[1:])

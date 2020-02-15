@@ -64,12 +64,8 @@ def projection():
         zSectionSet = client.getInput("zSectionSet")
 
         # Not sure what a point object would be in the OME::System(?)
-        point1 = point(
-            client.getInput("point1.x"),
-            client.getInput("point1.y"))
-        point2 = point(
-            client.getInput("point2.x"),
-            client.getInput("point2.y"))
+        point1 = point(client.getInput("point1.x"), client.getInput("point1.y"))
+        point2 = point(client.getInput("point2.x"), client.getInput("point2.y"))
 
         width = point2.x - point1.x
         height = point2.y - point1.y
@@ -82,8 +78,9 @@ def projection():
         # and one timepoint and one zsection from the original image.
         # It will use the original image to set the bitdepth, channel info,
         # metadata.
-        newPixelsID = client.copyPixels(pixelsID, [width, height, channelSet,
-                                                   timeSet, 1])
+        newPixelsID = client.copyPixels(
+            pixelsID, [width, height, channelSet, timeSet, 1]
+        )
 
         # Iterate original image, over the channelSet, timeSet, zSectionSet
         # and create the new plane based on the method
@@ -97,8 +94,9 @@ def projection():
                     # method should return an array so it is simple to
                     # manipulate in python, (scripting should not really
                     # involve too much bit twiddling :)
-                    planeData = client.getPixels(pixelsID, zSection, time,
-                                                 channel, time)
+                    planeData = client.getPixels(
+                        pixelsID, zSection, time, channel, time
+                    )
 
                     # loop through the selection of the original image.
                     for x in range(point1.x, point2.x):
@@ -106,31 +104,35 @@ def projection():
 
                             # The new image coords are just offset by point1
                             # values.
-                            newImageX = x-point1.x
-                            newImageY = y-point1.y
+                            newImageX = x - point1.x
+                            newImageY = y - point1.y
 
                             # Apply projection method.
                             if method == self.AVERAGE or method == self.SUM:
-                                newPlaneData[newImageX][newImageY] += \
-                                    planeData[x][y]
+                                newPlaneData[newImageX][newImageY] += planeData[
+                                    x
+                                ][y]
                             if method == self.MAX:
                                 newPlaneData[newImageX][newImageY] = max(
                                     newPlaneData[newImageX][newImageY],
-                                    planeData[x][y])
+                                    planeData[x][y],
+                                )
                 # calculate mean for AVERAGE method.
                 if method == self.AVERAGE:
-                    for x in range(0, width-1):
-                        for y in range(0, height-1):
+                    for x in range(0, width - 1):
+                        for y in range(0, height - 1):
                             newPlaneData[x][y] /= len(zSectionSet)
 
                 # A method to set the plane of the newImage to the
                 # newPlaneData
-                client.setPlane(newPixelsID, newPlaneData, 1, time, channel,
-                                time)
+                client.setPlane(
+                    newPixelsID, newPlaneData, 1, time, channel, time
+                )
 
         # save the image?
         client.setOutput("newPixelsID", newPixelsID)
         sys.exit(0)
+
 
 if __name__ == "__main__":
     projection().__runScript()

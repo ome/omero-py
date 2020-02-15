@@ -81,6 +81,7 @@ Example code to draw a polyline on an image an display it in PIL::
 
 
 from builtins import object
+
 try:
     from PIL import Image, ImageDraw  # see ticket:2597
 except ImportError:
@@ -106,7 +107,8 @@ class DrawingCanvas(object):
 
     def __init__(self):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         self.width = 0
         self.height = 0
         self.image = None
@@ -119,8 +121,9 @@ class DrawingCanvas(object):
     # @param height See above.
     def createImage(self, width, height):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
-        self.image = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
+        self.image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         self.width = width
         self.height = height
 
@@ -131,7 +134,8 @@ class DrawingCanvas(object):
     # @param height See above.
     def setImage(self, image, width, height):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         self.image = image
         self.width = width
         self.height = height
@@ -141,8 +145,9 @@ class DrawingCanvas(object):
     # @param elementList See above.
     def drawElements(self, elementList):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
-        if(self.draw is None):
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
+        if self.draw is None:
             self.draw = ImageDraw.Draw(self.image)
         for element in elementList:
             element.acceptVisitor(self)
@@ -154,7 +159,8 @@ class DrawingCanvas(object):
     #
     def getFillColour(self, shapeSettings):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         return shapeSettings[1][0]
 
     ##
@@ -163,7 +169,8 @@ class DrawingCanvas(object):
     #
     def getStrokeColour(self, shapeSettings):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         return shapeSettings[0][0]
 
     ##
@@ -172,7 +179,8 @@ class DrawingCanvas(object):
     #
     def getStrokeWidth(self, shapeSettings):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         return shapeSettings[0][1]
 
     ##
@@ -184,18 +192,21 @@ class DrawingCanvas(object):
     # @param shapeSettings The shapes display properties(colour,etc).
     # @param affineTransform The affine transform that the shape has to
     #                        undergo before drawing.
-    def drawEllipse(self, x, y, radiusx, radiusy, shapeSettings,
-                    affineTransform=None):
+    def drawEllipse(
+        self, x, y, radiusx, radiusy, shapeSettings, affineTransform=None
+    ):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         x0 = x - radiusx
         y0 = y - radiusy
         x1 = x0 + radiusx * 2
         y1 = y0 + radiusy * 2
         fillColour = self.getFillColour(shapeSettings)
         strokeColour = self.getStrokeColour(shapeSettings)
-        self.draw.ellipse((x0, y0, x1, y1), fill=fillColour,
-                          outline=strokeColour)
+        self.draw.ellipse(
+            (x0, y0, x1, y1), fill=fillColour, outline=strokeColour
+        )
 
     ##
     # Draw a rectangle at (x, y) with width, height (width, height).
@@ -208,19 +219,23 @@ class DrawingCanvas(object):
     #                        undergo before drawing.
     def drawRectangle(self, x, y, w, h, shapeSettings, affineTransform=None):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         fillColour = self.getFillColour(shapeSettings)
         strokeColour = self.getStrokeColour(shapeSettings)
-        if(affineTransform is None):
+        if affineTransform is None:
             self.draw.rectangle(
-                (x, y, w, h), fill=fillColour, outline=strokeColour)
+                (x, y, w, h), fill=fillColour, outline=strokeColour
+            )
         else:
-            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0))
+            im = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
             newDraw = ImageDraw.Draw(im)
             newDraw.rectangle(
-                (x, y, w, h), fill=fillColour, outline=strokeColour)
+                (x, y, w, h), fill=fillColour, outline=strokeColour
+            )
             newImage = im.transform(
-                (self.width, self.height), Image.AFFINE, affineTransform)
+                (self.width, self.height), Image.AFFINE, affineTransform
+            )
             self.image.paste(newImage)
 
     ##
@@ -232,19 +247,23 @@ class DrawingCanvas(object):
     #                        undergo before drawing.
     def drawPolygon(self, pointTupleList, shapeSettings, affineTransform=None):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         fillColour = self.getFillColour(shapeSettings)
         strokeColour = self.getStrokeColour(shapeSettings)
-        if(affineTransform is None):
+        if affineTransform is None:
             self.draw.polygon(
-                pointTupleList, fill=fillColour, outline=strokeColour)
+                pointTupleList, fill=fillColour, outline=strokeColour
+            )
         else:
-            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0))
+            im = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
             ImageDraw.Draw(im)
             self.draw.polygon(
-                pointTupleList, fill=fillColour, outline=strokeColour)
+                pointTupleList, fill=fillColour, outline=strokeColour
+            )
             newImage = im.transform(
-                (self.width, self.height), Image.AFFINE, affineTransform)
+                (self.width, self.height), Image.AFFINE, affineTransform
+            )
             self.image.paste(newImage)
 
     ##
@@ -258,19 +277,23 @@ class DrawingCanvas(object):
     #                        undergo before drawing.
     def drawLine(self, x1, y1, x2, y2, shapeSettings, affineTransform=None):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         strokeColour = self.getStrokeColour(shapeSettings)
         strokeWidth = self.getStrokeWidth(shapeSettings)
-        if(affineTransform is None):
+        if affineTransform is None:
             self.draw.line(
-                [(x1, y1), (x2, y2)], fill=strokeColour, width=strokeWidth)
+                [(x1, y1), (x2, y2)], fill=strokeColour, width=strokeWidth
+            )
         else:
-            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0))
+            im = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
             ImageDraw.Draw(im)
             self.draw.line(
-                [(x1, y1), (x2, y2)], fill=strokeColour, width=strokeWidth)
+                [(x1, y1), (x2, y2)], fill=strokeColour, width=strokeWidth
+            )
             newImage = im.transform(
-                (self.width, self.height), Image.AFFINE, affineTransform)
+                (self.width, self.height), Image.AFFINE, affineTransform
+            )
             self.image.paste(newImage)
 
     ##
@@ -280,22 +303,24 @@ class DrawingCanvas(object):
     # @param shapeSettings The shapes display properties(colour,etc).
     # @param affineTransform The affine transform that the shape has to
     #                        undergo before drawing.
-    def drawPolyline(self, pointTupleList,
-                     shapeSettings, affineTransform=None):
+    def drawPolyline(self, pointTupleList, shapeSettings, affineTransform=None):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         fillColour = self.getFillColour(shapeSettings)
         strokeColour = self.getStrokeColour(shapeSettings)
         strokeWidth = self.getStrokeWidth(shapeSettings)
-        if(affineTransform is None):
+        if affineTransform is None:
             self.draw.line(pointTupleList, fill=fillColour, width=strokeWidth)
         else:
-            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0))
+            im = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
             ImageDraw.Draw(im)
             self.draw.line(
-                pointTupleList, fill=strokeColour, width=strokeColour)
+                pointTupleList, fill=strokeColour, width=strokeColour
+            )
             newImage = im.transform(
-                (self.width, self.height), Image.AFFINE, affineTransform)
+                (self.width, self.height), Image.AFFINE, affineTransform
+            )
             self.image.paste(newImage)
 
     ##
@@ -308,20 +333,23 @@ class DrawingCanvas(object):
     # @param shapeSettings The shapes display properties(colour,etc).
     # @param affineTransform The affine transform that the shape has to
     #                        undergo before drawing.
-    def drawMask(self, x, y, width, height, bytes,
-                 shapeSettings, affineTransform=None):
+    def drawMask(
+        self, x, y, width, height, bytes, shapeSettings, affineTransform=None
+    ):
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
         fillColour = self.getFillColour(shapeSettings)
-        mask = Image.fromstring('1', (width, height), bytes)
-        if(affineTransform is None):
+        mask = Image.fromstring("1", (width, height), bytes)
+        if affineTransform is None:
             self.draw.bitmap(x, y, mask, fill=fillColour)
         else:
-            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0))
+            im = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
             ImageDraw.Draw(im)
             self.draw.bitmap(x, y, mask, fill=fillColour)
             newImage = im.transform(
-                (self.width, self.height), Image.AFFINE, affineTransform)
+                (self.width, self.height), Image.AFFINE, affineTransform
+            )
             self.image.paste(newImage)
 
     ##
@@ -335,13 +363,15 @@ class DrawingCanvas(object):
     def drawText(self, x, y, text, shapeSettings, affineTransform=None):
         textColour = self.getStrokeColour(shapeSettings)
         warnings.warn(
-            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
-        if(affineTransform is None):
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning
+        )
+        if affineTransform is None:
             self.draw.text((x, y), text, fill=textColour)
         else:
-            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0))
+            im = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
             ImageDraw.Draw(im)
             self.draw.text((x, y), text, fill=textColour)
             newImage = im.transform(
-                (self.width, self.height), Image.AFFINE, affineTransform)
+                (self.width, self.height), Image.AFFINE, affineTransform
+            )
             self.image.paste(newImage)

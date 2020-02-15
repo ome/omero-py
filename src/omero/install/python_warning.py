@@ -11,8 +11,9 @@ import sys
 import platform
 
 
-PYTHON_WARNING = ("Python version %s is not "
-                  "supported!" % platform.python_version())
+PYTHON_WARNING = (
+    "Python version %s is not " "supported!" % platform.python_version()
+)
 
 
 def py27_only():

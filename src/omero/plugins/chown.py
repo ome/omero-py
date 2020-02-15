@@ -73,24 +73,30 @@ Examples:
 
 
 class ChownControl(GraphControl):
-
     def cmd_type(self):
         import omero
         import omero.all
+
         return omero.cmd.Chown2
 
     def _pre_objects(self, parser):
         parser.add_argument(
-            "usr", nargs="?", type=ExperimenterArg,
+            "usr",
+            nargs="?",
+            type=ExperimenterArg,
             help="user to transfer ownership of specified objects and/or all"
-                 " objects owned by specified user(s) to")
+            " objects owned by specified user(s) to",
+        )
 
     def _objects(self, parser):
         parser.add_argument(
-            "obj", nargs="*", type=GraphArg(self.cmd_type()),
+            "obj",
+            nargs="*",
+            type=GraphArg(self.cmd_type()),
             help="objects to be processed in the form <Class>:<Id>"
-                 " and/or user(s) to transfer all data from in the"
-                 " form Experimenter:<Id>")
+            " and/or user(s) to transfer all data from in the"
+            " form Experimenter:<Id>",
+        )
 
     def populate_target_users(self, command_check):
         """
@@ -102,7 +108,8 @@ class ChownControl(GraphControl):
         """
         try:
             command_check.targetUsers = command_check.targetObjects.pop(
-                "Experimenter")
+                "Experimenter"
+            )
         except KeyError:
             pass
 
@@ -122,6 +129,7 @@ class ChownControl(GraphControl):
 
         # Set requests user
         import omero
+
         if isinstance(req, omero.cmd.DoAll):
             for request in req.requests:
                 if isinstance(request, omero.cmd.SkipHead):
@@ -138,6 +146,7 @@ class ChownControl(GraphControl):
 
     def print_detailed_report(self, req, rsp, status):
         import omero
+
         if isinstance(rsp, omero.cmd.DoAllRsp):
             for response in rsp.responses:
                 if isinstance(response, omero.cmd.Chown2Response):
@@ -156,6 +165,7 @@ class ChownControl(GraphControl):
             objIds = self._get_object_ids(rsp.deletedObjects)
             for k in objIds:
                 self.ctx.out("  %s:%s" % (k, objIds[k]))
+
 
 try:
     register("chown", ChownControl, HELP)

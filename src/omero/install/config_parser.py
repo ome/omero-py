@@ -30,6 +30,8 @@ from future.utils import isbytes
 from past.builtins import cmp
 from builtins import str
 from builtins import object
+
+
 class Header(object):
     def __init__(self, name, reference=None, description=""):
         """Initialize new configuration property"""
@@ -43,6 +45,7 @@ class Header(object):
             return self.name.lower()
         else:
             return self.reference
+
 
 DB_HEADER = Header("Database", reference="db")
 FS_HEADER = Header("Binary repository", reference="fs")
@@ -78,8 +81,7 @@ HEADER_MAPPING = {
 }
 
 
-TOP = \
-    """.. This file is auto-generated from omero.properties. DO NOT EDIT IT
+TOP = """.. This file is auto-generated from omero.properties. DO NOT EDIT IT
 
 Configuration properties glossary
 =================================
@@ -161,8 +163,7 @@ OMERO.server. Depending on your set-up, default values may be sufficient.
 
 """
 
-HEADER = \
-    """.. _%(reference)s_configuration:
+HEADER = """.. _%(reference)s_configuration:
 
 %(header)s
 %(hline)s
@@ -184,6 +185,7 @@ from collections import defaultdict
 def fail(msg="", debug=0):
     if debug:
         import pdb
+
         pdb.set_trace()
     else:
         raise Exception(msg)
@@ -195,11 +197,10 @@ def dbg(msg):
 
 def underline(size):
     """Create underline for reStructuredText headings"""
-    return '^' * size
+    return "^" * size
 
 
 class Property(object):
-
     def __init__(self, key=None, val=None, txt=""):
         """Initialize new configuration property"""
         self.key = key
@@ -216,7 +217,7 @@ class Property(object):
         dbg("detect:" + line)
         idx = line.index("=")
         self.key = line[0:idx]
-        self.val = line[idx + 1:]
+        self.val = line[idx + 1 :]
 
     def cont(self, line):
         dbg("cont:  " + line)
@@ -225,8 +226,11 @@ class Property(object):
         self.val += line
 
     def __str__(self):
-        return ("Property(key='%s', val='%s', txt='%s')"
-                % (self.key, self.val, self.txt))
+        return "Property(key='%s', val='%s', txt='%s')" % (
+            self.key,
+            self.val,
+            self.txt,
+        )
 
 
 IN_PROGRESS = "in_progress_action"
@@ -234,7 +238,6 @@ ESCAPED = "escaped_action"
 
 
 class PropertyParser(object):
-
     def __init__(self):
         """Initialize a property set"""
         self.properties = []
@@ -335,20 +338,22 @@ class PropertyParser(object):
             data[parts[0]].append(".".join(parts[1:]))
         return data
 
-    def parse_module(self, module='omeroweb.settings'):
+    def parse_module(self, module="omeroweb.settings"):
         """Parse the properties from the setting module"""
 
-        os.environ['DJANGO_SETTINGS_MODULE'] = module
+        os.environ["DJANGO_SETTINGS_MODULE"] = module
 
         from django.conf import settings
 
         for key, values in sorted(
-                iter(list(settings.CUSTOM_SETTINGS_MAPPINGS.items())),
-                key=lambda k: k):
+            iter(list(settings.CUSTOM_SETTINGS_MAPPINGS.items())),
+            key=lambda k: k,
+        ):
 
             p = Property()
-            global_name, default_value, mapping, description, config = \
-                tuple(values)
+            global_name, default_value, mapping, description, config = tuple(
+                values
+            )
             p.val = str(default_value)
             p.key = key
             p.txt = (description or "") + "\n"
@@ -365,7 +370,7 @@ class PropertyParser(object):
                     found = True
                     break
 
-            if not found and x.key.startswith('omero.'):
+            if not found and x.key.startswith("omero."):
                 parts = x.key.split(".")
                 section = parts[1].title()
                 if section not in additional_headers:
@@ -403,8 +408,11 @@ class PropertyParser(object):
         for header in sorted(headers, key=lambda x: x.name):
             properties = ""
             # Filter properties marked as DEVELOPMENT
-            props = [p for p in headers[header] if
-                     not p.txt.startswith('DEVELOPMENT')]
+            props = [
+                p
+                for p in headers[header]
+                if not p.txt.startswith("DEVELOPMENT")
+            ]
             for p in props:
                 properties += ".. property:: %s\n" % (p.key)
                 properties += "\n"
@@ -421,18 +429,22 @@ class PropertyParser(object):
                 if not p.val:
                     v = "[empty]"
 
-                if ',' in v and ', ' not in v:
+                if "," in v and ", " not in v:
                     properties += "Default: `%s`\n\n" % (
-                        ",\n".join(v.split(',')))
+                        ",\n".join(v.split(","))
+                    )
                 else:
                     properties += "Default: `%s`\n\n" % v
 
             hline = "-" * len(header.name)
-            m = {"header": header.name,
-                 "hline": hline,
-                 "properties": properties,
-                 "reference": header.get_reference()}
+            m = {
+                "header": header.name,
+                "hline": hline,
+                "properties": properties,
+                "reference": header.get_reference(),
+            }
             print(HEADER % m)
+
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
@@ -451,7 +463,7 @@ if __name__ == "__main__":
 
     pp = PropertyParser()
     pp.parse_file(ns.files)
-    pp.parse_module('omeroweb.settings')
+    pp.parse_module("omeroweb.settings")
 
     if ns.dbg:
         print("Found:", len(list(pp)))

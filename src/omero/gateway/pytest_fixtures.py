@@ -15,8 +15,7 @@ from omero.gateway.scripts.testdb_create import TestDBHelper, dbhelpers
 import pytest
 
 
-class GatewayWrapper (TestDBHelper):
-
+class GatewayWrapper(TestDBHelper):
     def __init__(self):
         super(GatewayWrapper, self).__init__()
         self.setUp(skipTestDB=False, skipTestImages=True)
@@ -28,7 +27,7 @@ class GatewayWrapper (TestDBHelper):
         return testimg
 
 
-@pytest.fixture(scope='class')
+@pytest.fixture(scope="class")
 def gatewaywrapper(request):
     """
     Returns a test helper gateway object.
@@ -38,11 +37,12 @@ def gatewaywrapper(request):
     def fin():
         g.tearDown()
         dbhelpers.cleanup()
+
     request.addfinalizer(fin)
     return g
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def author_testimg_generated(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
@@ -52,7 +52,7 @@ def author_testimg_generated(request, gatewaywrapper):
     return rv
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def author_testimg_tiny(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
@@ -62,7 +62,7 @@ def author_testimg_tiny(request, gatewaywrapper):
     return rv
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def author_testimg_tiny2(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
@@ -72,7 +72,7 @@ def author_testimg_tiny2(request, gatewaywrapper):
     return rv
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def author_testimg(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
@@ -82,7 +82,7 @@ def author_testimg(request, gatewaywrapper):
     return rv
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def author_testimg_bad(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
@@ -92,7 +92,7 @@ def author_testimg_bad(request, gatewaywrapper):
     return rv
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def author_testimg_big(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
@@ -102,7 +102,7 @@ def author_testimg_big(request, gatewaywrapper):
     return rv
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def author_testimg_32float(request, gatewaywrapper):
     """
     logs in as Author and returns the float image, creating it first if needed.

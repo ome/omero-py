@@ -32,8 +32,10 @@ from omero.util.decorators import locked
 import omero_ext.path as path
 
 LOGDIR = os.path.join("var", "log")
-LOGFORMAT = "%(asctime)s %(levelname)-5.5s [%(name)40s] " \
-            "(%(threadName)-10s) %(message)s"
+LOGFORMAT = (
+    "%(asctime)s %(levelname)-5.5s [%(name)40s] "
+    "(%(threadName)-10s) %(message)s"
+)
 LOGLEVEL = logging.INFO
 LOGSIZE = 500000000
 LOGNUM = 9
@@ -52,19 +54,29 @@ def make_logname(self):
     return log_name
 
 
-def configure_logging(logdir=None, logfile=None, loglevel=LOGLEVEL,
-                      format=LOGFORMAT, filemode=LOGMODE, maxBytes=LOGSIZE,
-                      backupCount=LOGNUM, time_rollover=False):
+def configure_logging(
+    logdir=None,
+    logfile=None,
+    loglevel=LOGLEVEL,
+    format=LOGFORMAT,
+    filemode=LOGMODE,
+    maxBytes=LOGSIZE,
+    backupCount=LOGNUM,
+    time_rollover=False,
+):
 
     if logdir is None or logfile is None:
         handler = logging.StreamHandler()
     elif not time_rollover:
         handler = logging.handlers.RotatingFileHandler(
-            os.path.join(logdir, logfile), maxBytes=maxBytes,
-            backupCount=backupCount)
+            os.path.join(logdir, logfile),
+            maxBytes=maxBytes,
+            backupCount=backupCount,
+        )
     else:
         handler = logging.handlers.TimedRotatingFileHandler(
-            os.path.join(logdir, logfile), 'midnight', 1)
+            os.path.join(logdir, logfile), "midnight", 1
+        )
         # Windows will not allow renaming (or deleting) a file that's open.
         # There's nothing the logging package can do about that.
         try:
@@ -89,19 +101,33 @@ def configure_server_logging(props):
     # Using Ice.ProgramName on Windows failed
     log_dir = props.getPropertyWithDefault("omero.logging.directory", LOGDIR)
     log_name = program_name + ".log"
-    log_timed = props.getPropertyWithDefault(
-        "omero.logging.timedlog", "False")[0] in ('T', 't')
+    log_timed = props.getPropertyWithDefault("omero.logging.timedlog", "False")[
+        0
+    ] in ("T", "t")
     log_num = int(
-        props.getPropertyWithDefault("omero.logging.lognum", native_str(LOGNUM)))
+        props.getPropertyWithDefault("omero.logging.lognum", native_str(LOGNUM))
+    )
     log_size = int(
-        props.getPropertyWithDefault("omero.logging.logsize", native_str(LOGSIZE)))
+        props.getPropertyWithDefault(
+            "omero.logging.logsize", native_str(LOGSIZE)
+        )
+    )
     log_num = int(
-        props.getPropertyWithDefault("omero.logging.lognum", native_str(LOGNUM)))
+        props.getPropertyWithDefault("omero.logging.lognum", native_str(LOGNUM))
+    )
     log_level = int(
-        props.getPropertyWithDefault("omero.logging.level", native_str(LOGLEVEL)))
-    configure_logging(log_dir, log_name, loglevel=log_level,
-                      maxBytes=log_size, backupCount=log_num,
-                      time_rollover=log_timed)
+        props.getPropertyWithDefault(
+            "omero.logging.level", native_str(LOGLEVEL)
+        )
+    )
+    configure_logging(
+        log_dir,
+        log_name,
+        loglevel=log_level,
+        maxBytes=log_size,
+        backupCount=log_num,
+        time_rollover=log_timed,
+    )
 
     sys.stdout = StreamRedirect(logging.getLogger("stdout"))
     sys.stderr = StreamRedirect(logging.getLogger("stderr"))
@@ -166,8 +192,15 @@ class Dependency(object):
             return False
 
 
-def internal_service_factory(communicator, user="root", group=None, retries=6,
-                             interval=10, client_uuid=None, stop_event=None):
+def internal_service_factory(
+    communicator,
+    user="root",
+    group=None,
+    retries=6,
+    interval=10,
+    client_uuid=None,
+    stop_event=None,
+):
     """
     Try to return a ServiceFactory from the grid.
 
@@ -187,7 +220,8 @@ def internal_service_factory(communicator, user="root", group=None, retries=6,
     log = logging.getLogger("omero.utils")
     if stop_event is None:
         stop_event = omero.util.concurrency.get_event(
-            name="internal_service_factory")
+            name="internal_service_factory"
+        )
 
     tryCount = 0
     excpt = None
@@ -228,7 +262,7 @@ def create_admin_session(communicator):
     """
     reg = communicator.stringToProxy("IceGrid/Registry")
     reg = IceGrid.RegistryPrx.checkedCast(reg)
-    adm = reg.createAdminSession('null', '')
+    adm = reg.createAdminSession("null", "")
     return adm
 
 
@@ -267,7 +301,7 @@ def long_to_path(id, root=""):
     if id < 0:
         raise Exception("Expecting a non-negative id.")
 
-    while (remaining > 999):
+    while remaining > 999:
         remaining /= 1000
 
         if remaining > 0:
@@ -292,8 +326,11 @@ def load_dotted_class(dotted_class):
         got = getattr(got, mod)
         return getattr(got, kls)
     except Exception as e:
-        raise Exception("""Failed to load: %s
-        previous excetion: %s""" % (dotted_class, e))
+        raise Exception(
+            """Failed to load: %s
+        previous excetion: %s"""
+            % (dotted_class, e)
+        )
 
 
 class ServerContext(object):
@@ -317,8 +354,7 @@ class ServerContext(object):
     server shutdown, so should be infrequent)
     """
 
-    def __init__(self, server_id, communicator, stop_event,
-                 on_newsession=None):
+    def __init__(self, server_id, communicator, stop_event, on_newsession=None):
         self._lock = threading.RLock()
         self.logger = logging.getLogger("omero.util.ServerContext")
         self.server_id = server_id
@@ -343,7 +379,8 @@ class ServerContext(object):
 
     def newSession(self):
         self.session = internal_service_factory(
-            self.communicator, stop_event=self.stop_event)
+            self.communicator, stop_event=self.stop_event
+        )
         if callable(self.on_newsession):
             self.on_newsession(self.session)
 
@@ -368,7 +405,8 @@ class ServerContext(object):
         """
         if not self.hasSession():
             raise omero.ApiUsageException(
-                "Not configured for server connection")
+                "Not configured for server connection"
+            )
 
         if self.session:
             try:
@@ -438,8 +476,9 @@ class Server(Ice.Application):
 
     """
 
-    def __init__(self, impl_class, adapter_name, identity, logdir=LOGDIR,
-                 dependencies=()):
+    def __init__(
+        self, impl_class, adapter_name, identity, logdir=LOGDIR, dependencies=()
+    ):
 
         self.impl_class = impl_class
         self.adapter_name = adapter_name
@@ -492,10 +531,14 @@ class Server(Ice.Application):
                 of.register(self.communicator())
 
             try:
-                serverid = self.communicator().getProperties().getProperty(
-                    "Ice.ServerId")
+                serverid = (
+                    self.communicator()
+                    .getProperties()
+                    .getProperty("Ice.ServerId")
+                )
                 ctx = ServerContext(
-                    serverid, self.communicator(), self.stop_event)
+                    serverid, self.communicator(), self.stop_event
+                )
                 self.impl = self.impl_class(ctx)
                 getattr(self.impl, "cleanup")  # Required per docs
             except:
@@ -504,7 +547,8 @@ class Server(Ice.Application):
 
             try:
                 self.adapter = self.communicator().createObjectAdapter(
-                    self.adapter_name)
+                    self.adapter_name
+                )
                 self.adapter.activate()
                 # calls setProxy
                 ctx.add_servant(self.adapter, self.impl, self.identity)
@@ -580,7 +624,8 @@ class Servant(SimpleServant):
     def __init__(self, ctx, needs_session=False):
         SimpleServant.__init__(self, ctx)
         self.resources = omero.util.Resources(
-            sleeptime=60, stop_event=self.stop_event)
+            sleeptime=60, stop_event=self.stop_event
+        )
         if needs_session:
             self.ctx.newSession()
             self.resources.add(self.ctx)
@@ -631,12 +676,12 @@ class Resources(object):
         self.logger = logging.getLogger("omero.util.Resources")
         self.stop_event = stop_event
         if not self.stop_event:
-            self.stop_event = omero.util.concurrency.get_event(
-                name="Resources")
+            self.stop_event = omero.util.concurrency.get_event(name="Resources")
 
         if sleeptime < 5:
             raise Exception(
-                "Sleep time should be greater than 5: %s" % sleeptime)
+                "Sleep time should be greater than 5: %s" % sleeptime
+            )
 
         self.sleeptime = sleeptime
 
@@ -657,7 +702,8 @@ class Resources(object):
                         ctx.removeAll(remove)
                     except:
                         ctx.logger.error(
-                            "Exception during execution", exc_info=True)
+                            "Exception during execution", exc_info=True
+                        )
 
                     ctx.logger.debug("Sleeping %s" % ctx.sleeptime)
                     # ticket:1531 - Attempting to catch threading issues
@@ -666,8 +712,9 @@ class Resources(object):
                     except ValueError:
                         pass
 
-                if isinstance(ctx.stop_event,
-                              omero.util.concurrency.AtExitEvent):
+                if isinstance(
+                    ctx.stop_event, omero.util.concurrency.AtExitEvent
+                ):
                     if ctx.stop_event.atexit:
                         return  # Skipping log. See #3260
 
@@ -798,6 +845,7 @@ class Environment(object):
         else:
             self.set(key, addition)
 
+
 #
 # Miscellaneious utilities
 #
@@ -819,11 +867,13 @@ def get_user(default=None):
     rv = None
     try:
         import getpass
+
         rv = getpass.getuser()  # Uses environment variable or pwd
     except KeyError:  # 6307, probably system
         pass
     except ImportError:  # No pwd on Windows
         import win32api
+
         rv = win32api.GetUserName()
 
     if not rv:
@@ -834,7 +884,7 @@ def get_user(default=None):
 
 def get_omero_userdir():
     """Returns the OMERO user directory"""
-    omero_userdir = os.environ.get('OMERO_USERDIR', None)
+    omero_userdir = os.environ.get("OMERO_USERDIR", None)
     if omero_userdir:
         return path.path(omero_userdir)
     else:
@@ -842,10 +892,11 @@ def get_omero_userdir():
 
 
 def get_user_dir():
-    exceptions_to_handle = (ImportError)
+    exceptions_to_handle = ImportError
     try:
         from pywintypes import com_error
         from win32com.shell import shellcon, shell
+
         exceptions_to_handle = (ImportError, com_error)
         homeprop = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
     except exceptions_to_handle:
@@ -881,15 +932,16 @@ def edit_path(path_or_obj, start_text):
         editor_parts[0] = editor
     else:
         from omero_ext.which import which
+
         editor_parts[0] = which(editor)
     editor_parts.append(f)
 
     pid = os.spawnl(os.P_WAIT, editor_parts[0], *tuple(editor_parts))
     if pid:
-        re = RuntimeError(
-            "Couldn't spawn editor: %s" % editor_parts[0])
+        re = RuntimeError("Couldn't spawn editor: %s" % editor_parts[0])
         re.pid = pid
         raise re
+
 
 # From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/157035
 
@@ -905,7 +957,7 @@ def tail_lines(filename, linesback=10, returnlist=0):
     """
     avgcharsperline = 75
 
-    file = open(filename, 'r')
+    file = open(filename, "r")
     while 1:
         try:
             file.seek(-1 * avgcharsperline * linesback, 2)
@@ -928,9 +980,9 @@ def tail_lines(filename, linesback=10, returnlist=0):
     else:
         start = 0
     if returnlist:
-        return lines[start:len(lines) - 1]
+        return lines[start : len(lines) - 1]
 
     out = ""
-    for l in lines[start:len(lines) - 1]:
+    for l in lines[start : len(lines) - 1]:
         out = out + l + "\n"
     return out

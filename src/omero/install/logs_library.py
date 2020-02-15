@@ -53,6 +53,7 @@ class log_line(object):
     012345678901234567890123456789012345678901234567890123456789012345678901\
 23456789012345678901234567890123456789012345678901234567890123456789
     """
+
     def __init__(self, line):
         self.line = line
         line.strip()
@@ -74,7 +75,6 @@ class log_line(object):
 
 
 class log_watcher(object):
-
     def __init__(self, files, entries, exits, storeonce=None, storeall=None):
         if storeonce is None:
             storeonce = []
@@ -127,23 +127,28 @@ class log_watcher(object):
 
 class allthreads_watcher(log_watcher):
     def __init__(self, files):
-        log_watcher.__init__(self, files, ["Meth:", "Executor.doWork"],
-                             ["Rslt:", "Excp:"])
+        log_watcher.__init__(
+            self, files, ["Meth:", "Executor.doWork"], ["Rslt:", "Excp:"]
+        )
 
 
 class saveAndReturnObject_watcher(log_watcher):
     def __init__(self, files):
-        log_watcher.__init__(self, files, ["saveAndReturnObject"],
-                             ["Rslt:", "Excp:"], storeonce=["Args:"],
-                             storeall=["Adding log"])
+        log_watcher.__init__(
+            self,
+            files,
+            ["saveAndReturnObject"],
+            ["Rslt:", "Excp:"],
+            storeonce=["Args:"],
+            storeall=["Adding log"],
+        )
 
 
 # http://matplotlib.sourceforge.net/examples/api/line_with_text.html
 class MyLine(lines.Line2D):
-
     def __init__(self, *args, **kwargs):
         # we'll update the position when the line data is set
-        self.text = mtext.Text(0, 0, '')
+        self.text = mtext.Text(0, 0, "")
         lines.Line2D.__init__(self, *args, **kwargs)
 
         # we can't access the label attr until *after* the line is
@@ -176,8 +181,9 @@ class MyLine(lines.Line2D):
         self.text.draw(renderer)
 
 
-def plot_threads(watcher, all_colors=("blue", "red", "yellow", "green",
-                                      "pink", "purple")):
+def plot_threads(
+    watcher, all_colors=("blue", "red", "yellow", "green", "pink", "purple")
+):
     digit = re.compile(r".*(\d+).*")
 
     fig = plt.figure()
@@ -200,28 +206,31 @@ def plot_threads(watcher, all_colors=("blue", "red", "yellow", "green",
                 print("Error parsing thread:", ll.thread)
                 raise
         y = np.array([int(t), int(t)])
-        x = np.array([ll.start-first, ll.stop-first])
+        x = np.array([ll.start - first, ll.stop - first])
         c = colors.get(t, all_colors[0])
         i = all_colors.index(c)
-        colors[t] = all_colors[(i+1) % len(all_colors)]
+        colors[t] = all_colors[(i + 1) % len(all_colors)]
 
         if True:
             line = MyLine(x, y, c=c, lw=2, alpha=0.5)
             # , mfc='red')#, ms=12, label=str(len(ll.logs)))
             # line.text.set_text('line label')
-            line.text.set_color('red')
+            line.text.set_color("red")
             # line.text.set_fontsize(16)
             ax.add_line(line)
         else:
             # http://matplotlib.sourceforge.net/examples/pylab_examples/broken_barh.html
-            ax.broken_barh([(110, 30), (150, 10)], (10, 9), facecolors='blue')
+            ax.broken_barh([(110, 30), (150, 10)], (10, 9), facecolors="blue")
 
     ax.set_ylim(-2, 25)
-    ax.set_xlim(0, (last-first))
+    ax.set_xlim(0, (last - first))
     plt.show()
+
 
 if __name__ == "__main__":
     for g in allthreads_watcher(sys.argv).gen():
-        print("Date:%s\nElapsed:%s\nLevel:%s\nThread:%s\nMethod:%s\n" \
-            "Status:%s\n\n" % (g.date, g.took, g.level, g.thread, g.message,
-                               g.status))
+        print(
+            "Date:%s\nElapsed:%s\nLevel:%s\nThread:%s\nMethod:%s\n"
+            "Status:%s\n\n"
+            % (g.date, g.took, g.level, g.thread, g.message, g.status)
+        )

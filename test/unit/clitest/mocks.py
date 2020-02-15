@@ -22,7 +22,6 @@ LOG = logging.getLogger("climocks")
 
 
 class MockCLI(CLI):
-
     def __init__(self, *args, **kwargs):
         self.__expect = []
         self.__output = []
@@ -46,8 +45,10 @@ class MockCLI(CLI):
                 return V
 
         # Not found
-        msg = """Couldn't find key: "%s". Options: %s""" % \
-            (key, [x[0] for x in self.__expect])
+        msg = """Couldn't find key: "%s". Options: %s""" % (
+            key,
+            [x[0] for x in self.__expect],
+        )
         print(msg)
         raise Exception(msg)
 

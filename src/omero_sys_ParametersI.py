@@ -86,8 +86,7 @@ class ParametersI(omero.sys.Parameters):
         False otherwise.
         """
         if self.theFilter:
-            return None != self.theFilter.limit or \
-                None != self.theFilter.offset
+            return None != self.theFilter.limit or None != self.theFilter.offset
         return False
 
     def getOffset(self):
@@ -358,5 +357,6 @@ class ParametersI(omero.sys.Parameters):
     def addString(self, name, stringValue):
         self.add(name, rstring(stringValue))
         return self
+
 
 _omero_sys.ParametersI = ParametersI

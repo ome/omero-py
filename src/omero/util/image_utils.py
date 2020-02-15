@@ -24,8 +24,10 @@ Utility methods for dealing with scripts.
 from __future__ import division
 
 from future import standard_library
+
 standard_library.install_aliases()
 from past.utils import old_div
+
 try:
     from PIL import Image, ImageDraw, ImageFont  # see ticket:2597
 except ImportError:
@@ -54,7 +56,7 @@ def get_font(fontsize):
     try:
         font = ImageFont.truetype(font_path, fontsize)
     except:
-        font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (GATEWAYPATH, 24))
+        font = ImageFont.load("%s/pilfonts/B%0.2d.pil" % (GATEWAYPATH, 24))
     return font
 
 
@@ -76,9 +78,18 @@ def paste_image(image, canvas, x, y):
     canvas.paste(image, pastebox)
 
 
-def paint_thumbnail_grid(thumbnail_store, length, spacing, pixel_ids,
-                         col_count, bg=(255, 255, 255), left_label=None,
-                         text_color=(0, 0, 0), fontsize=None, top_label=None):
+def paint_thumbnail_grid(
+    thumbnail_store,
+    length,
+    spacing,
+    pixel_ids,
+    col_count,
+    bg=(255, 255, 255),
+    left_label=None,
+    text_color=(0, 0, 0),
+    fontsize=None,
+    top_label=None,
+):
     """
     Retrieves thumbnails for each pixelId, and places them in a grid,
     with White background.
@@ -105,7 +116,7 @@ def paint_thumbnail_grid(thumbnail_store, length, spacing, pixel_ids,
     # work out how many rows and columns are needed for all the images
     img_count = len(pixel_ids)
 
-    row_count = (old_div(img_count, col_count))
+    row_count = old_div(img_count, col_count)
     # check that we have enough rows and cols...
     while (col_count * row_count) < img_count:
         row_count += 1
@@ -167,8 +178,9 @@ def paint_thumbnail_grid(thumbnail_store, length, spacing, pixel_ids,
     # and column
     r = 0
     c = 0
-    thumbnail_map = thumbnail_store.getThumbnailByLongestSideSet(rint(length),
-                                                                 pixel_ids)
+    thumbnail_map = thumbnail_store.getThumbnailByLongestSideSet(
+        rint(length), pixel_ids
+    )
     for pixels_id in pixel_ids:
         if pixels_id in thumbnail_map:
             thumbnail = thumbnail_map[pixels_id]

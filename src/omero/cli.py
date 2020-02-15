@@ -36,6 +36,7 @@ from builtins import range
 from builtins import bytes
 from past.utils import old_div
 from builtins import object
+
 sys = __import__("sys")
 cmd = __import__("cmd")
 
@@ -59,6 +60,7 @@ from omero_ext.argparse import ArgumentParser
 from omero_ext.argparse import FileType
 from omero_ext.argparse import Namespace
 from omero_ext.argparse import _SubParsersAction
+
 # Help text
 from omero_ext.argparse import RawTextHelpFormatter
 from omero_ext.argparse import SUPPRESS
@@ -75,6 +77,7 @@ import warnings
 
 try:
     from omero_version import omero_version
+
     VERSION = omero_version
 except ImportError:
     VERSION = "Unknown"  # Usually during testing
@@ -96,13 +99,13 @@ OMEROHELP = """Type "help" for more information, "quit" or Ctrl-D to exit"""
 OMEROSUBS = """Use %(prog)s <subcommand> -h for more information."""
 OMEROSUBM = """<subcommand>"""
 OMEROCLI = path(__file__).expand().dirname()
-OMERODIR = os.getenv('OMERODIR', None)
+OMERODIR = os.getenv("OMERODIR", None)
 if OMERODIR is not None:
     OMERODIR = path(OMERODIR)
 else:
     OMERODIR = OMEROCLI.dirname().dirname().dirname()
 
-OMERO_COMPONENTS = ['common', 'model', 'romio', 'renderer', 'server', 'blitz']
+OMERO_COMPONENTS = ["common", "model", "romio", "renderer", "server", "blitz"]
 
 COMMENT = re.compile(r"^\s*#")
 RELFILE = re.compile(r"^\w")
@@ -132,38 +135,43 @@ class NonZeroReturnCode(Exception):
 #####################################################
 #
 
+
 class HelpFormatter(RawTextHelpFormatter):
     """
     argparse.HelpFormatter subclass which cleans up our usage, preventing very
     long lines in subcommands.
     """
 
-    def __init__(self, prog, indent_increment=2, max_help_position=40,
-                 width=None):
+    def __init__(
+        self, prog, indent_increment=2, max_help_position=40, width=None
+    ):
         RawTextHelpFormatter.__init__(
-            self, prog, indent_increment, max_help_position, width)
+            self, prog, indent_increment, max_help_position, width
+        )
         self._action_max_length = 20
 
     def _split_lines(self, text, width):
         return [text.splitlines()[0]]
 
     class _Section(RawTextHelpFormatter._Section):
-
         def __init__(self, formatter, parent, heading=None):
             # if heading:
             #    heading = "\n%s\n%s" % ("=" * 40, heading)
             RawTextHelpFormatter._Section.__init__(
-                self, formatter, parent, heading)
+                self, formatter, parent, heading
+            )
 
 
 class WriteOnceNamespace(Namespace):
     """
     Namespace subclass which prevents overwriting any values by accident.
     """
+
     def __setattr__(self, name, value):
         if hasattr(self, name):
-            raise Exception("%s already has field %s"
-                            % (self.__class__.__name__, name))
+            raise Exception(
+                "%s already has field %s" % (self.__class__.__name__, name)
+            )
         else:
             return Namespace.__setattr__(self, name, value)
 
@@ -184,99 +192,154 @@ class Parser(ArgumentParser):
 
     def sub(self):
         return self.add_subparsers(
-            title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
+            title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM
+        )
 
     def add(self, sub, func, help=None, **kwargs):
         if help is None:
             help = func.__doc__
         parser = sub.add_parser(
-            func.__func__.__name__, help=help, description=help)
+            func.__func__.__name__, help=help, description=help
+        )
         parser.set_defaults(func=func, **kwargs)
         return parser
 
     def add_limit_arguments(self):
         self.add_argument(
-            "--limit", help="maximum number of return values (default=25)",
-            type=int, default=25)
+            "--limit",
+            help="maximum number of return values (default=25)",
+            type=int,
+            default=25,
+        )
         self.add_argument(
-            "--offset", help="number of entries to skip (default=0)",
-            type=int, default=0)
+            "--offset",
+            help="number of entries to skip (default=0)",
+            type=int,
+            default=0,
+        )
 
     def add_style_argument(self):
         from omero.util.text import list_styles
+
         self.add_argument(
-            "--style", help="use alternative output style (default=sql)",
-            choices=list_styles())
+            "--style",
+            help="use alternative output style (default=sql)",
+            choices=list_styles(),
+        )
 
     def add_login_arguments(self):
         group = self.add_argument_group(
-            'Login arguments', ENV_HELP + """
+            "Login arguments",
+            ENV_HELP
+            + """
 
 Optional session arguments:
-""")
+""",
+        )
         group.add_argument(
-            "-C", "--create", action="store_true",
-            help="Create a new session regardless of existing ones")
+            "-C",
+            "--create",
+            action="store_true",
+            help="Create a new session regardless of existing ones",
+        )
         group.add_argument("-s", "--server", help="OMERO server hostname")
         group.add_argument("-p", "--port", help="OMERO server port")
         group.add_argument("-g", "--group", help="OMERO server default group")
         group.add_argument("-u", "--user", help="OMERO username")
         group.add_argument("-w", "--password", help="OMERO password")
         group.add_argument(
-            "-k", "--key",
-            help="OMERO session key (UUID of an active session)")
+            "-k", "--key", help="OMERO session key (UUID of an active session)"
+        )
         group.add_argument(
-            "--sudo", metavar="ADMINUSER",
-            help="Create session as this admin. Changes meaning of password!")
+            "--sudo",
+            metavar="ADMINUSER",
+            help="Create session as this admin. Changes meaning of password!",
+        )
         group.add_argument(
-            "-q", "--quiet", action="store_true",
+            "-q",
+            "--quiet",
+            action="store_true",
             help="Quiet mode. Causes most warning and diagnostic messages to "
-            "be suppressed.")
+            "be suppressed.",
+        )
 
     def add_group_print_arguments(self):
         printgroup = self.add_mutually_exclusive_group()
         printgroup.add_argument(
-            "--long", action="store_true", default=True,
-            help="Print comma-separated list of all groups (default)")
+            "--long",
+            action="store_true",
+            default=True,
+            help="Print comma-separated list of all groups (default)",
+        )
         printgroup.add_argument(
-            "--count", action="store_true", default=False,
-            help="Print count of all groups")
+            "--count",
+            action="store_true",
+            default=False,
+            help="Print count of all groups",
+        )
 
     def add_user_print_arguments(self):
         printgroup = self.add_mutually_exclusive_group()
         printgroup.add_argument(
-            "--count", action="store_true", default=True,
-            help="Print count of all users and owners (default)")
+            "--count",
+            action="store_true",
+            default=True,
+            help="Print count of all users and owners (default)",
+        )
         printgroup.add_argument(
-            "--long", action="store_true", default=False,
-            help="Print comma-separated list of all users and owners")
+            "--long",
+            action="store_true",
+            default=False,
+            help="Print comma-separated list of all users and owners",
+        )
 
     def add_user_sorting_arguments(self):
         sortgroup = self.add_mutually_exclusive_group()
         sortgroup.add_argument(
-            "--sort-by-id", action="store_true", default=True,
-            help="Sort users by ID (default)")
+            "--sort-by-id",
+            action="store_true",
+            default=True,
+            help="Sort users by ID (default)",
+        )
         sortgroup.add_argument(
-            "--sort-by-login", action="store_true", default=False,
-            help="Sort users by login")
+            "--sort-by-login",
+            action="store_true",
+            default=False,
+            help="Sort users by login",
+        )
         sortgroup.add_argument(
-            "--sort-by-first-name", action="store_true", default=False,
-            help="Sort users by first name")
+            "--sort-by-first-name",
+            action="store_true",
+            default=False,
+            help="Sort users by first name",
+        )
         sortgroup.add_argument(
-            "--sort-by-last-name", action="store_true", default=False,
-            help="Sort users by last name")
+            "--sort-by-last-name",
+            action="store_true",
+            default=False,
+            help="Sort users by last name",
+        )
         sortgroup.add_argument(
-            "--sort-by-email", action="store_true", default=False,
-            help="Sort users by email")
+            "--sort-by-email",
+            action="store_true",
+            default=False,
+            help="Sort users by email",
+        )
 
     def add_group_sorting_arguments(self):
         sortgroup = self.add_mutually_exclusive_group()
         sortgroup.add_argument(
-            "--sort-by-id", action="store_true", default=True,
-            help="Sort groups by ID (default)")
+            "--sort-by-id",
+            action="store_true",
+            default=True,
+            help="Sort groups by ID (default)",
+        )
         sortgroup.add_argument(
-            "--sort-by-name", action="store_true", default=False,
-            help="Sort groups by name")
+            "--sort-by-name",
+            action="store_true",
+            default=False,
+            help="Sort groups by name",
+        )
 
     def set_args_unsorted(self):
         self._sort_args = False
@@ -284,7 +347,7 @@ Optional session arguments:
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
         if action.choices is not None and value not in action.choices:
-            msg = 'invalid choice: %r\n\nchoose from:\n' % value
+            msg = "invalid choice: %r\n\nchoose from:\n" % value
             choices = list(action.choices)
             if self._sort_args:
                 choices = sorted(choices)
@@ -292,15 +355,15 @@ Optional session arguments:
             raise ArgumentError(action, msg)
 
     def _format_list(self, choices):
-            lines = ["\t"]
-            if choices:
-                while len(choices) > 1:
-                    choice = choices.pop(0)
-                    lines[-1] += ("%s, " % choice)
-                    if len(lines[-1]) > 62:
-                        lines.append("\t")
-                lines[-1] += choices.pop(0)
-            return "\n".join(lines)
+        lines = ["\t"]
+        if choices:
+            while len(choices) > 1:
+                choice = choices.pop(0)
+                lines[-1] += "%s, " % choice
+                if len(lines[-1]) > 62:
+                    lines.append("\t")
+            lines[-1] += choices.pop(0)
+        return "\n".join(lines)
 
 
 class ProxyStringType(object):
@@ -330,6 +393,7 @@ class NewFileType(FileType):
     Extension of the argparse.FileType to prevent
     overwrite existing files.
     """
+
     def __call__(self, s):
         if s != "-" and os.path.exists(s):
             raise ArgumentTypeError("File exists: %s" % s)
@@ -341,6 +405,7 @@ class ExistingFile(FileType):
     Extension of the argparse.FileType that requires
     an existing file.
     """
+
     def __call__(self, s):
         if s == "-":
             return s
@@ -357,6 +422,7 @@ class DirectoryType(FileType):
     Extension of the argparse.FileType to only allow
     existing directories.
     """
+
     def __call__(self, s):
         p = path(s)
         if not p.exists():
@@ -372,18 +438,23 @@ class ExceptionHandler(object):
     to specific states. This could likely be moved elsewhere
     for general client-side usage.
     """
+
     def is_constraint_violation(self, ve):
         if isinstance(ve, omero.ValidationException):
-            if "org.hibernate.exception.ConstraintViolationException: " \
-                    "could not insert" in str(ve):
+            if (
+                "org.hibernate.exception.ConstraintViolationException: "
+                "could not insert" in str(ve)
+            ):
                 return True
 
     def handle_failed_request(self, rfe):
         import Ice
+
         if isinstance(rfe, Ice.OperationNotExistException):
             return "Operation not supported by the server: %s" % rfe.operation
         else:
             return "Unknown Ice.RequestFailedException"
+
 
 DEBUG_HELP = """
 Set debug options for developers
@@ -481,29 +552,41 @@ class Context(object):
         sessions = self.controls["sessions"]
 
         login = self.subparsers.add_parser(
-            "login", help="Shortcut for 'sessions login'",
-            description=sessions.login.__doc__)
+            "login",
+            help="Shortcut for 'sessions login'",
+            description=sessions.login.__doc__,
+        )
         login.set_defaults(func=lambda args: sessions.login(args))
         sessions._configure_login(login)
 
         logout = self.subparsers.add_parser(
-            "logout", help="Shortcut for 'sessions logout'")
+            "logout", help="Shortcut for 'sessions logout'"
+        )
         logout.set_defaults(func=lambda args: sessions.logout(args))
         sessions._configure_dir(logout)
 
     def parser_init(self, parser):
         parser.add_argument(
-            "-v", "--version", action="version",
-            version="%%(prog)s %s" % VERSION)
+            "-v",
+            "--version",
+            action="version",
+            version="%%(prog)s %s" % VERSION,
+        )
         parser.add_argument(
-            "-d", "--debug",
-            help="Use 'help debug' for more information", default=SUPPRESS)
+            "-d",
+            "--debug",
+            help="Use 'help debug' for more information",
+            default=SUPPRESS,
+        )
         parser.add_argument(
-            "--path",  action="append",
-            help="Add file or directory to plugin list. Supports globs.")
+            "--path",
+            action="append",
+            help="Add file or directory to plugin list. Supports globs.",
+        )
         parser.add_login_arguments()
         subparsers = parser.add_subparsers(
-            title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
+            title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM
+        )
         return subparsers
 
     def get(self, key, defvalue=None):
@@ -518,7 +601,9 @@ class Context(object):
         """
         try:
             if sys.version_info < (3, 0, 0):
-                if isinstance(text, basestring) and not isinstance(text, unicode):
+                if isinstance(text, basestring) and not isinstance(
+                    text, unicode
+                ):
                     text = text.encode("utf-8")
             stream.write(text)
             if newline:
@@ -544,7 +629,7 @@ class Context(object):
         """
         path = list(sys.path)
         for i in range(0, len(path) - 1):
-            if path[i] == '':
+            if path[i] == "":
                 path[i] = os.getcwd()
         pythonpath = ":".join(path)
         return pythonpath
@@ -575,6 +660,7 @@ class Context(object):
             while True:
                 if hidden:
                     import getpass
+
                     rv = getpass.getpass(prompt)
                 else:
                     rv = input(prompt)
@@ -620,6 +706,7 @@ class Context(object):
     def sleep(self, time):
         self.event.wait(time)
 
+
 #####################################################
 #
 
@@ -632,6 +719,7 @@ def admin_only(*fargs, **fkwargs):
     full admin and have all privileges. To disable this behavior, set
     `full_admin` to False.
     """
+
     def _admin_only(func):
         @wraps(func)
         def _check_admin(*args, **kwargs):
@@ -651,8 +739,9 @@ def admin_only(*fargs, **fkwargs):
                     try:
                         types = client.sf.getTypesService()
                         privs = types.allEnumerations("AdminPrivilege")
-                        need_privs = set(omero.rtypes.unwrap(
-                            [x.getValue() for x in privs]))
+                        need_privs = set(
+                            omero.rtypes.unwrap([x.getValue() for x in privs])
+                        )
                     except Exception as e:
                         self.ctx.err("Error: denying access: %s" % e)
                         # If the user can't load enums assume the worst
@@ -661,10 +750,11 @@ def admin_only(*fargs, **fkwargs):
             if not ec.isAdmin:
                 self.error_admin_only(fatal=True)
             elif not need_privs <= have_privs:
-                self.error_admin_only_privs(need_privs - have_privs,
-                                            fatal=True)
+                self.error_admin_only_privs(need_privs - have_privs, fatal=True)
             return func(*args, **kwargs)
+
         return _check_admin
+
     return _admin_only
 
 
@@ -761,10 +851,10 @@ class BaseControl(object):
 
     def _isWindows(self):
         p_s = platform.system()
-        if p_s == 'Windows':
-                return True
+        if p_s == "Windows":
+            return True
         else:
-                return False
+            return False
 
     def _host(self):
         """
@@ -789,7 +879,7 @@ class BaseControl(object):
         environment variable will be set.
         """
         if omero_node is not None:
-                os.environ["OMERO_NODE"] = omero_node
+            os.environ["OMERO_NODE"] = omero_node
 
         if "OMERO_NODE" in os.environ:
             return os.environ["OMERO_NODE"]
@@ -810,7 +900,7 @@ class BaseControl(object):
 
             created = False
             if not nodedata.exists():
-                self.ctx.out("Creating "+nodedata)
+                self.ctx.out("Creating " + nodedata)
                 nodedata.makedirs()
                 created = True
             return (nodedata, created)
@@ -904,6 +994,7 @@ class BaseControl(object):
         to return all properties.
         """
         import Ice
+
         if getattr(self, "_props", None) is None:
             self._props = Ice.createProperties()
             for cfg in self._cfglist():
@@ -911,21 +1002,27 @@ class BaseControl(object):
                     self._props.load(native_str(cfg))
                 except Exception:
                     self.ctx.dbg("Complete error: %s" % traceback.format_exc())
-                    self.ctx.die(3, "Could not find file: " + cfg +
-                                 "\nDid you specify the proper node?")
+                    self.ctx.die(
+                        3,
+                        "Could not find file: "
+                        + cfg
+                        + "\nDid you specify the proper node?",
+                    )
         return self._props.getPropertiesForPrefix(prefix)
 
     def _ask_for_password(self, reason="", root_pass=None, strict=True):
         while not root_pass or len(root_pass) < 1:
-            root_pass = self.ctx.input("Please enter password%s: "
-                                       % reason, hidden=True)
+            root_pass = self.ctx.input(
+                "Please enter password%s: " % reason, hidden=True
+            )
             if not strict:
                 return root_pass
             if root_pass is None or root_pass == "":
                 self.ctx.err("Password cannot be empty")
                 continue
-            confirm = self.ctx.input("Please re-enter password%s: "
-                                     % reason, hidden=True)
+            confirm = self.ctx.input(
+                "Please re-enter password%s: " % reason, hidden=True
+            )
             if root_pass != confirm:
                 root_pass = None
                 self.ctx.err("Passwords don't match")
@@ -935,9 +1032,12 @@ class BaseControl(object):
 
     def _add_wait(self, parser, default=-1):
         parser.add_argument(
-            "--wait", type=int,
+            "--wait",
+            type=int,
             help="Number of seconds to wait for the processing to complete "
-            "(Indefinite < 0; No wait=0).", default=default)
+            "(Indefinite < 0; No wait=0).",
+            default=default,
+        )
 
     def get_subcommands(self):
         """Return a list of subcommands"""
@@ -947,8 +1047,11 @@ class BaseControl(object):
             self._configure(parser)
         finally:
             self.reset_errors(old)
-        subparsers_actions = [action for action in parser._actions
-                              if isinstance(action, _SubParsersAction)]
+        subparsers_actions = [
+            action
+            for action in parser._actions
+            if isinstance(action, _SubParsersAction)
+        ]
 
         subcommands = []
         for subparsers_action in subparsers_actions:
@@ -972,11 +1075,12 @@ class BaseControl(object):
         p = path(f)
         if p.exists() and p.isdir():
             if not f.endswith(os.sep):
-                return [p.basename()+os.sep]
-            return [str(x)[len(f):] for x in p.listdir(
-                unreadable_as_empty=True)]
+                return [p.basename() + os.sep]
+            return [
+                str(x)[len(f) :] for x in p.listdir(unreadable_as_empty=True)
+            ]
         else:
-            results = [str(x.basename()) for x in dir.glob(f+"*")]
+            results = [str(x.basename()) for x in dir.glob(f + "*")]
             if len(results) == 1:
                 # Relative to cwd
                 maybe_dir = path(results[0])
@@ -999,8 +1103,10 @@ class BaseControl(object):
             if actions:
                 if len(items) > 1:
                     subparsers = [
-                        x for x in actions
-                        if x.__class__.__name__ == "_SubParsersAction"]
+                        x
+                        for x in actions
+                        if x.__class__.__name__ == "_SubParsersAction"
+                    ]
                     if subparsers:
                         subparsers = subparsers[0]  # Guaranteed one
                         choice = subparsers.choices.get(items[-1])
@@ -1015,35 +1121,48 @@ class BaseControl(object):
                 elif action.__class__.__name__ == "_SubParsersAction":
                     result.extend(action.choices)
 
-            return ["%s " % x for x in result
-                    if (not text or x.startswith(text)) and
-                    line.find(" %s " % x) < 0]
+            return [
+                "%s " % x
+                for x in result
+                if (not text or x.startswith(text))
+                and line.find(" %s " % x) < 0
+            ]
 
         # Fallback
-        completions = [method for method in dir(self)
-                       if callable(getattr(self, method))]
-        return [str(method + " ") for method in completions
-                if method.startswith(text) and not method.startswith("_")]
+        completions = [
+            method for method in dir(self) if callable(getattr(self, method))
+        ]
+        return [
+            str(method + " ")
+            for method in completions
+            if method.startswith(text) and not method.startswith("_")
+        ]
 
-    def error_admin_only(self, msg="SecurityViolation: Admins only!",
-                         code=111, fatal=True):
+    def error_admin_only(
+        self, msg="SecurityViolation: Admins only!", code=111, fatal=True
+    ):
         if fatal:
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
 
-    def error_admin_only_privs(self, restrictions,
-                               msg="SecurityViolation: Admin restrictions: ",
-                               code=111, fatal=True):
+    def error_admin_only_privs(
+        self,
+        restrictions,
+        msg="SecurityViolation: Admin restrictions: ",
+        code=111,
+        fatal=True,
+    ):
         msg += ", ".join(sorted(restrictions))
         self.error_admin_only(msg=msg, code=code, fatal=fatal)
 
     def _order_and_range_ids(self, ids):
         from itertools import groupby
         from operator import itemgetter
+
         out = ""
         ids = sorted(ids)
-        for k, g in groupby(enumerate(ids), lambda i_x: i_x[0]-i_x[1]):
+        for k, g in groupby(enumerate(ids), lambda i_x: i_x[0] - i_x[1]):
             g = list(map(str, list(map(itemgetter(1), g))))
             out += g[0]
             if len(g) > 2:
@@ -1064,20 +1183,24 @@ class DiagnosticsControl(BaseControl):
 
     def _add_diagnostics(self, parser, sub):
         diagnostics = parser.add(
-            sub, self.diagnostics,
-            "Run a set of checks on the current, "
-            "preferably active server")
+            sub,
+            self.diagnostics,
+            "Run a set of checks on the current, " "preferably active server",
+        )
         diagnostics.add_argument(
-            "--no-logs", action="store_true",
-            help="Skip log parsing")
+            "--no-logs", action="store_true", help="Skip log parsing"
+        )
 
     def _diagnostics_banner(self, control_name):
 
-        self.ctx.out("""
+        self.ctx.out(
+            """
 %s
 OMERO Diagnostics (%s) %s
 %s
-        """ % ("="*80, control_name, VERSION, "="*80))
+        """
+            % ("=" * 80, control_name, VERSION, "=" * 80)
+        )
 
     def _sz_str(self, sz):
         if sz < 1000:
@@ -1108,10 +1231,13 @@ OMERO Diagnostics (%s) %s
             elif not p.size:
                 self.ctx.out("empty")
             else:
-                warn_regex = (r'(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
-                              r'warn(i(ng:)?)?\s')
-                err_regex = (r'(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
-                             r'error:?\s')
+                warn_regex = (
+                    r"(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?"
+                    r"warn(i(ng:)?)?\s"
+                )
+                err_regex = (
+                    r"(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?" r"error:?\s"
+                )
                 warn = 0
                 err = 0
                 for l in p.lines():
@@ -1139,6 +1265,7 @@ class CLI(cmd.Cmd, Context):
         Thread-safe class for storing whether or not all the plugins
         have been loaded
         """
+
         def __init__(self):
             self.lock = Lock()
             self.done = False
@@ -1165,10 +1292,10 @@ class CLI(cmd.Cmd, Context):
         """
         cmd.Cmd.__init__(self)
         Context.__init__(self, prog=prog)
-        self.prompt = 'omero> '
+        self.prompt = "omero> "
         self.interrupt_loop = False
-        self.rv = 0          #: Return value to be returned
-        self._stack = []     #: List of commands being processed
+        self.rv = 0  #: Return value to be returned
+        self._stack = []  #: List of commands being processed
         self._client = None  #: Single client for all activities
         #: Paths to be loaded; initially official plugins
         self._plugin_paths = [old_div(OMEROCLI, "plugins")]
@@ -1192,28 +1319,29 @@ class CLI(cmd.Cmd, Context):
             if len(self._stack) == 0:
                 self.close()
             else:
-                self.dbg("Delaying close for stack: %s"
-                         % len(self._stack), level=2)
+                self.dbg(
+                    "Delaying close for stack: %s" % len(self._stack), level=2
+                )
 
     def invokeloop(self):
         # First we add a few special commands to the loop
         class PWD(BaseControl):
             def __call__(self, args):
-                    self.ctx.out(os.getcwd())
+                self.ctx.out(os.getcwd())
 
         class LS(BaseControl):
             def __call__(self, args):
-                for p in sorted(path(os.getcwd()).listdir(
-                        unreadable_as_empty=True)):
+                for p in sorted(
+                    path(os.getcwd()).listdir(unreadable_as_empty=True)
+                ):
                     self.ctx.out(str(p.basename()))
 
         class CD(BaseControl):
-
             def _complete(self, text, line, begidx, endidx):
                 RE = re.compile(r"\s*cd\s*")
                 m = RE.match(line)
                 if m:
-                    replaced = RE.sub('', line)
+                    replaced = RE.sub("", line)
                     return self._complete_file(replaced, path(os.getcwd()))
                 return []
 
@@ -1345,15 +1473,18 @@ class CLI(cmd.Cmd, Context):
             if len(debug_opts) == 0:
                 args.func(args)
             elif len(debug_opts) > 1:
-                self.die(9, "Conflicting debug options: %s"
-                         % ", ".join(debug_opts))
+                self.die(
+                    9, "Conflicting debug options: %s" % ", ".join(debug_opts)
+                )
             elif "t" in debug_opts or "trace" in debug_opts:
                 import trace
+
                 tracer = trace.Trace()
                 tracer.runfunc(args.func, args)
             elif "p" in debug_opts or "profile" in debug_opts:
                 from hotshot import stats, Profile
                 from omero.util import get_omero_userdir
+
                 profile_file = old_div(get_omero_userdir(), "hotshot_edi_stats")
                 prof = Profile(profile_file)
                 prof.runcall(lambda: args.func(args))
@@ -1436,13 +1567,20 @@ class CLI(cmd.Cmd, Context):
             raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
         return rv
 
-    def popen(self, args, cwd=None, stdout=subprocess.PIPE,
-              stderr=subprocess.PIPE, **kwargs):
+    def popen(
+        self,
+        args,
+        cwd=None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        **kwargs
+    ):
         self.dbg("Returning popen: %s" % args)
         env = self._env()
         env.update(kwargs)
-        return subprocess.Popen(args, env=env, cwd=self._cwd(cwd),
-                                stdout=stdout, stderr=stderr)
+        return subprocess.Popen(
+            args, env=env, cwd=self._cwd(cwd), stdout=stdout, stderr=stderr
+        )
 
     def get_config_property_lines(self, root_path):
         """
@@ -1450,16 +1588,17 @@ class CLI(cmd.Cmd, Context):
         property files from OMERO components then from the top level.
         Trailing whitespace is stripped from each line.
         """
-        jar_root = root_path / 'lib' / 'server'
+        jar_root = root_path / "lib" / "server"
         for component in OMERO_COMPONENTS:
             from zipfile import ZipFile, is_zipfile, BadZipfile
-            jar_name = old_div(jar_root, 'omero-{}.jar'.format(component))
+
+            jar_name = old_div(jar_root, "omero-{}.jar".format(component))
             if is_zipfile(jar_name):
-                config_name = 'omero-{}.properties'.format(component)
+                config_name = "omero-{}.properties".format(component)
                 try:
-                    with ZipFile(jar_name, 'r') as jar_file:
-                        with jar_file.open(config_name, 'r') as config:
-                            for line in iter(config.readline, ''):
+                    with ZipFile(jar_name, "r") as jar_file:
+                        with jar_file.open(config_name, "r") as config:
+                            for line in iter(config.readline, ""):
                                 if not line:
                                     break
                                 yield line.rstrip()
@@ -1467,9 +1606,9 @@ class CLI(cmd.Cmd, Context):
                     pass
         # etc/omero.properties comes last because it may contain "### END"
         try:
-            file_path = root_path / 'etc' / 'omero.properties'
-            with open(file_path, 'r') as config:
-                for line in iter(config.readline, ''):
+            file_path = root_path / "etc" / "omero.properties"
+            with open(file_path, "r") as config:
+                for line in iter(config.readline, ""):
                     if not line:
                         break
                     yield line.rstrip()
@@ -1493,17 +1632,17 @@ class CLI(cmd.Cmd, Context):
         for line in output.splitlines():
             if isbytes(line):
                 line = bytes_to_native_str(line)
-            if line.startswith(
-                    "Listening for transport dt_socket at address"):
+            if line.startswith("Listening for transport dt_socket at address"):
                 self.dbg(
-                    "Ignoring stdout 'Listening for transport' from DEBUG=1")
+                    "Ignoring stdout 'Listening for transport' from DEBUG=1"
+                )
                 continue
             parts = line.split("=", 1)
             if len(parts) == 2:
                 data.properties.setProperty(parts[0], parts[1])
                 self.dbg("Set property: %s=%s" % (parts[0], parts[1]))
             else:
-                self.dbg("Bad property:"+str(parts))
+                self.dbg("Bad property:" + str(parts))
         return data
 
     def initData(self, properties=None):
@@ -1515,14 +1654,18 @@ class CLI(cmd.Cmd, Context):
             properties = {}
 
         from omero.plugins.prefs import getprefs
+
         try:
-            output = getprefs(["get"], str(old_div(path(self._cwd(None)), "lib")))
+            output = getprefs(
+                ["get"], str(old_div(path(self._cwd(None)), "lib"))
+            )
         except OSError as err:
             self.err("Error getting preferences")
             self.dbg(err)
             output = ""
 
         import Ice
+
         data = Ice.InitializationData()
         data.properties = Ice.createProperties()
         for k, v in list(properties.items()):
@@ -1660,16 +1803,16 @@ class CLI(cmd.Cmd, Context):
                 traceback.print_exc()
 
     def get_event_context(self):
-        return getattr(self, '_event_context', None)
+        return getattr(self, "_event_context", None)
 
     def set_event_context(self, ec):
-        setattr(self, '_event_context', ec)
+        setattr(self, "_event_context", ec)
 
     def get_client(self):
-        return getattr(self, '_client', None)
+        return getattr(self, "_client", None)
 
     def set_client(self, client):
-        setattr(self, '_client', client)
+        setattr(self, "_client", client)
 
     # End Cli
     ###########################################################
@@ -1739,8 +1882,10 @@ def argv(args=sys.argv):
         # parser.add_argument("-d", "--debug", help="Use 'help debug' for more
         # information", default = SUPPRESS)
         parser.add_argument(
-            "--path", action="append",
-            help="Add file or directory to plugin list. Supports globs.")
+            "--path",
+            action="append",
+            help="Add file or directory to plugin list. Supports globs.",
+        )
         ns, args = parser.parse_known_args(args)
         if getattr(ns, "path"):
             for p in ns.path:
@@ -1760,13 +1905,13 @@ def argv(args=sys.argv):
         if old_ice_config:
             os.putenv("ICE_CONFIG", old_ice_config)
 
+
 #####################################################
 #
 # Specific argument types
 
 
 class ExperimenterArg(object):
-
     def __init__(self, arg):
         self.orig = arg
         self.usr = None
@@ -1784,6 +1929,7 @@ class ExperimenterArg(object):
     def lookup(self, client):
         if self.usr is None:
             import omero
+
             a = client.sf.getAdminService()
             try:
                 self.usr = a.lookupExperimenter(self.orig).id.val
@@ -1793,7 +1939,6 @@ class ExperimenterArg(object):
 
 
 class ExperimenterGroupArg(object):
-
     def __init__(self, arg):
         self.orig = arg
         self.grp = None
@@ -1811,6 +1956,7 @@ class ExperimenterGroupArg(object):
     def lookup(self, client):
         if self.grp is None:
             import omero
+
             a = client.sf.getAdminService()
             try:
                 self.grp = a.lookupGroup(self.orig).id.val
@@ -1820,7 +1966,6 @@ class ExperimenterGroupArg(object):
 
 
 class GraphArg(object):
-
     def __init__(self, cmd_type):
         self.cmd_type = cmd_type
 
@@ -1830,7 +1975,7 @@ class GraphArg(object):
         try:
             parts = arg.split(":", 1)
             assert len(parts) == 2
-            assert '+' not in parts[0]
+            assert "+" not in parts[0]
             parts[0] = parts[0].lstrip("/")
             graph = parts[0].split("/")
             ids = []
@@ -1841,7 +1986,7 @@ class GraphArg(object):
                     low, high = list(map(int, id.split("-")))
                     if high < low:
                         raise ValueError("Bad range: %s", arg)
-                    ids.extend(list(range(low, high+1)))
+                    ids.extend(list(range(low, high + 1)))
                 else:
                     ids.append(int(id))
             targetObjects[graph[0]] = ids
@@ -1859,13 +2004,13 @@ class GraphArg(object):
     def __repr__(self):
         return "argument"
 
+
 #####################################################
 #
 # Specific superclasses for various controls
 
 
 class CmdControl(BaseControl):
-
     def cmd_type(self):
         raise Exception("Must be overridden by subclasses")
 
@@ -1900,7 +2045,7 @@ class CmdControl(BaseControl):
 
     def create_error_report(self, rsp):
         if isinstance(rsp, omero.cmd.GraphException):
-            return 'failed: %s' % rsp.message
+            return "failed: %s" % rsp.message
 
         """
         Generate default error report aggregating the response parameters
@@ -1918,7 +2063,7 @@ class CmdControl(BaseControl):
         if err:
             self.ctx.err(err)
         else:
-            if hasattr(req, 'dryRun') and req.dryRun:
+            if hasattr(req, "dryRun") and req.dryRun:
                 self.ctx.out("Dry run performed")
             self.ctx.out("ok")
 
@@ -1926,7 +2071,9 @@ class CmdControl(BaseControl):
             self.ctx.out("Steps: %s" % status.steps)
             if status.stopTime > 0 and status.startTime > 0:
                 elapse = status.stopTime - status.startTime
-                self.ctx.out("Elapsed time: %s secs." % (old_div(elapse,1000.0)))
+                self.ctx.out(
+                    "Elapsed time: %s secs." % (old_div(elapse, 1000.0))
+                )
             else:
                 self.ctx.out("Unfinished.")
             self.ctx.out("Flags: %s" % status.flags)
@@ -1948,6 +2095,7 @@ class CmdControl(BaseControl):
 
     def response(self, client, req, loops=8, ms=500, wait=None):
         import omero.callbacks
+
         handle = client.sf.submit(req)
         cb = omero.callbacks.CmdCallbackI(client, handle)
 
@@ -1980,7 +2128,6 @@ class CmdControl(BaseControl):
 
 
 class GraphControl(CmdControl):
-
     def cmd_type(self):
         raise Exception("Must be overridden by subclasses")
 
@@ -1989,29 +2136,46 @@ class GraphControl(CmdControl):
         self._add_wait(parser, default=-1)
         parser.add_argument(
             "--include",
-            help="Modifies the given option by including a list of classes")
+            help="Modifies the given option by including a list of classes",
+        )
         parser.add_argument(
             "--exclude",
-            help="Modifies the given option by excluding a list of classes")
+            help="Modifies the given option by excluding a list of classes",
+        )
         parser.add_argument(
-            "--ordered", action="store_true",
-            help=("Pass multiple objects to commands strictly in the order "
-                  "given, otherwise group into as few commands as possible."))
+            "--ordered",
+            action="store_true",
+            help=(
+                "Pass multiple objects to commands strictly in the order "
+                "given, otherwise group into as few commands as possible."
+            ),
+        )
         parser.add_argument(
-            "--list", action="store_true",
-            help="Print a list of all available graph specs")
+            "--list",
+            action="store_true",
+            help="Print a list of all available graph specs",
+        )
         parser.add_argument(
-            "--list-details", action="store_true", help=SUPPRESS)
+            "--list-details", action="store_true", help=SUPPRESS
+        )
         parser.add_argument(
-            "--report", action="store_true",
-            help="Print more detailed report of each action")
+            "--report",
+            action="store_true",
+            help="Print more detailed report of each action",
+        )
         parser.add_argument(
-            "--dry-run", action="store_true",
-            help=("Do a dry run of the command, providing a "
-                  "report of what would have been done"))
+            "--dry-run",
+            action="store_true",
+            help=(
+                "Do a dry run of the command, providing a "
+                "report of what would have been done"
+            ),
+        )
         parser.add_argument(
-            "--force", action="store_true",
-            help=("Force an action that otherwise defaults to a dry run"))
+            "--force",
+            action="store_true",
+            help=("Force an action that otherwise defaults to a dry run"),
+        )
         self._pre_objects(parser)
         self._objects(parser)
 
@@ -2026,8 +2190,11 @@ class GraphControl(CmdControl):
         Allows configuring the "obj" n-argument by overriding this method.
         """
         parser.add_argument(
-            "obj", nargs="*", type=GraphArg(self.cmd_type()),
-            help="Objects to be processed in the form <Class>:<Id>")
+            "obj",
+            nargs="*",
+            type=GraphArg(self.cmd_type()),
+            help="Objects to be processed in the form <Class>:<Id>",
+        )
 
     def as_doall(self, req_or_doall):
         if not isinstance(req_or_doall, omero.cmd.DoAll):
@@ -2084,10 +2251,12 @@ class GraphControl(CmdControl):
         show = not (args.force or args.dry_run)
         needsForce = any(forces)
         if needsForce and show:
-            warnings.warn("\nUsing '--dry-run'.\
+            warnings.warn(
+                "\nUsing '--dry-run'.\
                           Future versions will switch to '--force'.\
                           Explicitly set the parameter for portability",
-                          DeprecationWarning)
+                DeprecationWarning,
+            )
         for req in commands:
             req.dryRun = args.dry_run or needsForce
             if args.force:
@@ -2123,7 +2292,8 @@ class GraphControl(CmdControl):
                 "x.details.owner.id, "
                 "x.details.group.details.permissions "
                 "from %s x "
-                "where x.id = :id") % k
+                "where x.id = :id"
+            ) % k
             if not v:
                 return
             for w in v:
@@ -2132,13 +2302,15 @@ class GraphControl(CmdControl):
                         query.projection(
                             query_str,
                             omero.sys.ParametersI().addId(w),
-                            {"omero.group": "-1"})[0])
+                            {"omero.group": "-1"},
+                        )[0]
+                    )
                     perms = perms["perm"]
                     perms = omero.model.PermissionsI(perms)
                     if perms.isGroupWrite() and uid != own_id:
                         self.ctx.err(
-                            "WARNING: %s:%s belongs to user %s" % (
-                                k, w, uid))
+                            "WARNING: %s:%s belongs to user %s" % (k, w, uid)
+                        )
                 except:
                     self.ctx.dbg(traceback.format_exc())
                     # Doing nothing since this is a best effort
@@ -2151,6 +2323,7 @@ class GraphControl(CmdControl):
         combined using their startFrom object type.
         """
         from omero.cmd import SkipHead
+
         skipheads = [req for req in commands if isinstance(req, SkipHead)]
         others = [req for req in commands if not isinstance(req, SkipHead)]
 
@@ -2191,12 +2364,13 @@ class GraphControl(CmdControl):
             for type in list(req.targetObjects.keys()):
                 ids = self._order_and_range_ids(req.targetObjects[type])
                 if isinstance(req, omero.cmd.SkipHead):
-                    type += ("/" + req.startFrom[0])
-                objects.append('%s:%s' % (type, ids))
-        return "%s %s " % (cmd_type, ' '.join(objects))
+                    type += "/" + req.startFrom[0]
+                objects.append("%s:%s" % (type, ids))
+        return "%s %s " % (cmd_type, " ".join(objects))
 
     def _get_object_ids(self, objDict):
         import collections
+
         objIds = {}
         for k in list(objDict.keys()):
             if objDict[k]:
@@ -2204,65 +2378,73 @@ class GraphControl(CmdControl):
         newIds = collections.OrderedDict(sorted(objIds.items()))
         objIds = collections.OrderedDict()
         for k in newIds:
-            key = k[k.rfind('.')+1:]
+            key = k[k.rfind(".") + 1 :]
             objIds[key] = newIds[k]
         return objIds
 
 
 class UserGroupControl(BaseControl):
-
-    def error_no_input_group(self, msg="No input group is specified",
-                             code=501, fatal=True):
+    def error_no_input_group(
+        self, msg="No input group is specified", code=501, fatal=True
+    ):
         if fatal:
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
 
-    def error_invalid_groupid(self, group_id, msg="Not a valid group ID: %s",
-                              code=502, fatal=True):
+    def error_invalid_groupid(
+        self, group_id, msg="Not a valid group ID: %s", code=502, fatal=True
+    ):
         if fatal:
             self.ctx.die(code, msg % group_id)
         else:
             self.ctx.err(msg % group_id)
 
-    def error_invalid_group(self, group, msg="Unknown group: %s", code=503,
-                            fatal=True):
+    def error_invalid_group(
+        self, group, msg="Unknown group: %s", code=503, fatal=True
+    ):
         if fatal:
             self.ctx.die(code, msg % group)
         else:
             self.ctx.err(msg % group)
 
-    def error_no_group_found(self, msg="No group found", code=504,
-                             fatal=True):
+    def error_no_group_found(self, msg="No group found", code=504, fatal=True):
         if fatal:
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
 
-    def error_ambiguous_group(self, id_or_name,
-                              msg="Ambiguous group identifier: %s", code=505,
-                              fatal=True):
+    def error_ambiguous_group(
+        self,
+        id_or_name,
+        msg="Ambiguous group identifier: %s",
+        code=505,
+        fatal=True,
+    ):
         if fatal:
             self.ctx.die(code, msg % id_or_name)
         else:
             self.ctx.err(msg % id_or_name)
 
-    def error_no_input_user(self, msg="No input user is specified", code=511,
-                            fatal=True):
+    def error_no_input_user(
+        self, msg="No input user is specified", code=511, fatal=True
+    ):
         if fatal:
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
 
-    def error_invalid_userid(self, user_id, msg="Not a valid user ID: %s",
-                             code=512, fatal=True):
+    def error_invalid_userid(
+        self, user_id, msg="Not a valid user ID: %s", code=512, fatal=True
+    ):
         if fatal:
             self.ctx.die(code, msg % user_id)
         else:
             self.ctx.err(msg % user_id)
 
-    def error_invalid_user(self, user, msg="Unknown user: %s", code=513,
-                           fatal=True):
+    def error_invalid_user(
+        self, user, msg="Unknown user: %s", code=513, fatal=True
+    ):
         if fatal:
             self.ctx.die(code, msg % user)
         else:
@@ -2274,9 +2456,13 @@ class UserGroupControl(BaseControl):
         else:
             self.ctx.err(msg)
 
-    def error_ambiguous_user(self, id_or_name,
-                             msg="Ambiguous user identifier: %s", code=515,
-                             fatal=True):
+    def error_ambiguous_user(
+        self,
+        id_or_name,
+        msg="Ambiguous user identifier: %s",
+        code=515,
+        fatal=True,
+    ):
         if fatal:
             self.ctx.die(code, msg % id_or_name)
         else:
@@ -2284,6 +2470,7 @@ class UserGroupControl(BaseControl):
 
     def find_group_by_id(self, admin, group_id, fatal=False):
         import omero
+
         try:
             gid = int(group_id)
             g = admin.getGroup(gid)
@@ -2297,6 +2484,7 @@ class UserGroupControl(BaseControl):
 
     def find_group_by_name(self, admin, group_name, fatal=False):
         import omero
+
         try:
             g = admin.lookupGroup(group_name)
             gid = g.id.val
@@ -2339,6 +2527,7 @@ class UserGroupControl(BaseControl):
 
     def find_user_by_id(self, admin, user_id, fatal=False):
         import omero
+
         try:
             uid = int(user_id)
             u = admin.getExperimenter(uid)
@@ -2352,6 +2541,7 @@ class UserGroupControl(BaseControl):
 
     def find_user_by_name(self, admin, user_name, fatal=False):
         import omero
+
         try:
             u = admin.lookupExperimenter(user_name)
             uid = u.id.val
@@ -2394,44 +2584,59 @@ class UserGroupControl(BaseControl):
 
     def addusersbyid(self, admin, group, users):
         import omero
+
         for user in list(users):
             admin.addGroups(omero.model.ExperimenterI(user, False), [group])
             self.ctx.out("Added %s to group %s" % (user, group.id.val))
 
     def removeusersbyid(self, admin, group, users):
         import omero
+
         for user in list(users):
             admin.removeGroups(omero.model.ExperimenterI(user, False), [group])
             self.ctx.out("Removed %s from group %s" % (user, group.id.val))
 
     def addownersbyid(self, admin, group, users):
         import omero
+
         for user in list(users):
-            admin.addGroupOwners(group,
-                                 [omero.model.ExperimenterI(user, False)])
-            self.ctx.out("Added %s to the owner list of group %s"
-                         % (user, group.id.val))
+            admin.addGroupOwners(
+                group, [omero.model.ExperimenterI(user, False)]
+            )
+            self.ctx.out(
+                "Added %s to the owner list of group %s" % (user, group.id.val)
+            )
 
     def removeownersbyid(self, admin, group, users):
         import omero
+
         for user in list(users):
-            admin.removeGroupOwners(group,
-                                    [omero.model.ExperimenterI(user, False)])
-            self.ctx.out("Removed %s from the owner list of group %s"
-                         % (user, group.id.val))
+            admin.removeGroupOwners(
+                group, [omero.model.ExperimenterI(user, False)]
+            )
+            self.ctx.out(
+                "Removed %s from the owner list of group %s"
+                % (user, group.id.val)
+            )
 
     def getuserids(self, group):
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()]
         return ids
 
     def getmemberids(self, group):
-        ids = [x.child.id.val for x in group.copyGroupExperimenterMap()
-               if not x.owner.val]
+        ids = [
+            x.child.id.val
+            for x in group.copyGroupExperimenterMap()
+            if not x.owner.val
+        ]
         return ids
 
     def getownerids(self, group):
-        ids = [x.child.id.val for x in group.copyGroupExperimenterMap()
-               if x.owner.val]
+        ids = [
+            x.child.id.val
+            for x in group.copyGroupExperimenterMap()
+            if x.owner.val
+        ]
         return ids
 
     def output_users_list(self, admin, users, args):
@@ -2440,14 +2645,33 @@ class UserGroupControl(BaseControl):
         sys_group = roles.systemGroupId
 
         from omero.util.text import TableBuilder
+
         if args.count:
-            tb = TableBuilder("id", "login", "first name", "last name",
-                              "email", "active", "ldap", "admin",
-                              "# group memberships", "# group ownerships")
+            tb = TableBuilder(
+                "id",
+                "login",
+                "first name",
+                "last name",
+                "email",
+                "active",
+                "ldap",
+                "admin",
+                "# group memberships",
+                "# group ownerships",
+            )
         else:
-            tb = TableBuilder("id", "login", "first name", "last name",
-                              "email", "active", "ldap", "admin", "member of",
-                              "owner of")
+            tb = TableBuilder(
+                "id",
+                "login",
+                "first name",
+                "last name",
+                "email",
+                "active",
+                "ldap",
+                "admin",
+                "member of",
+                "owner of",
+            )
         if args.style:
             tb.set_style(args.style)
 
@@ -2467,8 +2691,12 @@ class UserGroupControl(BaseControl):
             users = [users]
 
         for user in users:
-            row = [user.id.val, user.omeName.val, user.firstName.val,
-                   user.lastName.val]
+            row = [
+                user.id.val,
+                user.omeName.val,
+                user.firstName.val,
+                user.lastName.val,
+            ]
             row.append(user.email and user.email.val or "")
             active = ""
             admin = ""
@@ -2520,17 +2748,23 @@ class UserGroupControl(BaseControl):
             groups.sort(key=lambda x: x.id.val)
 
         if args.long:
-            tb = TableBuilder("id", "name", "perms", "ldap", "owner ids",
-                              "member ids")
+            tb = TableBuilder(
+                "id", "name", "perms", "ldap", "owner ids", "member ids"
+            )
         else:
-            tb = TableBuilder("id", "name", "perms", "ldap", "# of owners",
-                              "# of members")
+            tb = TableBuilder(
+                "id", "name", "perms", "ldap", "# of owners", "# of members"
+            )
         if args.style:
             tb.set_style(args.style)
 
         for group in groups:
-            row = [group.id.val, group.name.val,
-                   str(group.details.permissions), group.ldap.val]
+            row = [
+                group.id.val,
+                group.name.val,
+                str(group.details.permissions),
+                group.ldap.val,
+            ]
             ownerids = self.getownerids(group)
             memberids = self.getmemberids(group)
             if args.long:
@@ -2544,14 +2778,11 @@ class UserGroupControl(BaseControl):
 
     def add_id_name_arguments(self, parser, objtype=""):
         group = parser.add_mutually_exclusive_group()
-        group.add_argument(
-            "--id", help="ID of the %s" % objtype)
-        group.add_argument(
-            "--name", help="Name of the %s" % objtype)
+        group.add_argument("--id", help="ID of the %s" % objtype)
+        group.add_argument("--name", help="Name of the %s" % objtype)
         return group
 
-    def add_user_and_group_arguments(self, parser, *args,
-                                     **kwargs):
+    def add_user_and_group_arguments(self, parser, *args, **kwargs):
 
         group = parser
         try:
@@ -2560,35 +2791,47 @@ class UserGroupControl(BaseControl):
         except:
             pass
 
-        group.add_argument("--user-id",
-                           help="ID of the user.",
-                           *args, **kwargs)
-        group.add_argument("--user-name",
-                           help="Name of the user.",
-                           *args, **kwargs)
-        group.add_argument("--group-id",
-                           help="ID of the group.",
-                           *args, **kwargs)
-        group.add_argument("--group-name",
-                           help="Name of the group.",
-                           *args, **kwargs)
+        group.add_argument("--user-id", help="ID of the user.", *args, **kwargs)
+        group.add_argument(
+            "--user-name", help="Name of the user.", *args, **kwargs
+        )
+        group.add_argument(
+            "--group-id", help="ID of the group.", *args, **kwargs
+        )
+        group.add_argument(
+            "--group-name", help="Name of the group.", *args, **kwargs
+        )
 
     def add_user_arguments(self, parser, action=""):
-        group = parser.add_argument_group('User arguments')
-        group.add_argument("user_id_or_name",  metavar="user", nargs="*",
-                           help="ID or name of the user(s)%s" % action)
-        group.add_argument("--user-id", metavar="user", nargs="+",
-                           help="ID of the user(s)%s" % action)
-        group.add_argument("--user-name", metavar="user", nargs="+",
-                           help="Name of the user(s)%s" % action)
+        group = parser.add_argument_group("User arguments")
+        group.add_argument(
+            "user_id_or_name",
+            metavar="user",
+            nargs="*",
+            help="ID or name of the user(s)%s" % action,
+        )
+        group.add_argument(
+            "--user-id",
+            metavar="user",
+            nargs="+",
+            help="ID of the user(s)%s" % action,
+        )
+        group.add_argument(
+            "--user-name",
+            metavar="user",
+            nargs="+",
+            help="Name of the user(s)%s" % action,
+        )
         return group
 
     def add_single_user_argument(self, parser, action="", required=True):
         group = parser.add_mutually_exclusive_group(required=required)
-        group.add_argument("--user-id", metavar="user",
-                           help="ID of the user%s" % action)
-        group.add_argument("--user-name", metavar="user",
-                           help="Name of the user%s" % action)
+        group.add_argument(
+            "--user-id", metavar="user", help="ID of the user%s" % action
+        )
+        group.add_argument(
+            "--user-name", metavar="user", help="Name of the user%s" % action
+        )
         return group
 
     def list_users(self, a, args, use_context=False):
@@ -2598,9 +2841,10 @@ class UserGroupControl(BaseControl):
         """
 
         # Check input arguments
-        has_user_arguments = (args.user_id_or_name or args.user_id
-                              or args.user_name)
-        if (not use_context and not has_user_arguments):
+        has_user_arguments = (
+            args.user_id_or_name or args.user_id or args.user_name
+        )
+        if not use_context and not has_user_arguments:
             self.error_no_input_user(fatal=True)
 
         # Retrieve groups by id or name
@@ -2639,24 +2883,35 @@ class UserGroupControl(BaseControl):
         return uid_list, u_list
 
     def add_group_arguments(self, parser, action=""):
-        group = parser.add_argument_group('Group arguments')
+        group = parser.add_argument_group("Group arguments")
         group.add_argument(
-            "group_id_or_name",  metavar="group", nargs="*",
-            help="ID or name of the group(s)%s" % action)
+            "group_id_or_name",
+            metavar="group",
+            nargs="*",
+            help="ID or name of the group(s)%s" % action,
+        )
         group.add_argument(
-            "--group-id", metavar="group", nargs="+",
-            help="ID  of the group(s)%s" % action)
+            "--group-id",
+            metavar="group",
+            nargs="+",
+            help="ID  of the group(s)%s" % action,
+        )
         group.add_argument(
-            "--group-name", metavar="group", nargs="+",
-            help="Name of the group(s)%s" % action)
+            "--group-name",
+            metavar="group",
+            nargs="+",
+            help="Name of the group(s)%s" % action,
+        )
         return group
 
     def add_single_group_argument(self, parser, action="", required=True):
         group = parser.add_mutually_exclusive_group(required=required)
-        group.add_argument("--group-id", metavar="group",
-                           help="ID of the group%s" % action)
-        group.add_argument("--group-name", metavar="group",
-                           help="Name of the group%s" % action)
+        group.add_argument(
+            "--group-id", metavar="group", help="ID of the group%s" % action
+        )
+        group.add_argument(
+            "--group-name", metavar="group", help="Name of the group%s" % action
+        )
         return group
 
     def list_groups(self, a, args, use_context=False):
@@ -2666,9 +2921,10 @@ class UserGroupControl(BaseControl):
         """
 
         # Check input arguments
-        has_group_arguments = (args.group_id_or_name or args.group_id
-                               or args.group_name)
-        if (not use_context and not has_group_arguments):
+        has_group_arguments = (
+            args.group_id_or_name or args.group_id or args.group_name
+        )
+        if not use_context and not has_group_arguments:
             self.error_no_input_group(fatal=True)
 
         # Retrieve groups by id or name
@@ -2712,29 +2968,27 @@ class UserGroupControl(BaseControl):
 
         if args.user_name:
             for user_name in args.user_name:
-                uid, u = self.find_user_by_name(
-                    iadmin, user_name, fatal=False)
+                uid, u = self.find_user_by_name(iadmin, user_name, fatal=False)
                 if uid is not None:
                     users.append(uid)
 
         if args.user_id:
             for user_id in args.user_id:
-                uid, u = self.find_user_by_id(
-                    iadmin, user_id, fatal=False)
+                uid, u = self.find_user_by_id(iadmin, user_id, fatal=False)
                 if uid is not None:
                     users.append(uid)
 
         if args.group_name:
             for group_name in args.group_name:
                 gid, g = self.find_group_by_name(
-                    iadmin, group_name, fatal=False)
+                    iadmin, group_name, fatal=False
+                )
                 if gid is not None:
                     groups.append(gid)
 
         if args.group_id:
             for group_id in args.group_id:
-                gid, g = self.find_group_by_id(
-                    iadmin, group_id, fatal=False)
+                gid, g = self.find_group_by_id(iadmin, group_id, fatal=False)
                 if gid is not None:
                     groups.append(gid)
 
@@ -2744,20 +2998,20 @@ class UserGroupControl(BaseControl):
         u = None
         g = None
         if args.user_name:
-            uid, u = self.find_user_by_name(
-                iadmin, args.user_name, fatal=False)
+            uid, u = self.find_user_by_name(iadmin, args.user_name, fatal=False)
 
         if args.user_id:
-            uid, u = self.find_user_by_id(
-                iadmin, args.user_id, fatal=False)
+            uid, u = self.find_user_by_id(iadmin, args.user_id, fatal=False)
 
         if args.group_name:
             gid, g = self.find_group_by_name(
-                iadmin, args.group_name, fatal=False)
+                iadmin, args.group_name, fatal=False
+            )
 
         if args.group_id:
             for group_id in args.group_id:
                 gid, g = self.find_group_by_id(
-                    iadmin, args.group_id, fatal=False)
+                    iadmin, args.group_id, fatal=False
+                )
 
         return u, g

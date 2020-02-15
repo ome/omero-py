@@ -42,8 +42,14 @@ Examples:
 
 
 class Tag(object):
-    def __init__(self, tag_id=None, name=None, description=None, owner=None,
-                 children=None):
+    def __init__(
+        self,
+        tag_id=None,
+        name=None,
+        description=None,
+        owner=None,
+        children=None,
+    ):
         self.tag_id = tag_id
         self.name = name
         self.description = description
@@ -87,7 +93,6 @@ def clip(s, width):
 
 
 class TagControl(BaseControl):
-
     def _configure(self, parser):
 
         self.exc = ExceptionHandler()
@@ -96,18 +101,23 @@ class TagControl(BaseControl):
         sub = parser.sub()
 
         listtags = parser.add(
-            sub, self.list, help="List all the tags, grouped by tagset")
+            sub, self.list, help="List all the tags, grouped by tagset"
+        )
         self.add_standard_params(listtags)
         listtags.add_argument(
-            "--tagset", nargs="+", type=int, help="One or more tagset IDs")
+            "--tagset", nargs="+", type=int, help="One or more tagset IDs"
+        )
         self.add_tag_common_params(listtags)
         listtags.add_login_arguments()
 
         listsets = parser.add(sub, self.listsets, help="List tag sets")
         self.add_standard_params(listsets)
         listsets.add_argument(
-            "--tag", nargs="+", type=int,
-            help="List only tagsets containing the following tag ID(s)")
+            "--tag",
+            nargs="+",
+            type=int,
+            help="List only tagsets containing the following tag ID(s)",
+        )
         self.add_tag_common_params(listsets)
         listsets.add_login_arguments()
 
@@ -115,11 +125,14 @@ class TagControl(BaseControl):
         self.add_newtag_params(create)
         create.add_login_arguments()
 
-        createset = parser.add(
-            sub, self.createset, help="Create a new tag set")
+        createset = parser.add(sub, self.createset, help="Create a new tag set")
         createset.add_argument(
-            "--tag", nargs="+", required=True, type=int,
-            help="ID(s) of the tag(s) to include in this set")
+            "--tag",
+            nargs="+",
+            required=True,
+            type=int,
+            help="ID(s) of the tag(s) to include in this set",
+        )
         self.add_newtag_params(createset)
         createset.add_login_arguments()
 
@@ -145,58 +158,70 @@ JSON File Format:
   },{
     ....
   }]
-            """)
+            """,
+        )
         loadj.set_defaults(func=self.load)
         loadj.add_argument(
-            "filename", nargs="?", help="The filename containing tag JSON")
+            "filename", nargs="?", help="The filename containing tag JSON"
+        )
         loadj.add_login_arguments()
 
-        links = parser.add(
-            sub, self.link, help="Link annotation to an object")
+        links = parser.add(sub, self.link, help="Link annotation to an object")
         links.add_argument(
             "object",
             help="The object to link to. Should be of form"
-            " <object_type>:<object_id>")
-        links.add_argument(
-            'tag_id', type=int,
-            help="The tag annotation ID")
+            " <object_type>:<object_id>",
+        )
+        links.add_argument("tag_id", type=int, help="The tag annotation ID")
         self.add_standard_params(links)
         links.add_login_arguments()
 
     # Recurring parameter methods
     def add_newtag_params(self, parser):
+        parser.add_argument("--name", help="The name of the new tag or tagset")
         parser.add_argument(
-            "--name", help="The name of the new tag or tagset")
-        parser.add_argument(
-            "--desc", "--description",
-            help="The description of the new tag or tagset")
+            "--desc",
+            "--description",
+            help="The description of the new tag or tagset",
+        )
 
     def add_tag_common_params(self, parser):
         parser.add_argument(
             "--uid",
-            help="List only tags/tagsets belonging to the following user ID")
+            help="List only tags/tagsets belonging to the following user ID",
+        )
         parser.add_argument(
-            "--desc", "--description", "--descriptions",
-            action="store_true", default=False,
-            help="Display descriptions of tags")
+            "--desc",
+            "--description",
+            "--descriptions",
+            action="store_true",
+            default=False,
+            help="Display descriptions of tags",
+        )
 
     def add_standard_params(self, parser):
         parser.add_argument(
-            "--admin", action="store_true", default=False,
-            help="Perform action as an administrator")
+            "--admin",
+            action="store_true",
+            default=False,
+            help="Perform action as an administrator",
+        )
         parser.add_argument(
-            "--nopage", action="store_true", default=False,
-            help="Disable pagination")
+            "--nopage",
+            action="store_true",
+            default=False,
+            help="Disable pagination",
+        )
 
     # Output methods
     def print_line(self, line, index):
         if self.console_length is None:
-                self.ctx.out(line)
+            self.ctx.out(line)
         elif index % self.console_length == 0 and index:
             input = input("[Enter], [f]orward forever, or [q]uit: ")
-            if input.lower() == 'q':
+            if input.lower() == "q":
                 sys.exit(0)
-            elif input.lower() == 'f':
+            elif input.lower() == "f":
                 self.console_length = None
         else:
             self.ctx.out(line)
@@ -223,18 +248,19 @@ JSON File Format:
         this_system = platform.system().lower()
 
         try:
-            if this_system in ['linux', 'darwin', 'macosx', 'cygwin']:
-                output = exec_command(['tput', 'lines'])
+            if this_system in ["linux", "darwin", "macosx", "cygwin"]:
+                output = exec_command(["tput", "lines"])
                 if len(output) > 0:
                     lines = int(output[0].rstrip())
-                output = exec_command(['tput', 'cols'])
+                output = exec_command(["tput", "cols"])
                 if len(output) > 0:
                     width = int(output[0].rstrip())
-            elif this_system in ['windows', 'win32']:
+            elif this_system in ["windows", "win32"]:
                 # http://stackoverflow.com/questions/566746/\
                 # how-to-get-console-window-width-in-python
                 from ctypes import windll, create_string_buffer
                 from struct import unpack
+
                 # stdin handle is -10
                 # stdout handle is -11
                 # stderr handle is -12
@@ -242,9 +268,19 @@ JSON File Format:
                 csbi = create_string_buffer(22)
                 res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
                 if res:
-                    (bufx, bufy, curx, cury, wattr,
-                     left, top, right, bottom,
-                     maxx, maxy) = unpack("hhhhHhhhhhh", csbi.raw)
+                    (
+                        bufx,
+                        bufy,
+                        curx,
+                        cury,
+                        wattr,
+                        left,
+                        top,
+                        right,
+                        bottom,
+                        maxx,
+                        maxy,
+                    ) = unpack("hhhhHhhhhhh", csbi.raw)
                     lines = bottom - top + 1
                     width = bottom - top + 1
         except:
@@ -266,7 +302,7 @@ JSON File Format:
 
         # Now add the empty tagsets to the collection
         params = omero.sys.ParametersI()
-        params.addString('ns', omero.constants.metadata.NSINSIGHTTAGSET)
+        params.addString("ns", omero.constants.metadata.NSINSIGHTTAGSET)
         ice_map = dict()
         if args.admin:
             ice_map["omero.group"] = "-1"
@@ -288,14 +324,13 @@ JSON File Format:
 
         if tagset:
             sql += " and ann.id = :tid"
-            params.map['tid'] = rlong(int(tagset))
+            params.map["tid"] = rlong(int(tagset))
 
         for element in q.projection(sql, params, ice_map):
             tag_id, description, text = list(map(unwrap, element))
-            tc.empties.append(Tag(
-                tag_id=tag_id,
-                name=text,
-                description=description))
+            tc.empties.append(
+                Tag(tag_id=tag_id, name=text, description=description)
+            )
 
         return tc
 
@@ -304,7 +339,7 @@ JSON File Format:
         Returns a TagCollection object
         """
         params = omero.sys.ParametersI()
-        params.addString('ns', omero.constants.metadata.NSINSIGHTTAGSET)
+        params.addString("ns", omero.constants.metadata.NSINSIGHTTAGSET)
         ice_map = dict()
         if args.admin:
             ice_map["omero.group"] = "-1"
@@ -326,7 +361,7 @@ JSON File Format:
             sql += " and ann.details.owner.id = :eid"
         if tagset:
             sql += " and ann.id = :tid"
-            params.map['tid'] = rlong(int(tagset))
+            params.map["tid"] = rlong(int(tagset))
 
         tc = TagCollection()
 
@@ -334,11 +369,13 @@ JSON File Format:
             parent = unwrap(element[0])
             child = unwrap(element[1])
             tc.mapping.setdefault(parent, []).append(child)
-            parent_tags.append(Tag(
-                tag_id=parent,
-                name=unwrap(element[3]),
-                description=unwrap(element[2])
-            ))
+            parent_tags.append(
+                Tag(
+                    tag_id=parent,
+                    name=unwrap(element[3]),
+                    description=unwrap(element[2]),
+                )
+            )
 
         if tagset:
             sql = """
@@ -365,10 +402,9 @@ JSON File Format:
 
             for element in q.projection(sql, params, ice_map):
                 tag_id, text, description = list(map(unwrap, element))
-                tc.orphans.append(Tag(
-                    tag_id=tag_id,
-                    name=text,
-                    description=description))
+                tc.orphans.append(
+                    Tag(tag_id=tag_id, name=text, description=description)
+                )
 
             # Now set up search for rest of tags
             sql = """
@@ -385,15 +421,16 @@ JSON File Format:
                 sql += " where ann.details.owner.id = :eid"
 
         for element in q.projection(sql, params, ice_map):
-            tag_id, description, text, owner, first, last = list(map(unwrap,
-                                                                element))
+            tag_id, description, text, owner, first, last = list(
+                map(unwrap, element)
+            )
             tc.tags[tag_id] = Tag(
                 tag_id=tag_id,
                 name=text,
                 description=description,
                 owner=owner,
-                children=tc.mapping.get(tag_id) or 0
-                )
+                children=tc.mapping.get(tag_id) or 0,
+            )
             tc.owners[owner] = "%s %s" % (first, last)
 
         for parent in parent_tags:
@@ -409,7 +446,7 @@ JSON File Format:
         If tag is provided, will return the tagsets with those tags.
         """
         params = omero.sys.ParametersI()
-        params.addString('ns', omero.constants.metadata.NSINSIGHTTAGSET)
+        params.addString("ns", omero.constants.metadata.NSINSIGHTTAGSET)
         ice_map = dict()
         if args.admin:
             ice_map["omero.group"] = "-1"
@@ -430,7 +467,7 @@ JSON File Format:
                 where a.ns=:ns
                 """
             sql += " and b.child.id = :tid"
-            params.map['tid'] = rlong(int(tag))
+            params.map["tid"] = rlong(int(tag))
         else:
             sql = """
                 select a.id, a.description, a.textValue,
@@ -445,13 +482,11 @@ JSON File Format:
             sql += " and a.details.owner.id = :eid"
 
         for element in q.projection(sql, params, ice_map):
-            tag_id, description, text, owner, first, last = list(map(unwrap,
-                                                                element))
+            tag_id, description, text, owner, first, last = list(
+                map(unwrap, element)
+            )
             tc.tags[tag_id] = Tag(
-                tag_id=tag_id,
-                name=text,
-                description=description,
-                owner=owner
+                tag_id=tag_id, name=text, description=description, owner=owner
             )
             tc.owners[owner] = "%s %s" % (first, last)
 
@@ -468,14 +503,15 @@ JSON File Format:
             if args.desc:
                 lines.append("|   '%s'" % tags[key].description)
                 lines.append("|")
-            lines.append('|\\')
+            lines.append("|\\")
             for tag_key in mapping[key]:
-                lines.append("| +- %s:'%s'" % (str(tag_key),
-                             tags[tag_key].name))
+                lines.append(
+                    "| +- %s:'%s'" % (str(tag_key), tags[tag_key].name)
+                )
                 if args.desc:
                     lines.append("|   '%s'" % tags[tag_key].description)
                     lines.append("|")
-            lines.append('')
+            lines.append("")
 
         return lines
 
@@ -485,12 +521,12 @@ JSON File Format:
         lines representing the orphan output.
         """
         lines = []
-        lines.append('Orphaned tags:')
+        lines.append("Orphaned tags:")
         for orphan in orphans:
             lines.append("> %s:'%s'" % (str(orphan.tag_id), orphan.name))
             if args.desc:
                 lines.append("   '%s'" % orphan.description)
-                lines.append('')
+                lines.append("")
         return lines
 
     def generate_empties(self, empties, args):
@@ -499,12 +535,12 @@ JSON File Format:
         lines representing the empty tagset output.
         """
         lines = []
-        lines.append('Empty tagsets:')
+        lines.append("Empty tagsets:")
         for empty in empties:
             lines.append("> %s:'%s'" % (str(empty.tag_id), empty.name))
             if args.desc:
                 lines.append("   '%s'" % empty.description)
-                lines.append('')
+                lines.append("")
         return lines
 
     def create_tag(self, name, description, text="tag"):
@@ -520,7 +556,7 @@ JSON File Format:
         if name is None:
             name = builtins.input("Please enter a name for this %s: " % text)
 
-        if name is not None and name != '':
+        if name is not None and name != "":
             tag = TagAnnotationI()
             tag.textValue = rstring(name)
             if description is not None and len(description) > 0:
@@ -595,21 +631,23 @@ JSON File Format:
         to_add = []
 
         for element in p:
-            if 'set' in element:
-                tag = self.create_tag(str(element['name']),
-                                      str(element['desc']))
+            if "set" in element:
+                tag = self.create_tag(
+                    str(element["name"]), str(element["desc"])
+                )
                 tag.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
                 links = []
-                for e in element['set']:
-                    t = self.create_tag(str(e['name']), str(e['desc']))
+                for e in element["set"]:
+                    t = self.create_tag(str(e["name"]), str(e["desc"]))
                     link = AnnotationAnnotationLinkI()
                     link.parent = tag
                     link.child = t
                     links.append(link)
                 to_add.extend(links)
             else:
-                to_add.append(self.create_tag(str(element['name']),
-                              str(element['desc'])))
+                to_add.append(
+                    self.create_tag(str(element["name"]), str(element["desc"]))
+                )
 
         client = self.ctx.conn(args)
         session = client.getSession()
@@ -632,15 +670,17 @@ JSON File Format:
         """
 
         try:
-            obj_type, obj_id = args.object.split(':')
+            obj_type, obj_id = args.object.split(":")
             obj_id = int(obj_id)
         except ValueError:
             obj_type = None
             obj_id = None
 
         if obj_type is None or obj_id is None:
-            self.ctx.err("Missing object or object not of form"
-                         " <object_type>:<object_id>")
+            self.ctx.err(
+                "Missing object or object not of form"
+                " <object_type>:<object_id>"
+            )
             sys.exit(1)
 
         if not args.tag_id:
@@ -671,10 +711,14 @@ JSON File Format:
         obj = query_service.findByQuery(
             "select o from %s as o "
             "left outer join fetch o.annotationLinks "
-            "where o.id = :id" % obj_type, parameters, ice_map)
+            "where o.id = :id" % obj_type,
+            parameters,
+            ice_map,
+        )
         if obj is None:
             self.ctx.err(
-                "Object query returned nothing. Check your object type.")
+                "Object query returned nothing. Check your object type."
+            )
             sys.exit(1)
 
         obj.linkAnnotation(annotation)
@@ -709,7 +753,7 @@ JSON File Format:
             if len(tc.orphans) > 0:
                 lines.extend(self.generate_orphans(tc.orphans, args))
                 if len(tc.empties) > 0:
-                    lines.append('')
+                    lines.append("")
             if len(tc.empties) > 0:
                 lines.extend(self.generate_empties(tc.empties, args))
         self.pagetext(lines)
@@ -731,7 +775,9 @@ JSON File Format:
             self.width, self.console_length = self.determine_console_size()
 
         if args.desc:
-            max_field_width = int((old_div((self.width - max_id_width), 2.0)) - 2)
+            max_field_width = int(
+                (old_div((self.width - max_id_width), 2.0)) - 2
+            )
         else:
             max_field_width = self.width - max_id_width - 2
 
@@ -746,16 +792,18 @@ JSON File Format:
         separator = (
             "-" * max_id_width,
             "-" * max_field_width,
-            "-" * max_field_width
+            "-" * max_field_width,
         )
 
         lines.append(separator)
 
-        lines.append((
-            clip("ID", max_id_width),
-            clip("Name", max_field_width),
-            clip("Description", max_field_width)
-        ))
+        lines.append(
+            (
+                clip("ID", max_id_width),
+                clip("Name", max_field_width),
+                clip("Description", max_field_width),
+            )
+        )
 
         lines.append(separator)
 
@@ -763,18 +811,15 @@ JSON File Format:
             tc = self.list_tagsets(args, tag_id)
             for key, tag in list(tc.tags.items()):
                 if args.nopage:
-                    lines.append((
-                        tag.tag_id,
-                        tag.name,
-                        tag.description
-
-                    ))
+                    lines.append((tag.tag_id, tag.name, tag.description))
                 else:
-                    lines.append((
-                        clip(str(tag.tag_id), max_id_width),
-                        clip(tag.name, max_field_width),
-                        clip(tag.description, max_field_width)
-                    ))
+                    lines.append(
+                        (
+                            clip(str(tag.tag_id), max_id_width),
+                            clip(tag.name, max_field_width),
+                            clip(tag.description, max_field_width),
+                        )
+                    )
 
         lines.append(separator)
 

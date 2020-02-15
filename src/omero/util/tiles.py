@@ -12,10 +12,13 @@ from __future__ import division
 from builtins import range
 from past.utils import old_div
 from builtins import object
+
+
 class TileLoopIteration(object):
     """
     "Interface" which must be passed to forEachTile
     """
+
     def run(self, rps, z, c, t, x, y, tileWidth, tileHeight, tileCount):
         raise NotImplemented()
 
@@ -55,7 +58,6 @@ class TileData(object):
 
 
 class TileLoop(object):
-
     def createData(self):
         """
         Subclasses must provide a fresh instance of {@link TileData}.
@@ -65,8 +67,17 @@ class TileLoop(object):
         """
         raise NotImplementedError()
 
-    def forEachTile(self, sizeX, sizeY, sizeZ, sizeC, sizeT,
-                    tileWidth, tileHeight, iteration):
+    def forEachTile(
+        self,
+        sizeX,
+        sizeY,
+        sizeZ,
+        sizeC,
+        sizeT,
+        tileWidth,
+        tileHeight,
+        iteration,
+    ):
         """
         Iterates over every tile in a given Pixels object based on the
         over arching dimensions and a requested maximum tile width and height.
@@ -97,24 +108,27 @@ class TileLoop(object):
                     for z in range(0, sizeZ):
 
                         for tileOffsetY in range(
-                                0, (old_div((sizeY + tileHeight - 1), tileHeight))):
+                            0, (old_div((sizeY + tileHeight - 1), tileHeight))
+                        ):
 
                             for tileOffsetX in range(
-                                    0, (old_div((sizeX + tileWidth - 1), tileWidth))):
+                                0, (old_div((sizeX + tileWidth - 1), tileWidth))
+                            ):
 
                                 x = tileOffsetX * tileWidth
                                 y = tileOffsetY * tileHeight
                                 w = tileWidth
 
-                                if (w + x > sizeX):
+                                if w + x > sizeX:
                                     w = sizeX - x
 
                                 h = tileHeight
-                                if (h + y > sizeY):
+                                if h + y > sizeY:
                                     h = sizeY - y
 
-                                iteration.run(data, z, c, t,
-                                              x, y, w, h, tileCount)
+                                iteration.run(
+                                    data, z, c, t, x, y, w, h, tileCount
+                                )
                                 tileCount += 1
             return tileCount
 
@@ -125,6 +139,7 @@ class TileLoop(object):
 class RPSTileData(TileData):
     """
     """
+
     def __init__(self, loop, rps):
         self.loop = loop
         self.rps = rps
@@ -143,7 +158,6 @@ class RPSTileData(TileData):
 
 
 class RPSTileLoop(TileLoop):
-
     def __init__(self, session, pixels):
         self.session = session
         self.pixels = pixels
@@ -190,6 +204,7 @@ class RPSTileLoop(TileLoop):
 
         if self.pixels is None or self.pixels.id is None:
             import omero
+
             raise omero.ClientError("pixels instance must be managed!")
         elif not self.pixels.loaded:
             try:
@@ -197,8 +212,10 @@ class RPSTileLoop(TileLoop):
                 self.pixels = srv.retrievePixDescription(self.pixels.id.val)
             except Exception as e:
                 import omero
+
                 raise omero.ClientError(
-                    "Failed to load %s\n%s" % (self.pixels.id.val, e))
+                    "Failed to load %s\n%s" % (self.pixels.id.val, e)
+                )
 
         sizeX = self.pixels.getSizeX().getValue()
         sizeY = self.pixels.getSizeY().getValue()
@@ -207,5 +224,13 @@ class RPSTileLoop(TileLoop):
         sizeT = self.pixels.getSizeT().getValue()
 
         return TileLoop.forEachTile(
-            self, sizeX, sizeY, sizeZ, sizeC, sizeT,
-            tileWidth, tileHeight, iteration)
+            self,
+            sizeX,
+            sizeY,
+            sizeZ,
+            sizeC,
+            sizeT,
+            tileWidth,
+            tileHeight,
+            iteration,
+        )

@@ -20,7 +20,6 @@ omeroDir = old_div(path(os.getcwd()), "build")
 
 
 class TestRCode(object):
-
     class T(BaseControl):
         def __call__(self, *args):
             self.ctx.rv = 1

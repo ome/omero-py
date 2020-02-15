@@ -42,41 +42,53 @@ See also:
 
 
 class SearchControl(HqlControl):
-
     def _configure(self, parser):
         parser.add_argument(
-            "--index", action="store_true", default=False,
-            help="Index an object as a administrator")
+            "--index",
+            action="store_true",
+            default=False,
+            help="Index an object as a administrator",
+        )
         parser.add_argument(
             "--no-parse",
             action="store_true",
-            help="Pass the search string directly to Lucene with no parsing")
+            help="Pass the search string directly to Lucene with no parsing",
+        )
         parser.add_argument(
-            "--field", nargs="*",
+            "--field",
+            nargs="*",
             default=(),
-            help=("Fields which should be searched "
-                  "(e.g. name, description, annotation)"))
+            help=(
+                "Fields which should be searched "
+                "(e.g. name, description, annotation)"
+            ),
+        )
         parser.add_argument(
             "--from",
             dest="_from",
             metavar="YYYY-MM-DD",
             type=self.date,
-            help="Start date for limiting searches (YYYY-MM-DD)")
+            help="Start date for limiting searches (YYYY-MM-DD)",
+        )
         parser.add_argument(
             "--to",
             dest="_to",
             metavar="YYYY-MM-DD",
             type=self.date,
-            help="End date for limiting searches (YYYY-MM-DD)")
+            help="End date for limiting searches (YYYY-MM-DD)",
+        )
         parser.add_argument(
             "--date-type",
             default="import",
             choices=("acquisitionDate", "import"),
-            help=("Which field to use for --from/--to "
-                  "(default: acquisitionDate)"))
+            help=(
+                "Which field to use for --from/--to "
+                "(default: acquisitionDate)"
+            ),
+        )
         parser.add_argument(
-            "type",
-            help="Object type to search for, e.g. 'Image' or 'Well'")
+            "type", help="Object type to search for, e.g. 'Image' or 'Well'"
+        )
         HqlControl._configure(self, parser)
         parser.set_defaults(func=self.search)
 
@@ -136,11 +148,16 @@ class SearchControl(HqlControl):
                                 args.date_type = "details.creationEvent.time"
                             search.byLuceneQueryBuilder(
                                 ",".join(args.field),
-                                args._from, args._to, args.date_type,
-                                args.query, ctx)
+                                args._from,
+                                args._to,
+                                args.date_type,
+                                args.query,
+                                ctx,
+                            )
                         except OperationNotExistException:
                             self.ctx.err(
-                                "Server does not support byLuceneQueryBuilder")
+                                "Server does not support byLuceneQueryBuilder"
+                            )
                             search.byFullText(args.query)
 
                     if not search.hasNext(ctx):
@@ -153,9 +170,9 @@ class SearchControl(HqlControl):
                         results = [[x] for x in results]
                         if not args.ids_only:
                             results = [[robject(x[0])] for x in results]
-                        self.display(results,
-                                     style=args.style,
-                                     idsonly=args.ids_only)
+                        self.display(
+                            results, style=args.style, idsonly=args.ids_only
+                        )
                 except omero.ApiUsageException as aue:
                     self.ctx.die(434, aue.message)
 

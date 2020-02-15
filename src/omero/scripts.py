@@ -46,14 +46,22 @@ class Type(omero.grid.Param):
 
     kwargs
     """
+
     PROTOTYPE_FUNCTION = None
     PROTOTYPE_DEFAULT = None
     PROTOTYPE_MIN = None
     PROTOTYPE_MAX = None
     PROTOTYPE_VALUES = None
 
-    def __init__(self, name, optional=True, out=False, description=None,
-                 default=None, **kwargs):
+    def __init__(
+        self,
+        name,
+        optional=True,
+        out=False,
+        description=None,
+        default=None,
+        **kwargs
+    ):
 
         # Non-Param attributes
         omero.grid.Param.__init__(self)
@@ -171,6 +179,7 @@ class Object(Type):
     """
     Wraps an robject
     """
+
     PROTOTYPE_FUNCTION = robject
     PROTOTYPE_DEFAULT = None
 
@@ -179,6 +188,7 @@ class Long(Type):
     """
     Wraps an rlong
     """
+
     PROTOTYPE_FUNCTION = rlong
     PROTOTYPE_DEFAULT = 0
 
@@ -187,6 +197,7 @@ class Int(Type):
     """
     Wraps an rint
     """
+
     PROTOTYPE_FUNCTION = rint
     PROTOTYPE_DEFAULT = 0
 
@@ -195,6 +206,7 @@ class Double(Type):
     """
     Wraps an rdouble
     """
+
     PROTOTYPE_FUNCTION = rdouble
     PROTOTYPE_DEFAULT = 0.0
 
@@ -203,6 +215,7 @@ class Float(Type):
     """
     Wraps an rfloat
     """
+
     PROTOTYPE_FUNCTION = rfloat
     PROTOTYPE_DEFAULT = 0.0
 
@@ -211,6 +224,7 @@ class String(Type):
     """
     Wraps an rstring
     """
+
     PROTOTYPE_FUNCTION = rstring
     PROTOTYPE_DEFAULT = ""
 
@@ -219,6 +233,7 @@ class Bool(Type):
     """
     Wraps an rbool
     """
+
     PROTOTYPE_FUNCTION = rbool
     PROTOTYPE_DEFAULT = False
 
@@ -227,6 +242,7 @@ class Color(Type):
     """
     Wraps an rinternal(Color)
     """
+
     PROTOTYPE_FUNCTION = rinternal
     PROTOTYPE_DEFAULT = omero.Color
 
@@ -235,6 +251,7 @@ class Point(Type):
     """
     Wraps an rinternal(Point)
     """
+
     PROTOTYPE_FUNCTION = rinternal
     PROTOTYPE_DEFAULT = omero.Point
 
@@ -243,6 +260,7 @@ class Plane(Type):
     """
     Wraps an rinternal(Plane)
     """
+
     PROTOTYPE_FUNCTION = rinternal
     PROTOTYPE_DEFAULT = omero.Plane
 
@@ -252,6 +270,7 @@ class __Coll(Type):
     Base type providing the append and extend functionality.
     Not for user use.
     """
+
     PROTOTYPE_DEFAULT = list
 
     def append(self, *arg):
@@ -272,7 +291,8 @@ class __Coll(Type):
             if not isinstance(obj, self.prototype.val[0].__class__):
                 raise ValueError(
                     "ofType values doesn't match default value: %s <> %s"
-                    % (unwrap(obj), unwrap(self.prototype.val[0])))
+                    % (unwrap(obj), unwrap(self.prototype.val[0]))
+                )
         else:
             self.prototype.val.append(wrap(obj))
 
@@ -284,6 +304,7 @@ class Set(__Coll):
     Wraps an rset. To add values to the contents of the set,
     use "append" or "extend" since set.val is of type list.
     """
+
     PROTOTYPE_FUNCTION = rset
 
 
@@ -292,6 +313,7 @@ class List(__Coll):
     Wraps an rlist. To add values to the contents of the list,
     use "append" or "extend" since set.val is of type list.
     """
+
     PROTOTYPE_FUNCTION = rlist
 
 
@@ -300,6 +322,7 @@ class Map(Type):
     Wraps an rmap. To add values to the contents of the map,
     use "update" since map.val is of type dict.
     """
+
     PROTOTYPE_FUNCTION = rmap
     PROTOTYPE_DEFAULT = dict
 
@@ -446,6 +469,7 @@ def parse_file(filename):
     Do NOT use this on data you don't trust.
     """
     from omero_ext.path import path
+
     scriptText = path(filename).text()
     return parse_text(scriptText)
 
@@ -471,7 +495,8 @@ def parse_inputs(inputs_strings, params):
 
     missing = MissingInputs()
     for key in sorted(
-            params.inputs, key=lambda name: params.inputs.get(name).grouping):
+        params.inputs, key=lambda name: params.inputs.get(name).grouping
+    ):
         param = params.inputs.get(key)
         a = inputs.get(key, None)
         if not a:
@@ -507,8 +532,15 @@ def parse_input(input_string, params):
             val = rbool(True)
     elif isinstance(
         param.prototype,
-        (omero.RLong, omero.RString, omero.RInt,
-         omero.RTime, omero.RDouble, omero.RFloat)):
+        (
+            omero.RLong,
+            omero.RString,
+            omero.RInt,
+            omero.RTime,
+            omero.RDouble,
+            omero.RFloat,
+        ),
+    ):
         val = param.prototype.__class__(val)
     elif isinstance(param.prototype, (omero.RList, omero.RSet)):
         rmethod = omero.rtypes.rlist
@@ -529,11 +561,13 @@ def parse_input(input_string, params):
             kls = getattr(omero.model, kls)
         except:
             raise ValueError(
-                "Format for objects: Class:id or ClassI:id. Not:%s" % val)
+                "Format for objects: Class:id or ClassI:id. Not:%s" % val
+            )
         val = omero.rtypes.robject(kls(_id, False))
     else:
-        raise ValueError("No converter for: %s (type=%s)"
-                         % (key, param.prototype.__class__))
+        raise ValueError(
+            "No converter for: %s (type=%s)" % (key, param.prototype.__class__)
+        )
 
     return {key: val}
 
@@ -577,7 +611,7 @@ def group_params(params):
         previous = None
         current = groupings
         for idx, key in enumerate(parts):
-            if (idx+1) < len(parts):
+            if (idx + 1) < len(parts):
                 # We need to descend further
                 previous = current
                 current = current[key]
@@ -593,8 +627,8 @@ def group_params(params):
                     replacement = dict()
                     replacement[""] = current
                     replacement[key] = param_name
-                    assert previous[parts[idx-1]] == current
-                    previous[parts[idx-1]] = replacement
+                    assert previous[parts[idx - 1]] == current
+                    previous[parts[idx - 1]] = replacement
                 else:
                     raise Exception(current, type(current))
 
@@ -668,11 +702,13 @@ def check_boundaries(key, min, max, input):
     # Check
     for x in items:
         if min is not None and min > x:
-            errors += error_msg("Out of bounds", key, "%s is below min %s", x,
-                                min)
+            errors += error_msg(
+                "Out of bounds", key, "%s is below min %s", x, min
+            )
         if max is not None and max < x:
-            errors += error_msg("Out of bounds", key, "%s is above max %s", x,
-                                max)
+            errors += error_msg(
+                "Out of bounds", key, "%s is above max %s", x, max
+            )
     return errors
 
 
@@ -730,8 +766,10 @@ def set_input(svc, session, key, value):
         svc.setInput(session, key, value)
         return ""
     except Exception as e:
-        return error_msg("Failed to set intput", key, "%s=%s. Error: %s", key,
-                         value, e)
+        return error_msg(
+            "Failed to set intput", key, "%s=%s. Error: %s", key, value, e
+        )
+
 
 #
 # Importing into omero.scripts namespace

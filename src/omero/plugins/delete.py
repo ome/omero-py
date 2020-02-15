@@ -52,14 +52,15 @@ Examples:
 
 
 class DeleteControl(GraphControl):
-
     def cmd_type(self):
         import omero
         import omero.all
+
         return omero.cmd.Delete2
 
     def print_detailed_report(self, req, rsp, status):
         import omero
+
         if isinstance(rsp, omero.cmd.DoAllRsp):
             for response in rsp.responses:
                 if isinstance(response, omero.cmd.Delete2Response):

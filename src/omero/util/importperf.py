@@ -38,7 +38,8 @@ from getopt import getopt, GetoptError
 def usage(error):
     """Prints usage so that we don't have to. :)"""
     cmd = sys.argv[0]
-    print("""%s
+    print(
+        """%s
 Usage: %s [options...] <importer_log_file>
 Generate performance metrics from an OMERO.importer log file.
 
@@ -50,14 +51,16 @@ Examples:
   %s importer.log
   %s --series_report importer.log > series_report.csv
 
-Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % \
-        (error, cmd, cmd, cmd))
+Report bugs to ome-devel@lists.openmicroscopy.org.uk"""
+        % (error, cmd, cmd, cmd)
+    )
     sys.exit(2)
 
 
 class ParsingError(Exception):
 
     """Raised whenever there is an error parsing a log file."""
+
     pass
 
 
@@ -107,15 +110,16 @@ class ImporterLog(object):
 
     # Regular expression for matching log4j log lines
     log_regex = re.compile(
-        r'^(?P<date_time>\S+\s+\S+)\s+(?P<ms_elapsed>\d+)\s+'
-        '(?P<thread>\[.*?\])\s+(?P<level>\S+)\s+(?P<class>\S+)\s+-\s+'
-        '(?P<message>.*)$')
+        r"^(?P<date_time>\S+\s+\S+)\s+(?P<ms_elapsed>\d+)\s+"
+        "(?P<thread>\[.*?\])\s+(?P<level>\S+)\s+(?P<class>\S+)\s+-\s+"
+        "(?P<message>.*)$"
+    )
 
     # Regular expression for matching possible OMERO.importer status messages
-    status_regex = re.compile(r'^[A-Z_]*')
+    status_regex = re.compile(r"^[A-Z_]*")
 
     # Format string for matching log4j date/time strings
-    date_time_fmt = '%Y-%m-%d %H:%M:%S'
+    date_time_fmt = "%Y-%m-%d %H:%M:%S"
 
     def __init__(self, log_file):
         self.log_file = log_file
@@ -135,49 +139,49 @@ class ImporterLog(object):
 
     def handle_match(self, match):
         """Handles cases where the log_regex is matched."""
-        message = match.group('message')
+        message = match.group("message")
         if not self.status_regex.match(message):
             return
-        date_time = match.group('date_time')
-        date_time, ms = date_time.split(',')
+        date_time = match.group("date_time")
+        date_time, ms = date_time.split(",")
         date_time = DateTime.strptime(date_time, self.date_time_fmt)
         ms = DateTimeDelta(0, 0, 0, old_div(int(ms), 1000.0))
         date_time = date_time + ms
-        if message.startswith('LOADING_IMAGE'):
-            name = message[message.find(':') + 2:]
+        if message.startswith("LOADING_IMAGE"):
+            name = message[message.find(":") + 2 :]
             self.last_import = Import(date_time, name)
             self.imports.append(self.last_import)
-        elif not hasattr(self, 'last_import') or self.last_import is None:
+        elif not hasattr(self, "last_import") or self.last_import is None:
             return
-        elif message.startswith('LOADED_IMAGE'):
+        elif message.startswith("LOADED_IMAGE"):
             self.last_import.setid_end = date_time
-        elif message.startswith('BEGIN_POST_PROCESS'):
+        elif message.startswith("BEGIN_POST_PROCESS"):
             self.last_import.post_process_start = date_time
-        elif message.startswith('END_POST_PROCESS'):
+        elif message.startswith("END_POST_PROCESS"):
             self.last_import.post_process_end = date_time
-        elif message.startswith('BEGIN_SAVE_TO_DB'):
+        elif message.startswith("BEGIN_SAVE_TO_DB"):
             self.last_import.save_to_db_start = date_time
-        elif message.startswith('END_SAVE_TO_DB'):
+        elif message.startswith("END_SAVE_TO_DB"):
             self.last_import.save_to_db_end = date_time
-        elif message.startswith('IMPORT_OVERLAYS'):
+        elif message.startswith("IMPORT_OVERLAYS"):
             self.last_import.overlays_start = date_time
-        elif message.startswith('IMPORT_THUMBNAILING'):
+        elif message.startswith("IMPORT_THUMBNAILING"):
             self.last_import.thumbnailing_start = date_time
-        elif message.startswith('IMPORT_DONE'):
+        elif message.startswith("IMPORT_DONE"):
             self.last_import.end = date_time
             self.last_import = None
-        elif message.startswith('DATASET_STORED'):
+        elif message.startswith("DATASET_STORED"):
             self.last_series = Series(date_time)
             self.last_import.series.append(self.last_series)
-        elif message.startswith('DATA_STORED'):
+        elif message.startswith("DATA_STORED"):
             self.last_import.series[-1].end = date_time
-        elif message.startswith('IMPORT_STEP'):
+        elif message.startswith("IMPORT_STEP"):
             self.last_series.planes.append(Plane(date_time))
 
     def elapsed(self, start, end):
         if start is not None and end is not None:
             return str((end - start).seconds) + "sec"
-        return 'Unknown'
+        return "Unknown"
 
     def report(self):
         """
@@ -186,62 +190,91 @@ class ImporterLog(object):
         """
         for import_n, i in enumerate(self.imports):
             elapsed = self.elapsed(i.start, i.end)
-            print("Import(%s) %d start: %s end: %s elapsed: %s" % \
-                (i.name, import_n, i.start, i.end, elapsed))
+            print(
+                "Import(%s) %d start: %s end: %s elapsed: %s"
+                % (i.name, import_n, i.start, i.end, elapsed)
+            )
             elapsed = self.elapsed(i.setid_start, i.setid_end)
-            print("setId() start: %s end: %s elapsed: %s" % \
-                (i.setid_start, i.setid_end, elapsed))
+            print(
+                "setId() start: %s end: %s elapsed: %s"
+                % (i.setid_start, i.setid_end, elapsed)
+            )
             elapsed = self.elapsed(i.post_process_start, i.post_process_end)
-            print("Post process start: %s end: %s elapsed: %s" % \
-                (i.post_process_start, i.post_process_end, elapsed))
+            print(
+                "Post process start: %s end: %s elapsed: %s"
+                % (i.post_process_start, i.post_process_end, elapsed)
+            )
             elapsed = self.elapsed(i.save_to_db_start, i.save_to_db_end)
-            print("Save to DB start: %s end: %s elapsed: %s" % \
-                (i.save_to_db_start, i.save_to_db_end, elapsed))
+            print(
+                "Save to DB start: %s end: %s elapsed: %s"
+                % (i.save_to_db_start, i.save_to_db_end, elapsed)
+            )
             if len(i.series) > 0:
                 elapsed = self.elapsed(i.series[0].start, i.series[-1].end)
-                print("Image I/O start: %s end: %s elapsed: %s" % \
-                    (i.series[0].start, i.series[-1].end, elapsed))
+                print(
+                    "Image I/O start: %s end: %s elapsed: %s"
+                    % (i.series[0].start, i.series[-1].end, elapsed)
+                )
                 elapsed = self.elapsed(i.overlays_start, i.thumbnailing_start)
-                print("Overlays start: %s end: %s elapsed: %s" % \
-                    (i.overlays_start, i.thumbnailing_start, elapsed))
+                print(
+                    "Overlays start: %s end: %s elapsed: %s"
+                    % (i.overlays_start, i.thumbnailing_start, elapsed)
+                )
                 elapsed = self.elapsed(i.thumbnailing_start, i.end)
-                print("Thumbnailing start: %s end: %s elapsed: %s" % \
-                    (i.thumbnailing_start, i.end, elapsed))
+                print(
+                    "Thumbnailing start: %s end: %s elapsed: %s"
+                    % (i.thumbnailing_start, i.end, elapsed)
+                )
 
     def series_report_csv(self):
         """
         Prints a CSV report to STDOUT with timings for the I/O operations
         of each import's set of image series.
         """
-        print(','.join(['import', 'series', 'series_start', 'series_end',
-                        'series_elapsed']))
+        print(
+            ",".join(
+                [
+                    "import",
+                    "series",
+                    "series_start",
+                    "series_end",
+                    "series_elapsed",
+                ]
+            )
+        )
         for import_n, i in enumerate(self.imports):
             for series_n, series in enumerate(i.series):
                 if series.start is None or series.end is None:
                     continue
                 elapsed = (series.end - series.start).seconds
-                values = [import_n, series_n, series.start, series.end,
-                          elapsed * 1000]
-                print(','.join([str(v) for v in values]))
+                values = [
+                    import_n,
+                    series_n,
+                    series.start,
+                    series.end,
+                    elapsed * 1000,
+                ]
+                print(",".join([str(v) for v in values]))
+
 
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "", ['series_report', 'help'])
+        options, args = getopt(sys.argv[1:], "", ["series_report", "help"])
     except GetoptError as xxx_todo_changeme:
         (msg, opt) = xxx_todo_changeme.args
         usage(msg)
 
     try:
-        log_file, = args
+        (log_file,) = args
     except ValueError:
-        usage('Must specify at least one log file.')
+        usage("Must specify at least one log file.")
     log = ImporterLog(open(log_file))
 
     do_default_report = True
     for option, argument in options:
-        if option == '--help':
-            usage('')
-        if option == '--series_report':
+        if option == "--help":
+            usage("")
+        if option == "--series_report":
             do_default_report = False
             log.series_report_csv()
 

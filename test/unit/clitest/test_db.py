@@ -10,6 +10,7 @@
 """
 
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import str
 from builtins import object
@@ -25,19 +26,18 @@ import getpass
 import builtins
 
 OMERODIR = False
-if 'OMERODIR' in os.environ:
-    OMERODIR = os.environ.get('OMERODIR')
+if "OMERODIR" in os.environ:
+    OMERODIR = os.environ.get("OMERODIR")
 
 hash_map = {
-    ('0', ''): 'PJueOtwuTPHB8Nq/1rFVxg==',
-    ('0', '--no-salt'): 'vvFwuczAmpyoRC0Nsv8FCw==',
-    ('1', ''): 'pvL5Tyr9tCD2esF938sHEQ==',
-    ('1', '--no-salt'): 'vvFwuczAmpyoRC0Nsv8FCw==',
+    ("0", ""): "PJueOtwuTPHB8Nq/1rFVxg==",
+    ("0", "--no-salt"): "vvFwuczAmpyoRC0Nsv8FCw==",
+    ("1", ""): "pvL5Tyr9tCD2esF938sHEQ==",
+    ("1", "--no-salt"): "vvFwuczAmpyoRC0Nsv8FCw==",
 }
 
 
 class TestDatabase(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("db", DatabaseControl, "TEST")
@@ -57,18 +57,18 @@ class TestDatabase(object):
                 for x in ("version", "patch"):
                     key = "omero.db." + x
                     if line.startswith(key):
-                        self.data[x] = line[len(key)+1:]
+                        self.data[x] = line[len(key) + 1 :]
 
         self.file = create_path()
         self.script_file = ""
         if "version" in self.data and "patch" in self.data:
             self.script_file = "%(version)s__%(patch)s.sql" % self.data
         if os.path.isfile(self.script_file):
-            os.rename(self.script_file, self.script_file + '.bak')
+            os.rename(self.script_file, self.script_file + ".bak")
         assert not os.path.isfile(self.script_file)
 
         self.mox = mox.Mox()
-        self.mox.StubOutWithMock(getpass, 'getpass')
+        self.mox.StubOutWithMock(getpass, "getpass")
         try:
             self.mox.StubOutWithMock(__builtins__, "raw_input")
         except AttributeError:
@@ -79,8 +79,8 @@ class TestDatabase(object):
         self.file.remove()
         if os.path.isfile(self.script_file):
             os.remove(self.script_file)
-        if os.path.isfile(self.script_file + '.bak'):
-            os.rename(self.script_file + '.bak', self.script_file)
+        if os.path.isfile(self.script_file + ".bak"):
+            os.rename(self.script_file + ".bak", self.script_file)
 
         self.mox.UnsetStubs()
         self.mox.VerifyAll()
@@ -92,8 +92,7 @@ class TestDatabase(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize(
-        'subcommand', DatabaseControl().get_subcommands())
+    @pytest.mark.parametrize("subcommand", DatabaseControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
@@ -121,9 +120,9 @@ class TestDatabase(object):
         self.password("")
 
     @pytest.mark.skipif(OMERODIR is False, reason="self.password() fails")
-    @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
-    @pytest.mark.parametrize('user_id', ['', '0', '1'])
-    @pytest.mark.parametrize('password', ['', 'ome'])
+    @pytest.mark.parametrize("no_salt", ["", "--no-salt"])
+    @pytest.mark.parametrize("user_id", ["", "0", "1"])
+    @pytest.mark.parametrize("password", ["", "ome"])
     def testPassword(self, user_id, password, no_salt, capsys):
         args = ""
         if user_id:
@@ -141,9 +140,9 @@ class TestDatabase(object):
         assert out.strip() == self.password_output(user_id, no_salt)
 
     @pytest.mark.skip(reason="Can't read omero.db.version")
-    @pytest.mark.parametrize('file_arg', ['', '-f', '--file'])
-    @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
-    @pytest.mark.parametrize('password', ['', '--password ome'])
+    @pytest.mark.parametrize("file_arg", ["", "-f", "--file"])
+    @pytest.mark.parametrize("no_salt", ["", "--no-salt"])
+    @pytest.mark.parametrize("password", ["", "--password ome"])
     def testScript(self, no_salt, file_arg, password, capsys):
         """
         Recommended usage of db script
@@ -165,27 +164,28 @@ class TestDatabase(object):
         self.cli.invoke(args, strict=True)
 
         out, err = capsys.readouterr()
-        assert 'Using %s for version' % self.data['version'] in err
-        assert 'Using %s for patch' % self.data['patch'] in err
+        assert "Using %s for version" % self.data["version"] in err
+        assert "Using %s for patch" % self.data["patch"] in err
         if password:
-            assert 'Using password from commandline' in err
+            assert "Using password from commandline" in err
 
         with open(output) as f:
             lines = f.readlines()
             for line in lines:
-                if line.startswith('insert into password values (0'):
+                if line.startswith("insert into password values (0"):
                     assert line.strip() == self.script_output(no_salt)
 
     @pytest.mark.skipif(OMERODIR is False, reason="Needs omero.db.profile")
-    @pytest.mark.parametrize('file_arg', ['', '-f', '--file'])
-    @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
-    @pytest.mark.parametrize('pos_args', [
-        '%s %s %s', '--version %s --patch %s --password %s'])
+    @pytest.mark.parametrize("file_arg", ["", "-f", "--file"])
+    @pytest.mark.parametrize("no_salt", ["", "--no-salt"])
+    @pytest.mark.parametrize(
+        "pos_args", ["%s %s %s", "--version %s --patch %s --password %s"]
+    )
     def testScriptDeveloperArgs(self, pos_args, no_salt, file_arg, capsys):
         """
         Deprecated and developer usage of db script
         """
-        arg_values = ('VERSION', 'PATCH', 'PASSWORD')
+        arg_values = ("VERSION", "PATCH", "PASSWORD")
         args = "db script " + pos_args % arg_values
         if no_salt:
             args += " %s" % no_salt
@@ -201,33 +201,36 @@ class TestDatabase(object):
 
         out, err = capsys.readouterr()
 
-        assert 'Using %s for version' % (arg_values[0]) in err
-        assert 'Using %s for patch' % (arg_values[1]) in err
-        assert 'Using password from commandline' in err
-        assert 'Invalid Database version/patch' in err
+        assert "Using %s for version" % (arg_values[0]) in err
+        assert "Using %s for patch" % (arg_values[1]) in err
+        assert "Using password from commandline" in err
+        assert "Invalid Database version/patch" in err
 
     def password_ending(self, user, id):
-        if id and id != '0':
+        if id and id != "0":
             rv = "user %s: " % id
         else:
             rv = "%s user: " % user
         return "password for OMERO " + rv
 
     def expectPassword(self, pw, user="root", id=None):
-        getpass.getpass("Please enter %s" %
-                        self.password_ending(user, id)).AndReturn(pw)
+        getpass.getpass(
+            "Please enter %s" % self.password_ending(user, id)
+        ).AndReturn(pw)
 
     def expectConfirmation(self, pw, user="root", id=None):
-        getpass.getpass("Please re-enter %s" %
-                        self.password_ending(user, id)).AndReturn(pw)
+        getpass.getpass(
+            "Please re-enter %s" % self.password_ending(user, id)
+        ).AndReturn(pw)
 
     def password_output(self, user_id, no_salt):
-        update_msg = "UPDATE password SET hash = \'%s\'" \
-            " WHERE experimenter_id = %s;"
+        update_msg = (
+            "UPDATE password SET hash = '%s'" " WHERE experimenter_id = %s;"
+        )
         if not user_id:
             user_id = "0"
         return update_msg % (hash_map[(user_id, no_salt)], user_id)
 
     def script_output(self, no_salt):
-        root_password_msg = "insert into password values (0,\'%s\');"
+        root_password_msg = "insert into password values (0,'%s');"
         return root_password_msg % (hash_map[("0", no_salt)])

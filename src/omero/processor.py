@@ -37,10 +37,12 @@ sys = __import__("sys")
 
 def with_context(func, context):
     """ Decorator for invoking Ice methods with a context """
+
     def handler(*args, **kwargs):
         args = list(args)
         args.append(context)
         return func(*args, **kwargs)
+
     handler = wraps(func)(handler)
     return handler
 
@@ -60,8 +62,11 @@ class WithGroup(object):
         self._group_id = native_str(group_id)
 
     def _get_ctx(self, group=None):
-        ctx = self._service.ice_getCommunicator()\
-            .getImplicitContext().getContext()
+        ctx = (
+            self._service.ice_getCommunicator()
+            .getImplicitContext()
+            .getContext()
+        )
         ctx = dict(ctx)
         ctx["omero.group"] = native_str(group)
         return ctx
@@ -74,7 +79,8 @@ class WithGroup(object):
             ctx = self._get_ctx(self._group_id)
             return with_context(method, ctx)
         raise AttributeError(
-            "'%s' object has no attribute '%s'" % (self.service, name))
+            "'%s' object has no attribute '%s'" % (self.service, name)
+        )
 
 
 class ProcessI(omero.grid.Process, omero.util.SimpleServant):
@@ -99,10 +105,17 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     attached session completely.
     """
 
-    def __init__(self, ctx, interpreter, properties, params, iskill=False,
-                 Popen=subprocess.Popen,
-                 callback_cast=omero.grid.ProcessCallbackPrx.uncheckedCast,
-                 omero_home=path.getcwd()):
+    def __init__(
+        self,
+        ctx,
+        interpreter,
+        properties,
+        params,
+        iskill=False,
+        Popen=subprocess.Popen,
+        callback_cast=omero.grid.ProcessCallbackPrx.uncheckedCast,
+        omero_home=path.getcwd(),
+    ):
         """
         Popen and callback_Cast are primarily for testing.
         """
@@ -232,8 +245,11 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         self.stderr = open(str(self.stderr_path), "w")
         self.popen = self.Popen(
             self.command(),
-            cwd=str(self.dir), env=self.env(),
-            stdout=self.stdout, stderr=self.stderr)
+            cwd=str(self.dir),
+            env=self.env(),
+            stdout=self.stdout,
+            stderr=self.stderr,
+        )
         self.pid = self.popen.pid
         self.started = time.time()
         self.stopped = None
@@ -267,8 +283,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         # None of these should throw, but just in case
         try:
 
-            self.shutdown()     # Calls cancel & kill which recall this method!
-            self.popen = None   # Now we are finished
+            self.shutdown()  # Calls cancel & kill which recall this method!
+            self.popen = None  # Now we are finished
 
             client = self.tmp_client()
             try:
@@ -283,7 +299,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         except Exception:
             self.logger.error(
                 "FAILED TO CLEANUP pid=%s (%s)",
-                self.pid, self.uuid, exc_info=True)
+                self.pid,
+                self.uuid,
+                exc_info=True,
+            )
 
         d_stop = time.time()
         elapsed = int(self.stopped - self.started)
@@ -325,8 +344,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         the given non-None value itself.
         """
         if not self.wasActivated:
-            raise omero.InternalException(
-                None, None, "Process never activated")
+            raise omero.InternalException(None, None, "Process never activated")
         return self.isFinished()
 
     #
@@ -386,8 +404,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             # we don't have an actual client to worry with.
         except:
             self.logger.error(
-                "Error on session cleanup, kill=%s" %
-                self.iskill, exc_info=True)
+                "Error on session cleanup, kill=%s" % self.iskill, exc_info=True
+            )
 
     def cleanup_output(self):
         """
@@ -413,7 +431,9 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if not client:
             self.logger.error(
                 "No client: Cannot set job status for pid=%s (%s)",
-                self.pid, self.uuid)
+                self.pid,
+                self.uuid,
+            )
             return
 
         gid = client.sf.getAdminService().getEventContext().groupId
@@ -421,11 +441,12 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         try:
             status = self.final_status
             if status is None:
-                status = (self.rcode == 0 and "Finished" or "Error")
+                status = self.rcode == 0 and "Finished" or "Error"
             handle.attach(int(self.properties["omero.job"]))
             oldStatus = handle.setStatus(status)
             self.status(
-                "Changed job status from %s to %s" % (oldStatus, status))
+                "Changed job status from %s to %s" % (oldStatus, status)
+            )
         finally:
             handle.close()
 
@@ -438,7 +459,9 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if not client:
             self.logger.error(
                 "No client: Cannot upload output for pid=%s (%s)",
-                self.pid, self.uuid)
+                self.pid,
+                self.uuid,
+            )
             return
 
         if self.params:
@@ -473,12 +496,16 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             link.child = ofile.proxy()
             client.getSession().getUpdateService().saveObject(link)
             self.status(
-                "Uploaded %s bytes of %s to %s" %
-                (sz, filename, ofile.id.val))
+                "Uploaded %s bytes of %s to %s" % (sz, filename, ofile.id.val)
+            )
         except:
             self.logger.error(
                 "Error on upload of %s for pid=%s (%s)",
-                filename, self.pid, self.uuid, exc_info=True)
+                filename,
+                self.pid,
+                self.uuid,
+                exc_info=True,
+            )
 
     def cleanup_tmpdir(self):
         """
@@ -489,7 +516,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             remove_path(self.dir)
         except:
             self.logger.error(
-                "Failed to remove dir %s" % self.dir, exc_info=True)
+                "Failed to remove dir %s" % self.dir, exc_info=True
+            )
 
     #
     # popen methods
@@ -568,8 +596,11 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                     self.status("Skipped signal")
             except OSError as oserr:
                 self.logger.debug(
-                    "err on pid=%s iskill=%s : %s", self.popen.pid, iskill,
-                    oserr)
+                    "err on pid=%s iskill=%s : %s",
+                    self.popen.pid,
+                    iskill,
+                    oserr,
+                )
 
     @perf
     @remoted
@@ -622,14 +653,17 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                     break
                 else:
                     self.logger.warning(
-                        "Shutdown: %s (%s). Killing in %s seconds.", self.pid,
-                        self.uuid, 6*(i-1)+1)
+                        "Shutdown: %s (%s). Killing in %s seconds.",
+                        self.pid,
+                        self.uuid,
+                        6 * (i - 1) + 1,
+                    )
                     self.stop_event.wait(6)
             self.kill()
         except:
             self.logger.error(
-                "Shutdown failed: %s (%s)", self.pid, self.uuid,
-                exc_info=True)
+                "Shutdown failed: %s (%s)", self.pid, self.uuid, exc_info=True
+            )
 
     #
     # Callbacks
@@ -664,7 +698,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             key = "%s/%s" % (id.category, id.name)
             if key not in self.callback:
                 raise omero.ApiUsageException(
-                    None, None, "No callback registered with id: %s" % key)
+                    None, None, "No callback registered with id: %s" % key
+                )
             del self.callbacks[key]
             self.logger.debug("Removed callback: %s", key)
         except Exception as e:
@@ -682,19 +717,25 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             except Ice.LocalException:
                 self.logger.debug(
                     "LocalException calling callback %s on pid=%s (%s)"
-                    % (key, self.pid, self.uuid), exc_info=False)
+                    % (key, self.pid, self.uuid),
+                    exc_info=False,
+                )
             except:
                 self.logger.error(
                     "Error calling callback %s on pid=%s (%s)"
-                    % (key, self.pid, self.uuid), exc_info=True)
+                    % (key, self.pid, self.uuid),
+                    exc_info=True,
+                )
 
     def __str__(self):
         return "<proc:%s,rc=%s,uuid=%s>" % (
-            self.pid, (self.rcode is None and "-" or self.rcode), self.uuid)
+            self.pid,
+            (self.rcode is None and "-" or self.rcode),
+            self.uuid,
+        )
 
 
 class MATLABProcessI(ProcessI):
-
     def make_files(self):
         """
         Modify the script_path field from ProcessI.make_files
@@ -711,13 +752,17 @@ class MATLABProcessI(ProcessI):
         r += "catch e, disp(e.identifier); disp(e.message); exit(1); "
         r += "end, exit(0)"
         matlab_cmd = [
-            self.interpreter, "-nosplash", "-nodisplay", "-nodesktop", "-r", r,
+            self.interpreter,
+            "-nosplash",
+            "-nodisplay",
+            "-nodesktop",
+            "-r",
+            r,
         ]
         return matlab_cmd
 
 
 class UseSessionHolder(object):
-
     def __init__(self, sf):
         self.sf = sf
 
@@ -733,10 +778,16 @@ class UseSessionHolder(object):
 
 
 class ProcessorI(omero.grid.Processor, omero.util.Servant):
-
-    def __init__(self, ctx, needs_session=True, use_session=None,
-                 accepts_list=None, cfg=None, omero_home=path.getcwd(),
-                 category=None):
+    def __init__(
+        self,
+        ctx,
+        needs_session=True,
+        use_session=None,
+        accepts_list=None,
+        cfg=None,
+        omero_home=path.getcwd(),
+        category=None,
+    ):
 
         if accepts_list is None:
             accepts_list = []
@@ -833,14 +884,17 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         except omero.SecurityViolation:
             self.logger.debug(
                 "SecurityViolation on validate job %s from group %s",
-                job.id.val, gid)
+                job.id.val,
+                gid,
+            )
             file = None
 
         return file, handle
 
     @remoted
-    def willAccept(self, userContext, groupContext, scriptContext, cb,
-                   current=None):
+    def willAccept(
+        self, userContext, groupContext, scriptContext, cb, current=None
+    ):
 
         userID = None
         if userContext is not None:
@@ -858,25 +912,37 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             try:
                 file, handle = self.lookup(scriptContext)
                 handle.close()
-                valid = (file is not None)
+                valid = file is not None
             except:
                 self.logger.error(
                     "File lookup failed: user=%s, group=%s, script=%s",
-                    userID, groupID, scriptID, exc_info=1)
+                    userID,
+                    groupID,
+                    scriptID,
+                    exc_info=1,
+                )
                 return  # EARlY EXIT !
         else:
             valid = False
             for x in self.accepts_list:
-                if isinstance(x, omero.model.Experimenter) and \
-                        x.id.val == userID:
+                if (
+                    isinstance(x, omero.model.Experimenter)
+                    and x.id.val == userID
+                ):
                     valid = True
-                elif isinstance(x, omero.model.ExperimenterGroup) and \
-                        x.id.val == groupID:
+                elif (
+                    isinstance(x, omero.model.ExperimenterGroup)
+                    and x.id.val == groupID
+                ):
                     valid = True
 
         self.logger.debug(
             "Accepts called on: user:%s group:%s scriptjob:%s - Valid: %s",
-            userID, groupID, scriptID, valid)
+            userID,
+            groupID,
+            scriptID,
+            valid,
+        )
 
         try:
             id = self.internal_session().ice_getIdentity().name
@@ -886,7 +952,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             cb.isProxyAccepted(valid, id, prx)
         except Exception as e:
             self.logger.warn(
-                "callback failed on willAccept: %s Exception:%s", cb, e)
+                "callback failed on willAccept: %s Exception:%s", cb, e
+            )
 
         return valid
 
@@ -907,12 +974,14 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             cb.responseRunning(rv)
         except Exception as e:
             self.logger.warn(
-                "callback failed on requestRunning: %s Exception:%s", cb, e)
+                "callback failed on requestRunning: %s Exception:%s", cb, e
+            )
 
     @remoted
     def parseJob(self, session, job, current=None):
         self.logger.info(
-            "parseJob: Session = %s, JobId = %s" % (session, job.id.val))
+            "parseJob: Session = %s, JobId = %s" % (session, job.id.val)
+        )
         client = self.user_client("OMERO.parseJob")
 
         try:
@@ -921,7 +990,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             properties = {}
             properties["omero.scripts.parse"] = "true"
             prx, process = self.process(
-                client, session, job, current, None, properties, iskill)
+                client, session, job, current, None, properties, iskill
+            )
             process.wait()
             rv = client.getOutput("omero.scripts.parse")
             if rv is not None:
@@ -929,7 +999,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             else:
                 self.logger.warning(
                     "No output found for omero.scripts.parse. Keys: %s"
-                    % client.getOutputKeys())
+                    % client.getOutputKeys()
+                )
                 return None
         finally:
             client.closeSession()
@@ -939,21 +1010,31 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
     def processJob(self, session, params, job, current=None):
         """
         """
-        self.logger.info("processJob: Session = %s, JobId = %s"
-                         % (session, job.id.val))
+        self.logger.info(
+            "processJob: Session = %s, JobId = %s" % (session, job.id.val)
+        )
         client = self.user_client("OMERO.processJob")
         try:
             client.joinSession(session).detachOnDestroy()
             prx, process = self.process(
-                client, session, job, current, params, iskill=True)
+                client, session, job, current, params, iskill=True
+            )
             return prx
         finally:
             client.closeSession()
             del client
 
     @perf
-    def process(self, client, session, job, current, params, properties=None,
-                iskill=True):
+    def process(
+        self,
+        client,
+        session,
+        job,
+        current,
+        params,
+        properties=None,
+        iskill=True,
+    ):
         """
         session: session uuid, used primarily if client is None
         client: an omero.client object which should be attached to a session
@@ -970,8 +1051,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         try:
             if not file:
                 raise omero.ApiUsageException(
-                    None, None,
-                    "Job should have one executable file attached.")
+                    None, None, "Job should have one executable file attached."
+                )
 
             sf = self.internal_session()
             if params:
@@ -979,7 +1060,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
                 svc = sf.getSessionService()
                 inputs = svc.getInputs(session)
                 errors = omero.scripts.validate_inputs(
-                    params, inputs, svc, session)
+                    params, inputs, svc, session
+                )
                 if errors:
                     errors = "Invalid parameters:\n%s" % errors
                     raise omero.ValidationException(None, None, errors)
@@ -987,23 +1069,32 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             properties["omero.job"] = str(job.id.val)
             properties["omero.user"] = session
             properties["omero.pass"] = session
-            properties["Ice.Default.Router"] = \
-                client.getProperty("Ice.Default.Router")
+            properties["Ice.Default.Router"] = client.getProperty(
+                "Ice.Default.Router"
+            )
 
             launcher, ProcessClass = self.find_launcher(current)
-            process = ProcessClass(self.ctx, launcher, properties, params,
-                                   iskill, omero_home=self.omero_home)
+            process = ProcessClass(
+                self.ctx,
+                launcher,
+                properties,
+                params,
+                iskill,
+                omero_home=self.omero_home,
+            )
             self.resources.add(process)
 
             # client.download(file, str(process.script_path))
             scriptText = sf.getScriptService().getScriptText(file.id.val)
-            process.script_path.write_bytes(scriptText.encode('utf-8'))
+            process.script_path.write_bytes(scriptText.encode("utf-8"))
 
             self.logger.info("Downloaded file: %s" % file.id.val)
             s = client.sha1(str(process.script_path))
             if not s == file.hash.val:
-                msg = "Sha1s don't match! expected %s, found %s" \
-                    % (file.hash.val, s)
+                msg = "Sha1s don't match! expected %s, found %s" % (
+                    file.hash.val,
+                    s,
+                )
                 self.logger.error(msg)
                 process.cleanup()
                 raise omero.InternalException(None, None, msg)
@@ -1028,7 +1119,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         if current.ctx:
             launcher = current.ctx.get("omero.launcher", "")
             process_class = current.ctx.get(
-                "omero.process", "omero.process.ProcessI")
+                "omero.process", "omero.process.ProcessI"
+            )
 
         if not launcher:
             launcher = sys.executable
@@ -1053,9 +1145,14 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         return launcher, ProcessClass
 
 
-def usermode_processor(client, serverid="UsermodeProcessor", cfg=None,
-                       accepts_list=None, stop_event=None,
-                       omero_home=path.getcwd()):
+def usermode_processor(
+    client,
+    serverid="UsermodeProcessor",
+    cfg=None,
+    accepts_list=None,
+    stop_event=None,
+    omero_home=path.getcwd(),
+):
     """
     Creates and activates a usermode processor for the given client.
     It is the responsibility of the client to call "cleanup()" on
@@ -1090,7 +1187,12 @@ def usermode_processor(client, serverid="UsermodeProcessor", cfg=None,
 
     ctx = omero.util.ServerContext(serverid, client.ic, stop_event)
     impl = omero.processor.ProcessorI(
-        ctx, use_session=client.sf, accepts_list=accepts_list, cfg=cfg,
-        omero_home=omero_home, category=id.category)
+        ctx,
+        use_session=client.sf,
+        accepts_list=accepts_list,
+        cfg=cfg,
+        omero_home=omero_home,
+        category=id.category,
+    )
     ctx.add_servant(client.adapter, impl, ice_identity=id)
     return impl

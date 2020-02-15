@@ -57,7 +57,6 @@ class GatewayConfig(object):
 
 
 class ServiceOptsDict(dict):
-
     def __new__(cls, *args, **kwargs):
         return super(ServiceOptsDict, cls).__new__(cls, *args, **kwargs)
 
@@ -75,15 +74,19 @@ class ServiceOptsDict(dict):
                 else:
                     logger.debug(
                         "None or non- string, unicode or numeric type"
-                        "values are ignored, (%r, %r)" % (key, item))
+                        "values are ignored, (%r, %r)" % (key, item)
+                    )
         else:
             raise AttributeError(
                 "%s argument (%r:%s) must be a dictionary"
-                % (self.__class__.__name__, data, type(data)))
+                % (self.__class__.__name__, data, type(data))
+            )
 
     def __repr__(self):
-        return "<%s: %s>" % (self.__class__.__name__,
-                             super(ServiceOptsDict, self).__repr__())
+        return "<%s: %s>" % (
+            self.__class__.__name__,
+            super(ServiceOptsDict, self).__repr__(),
+        )
 
     def __setitem__(self, key, item):
         """Set key to value as string."""
@@ -93,7 +96,8 @@ class ServiceOptsDict(dict):
         else:
             raise AttributeError(
                 "%s argument (%r:%s) must be a string, unicode or numeric type"
-                % (self.__class__.__name__, item, type(item)))
+                % (self.__class__.__name__, item, type(item))
+            )
 
     def __getitem__(self, key):
         """
@@ -137,47 +141,52 @@ class ServiceOptsDict(dict):
         return self.__setitem__(key, value)
 
     def getOmeroGroup(self):
-        return self.get('omero.group')
+        return self.get("omero.group")
 
     def setOmeroGroup(self, value=None):
         if value is not None:
-            self.set('omero.group', value)
+            self.set("omero.group", value)
         else:
             try:
-                del self['omero.group']
+                del self["omero.group"]
             except KeyError:
                 logger.debug("Key 'omero.group' not found in %r" % self)
 
     def getOmeroUser(self):
-        return self.get('omero.user')
+        return self.get("omero.user")
 
     def setOmeroUser(self, value=None):
         if value is not None:
-            self.set('omero.user', value)
+            self.set("omero.user", value)
         else:
             try:
-                del self['omero.user']
+                del self["omero.user"]
             except KeyError:
                 logger.debug("Key 'omero.user' not found in %r" % self)
 
     def getOmeroShare(self):
-        return self.get('omero.share')
+        return self.get("omero.share")
 
     def setOmeroShare(self, value=None):
         if value is not None:
-            self.set('omero.share', value)
+            self.set("omero.share", value)
         else:
             try:
-                del self['omero.share']
+                del self["omero.share"]
             except KeyError:  # pragma: no cover
                 logger.debug("Key 'omero.share' not found in %r" % self)
 
     def _testItem(self, item):
-        if item is not None and not isinstance(item, bool) and \
-            (isinstance(item, basestring) or
-             isinstance(item, int) or
-             isinstance(item, long) or
-             isinstance(item, float)):
+        if (
+            item is not None
+            and not isinstance(item, bool)
+            and (
+                isinstance(item, basestring)
+                or isinstance(item, int)
+                or isinstance(item, long)
+                or isinstance(item, float)
+            )
+        ):
             return True
         return False
 
@@ -210,11 +219,11 @@ def propertiesToDict(m, prefix=None):
         d = nested_dict
         if prefix is not None:
             item = item.replace(prefix, "")
-        items = item.split('.')
+        items = item.split(".")
         for key in items[:-1]:
             d = d.setdefault(key, {})
         try:
-            if value.strip().lower() in ('true', 'false'):
+            if value.strip().lower() in ("true", "false"):
                 d[items[-1]] = toBoolean(value)
             else:
                 d[items[-1]] = json.loads(value)

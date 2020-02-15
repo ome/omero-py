@@ -63,8 +63,9 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
         self.result = None
         self.poll = poll
         self.process = process
-        self.adapter, self.category = \
-            adapter_and_category(adapter_or_client, category)
+        self.adapter, self.category = adapter_and_category(
+            adapter_or_client, category
+        )
 
         self.id = Ice.Identity(native_str(uuid.uuid4()), self.category)
         self.prx = self.adapter.add(self, self.id)  # OK ADAPTER USAGE
@@ -126,8 +127,9 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         response = cb.loop(5, 500)
     """
 
-    def __init__(self, adapter_or_client, handle, category=None,
-                 foreground_poll=True):
+    def __init__(
+        self, adapter_or_client, handle, category=None, foreground_poll=True
+    ):
 
         if adapter_or_client is None:
             raise omero.ClientError("Null client")
@@ -138,8 +140,9 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         self.event = omero.util.concurrency.get_event(name="CmdCallbackI")
         self.state = (None, None)  # (Response, Status)
         self.handle = handle
-        self.adapter, self.category = \
-            adapter_and_category(adapter_or_client, category)
+        self.adapter, self.category = adapter_and_category(
+            adapter_or_client, category
+        )
 
         self.id = Ice.Identity(native_str(uuid.uuid4()), self.category)
         self.prx = self.adapter.add(self, self.id)  # OK ADAPTER USAGE
@@ -167,7 +170,6 @@ class CmdCallbackI(omero.cmd.CmdCallback):
             return self.poll()
 
         class T(threading.Thread):
-
             def run(this):
                 try:
                     self.poll()
@@ -256,8 +258,12 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         else:
             waited = (old_div(ms, 1000.0)) * loops
             raise omero.LockTimeout(
-                None, None, "Command unfinished after %s seconds" % waited,
-                5000, int(waited))
+                None,
+                None,
+                "Command unfinished after %s seconds" % waited,
+                5000,
+                int(waited),
+            )
 
     def block(self, ms):
         """

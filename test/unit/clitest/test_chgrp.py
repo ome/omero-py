@@ -25,7 +25,6 @@ from omero.plugins.chgrp import ChgrpControl
 
 
 class TestChgrp(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("chgrp", ChgrpControl, "TEST")

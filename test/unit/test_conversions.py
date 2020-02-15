@@ -35,7 +35,6 @@ from omero.conversions import Sym
 
 
 class TestConversions(object):
-
     def assertEquals(self, a, b, places=6):
         assertAlmostEqual(a, b, places=places)
 

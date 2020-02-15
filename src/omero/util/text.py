@@ -14,6 +14,7 @@
 from __future__ import unicode_literals
 from __future__ import division
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import str
 from builtins import zip
@@ -45,7 +46,7 @@ class SQLStyle(Style):
     SEPARATOR = "|"
 
     def format(self, width, align):
-        return ' %%%s%ds ' % (align, width)
+        return " %%%s%ds " % (align, width)
 
     def line(self, table):
         return "+".join(["-" * (x.width + 2) for x in table.columns])
@@ -53,11 +54,14 @@ class SQLStyle(Style):
     def status(self, table):
         s = "(%s %s%%s)" % (
             table.length,
-            (table.length == 1 and "row" or "rows"))
+            (table.length == 1 and "row" or "rows"),
+        )
         if table.page_info is None:
             return s % ""
-        return s % (", starting at %s of approx. %s" %
-                    (table.page_info[0], table.page_info[2]))
+        return s % (
+            ", starting at %s of approx. %s"
+            % (table.page_info[0], table.page_info[2])
+        )
 
     def get_rows(self, table):
         yield str(self.headers(table))
@@ -73,28 +77,35 @@ class PlainStyle(Style):
     SEPARATOR = ","
 
     def format(self, width, align):
-        return '%s'
+        return "%s"
 
     def _write_row(self, table, i):
         try:
             import csv
             import io
+
             if sys.version_info >= (3, 0, 0):
                 output = io.StringIO()
+
                 def _encode(s):
                     return s
+
                 def _decode(s):
                     return s
+
             else:
                 # Python 2.7 csv module does not support unicode!
                 # https://docs.python.org/2.7/library/csv.html#module-csv
                 # Need to treat as bytes and encode/decode
                 output = io.BytesIO()
+
                 def _encode(s):
-                    return s.encode('utf-8')
+                    return s.encode("utf-8")
+
                 def _decode(s):
-                    return s.decode('utf-8')
-            writer = csv.writer(output, lineterminator='')
+                    return s.decode("utf-8")
+
+            writer = csv.writer(output, lineterminator="")
             writer.writerow([_encode(s) for s in table.get_row(i)])
             return _decode(output.getvalue())
         except Exception as e:
@@ -120,23 +131,22 @@ class JSONStyle(Style):
     NAME = "json"
 
     def format(self, width, align):
-        return '%s'
+        return "%s"
 
     def get_rows(self, table):
         headers = list(table.get_row(None))
 
         if table.length == 0:
-            yield '[]'
+            yield "[]"
 
         for i in range(0, table.length):
-            prefix = '[' if i == 0 else ''
-            suffix = ']' if i == table.length - 1 else ','
+            prefix = "[" if i == 0 else ""
+            suffix = "]" if i == table.length - 1 else ","
             d = dict(list(zip(headers, table.get_row(i))))
             yield prefix + json.dumps(d) + suffix
 
 
 class StyleRegistry(dict):
-
     def __init__(self):
         dict.__init__(self)
         self["csv"] = CSVStyle()
@@ -199,7 +209,7 @@ class TableBuilder(object):
         """
         self.align = list(align)
         if len(self.align) < len(self.headers):
-            self.align.extend(['l'] * (len(self.headers) - len(self.align)))
+            self.align.extend(["l"] * (len(self.headers) - len(self.align)))
 
     def col(self, name):
         """
@@ -233,8 +243,9 @@ class TableBuilder(object):
             raise KeyError("%s not in %s" % (name, self.headers))
         idx = self.headers.index(name)
         if len(self.results[idx]) != len(col):
-            raise ValueError("Size mismatch: %s != %s" %
-                             (self.results[idx], len(col)))
+            raise ValueError(
+                "Size mismatch: %s != %s" % (self.results[idx], len(col))
+            )
         self.results[idx] = col
 
     def replace_header(self, name, new_name):
@@ -249,8 +260,9 @@ class TableBuilder(object):
     def row(self, *items, **by_name):
 
         if len(items) > len(self.headers):
-            raise ValueError("Size mismatch: %s != %s" %
-                             (len(items), len(self.headers)))
+            raise ValueError(
+                "Size mismatch: %s != %s" % (len(items), len(self.headers))
+            )
 
         # Fill in all values, even if missing
         for idx in range(len(self.results)):
@@ -275,11 +287,13 @@ class TableBuilder(object):
         sorting and then transposing.
         """
         for col in cols:
-            if col+1 > len(self.headers):
-                raise ValueError("Column mismatch: %s of %s" %
-                                 (col, len(self.headers)))
+            if col + 1 > len(self.headers):
+                raise ValueError(
+                    "Column mismatch: %s of %s" % (col, len(self.headers))
+                )
 
         from operator import itemgetter
+
         tr = list(zip(*self.results))
         tr.sort(key=itemgetter(*cols), reverse=reverse)
         self.results = list(zip(*tr))
@@ -288,10 +302,11 @@ class TableBuilder(object):
         columns = []
         for i, x in enumerate(self.headers):
             align = ALIGN.LEFT
-            if self.align and self.align[i] == 'r':
+            if self.align and self.align[i] == "r":
                 align = ALIGN.RIGHT
             columns.append(
-                Column(x, self.results[i], align=align, style=self.style))
+                Column(x, self.results[i], align=align, style=self.style)
+            )
         table = Table(*columns)
         if self.page_info:
             table.page(*self.page_info)
@@ -303,19 +318,21 @@ class TableBuilder(object):
 
 
 class ALIGN(object):
-    LEFT, RIGHT = '-', ''
+    LEFT, RIGHT = "-", ""
 
 
 class Column(list):
-
     def __init__(self, name, data, align=ALIGN.LEFT, style=SQLStyle()):
         if sys.version_info >= (3, 0, 0):
+
             def tostring(x):
                 if isinstance(x, bytes):
                     return x.decode("utf-8", "surrogateescape")
                 else:
                     return str(x)
+
         else:
+
             def tostring(x):
                 try:
                     return str(x)
@@ -331,7 +348,6 @@ class Column(list):
 
 
 class Table(object):
-
     def __init__(self, *columns):
         self.style = SQLStyle()
         self.columns = columns
@@ -352,7 +368,8 @@ class Table(object):
                 if sys.version_info >= (3, 0, 0):
                     if isinstance(x[i], bytes):
                         yield x.format % bytes.decode(
-                            "utf-8", "surrogateescape")
+                            "utf-8", "surrogateescape"
+                        )
                     else:
                         yield x.format % str(x[i])
                 else:
@@ -373,9 +390,9 @@ class Table(object):
 
     def __str__(self):
         if sys.version_info >= (3, 0, 0):
-            return '\n'.join(self.get_rows())
+            return "\n".join(self.get_rows())
         else:
-            return ('\n'.join(self.get_rows())).encode("utf-8")
+            return ("\n".join(self.get_rows())).encode("utf-8")
 
 
 def filesizeformat(bytes):
@@ -399,7 +416,7 @@ def filesizeformat(bytes):
     PB = 1 << 50
 
     if bytes < KB:
-        value = "%(size)d B" % {'size': bytes}
+        value = "%(size)d B" % {"size": bytes}
     elif bytes < MB:
         value = "%s KB" % filesize_number_format(old_div(bytes, KB))
     elif bytes < GB:

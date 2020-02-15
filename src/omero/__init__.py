@@ -16,6 +16,7 @@ from omero_version import omero_version
 from omero_version import ice_compatibility as compat
 import Ice
 import os
+
 _sys = __import__("sys")
 
 try:
@@ -38,8 +39,12 @@ try:
         --------------
         VERSION=%s
         PYTHONPATH=%s
-        """ % (".".join(compat), ".".join(vers), omero_version,
-               os.path.pathsep.join(_sys.path))
+        """ % (
+            ".".join(compat),
+            ".".join(vers),
+            omero_version,
+            os.path.pathsep.join(_sys.path),
+        )
         raise Exception(msg)
 finally:
     del omero_version
@@ -59,11 +64,13 @@ def client_wrapper(*args, **kwargs):
     @return:    See above
     """
     import omero.gateway
+
     return omero.gateway.BlitzGateway(*args, **kwargs)
 
 
 def client(*args, **kwargs):
     import omero.clients
+
     return omero.clients.BaseClient(*args, **kwargs)
 
 
@@ -71,6 +78,7 @@ class ClientError(Exception):
     """
     Top of client exception hierarchy.
     """
+
     pass
 
 
@@ -109,6 +117,7 @@ def proxy_to_instance(proxy_string, default=None):
     but not required.
     """
     import omero
+
     parts = proxy_string.split(":")
     if len(parts) == 1 and default is not None:
         proxy_string = "%s:%s" % (default, proxy_string)
@@ -119,9 +128,12 @@ def proxy_to_instance(proxy_string, default=None):
         kls += "I"
     kls = getattr(omero.model, kls, None)
     if kls is None:
-        raise ClientError(("Invalid proxy string: %s. "
-                          "Correct format is Class:ID") % proxy_string)
+        raise ClientError(
+            ("Invalid proxy string: %s. " "Correct format is Class:ID")
+            % proxy_string
+        )
     return kls(proxy_string)
+
 
 #
 # Workaround for warning messages produced in
@@ -129,7 +141,9 @@ def proxy_to_instance(proxy_string, default=None):
 #
 if _sys.version_info[:2] == (2, 6):
     import warnings
+
     warnings.filterwarnings(
-        action='ignore',
-        message='BaseException.message has been deprecated as of Python 2.6',
-        category=DeprecationWarning)
+        action="ignore",
+        message="BaseException.message has been deprecated as of Python 2.6",
+        category=DeprecationWarning,
+    )

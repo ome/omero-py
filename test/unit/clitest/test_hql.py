@@ -27,7 +27,6 @@ from omero.plugins.hql import HqlControl, BLACKLISTED_KEYS, WHITELISTED_VALUES
 
 
 class TestHql(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("hql", HqlControl, "TEST")
@@ -49,27 +48,27 @@ class TestHql(object):
 
     @pytest.mark.parametrize(
         ("value", "outcome"),
-        [("owner=None;group=None", {}),
-         ("owner=1", {"details": "owner=1"})])
+        [("owner=None;group=None", {}), ("owner=1", {"details": "owner=1"})],
+    )
     def testFilterDetails(self, value, outcome):
         output = self.cli.controls["hql"].filter({"_details": value})
         assert output == outcome
 
     @pytest.mark.parametrize("multi_value", [[0, 1]])
     def testFilterMultiValue(self, multi_value):
-        output = self.cli.controls["hql"].filter({'key': multi_value})
+        output = self.cli.controls["hql"].filter({"key": multi_value})
         assert output == {}
 
     @pytest.mark.parametrize("empty_value", [None, [], {}])
     def testFilterEmptyValue(self, empty_value):
-        output = self.cli.controls["hql"].filter({'key': empty_value})
+        output = self.cli.controls["hql"].filter({"key": empty_value})
         assert output == {}
 
     @pytest.mark.parametrize("value", WHITELISTED_VALUES)
     def testFilterWhitelist(self, value):
-        output = self.cli.controls["hql"].filter({'key': value})
-        assert output == {'key': value}
+        output = self.cli.controls["hql"].filter({"key": value})
+        assert output == {"key": value}
 
     def testFilterStrip(self):
-        output = self.cli.controls["hql"].filter({'_key': 1})
-        assert output == {'key': 1}
+        output = self.cli.controls["hql"].filter({"_key": 1})
+        assert output == {"key": 1}

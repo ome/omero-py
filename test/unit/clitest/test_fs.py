@@ -27,7 +27,6 @@ from omero.plugins.fs import FsControl
 
 
 class TestTag(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("fs", FsControl, "TEST")
@@ -37,7 +36,7 @@ class TestTag(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('subcommand', FsControl().get_subcommands())
+    @pytest.mark.parametrize("subcommand", FsControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)

@@ -14,13 +14,13 @@ from builtins import str
 from builtins import object
 from past.utils import old_div
 import logging
+
 logging.basicConfig(level=0)
 
 import omero.util.temp_files as t_f
 
 
 class TestTemps(object):
-
     def testBasicUsage(self):
         p = t_f.create_path("foo", ".bar")
         assert p.exists()

@@ -44,25 +44,27 @@ from omero.rtypes import rtime
 
 
 class TestProxyString(object):
-
-    @pytest.mark.parametrize("data", (
-        ("", None, None, None),
-        ("1", None, None, None),
-        ("Image", None, None, None),
-        ("ImageI", None, None, None),
-        ("Image:1", None, ImageI, 1),
-        ("ImageI:1", None, ImageI, 1),
-        ("ImageI:1", "ImageI", ImageI, 1),
-        ("Image:1", "ImageI", ImageI, 1),
-        ("1", "ImageI", ImageI, 1),
-        ("1", "Image", ImageI, 1),
-    ))
+    @pytest.mark.parametrize(
+        "data",
+        (
+            ("", None, None, None),
+            ("1", None, None, None),
+            ("Image", None, None, None),
+            ("ImageI", None, None, None),
+            ("Image:1", None, ImageI, 1),
+            ("ImageI:1", None, ImageI, 1),
+            ("ImageI:1", "ImageI", ImageI, 1),
+            ("Image:1", "ImageI", ImageI, 1),
+            ("1", "ImageI", ImageI, 1),
+            ("1", "Image", ImageI, 1),
+        ),
+    )
     def testAll(self, data):
         source = data[0]
         default = data[1]
         type = data[2]
         id = data[3]
-        err = (type is None and id is None)
+        err = type is None and id is None
         try:
             obj = omero.proxy_to_instance(source, default)
             assert isinstance(obj, type)
@@ -76,7 +78,6 @@ class TestProxyString(object):
 
 
 class TestModel(object):
-
     def testVirtual(self):
         img = ImageI()
         imgI = ImageI()
@@ -278,17 +279,20 @@ class TestModel(object):
 
         def assign_loaded():
             i.loaded = False
+
         pytest.raises(AttributeError, assign_loaded)
         pytest.raises(AttributeError, lambda: i.foo)
 
         def assign_foo():
             i.foo = 1
+
         pytest.raises(AttributeError, assign_foo)
         pytest.raises(AttributeError, lambda: i.annotationLinks)
         pytest.raises(AttributeError, lambda: i.getAnnotationLinks())
 
         def assign_links():
             i.annotationLinks = []
+
         pytest.raises(AttributeError, assign_links)
 
     def testGetAttrSetAttrDetails(self):
@@ -370,25 +374,25 @@ class TestModel(object):
         assert "µm" == sym
 
     CONV_DATA = (
-        (ElectricPotentialI, 1, 'VOLT', 100, 'CENTIVOLT'),
-        (FrequencyI, 1, 'HERTZ', 1000, 'MILLIHERTZ'),
-        (FrequencyI, 1, 'HERTZ', 1000, 'MILLIHERTZ'),
-        (LengthI, 10, 'METER', 393.701, 'INCH'),
-        (LengthI, 12, 'INCH', 1, 'FOOT'),
-        (LengthI, 3, 'FOOT', 1, 'YARD'),
-        (LengthI, 1, 'NANOMETER', 10, 'ANGSTROM'),
-        (PowerI, 1, 'WATT', 10, 'DECIWATT'),
-        (PowerI, 1, 'WATT', .1, 'DECAWATT'),
-        (PressureI, 1, 'BAR', 100, 'KILOPASCAL'),
-        (PressureI, 1, 'TORR', 133.32236842, 'PASCAL'),
-        (TemperatureI, 0, 'CELSIUS', 32, 'FAHRENHEIT'),
-        (TemperatureI, -40, 'CELSIUS', -40, 'FAHRENHEIT'),
-        (TemperatureI, 100, 'CELSIUS', 212, 'FAHRENHEIT'),
-        (TemperatureI, 10, 'KELVIN', 18, 'RANKINE'),
-        (TemperatureI, 200, 'RANKINE', 111.11111111, 'KELVIN'),
-        (TimeI, 1, 'DAY', 24, 'HOUR'),
-        (TimeI, 1, 'HOUR', 3600, 'SECOND'),
-        (TimeI, 1, 'SECOND', 10**6, 'MICROSECOND'),
+        (ElectricPotentialI, 1, "VOLT", 100, "CENTIVOLT"),
+        (FrequencyI, 1, "HERTZ", 1000, "MILLIHERTZ"),
+        (FrequencyI, 1, "HERTZ", 1000, "MILLIHERTZ"),
+        (LengthI, 10, "METER", 393.701, "INCH"),
+        (LengthI, 12, "INCH", 1, "FOOT"),
+        (LengthI, 3, "FOOT", 1, "YARD"),
+        (LengthI, 1, "NANOMETER", 10, "ANGSTROM"),
+        (PowerI, 1, "WATT", 10, "DECIWATT"),
+        (PowerI, 1, "WATT", 0.1, "DECAWATT"),
+        (PressureI, 1, "BAR", 100, "KILOPASCAL"),
+        (PressureI, 1, "TORR", 133.32236842, "PASCAL"),
+        (TemperatureI, 0, "CELSIUS", 32, "FAHRENHEIT"),
+        (TemperatureI, -40, "CELSIUS", -40, "FAHRENHEIT"),
+        (TemperatureI, 100, "CELSIUS", 212, "FAHRENHEIT"),
+        (TemperatureI, 10, "KELVIN", 18, "RANKINE"),
+        (TemperatureI, 200, "RANKINE", 111.11111111, "KELVIN"),
+        (TimeI, 1, "DAY", 24, "HOUR"),
+        (TimeI, 1, "HOUR", 3600, "SECOND"),
+        (TimeI, 1, "SECOND", 10 ** 6, "MICROSECOND"),
     )
 
     CONV_IDS = ["%s_%s_%s_%s" % tuple(x[1:]) for x in CONV_DATA]

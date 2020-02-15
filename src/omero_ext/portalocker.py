@@ -65,28 +65,32 @@ __all__ = [
 
 import os
 
+
 class LockException(Exception):
     # Error codes:
     LOCK_FAILED = 1
 
-if os.name == 'nt':
+
+if os.name == "nt":
     import win32con
     import win32file
     import pywintypes
+
     LOCK_EX = win32con.LOCKFILE_EXCLUSIVE_LOCK
-    LOCK_SH = 0 # the default
+    LOCK_SH = 0  # the default
     LOCK_NB = win32con.LOCKFILE_FAIL_IMMEDIATELY
     # is there any reason not to reuse the following structure?
     __overlapped = pywintypes.OVERLAPPED()
-elif os.name == 'posix':
+elif os.name == "posix":
     import fcntl
+
     LOCK_EX = fcntl.LOCK_EX
     LOCK_SH = fcntl.LOCK_SH
     LOCK_NB = fcntl.LOCK_NB
 else:
     raise RuntimeError("PortaLocker only defined for nt and posix platforms")
 
-if os.name == 'nt':
+if os.name == "nt":
 
     def lockno(fileno, flags):
         hfile = win32file._get_osfhandle(fileno)
@@ -96,7 +100,8 @@ if os.name == 'nt':
             # error: (33, 'LockFileEx', 'The process cannot access the file because another process has locked a portion of the file.')
             if exc_value.args[0] == 33:
                 raise LockException(
-                    LockException.LOCK_FAILED, exc_value.args[2])
+                    LockException.LOCK_FAILED, exc_value.args[2]
+                )
             else:
                 # Q:  Are there exceptions/codes we should be dealing with here?
                 raise
@@ -114,7 +119,9 @@ if os.name == 'nt':
                 # Q:  Are there exceptions/codes we should be dealing with here?
                 raise
 
-elif os.name == 'posix':
+
+elif os.name == "posix":
+
     def lockno(fileno, flags):
         try:
             fcntl.flock(fileno, flags)
@@ -124,7 +131,8 @@ elif os.name == 'posix':
             #  IOError: [Errno 35] Resource temporarily unavailable
             if exc_value.args[0] == 11 or exc_value.args[0] == 35:
                 raise LockException(
-                    LockException.LOCK_FAILED, exc_value.args[1])
+                    LockException.LOCK_FAILED, exc_value.args[1]
+                )
             else:
                 raise
 
@@ -140,19 +148,18 @@ def unlock(file):
     unlockno(file.fileno())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from time import time, strftime, localtime
     import sys
     from . import portalocker
 
-    log = open('log.txt', "a+")
+    log = open("log.txt", "a+")
     portalocker.lock(log, portalocker.LOCK_EX)
 
     timestamp = strftime("%m/%d/%Y %H:%M:%S\n", localtime(time()))
-    log.write( timestamp )
+    log.write(timestamp)
 
     print("Wrote lines. Hit enter to release lock.")
     dummy = sys.stdin.readline()
 
     log.close()
-

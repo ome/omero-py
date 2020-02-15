@@ -6,6 +6,7 @@
 """
 
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import str
 from builtins import object
@@ -52,8 +53,13 @@ class UpgradeCheck(object):
     #
     DEFAULT_TIMEOUT = 6.0
 
-    def __init__(self, agent, url="http://upgrade.openmicroscopy.org.uk/",
-                 version=omero_version, timeout=DEFAULT_TIMEOUT):
+    def __init__(
+        self,
+        agent,
+        url="http://upgrade.openmicroscopy.org.uk/",
+        version=omero_version,
+        timeout=DEFAULT_TIMEOUT,
+    ):
         """
         ::
             agent   := Name of the agent which is accessing the registry.
@@ -98,8 +104,7 @@ class UpgradeCheck(object):
     def getOSVersion(self):
         try:
             if len(platform.mac_ver()[0]) > 0:
-                version = "%s;%s" % (platform.platform(),
-                                     platform.mac_ver()[0])
+                version = "%s;%s" % (platform.platform(), platform.mac_ver()[0])
             else:
                 version = platform.platform()
         except:
@@ -136,7 +141,7 @@ class UpgradeCheck(object):
                 socket.setdefaulttimeout(self.timeout)
                 full_url = "%s?%s" % (self.url, params)
                 request = urllib.request.Request(full_url)
-                request.add_header('User-Agent', self.agent)
+                request.add_header("User-Agent", self.agent)
                 self.log.debug("Attempting to connect to %s" % full_url)
                 response = urllib.request.urlopen(request)
                 result = response.read()
@@ -152,5 +157,5 @@ class UpgradeCheck(object):
             self.log.info("no update needed")
             self._set(None, None)
         else:
-            self.log.warn("UPGRADE AVAILABLE:" + result.decode('utf-8'))
-            self._set(result.decode('utf-8'), None)
+            self.log.warn("UPGRADE AVAILABLE:" + result.decode("utf-8"))
+            self._set(result.decode("utf-8"), None)

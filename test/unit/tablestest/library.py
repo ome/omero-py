@@ -15,7 +15,6 @@ from omero.util.temp_files import create_path
 
 
 class TestCase(object):
-
     def setup_method(self, method):
         self.dir = self.tmpdir()
 

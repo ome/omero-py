@@ -26,6 +26,7 @@ from __future__ import division
 from __future__ import print_function
 
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import str
 from builtins import object
@@ -62,7 +63,7 @@ from path import path
 
 
 def _escape_host(host):
-    return quote(host, safe='')
+    return quote(host, safe="")
 
 
 class SessionsStore(object):
@@ -127,8 +128,9 @@ class SessionsStore(object):
 
         (old_div(dhn, id)).write_lines(lines)
 
-    def conflicts(self, host, name, id, new_props, ignore_nulls=False,
-                  check_group=True):
+    def conflicts(
+        self, host, name, id, new_props, ignore_nulls=False, check_group=True
+    ):
         """
         Compares if the passed properties are compatible with
         with those for the host, name, id tuple
@@ -148,8 +150,9 @@ class SessionsStore(object):
             new = new_props.get(key, None)
             if ignore_nulls and new is None:
                 continue
-            elif (key == "omero.port" and
-                  set((old, new)) == set((None, default_port))):
+            elif key == "omero.port" and set((old, new)) == set(
+                (None, default_port)
+            ):
                 continue
             elif old != new:
                 if conflicts != "":
@@ -212,7 +215,7 @@ class SessionsStore(object):
         if host is not None:
             self.host_file().write_text(host)
         if props is not None:
-            port = props.get('omero.port', str(omero.constants.GLACIER2PORT))
+            port = props.get("omero.port", str(omero.constants.GLACIER2PORT))
             self.port_file().write_text(port)
         if name is not None:
             self.user_file(host).write_text(name)
@@ -285,7 +288,8 @@ class SessionsStore(object):
             else:
                 raise Exception(
                     "Multiple names found for uuid=%s: %s"
-                    % (uuid, ", ".join(n)))
+                    % (uuid, ", ".join(n))
+                )
 
     def contents(self):
         """
@@ -316,8 +320,10 @@ class SessionsStore(object):
         """
         Returns the sum of all files visited by walk()
         """
+
         def f(h, n, s):
             f.i += 1
+
         f.i = 0
         self.walk(f, host, name)
         return f.i
@@ -345,8 +351,9 @@ class SessionsStore(object):
         the logic of client.joinSession()
         """
         props = self.get(server, name, sess)
-        return self.create(sess, sess, props, new=False,
-                           set_current=set_current)
+        return self.create(
+            sess, sess, props, new=False, set_current=set_current
+        )
 
     def create(self, name, pasw, props, new=True, set_current=True, sudo=None):
         """
@@ -354,6 +361,7 @@ class SessionsStore(object):
         (cilent, session_id, timeToIdle, timeToLive)
         """
         import omero.clients
+
         props = dict(props)
         host = props["omero.host"]
         client = omero.client(props)
@@ -373,7 +381,8 @@ class SessionsStore(object):
                 timeToIdle = sess.getTimeToIdle().getValue()
 
                 sess = sf.getSessionService().createSessionWithTimeouts(
-                    principal, 0, timeToIdle)
+                    principal, 0, timeToIdle
+                )
                 client.closeSession()
                 sf = client.joinSession(sess.getUuid().getValue())
             else:
@@ -407,6 +416,7 @@ class SessionsStore(object):
                 self.ctx.dbg(str(ce.err))
             except:
                 import traceback
+
                 self.ctx.dbg(traceback.format_exc())
 
             # Reload session
@@ -439,6 +449,7 @@ class SessionsStore(object):
                 self.logger.debug("Exception on killSession: %s" % e)
             s.remove()
             removed.append(s)
+
         self.walk(f, host, name, sess)
         return removed
 
@@ -473,8 +484,9 @@ class SessionsStore(object):
         Only returns the files (not directories)
         contained in d that don't start with a dot
         """
-        return [f for f in d.files("*")
-                if not str(f.basename()).startswith(".")]
+        return [
+            f for f in d.files("*") if not str(f.basename()).startswith(".")
+        ]
 
     def props(self, f):
         """
@@ -491,6 +503,7 @@ class SessionsStore(object):
                 parts.append("")
             props[parts[0]] = parts[1]
         return props
+
 
 if __name__ == "__main__":
     SessionsStore().report()

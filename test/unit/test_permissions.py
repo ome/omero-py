@@ -15,7 +15,6 @@ import omero.model
 
 
 class TestPermissions(object):
-
     def setup_method(self, method):
         self.p = omero.model.PermissionsI()
 
@@ -69,32 +68,32 @@ class TestPermissions(object):
 
     def testPermissionsSetters(self):
         # start with everythin false
-        p = omero.model.PermissionsI('------')
+        p = omero.model.PermissionsI("------")
 
         # read flags are easy, straight binary
         # user flags
         p.setUserRead(True)
         assert p.isUserRead()
-        assert 'r' == str(p)[0]
+        assert "r" == str(p)[0]
         p.setUserRead(False)
         assert not p.isUserRead()
-        assert '-' == str(p)[0]
+        assert "-" == str(p)[0]
 
         # group flags
         p.setGroupRead(True)
         assert p.isGroupRead()
-        assert 'r' == str(p)[2]
+        assert "r" == str(p)[2]
         p.setGroupRead(False)
         assert not p.isGroupRead()
-        assert '-' == str(p)[2]
+        assert "-" == str(p)[2]
 
         # world flags
         p.setWorldRead(True)
         assert p.isWorldRead()
-        assert 'r' == str(p)[4]
+        assert "r" == str(p)[4]
         p.setWorldRead(False)
         assert not p.isWorldRead()
-        assert '-' == str(p)[4]
+        assert "-" == str(p)[4]
 
         # write flags are trickier as the string
         # representation is ternary
@@ -102,55 +101,55 @@ class TestPermissions(object):
         p.setUserAnnotate(True)
         assert p.isUserAnnotate()
         assert not p.isUserWrite()
-        assert 'a' == str(p)[1]
+        assert "a" == str(p)[1]
         p.setUserWrite(True)
         assert p.isUserAnnotate()
         assert p.isUserWrite()
-        assert 'w' == str(p)[1]
+        assert "w" == str(p)[1]
         p.setUserWrite(False)
         assert p.isUserAnnotate()
         assert not p.isUserWrite()
-        assert 'a' == str(p)[1]
+        assert "a" == str(p)[1]
         p.setUserAnnotate(False)
         assert not p.isUserAnnotate()
         assert not p.isUserWrite()
-        assert '-' == str(p)[1]
+        assert "-" == str(p)[1]
 
         # group flags
         p.setGroupAnnotate(True)
         assert p.isGroupAnnotate()
         assert not p.isGroupWrite()
-        assert 'a' == str(p)[3]
+        assert "a" == str(p)[3]
         p.setGroupWrite(True)
         assert p.isGroupAnnotate()
         assert p.isGroupWrite()
-        assert 'w' == str(p)[3]
+        assert "w" == str(p)[3]
         p.setGroupWrite(False)
         assert p.isGroupAnnotate()
         assert not p.isGroupWrite()
-        assert 'a' == str(p)[3]
+        assert "a" == str(p)[3]
         p.setGroupAnnotate(False)
         assert not p.isGroupAnnotate()
         assert not p.isGroupWrite()
-        assert '-' == str(p)[3]
+        assert "-" == str(p)[3]
 
         # world flags
         p.setWorldAnnotate(True)
         assert p.isWorldAnnotate()
         assert not p.isWorldWrite()
-        assert 'a' == str(p)[5]
+        assert "a" == str(p)[5]
         p.setWorldWrite(True)
         assert p.isWorldAnnotate()
         assert p.isWorldWrite()
-        assert 'w' == str(p)[5]
+        assert "w" == str(p)[5]
         p.setWorldWrite(False)
         assert p.isWorldAnnotate()
         assert not p.isWorldWrite()
-        assert 'a' == str(p)[5]
+        assert "a" == str(p)[5]
         p.setWorldAnnotate(False)
         assert not p.isWorldAnnotate()
         assert not p.isWorldWrite()
-        assert '-' == str(p)[5]
+        assert "-" == str(p)[5]
 
     def test8564(self):
 
@@ -191,8 +190,16 @@ class TestPermissions(object):
 Permissions: %s Role: %s
 Expected READ: %s \t Found: %s
 Expected ANNO: %s \t Found: %s
-Expected EDIT: %s \t Found: %s""" % \
-            (p, role, read, isRead, annotate, isAnno, edit, isEdit)
+Expected EDIT: %s \t Found: %s""" % (
+            p,
+            role,
+            read,
+            isRead,
+            annotate,
+            isAnno,
+            edit,
+            isEdit,
+        )
 
         assert read == isRead, msg
         assert annotate == isAnno, msg

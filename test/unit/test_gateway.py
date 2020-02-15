@@ -29,19 +29,39 @@ import Ice
 import pytest
 import sys
 
-from omero.gateway import BlitzGateway, ImageWrapper, \
-    WellWrapper, LogicalChannelWrapper, OriginalFileWrapper
-from omero.model import ImageI, PixelsI, ExperimenterI, EventI, \
-    ProjectI, TagAnnotationI, FileAnnotationI, OriginalFileI, \
-    MapAnnotationI, NamedValue, PlateI, WellI, \
-    LogicalChannelI, LengthI, IlluminationI, BinningI, \
-    DetectorSettingsI, DichroicI, LightPathI
+from omero.gateway import (
+    BlitzGateway,
+    ImageWrapper,
+    WellWrapper,
+    LogicalChannelWrapper,
+    OriginalFileWrapper,
+)
+from omero.model import (
+    ImageI,
+    PixelsI,
+    ExperimenterI,
+    EventI,
+    ProjectI,
+    TagAnnotationI,
+    FileAnnotationI,
+    OriginalFileI,
+    MapAnnotationI,
+    NamedValue,
+    PlateI,
+    WellI,
+    LogicalChannelI,
+    LengthI,
+    IlluminationI,
+    BinningI,
+    DetectorSettingsI,
+    DichroicI,
+    LightPathI,
+)
 from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rtime, rlong, rint, rdouble
 
 
 class MockQueryService(object):
-
     def __init__(self, obj_to_be_returned):
         self.obj = obj_to_be_returned
 
@@ -50,7 +70,6 @@ class MockQueryService(object):
 
 
 class MockConnection(BlitzGateway):
-
     def __init__(self, obj_to_be_returned):
         self.obj = obj_to_be_returned
         self.SERVICE_OPTS = dict()
@@ -62,15 +81,15 @@ class MockConnection(BlitzGateway):
         return (64, 64)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def wrapped_image():
     experimenter = ExperimenterI()
-    experimenter.firstName = rstring('first_name')
-    experimenter.lastName = rstring('last_name')
+    experimenter.firstName = rstring("first_name")
+    experimenter.lastName = rstring("last_name")
     image = ImageI()
     image.id = rlong(1)
-    image.description = rstring('description')
-    image.name = rstring('name')
+    image.description = rstring("description")
+    image.name = rstring("name")
     image.acquisitionDate = rtime(1000)  # In milliseconds
     image.details.owner = ExperimenterI(1, False)
     creation_event = EventI()
@@ -88,7 +107,7 @@ class TestObjectsUnicode(object):
         if sys.version_info >= (3, 0, 0):
             return s
         else:
-            return s.encode('utf8')
+            return s.encode("utf8")
 
     def test_experimenter(self):
         """
@@ -96,8 +115,8 @@ class TestObjectsUnicode(object):
 
         These will return unicode strings
         """
-        first_name = u'fîrst_nąmę'
-        last_name = u'làst_NÅMÉ'
+        first_name = "fîrst_nąmę"
+        last_name = "làst_NÅMÉ"
         experimenter = ExperimenterI()
         experimenter.firstName = rstring(first_name)
         experimenter.lastName = rstring(last_name)
@@ -109,8 +128,8 @@ class TestObjectsUnicode(object):
 
     def test_project(self):
         """Tests BlitzObjectWrapper.getName() returns string"""
-        name = u'Pròjëct ©ψ'
-        desc = u"Desc Φωλ"
+        name = "Pròjëct ©ψ"
+        desc = "Desc Φωλ"
         project = ProjectI()
         project.name = rstring(name)
         project.description = rstring(desc)
@@ -124,8 +143,8 @@ class TestObjectsUnicode(object):
 
     def test_tag_annotation(self):
         """Tests AnnotationWrapper methods return strings"""
-        ns = u'πλζ.test.ζ'
-        text_value = u'Tαg - ℗'
+        ns = "πλζ.test.ζ"
+        text_value = "Tαg - ℗"
         obj = TagAnnotationI()
         obj.textValue = rstring(text_value)
         obj.ns = rstring(ns)
@@ -138,7 +157,7 @@ class TestObjectsUnicode(object):
 
     def test_file_annotation(self):
         """Tests AnnotationWrapper methods return strings"""
-        file_name = u'₩€_file_$$'
+        file_name = "₩€_file_$$"
         f = OriginalFileI()
         f.name = rstring(file_name)
         obj = FileAnnotationI()
@@ -149,7 +168,7 @@ class TestObjectsUnicode(object):
 
     def test_map_annotation(self):
         """Tests MapAnnotationWrapper.getValue() returns unicode"""
-        values = [(u'one', u'₹₹'), (u'two', u'¥¥')]
+        values = [("one", "₹₹"), ("two", "¥¥")]
         obj = MapAnnotationI()
         data = [NamedValue(d[0], d[1]) for d in values]
         obj.setMapValue(data)
@@ -159,7 +178,7 @@ class TestObjectsUnicode(object):
 
     def test_plate(self):
         """Tests label methods for Plate and Well."""
-        name = u'plate_∞'
+        name = "plate_∞"
         cols = 4
         rows = 3
         obj = PlateI()
@@ -167,9 +186,9 @@ class TestObjectsUnicode(object):
 
         plate = MockConnection(obj).getObject("Plate", 1)
         assert plate.getName() == self._encode(name)
-        plate._gridSize = {'rows': rows, 'columns': cols}
+        plate._gridSize = {"rows": rows, "columns": cols}
         assert plate.getColumnLabels() == [c for c in range(1, cols + 1)]
-        assert plate.getRowLabels() == ['A', 'B', 'C']
+        assert plate.getRowLabels() == ["A", "B", "C"]
 
         well_obj = WellI()
         well_obj.column = rint(1)
@@ -192,13 +211,13 @@ class TestBlitzObjectGetAttr(object):
         if sys.version_info >= (3, 0, 0):
             return s
         else:
-            return s.encode('utf8')
+            return s.encode("utf8")
 
     def test_logical_channel(self):
-        name = u'₩€_name_$$'
-        ill_val = u'πλζ.test.ζ'
-        fluor = u'GFP-₹₹'
-        binning_value = u'Φωλ'
+        name = "₩€_name_$$"
+        ill_val = "πλζ.test.ζ"
+        fluor = "GFP-₹₹"
+        binning_value = "Φωλ"
         ph_size = 1.11
         ph_units = UnitsLength.MICROMETER
         ex_wave = 3.34
@@ -206,7 +225,7 @@ class TestBlitzObjectGetAttr(object):
         version = 123
         zoom = 100
         gain = 1010.23
-        di_model = u'Model_ 123_àÅÉ'
+        di_model = "Model_ 123_àÅÉ"
 
         obj = LogicalChannelI()
         obj.name = rstring(name)
@@ -242,12 +261,12 @@ class TestBlitzObjectGetAttr(object):
         assert channel.name == name
         assert channel.getPinHoleSize().getValue() == ph_size
         assert channel.getPinHoleSize().getUnit() == ph_units
-        assert channel.getPinHoleSize().getSymbol() == 'µm'
+        assert channel.getPinHoleSize().getSymbol() == "µm"
         # Illumination is an enumeration
         assert channel.getIllumination().getValue() == self._encode(ill_val)
         assert channel.getExcitationWave().getValue() == ex_wave
         assert channel.getExcitationWave().getUnit() == ex_units
-        assert channel.getExcitationWave().getSymbol() == 'Å'
+        assert channel.getExcitationWave().getSymbol() == "Å"
         assert channel.getFluor() == fluor
         assert channel.fluor == fluor
 
@@ -263,7 +282,6 @@ class TestBlitzObjectGetAttr(object):
 
 
 class TestFileObject(object):
-
     def test_original_file_wrapper(self):
 
         file_text = """String to return in chunks from
@@ -297,7 +315,6 @@ class TestFileObject(object):
                 pass
 
         class MockOriginalFile(OriginalFileWrapper):
-
             def asFileObj(self, buf=2621440):
                 return MockFile(file_text)
 
@@ -318,16 +335,17 @@ class TestBlitzGatewayUnicode(object):
     def test_unicode_username(self):
         with pytest.raises(Ice.ConnectionRefusedException):
             gateway = BlitzGateway(
-                username=u'ążźćółę', passwd='secret',
-                host='localhost', port=65535
+                username="ążźćółę",
+                passwd="secret",
+                host="localhost",
+                port=65535,
             )
             gateway.connect()
 
     def test_unicode_password(self):
         with pytest.raises(Ice.ConnectionRefusedException):
             gateway = BlitzGateway(
-                username='user', passwd=u'ążźćółę',
-                host='localhost', port=65535
+                username="user", passwd="ążźćółę", host="localhost", port=65535
             )
             gateway.connect()
 
@@ -336,12 +354,12 @@ class TestBlitzGatewayImageWrapper(object):
     """Tests for various methods associated with the `ImageWrapper`."""
 
     def assert_data(self, data):
-        assert data['description'] == 'description'
-        assert data['author'] == 'first_name last_name'
-        assert data['date'] == 1.0  # In seconds
-        assert data['type'] == 'Image'
-        assert data['id'] == 1
-        assert data['name'] == 'name'
+        assert data["description"] == "description"
+        assert data["author"] == "first_name last_name"
+        assert data["date"] == 1.0  # In seconds
+        assert data["type"] == "Image"
+        assert data["id"] == 1
+        assert data["name"] == "name"
 
     def test_simple_marshal(self, wrapped_image):
         self.assert_data(wrapped_image.simpleMarshal())
@@ -352,11 +370,11 @@ class TestBlitzGatewayImageWrapper(object):
         pixels.sizeX = rint(65)
         pixels.sizeY = rint(65)
         image.addPixels(pixels)
-        data = wrapped_image.simpleMarshal(xtra={'tiled': True})
+        data = wrapped_image.simpleMarshal(xtra={"tiled": True})
         self.assert_data(data)
-        assert data['tiled'] is True
+        assert data["tiled"] is True
 
     def test_simple_marshal_not_tiled(self, wrapped_image):
-        data = wrapped_image.simpleMarshal(xtra={'tiled': True})
+        data = wrapped_image.simpleMarshal(xtra={"tiled": True})
         self.assert_data(data)
-        assert data['tiled'] is False
+        assert data["tiled"] is False

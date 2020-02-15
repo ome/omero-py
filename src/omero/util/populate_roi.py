@@ -26,6 +26,7 @@ from __future__ import print_function
 
 
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import str
 from builtins import range
@@ -43,10 +44,23 @@ from getopt import getopt, GetoptError
 from queue import Queue
 
 from omero.rtypes import rdouble, rstring, rint, unwrap
-from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ImageI, \
-    FileAnnotationI, RoiI, EllipseI, PointI
-from omero.grid import ImageColumn, WellColumn, RoiColumn, LongColumn, \
-    DoubleColumn
+from omero.model import (
+    OriginalFileI,
+    PlateI,
+    PlateAnnotationLinkI,
+    ImageI,
+    FileAnnotationI,
+    RoiI,
+    EllipseI,
+    PointI,
+)
+from omero.grid import (
+    ImageColumn,
+    WellColumn,
+    RoiColumn,
+    LongColumn,
+    DoubleColumn,
+)
 
 from omero.sys import ParametersI
 from omero.util.temp_files import create_path
@@ -60,7 +74,8 @@ log = logging.getLogger("omero.util.populate_roi")
 def usage(error):
     """Prints usage so that we don't have to. :)"""
     cmd = sys.argv[0]
-    print("""%s
+    print(
+        """%s
 Usage: %s [-s hostname] [-u username | -k session_key] <-p port> [plate_id]
 Runs measurement population code for a given plate.
 
@@ -77,8 +92,11 @@ Options:
 Examples:
   %s -s localhost -p 4063 -u bob 27
 
-Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd))
+Report bugs to ome-devel@lists.openmicroscopy.org.uk"""
+        % (error, cmd, cmd)
+    )
     sys.exit(2)
+
 
 ###
 # Worker and ThreadPool from...
@@ -123,6 +141,7 @@ class ThreadPool(object):
         """Wait for completion of all the tasks in the queue"""
         self.tasks.join()
 
+
 # Global thread pool for use by ROI workers
 thread_pool = None
 
@@ -140,6 +159,7 @@ class MeasurementError(Exception):
     Raised by the analysis or measurement context when an error condition
     is reached.
     """
+
     pass
 
 
@@ -165,7 +185,7 @@ class DownloadingOriginalFileProvider(object):
         """
         log.info("Downloading original file: %d" % original_file.id.val)
         self.raw_file_store.setFileId(original_file.id.val)
-        temporary_file = tempfile.TemporaryFile(mode='rt+', dir=str(self.dir))
+        temporary_file = tempfile.TemporaryFile(mode="rt+", dir=str(self.dir))
         size = original_file.size.val
         for i in range((old_div(size, self.BUFFER_SIZE)) + 1):
             index = i * self.BUFFER_SIZE
@@ -188,8 +208,14 @@ class AbstractPlateAnalysisCtx(object):
 
     DEFAULT_ORIGINAL_FILE_PROVIDER = DownloadingOriginalFileProvider
 
-    def __init__(self, images, original_files, original_file_image_map,
-                 plate_id, service_factory):
+    def __init__(
+        self,
+        images,
+        original_files,
+        original_file_image_map,
+        plate_id,
+        service_factory,
+    ):
         super(AbstractPlateAnalysisCtx, self).__init__()
         self.images = images
         self.numcols, self.numrows = self.guess_geometry(self.images)
@@ -226,7 +252,8 @@ class AbstractPlateAnalysisCtx(object):
             if well.column.val == col and well.row.val == row:
                 return image
         raise Exception(
-            "Could not find image for (col,row)==(%s,%s)" % (col, row))
+            "Could not find image for (col,row)==(%s,%s)" % (col, row)
+        )
 
     ###
     # Abstract methods
@@ -238,6 +265,7 @@ class AbstractPlateAnalysisCtx(object):
         for the original files associated with the plate.
         """
         raise Exception("To be implemented by concrete implementations.")
+
     is_this_type = classmethod(is_this_type)
 
     def get_measurement_count(self):
@@ -265,23 +293,34 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     """
 
     # Python datetime format string of the log filename completion date/time
-    datetime_format = '%Y-%m-%d-%Hh%Mm%Ss'
+    datetime_format = "%Y-%m-%d-%Hh%Mm%Ss"
 
     # Regular expression matching a log filename
-    log_regex = re.compile(r'.*log(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
+    log_regex = re.compile(r".*log(\d+-\d+-\d+-\d+h\d+m\d+s).txt$")
 
     # Regular expression matching a result filename
     detail_regex = re.compile(
-        r'^Well(\d+)_(.*)_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
+        r"^Well(\d+)_(.*)_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$"
+    )
 
     # Companion file format
-    companion_format = 'Companion/MIAS'
+    companion_format = "Companion/MIAS"
 
-    def __init__(self, images, original_files, original_file_image_map,
-                 plate_id, service_factory):
+    def __init__(
+        self,
+        images,
+        original_files,
+        original_file_image_map,
+        plate_id,
+        service_factory,
+    ):
         super(MIASPlateAnalysisCtx, self).__init__(
-            images, original_files, original_file_image_map, plate_id,
-            service_factory)
+            images,
+            original_files,
+            original_file_image_map,
+            plate_id,
+            service_factory,
+        )
         self._populate_log_and_detail_files()
         self._populate_measurements()
 
@@ -291,8 +330,10 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         files based on regular expression matching.
         """
         for original_file in self.original_files:
-            if original_file.mimetype and \
-                    original_file.mimetype.val != self.companion_format:
+            if (
+                original_file.mimetype
+                and original_file.mimetype.val != self.companion_format
+            ):
                 # In OMERO5, the mimetype will not be set.
                 continue
             name = original_file.name.val
@@ -325,7 +366,8 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
             for log_timestamp in log_timestamps:
                 if detail_timestamp < log_timestamp:
                     self.measurements[log_timestamp].append(
-                        self.detail_files[detail_timestamp])
+                        self.detail_files[detail_timestamp]
+                    )
                     break
 
     ###
@@ -336,9 +378,11 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         for original_file in original_files:
             format = unwrap(original_file.mimetype)
             # In OMERO5, "Companion/*" is unused.
-            if (format is None or format == klass.companion_format) \
-               and klass.log_regex.match(original_file.name.val):
+            if (
+                format is None or format == klass.companion_format
+            ) and klass.log_regex.match(original_file.name.val):
                 return True
+
     is_this_type = classmethod(is_this_type)
 
     def get_measurement_count(self):
@@ -350,8 +394,9 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         original_file = self.log_files[key]
         result_files = self.measurements[key]
         provider = self.DEFAULT_ORIGINAL_FILE_PROVIDER(sf)
-        return MIASMeasurementCtx(self, sf, provider, original_file,
-                                  result_files)
+        return MIASMeasurementCtx(
+            self, sf, provider, original_file, result_files
+        )
 
     def get_result_file_count(self, measurement_index):
         key = list(self.log_files.keys())[measurement_index]
@@ -367,19 +412,29 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     """
 
     # Companion file format
-    companion_format = 'Companion/Flex'
+    companion_format = "Companion/Flex"
 
-    def __init__(self, images, original_files, original_file_image_map,
-                 plate_id, service_factory):
+    def __init__(
+        self,
+        images,
+        original_files,
+        original_file_image_map,
+        plate_id,
+        service_factory,
+    ):
         super(FlexPlateAnalysisCtx, self).__init__(
-            images, original_files, original_file_image_map, plate_id,
-            service_factory)
+            images,
+            original_files,
+            original_file_image_map,
+            plate_id,
+            service_factory,
+        )
         path_original_file_map = dict()
         for original_file in original_files:
             path = original_file.path.val
             name = original_file.name.val
             format = original_file.mimetype.val
-            if format == self.companion_format and name.endswith('.res'):
+            if format == self.companion_format and name.endswith(".res"):
                 path_original_file_map[path] = original_file
         self.measurements = list(path_original_file_map.values())
 
@@ -391,9 +446,10 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         for original_file in original_files:
             format = unwrap(original_file.mimetype)
             name = original_file.name.val
-            if format == klass.companion_format and name.endswith('.res'):
+            if format == klass.companion_format and name.endswith(".res"):
                 return True
         return False
+
     is_this_type = classmethod(is_this_type)
 
     def get_measurement_count(self):
@@ -404,8 +460,9 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         original_file = self.measurements[index]
         result_files = []
         provider = self.DEFAULT_ORIGINAL_FILE_PROVIDER(sf)
-        return FlexMeasurementCtx(self, sf, provider, original_file,
-                                  result_files)
+        return FlexMeasurementCtx(
+            self, sf, provider, original_file, result_files
+        )
 
     def get_result_file_count(self, measurement_index):
         return 1
@@ -420,19 +477,29 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     """
 
     # Companion file format
-    companion_format = 'Companion/InCell'
+    companion_format = "Companion/InCell"
 
-    def __init__(self, images, original_files, original_file_image_map,
-                 plate_id, service_factory):
+    def __init__(
+        self,
+        images,
+        original_files,
+        original_file_image_map,
+        plate_id,
+        service_factory,
+    ):
         super(InCellPlateAnalysisCtx, self).__init__(
-            images, original_files, original_file_image_map, plate_id,
-            service_factory)
+            images,
+            original_files,
+            original_file_image_map,
+            plate_id,
+            service_factory,
+        )
         path_original_file_map = dict()
         for original_file in original_files:
             path = original_file.path.val
             name = original_file.name.val
             format = original_file.mimetype.val
-            if format == self.companion_format and name.endswith('.xml'):
+            if format == self.companion_format and name.endswith(".xml"):
                 path_original_file_map[path] = original_file
         self.measurements = list(path_original_file_map.values())
 
@@ -444,9 +511,10 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         for original_file in original_files:
             format = unwrap(original_file.mimetype)
             name = original_file.name.val
-            if format == klass.companion_format and name.endswith('.xml'):
+            if format == klass.companion_format and name.endswith(".xml"):
                 return True
         return False
+
     is_this_type = classmethod(is_this_type)
 
     def get_measurement_count(self):
@@ -457,8 +525,9 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         original_file = self.measurements[index]
         result_files = []
         provider = self.DEFAULT_ORIGINAL_FILE_PROVIDER(sf)
-        return InCellMeasurementCtx(self, sf, provider, original_file,
-                                    result_files)
+        return InCellMeasurementCtx(
+            self, sf, provider, original_file, result_files
+        )
 
     def get_result_file_count(self, measurement_index):
         return 1
@@ -471,8 +540,11 @@ class PlateAnalysisCtxFactory(object):
     returning a plate analysis context instance for a given plate.
     """
 
-    implementations = (FlexPlateAnalysisCtx, MIASPlateAnalysisCtx,
-                       InCellPlateAnalysisCtx)
+    implementations = (
+        FlexPlateAnalysisCtx,
+        MIASPlateAnalysisCtx,
+        InCellPlateAnalysisCtx,
+    )
 
     def __init__(self, service_factory):
         self.service_factory = service_factory
@@ -492,30 +564,33 @@ class PlateAnalysisCtxFactory(object):
         # samples required by certain measurement contexts (notably InCell).
         log.debug("Loading image...")
         images = self.query_service.findAllByQuery(
-            'select img from Image as img '
-            'join fetch img.wellSamples as ws '
-            'join fetch ws.well as w '
-            'join fetch w.wellSamples as ws2 '
-            'join w.plate as p '
-            'left outer join fetch img.annotationLinks as ia_links '
-            'left outer join fetch ia_links.child as ia '
-            'left outer join fetch ia.file as i_o_file '
-            'where p.id = %d' % plate_id, None)
+            "select img from Image as img "
+            "join fetch img.wellSamples as ws "
+            "join fetch ws.well as w "
+            "join fetch w.wellSamples as ws2 "
+            "join w.plate as p "
+            "left outer join fetch img.annotationLinks as ia_links "
+            "left outer join fetch ia_links.child as ia "
+            "left outer join fetch ia.file as i_o_file "
+            "where p.id = %d" % plate_id,
+            None,
+        )
         log.debug("Loading plate...")
         plate = self.query_service.findByQuery(
-            'select p from Plate p '
-            'left outer join fetch p.annotationLinks as pa_links '
-            'left outer join fetch pa_links.child as pa '
-            'left outer join fetch pa.file as p_o_file '
-            'where p.id = %d' % plate_id, None)
+            "select p from Plate p "
+            "left outer join fetch p.annotationLinks as pa_links "
+            "left outer join fetch pa_links.child as pa "
+            "left outer join fetch pa.file as p_o_file "
+            "where p.id = %d" % plate_id,
+            None,
+        )
         log.debug("Linking plate and images...")
         for image in images:
             for ws in image.copyWellSamples():
                 ws.well.plate = plate
         return images, plate
 
-    def gather_original_files(self, obj, original_files,
-                              original_file_obj_map):
+    def gather_original_files(self, obj, original_files, original_file_obj_map):
         for annotation_link in obj.copyAnnotationLinks():
             annotation = annotation_link.child
             if isinstance(annotation, FileAnnotationI):
@@ -530,16 +605,19 @@ class PlateAnalysisCtxFactory(object):
         """
         OMERO5 support. See #12235
         """
-        return self.query_service.findAllByQuery((
-            'select ofile from Fileset f '
-            'join f.usedFiles as fse '
-            'join fse.originalFile as ofile '
-            'join f.images as i '
-            'join i.wellSamples ws '
-            'join ws.well w '
-            'join w.plate p '
-            'where p.id = :id'),
-            ParametersI().addId(plateid))
+        return self.query_service.findAllByQuery(
+            (
+                "select ofile from Fileset f "
+                "join f.usedFiles as fse "
+                "join fse.originalFile as ofile "
+                "join f.images as i "
+                "join i.wellSamples ws "
+                "join ws.well w "
+                "join w.plate p "
+                "where p.id = :id"
+            ),
+            ParametersI().addId(plateid),
+        )
 
     def get_analysis_ctx(self, plate_id):
         """Retrieves a plate analysis context for a given plate."""
@@ -563,15 +641,20 @@ class PlateAnalysisCtxFactory(object):
                         plates.add(plate)
                         self.gather_original_files(plate, original_files, None)
                 self.gather_original_files(
-                    image, original_files, original_file_image_map)
+                    image, original_files, original_file_image_map
+                )
         for klass in self.implementations:
             if klass.is_this_type(original_files):
-                return klass(images, original_files,
-                             original_file_image_map,
-                             plate_id, self.service_factory)
+                return klass(
+                    images,
+                    original_files,
+                    original_file_image_map,
+                    plate_id,
+                    self.service_factory,
+                )
         raise MeasurementError(
-            "Unable to find suitable analysis context for plate: %d" %
-            plate_id)
+            "Unable to find suitable analysis context for plate: %d" % plate_id
+        )
 
 
 class MeasurementParsingResult(object):
@@ -602,8 +685,14 @@ class AbstractMeasurementCtx(object):
     # The number of ROI to have parsed before streaming them to the server
     ROI_UPDATE_LIMIT = 1000
 
-    def __init__(self, analysis_ctx, service_factory, original_file_provider,
-                 original_file, result_files):
+    def __init__(
+        self,
+        analysis_ctx,
+        service_factory,
+        original_file_provider,
+        original_file,
+        result_files,
+    ):
         super(AbstractMeasurementCtx, self).__init__()
         self.thread_pool = get_thread_pool()
         self.analysis_ctx = analysis_ctx
@@ -650,8 +739,7 @@ class AbstractMeasurementCtx(object):
             # This has the potential to happen alot with the
             # datasets we have given the split machine acquisition
             # ".flex" file storage.
-            log.warn("WARNING: Missing data for row %d column %d" %
-                     (row, col))
+            log.warn("WARNING: Missing data for row %d column %d" % (row, col))
             return (None, None)
 
     def update_table(self, columns):
@@ -659,10 +747,9 @@ class AbstractMeasurementCtx(object):
         # Create a new OMERO table to store our measurement results
         sr = self.service_factory.sharedResources()
         name = self.get_name()
-        self.table = sr.newTable(1, '/%s.r5' % name)
+        self.table = sr.newTable(1, "/%s.r5" % name)
         if self.table is None:
-            raise MeasurementError(
-                "Unable to create table: %s" % name)
+            raise MeasurementError("Unable to create table: %s" % name)
 
         # Retrieve the original file corresponding to the table for the
         # measurement, link it to the file annotation representing the
@@ -677,8 +764,9 @@ class AbstractMeasurementCtx(object):
         plate_annotation_link = PlateAnnotationLinkI()
         plate_annotation_link.parent = unloaded_plate
         plate_annotation_link.child = self.file_annotation
-        plate_annotation_link = \
-            self.update_service.saveAndReturnObject(plate_annotation_link)
+        plate_annotation_link = self.update_service.saveAndReturnObject(
+            plate_annotation_link
+        )
         self.file_annotation = plate_annotation_link.child
 
         t0 = int(time.time() * 1000)
@@ -699,8 +787,9 @@ class AbstractMeasurementCtx(object):
         measurment.
         """
         self.file_annotation = FileAnnotationI()
-        self.file_annotation.ns = \
-            rstring('openmicroscopy.org/omero/measurement')
+        self.file_annotation.ns = rstring(
+            "openmicroscopy.org/omero/measurement"
+        )
         name = self.get_name(set_of_columns)
         self.file_annotation.description = rstring(name)
 
@@ -712,8 +801,10 @@ class AbstractMeasurementCtx(object):
         log.debug("Saving %d ROI for batch %d" % (len(rois), batch_no))
         t0 = int(time.time() * 1000)
         roi_ids = self.update_service.saveAndReturnIds(rois)
-        log.info("Batch %d ROI update took %sms" %
-                 (batch_no, int(time.time() * 1000) - t0))
+        log.info(
+            "Batch %d ROI update took %sms"
+            % (batch_no, int(time.time() * 1000) - t0)
+        )
         batches[batch_no] = roi_ids
 
     def image_from_original_file(self, original_file):
@@ -774,17 +865,36 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
     ROI_COL = 1
 
     # Expected columns in NEO datasets
-    NEO_EXPECTED = ('Image', 'ROI', 'Label', 'Row', 'Col', 'Nucleus Area',
-                    'Cell Diam.', 'Cell Type', 'Mean Nucleus Intens.')
+    NEO_EXPECTED = (
+        "Image",
+        "ROI",
+        "Label",
+        "Row",
+        "Col",
+        "Nucleus Area",
+        "Cell Diam.",
+        "Cell Type",
+        "Mean Nucleus Intens.",
+    )
 
     # Expected columns in MNU datasets
-    MNU_EXPECTED = ('Image', 'ROI', 'row', 'col', 'type')
+    MNU_EXPECTED = ("Image", "ROI", "row", "col", "type")
 
-    def __init__(self, analysis_ctx, service_factory, original_file_provider,
-                 original_file, result_files):
+    def __init__(
+        self,
+        analysis_ctx,
+        service_factory,
+        original_file_provider,
+        original_file,
+        result_files,
+    ):
         super(MIASMeasurementCtx, self).__init__(
-            analysis_ctx, service_factory, original_file_provider,
-            original_file, result_files)
+            analysis_ctx,
+            service_factory,
+            original_file_provider,
+            original_file,
+            result_files,
+        )
 
     def get_empty_columns(self, n_columns):
         """
@@ -792,10 +902,12 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         prefixed by an ImageColumn and RoiColumn to handle these linked
         object indexes.
         """
-        columns = [ImageColumn('Image', '', list()),
-                   RoiColumn('ROI', '', list())]
+        columns = [
+            ImageColumn("Image", "", list()),
+            RoiColumn("ROI", "", list()),
+        ]
         for i in range(n_columns):
-            columns.append(DoubleColumn('', '', list()))
+            columns.append(DoubleColumn("", "", list()))
         return columns
 
     ###
@@ -832,7 +944,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             provider = self.original_file_provider
             data = provider.get_original_file_data(result_file)
             try:
-                rows = list(csv.reader(data, delimiter='\t'))
+                rows = list(csv.reader(data, delimiter="\t"))
             finally:
                 data.close()
             rows.reverse()
@@ -858,10 +970,12 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         rois = list()
         # Save our file annotation to the database so we can use an unloaded
         # annotation for the saveAndReturnIds that will be triggered below.
-        self.file_annotation = \
-            self.update_service.saveAndReturnObject(self.file_annotation)
-        unloaded_file_annotation = \
-            FileAnnotationI(self.file_annotation.id.val, False)
+        self.file_annotation = self.update_service.saveAndReturnObject(
+            self.file_annotation
+        )
+        unloaded_file_annotation = FileAnnotationI(
+            self.file_annotation.id.val, False
+        )
         batch_no = 1
         batches = dict()
         for i, image_id in enumerate(image_ids):
@@ -884,7 +998,8 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             rois.append(roi)
             if len(rois) == self.ROI_UPDATE_LIMIT:
                 self.thread_pool.add_task(
-                    self.update_rois, rois, batches, batch_no)
+                    self.update_rois, rois, batches, batch_no
+                )
                 rois = list()
                 batch_no += 1
         self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
@@ -901,10 +1016,12 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         rois = list()
         # Save our file annotation to the database so we can use an unloaded
         # annotation for the saveAndReturnIds that will be triggered below.
-        self.file_annotation = \
-            self.update_service.saveAndReturnObject(self.file_annotation)
-        unloaded_file_annotation = \
-            FileAnnotationI(self.file_annotation.id.val, False)
+        self.file_annotation = self.update_service.saveAndReturnObject(
+            self.file_annotation
+        )
+        unloaded_file_annotation = FileAnnotationI(
+            self.file_annotation.id.val, False
+        )
         batch_no = 1
         batches = dict()
         for i, image_id in enumerate(image_ids):
@@ -923,7 +1040,8 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             rois.append(roi)
             if len(rois) == self.ROI_UPDATE_LIMIT:
                 self.thread_pool.add_task(
-                    self.update_rois, rois, batches, batch_no)
+                    self.update_rois, rois, batches, batch_no
+                )
                 rois = list()
                 batch_no += 1
         self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
@@ -969,33 +1087,43 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
     """
 
     # The XPath to the <Area> which aggregate an acquisition
-    AREA_XPATH = './/Areas/Area'
+    AREA_XPATH = ".//Areas/Area"
 
     # The XPath to the an analysis <Parameter>; will become a column header
     # and is below AREA_XPATH
-    PARAMETER_XPATH = './/Wells/ResultParameters/Parameter'
+    PARAMETER_XPATH = ".//Wells/ResultParameters/Parameter"
 
     # The XPath to a <Well> which has had at least one acquisition event
     # within and is below AREA_XPATH
-    WELL_XPATH = './/Wells/Well'
+    WELL_XPATH = ".//Wells/Well"
 
     # The XPath to a <Result> for a given well and is below WELL_XPATH
-    RESULT_XPATH = './/Result'
+    RESULT_XPATH = ".//Result"
 
-    def __init__(self, analysis_ctx, service_factory, original_file_provider,
-                 original_file, result_files):
+    def __init__(
+        self,
+        analysis_ctx,
+        service_factory,
+        original_file_provider,
+        original_file,
+        result_files,
+    ):
         super(FlexMeasurementCtx, self).__init__(
-            analysis_ctx, service_factory, original_file_provider,
-            original_file, result_files)
+            analysis_ctx,
+            service_factory,
+            original_file_provider,
+            original_file,
+            result_files,
+        )
 
     def get_empty_columns(self, headers):
         """
         Retrieves a set of empty OmeroTables columns for the analysis results
         prefixed by a WellColumn to handle linked object indexes.
         """
-        columns = {'Well': WellColumn('Well', '', list())}
+        columns = {"Well": WellColumn("Well", "", list())}
         for header in headers:
-            columns[header] = DoubleColumn(header, '', list())
+            columns[header] = DoubleColumn(header, "", list())
         return columns
 
     ###
@@ -1018,8 +1146,9 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
         log.debug("Area count: %d" % len(areas))
         for i, area in enumerate(areas):
             result_parameters = area.findall(self.PARAMETER_XPATH)
-            log.debug("Area %d result children: %d" %
-                      (i, len(result_parameters)))
+            log.debug(
+                "Area %d result children: %d" % (i, len(result_parameters))
+            )
             if len(result_parameters) == 0:
                 log.warn("%s contains no analysis data." % self.get_name())
                 return
@@ -1030,10 +1159,10 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
             wells = area.findall(self.WELL_XPATH)
             for well in wells:
                 # Rows and columns are 1-indexed, OMERO wells are 0-indexed
-                row = int(well.get('row')) - 1
-                column = int(well.get('col')) - 1
+                row = int(well.get("row")) - 1
+                column = int(well.get("col")) - 1
                 try:
-                    v = columns['Well'].values
+                    v = columns["Well"].values
                     wellobj, images = self.get_well_images(row, column)
                     if not wellobj:
                         continue
@@ -1043,7 +1172,7 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
                     continue
                 results = well.findall(self.RESULT_XPATH)
                 for result in results:
-                    name = result.get('name')
+                    name = result.get("name")
                     columns[name].values.append(float(result.text))
         return MeasurementParsingResult([list(columns.values())])
 
@@ -1061,25 +1190,35 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
     """
 
     # Cells expected centre of gravity columns
-    CELLS_CG_EXPECTED = ['Cell: cgX', 'Cell: cgY']
+    CELLS_CG_EXPECTED = ["Cell: cgX", "Cell: cgY"]
 
     # Nulcei expected centre of gravity columns
-    NUCLEI_CG_EXPECTED = ['Nucleus: cgX', 'Nucleus: cgY']
+    NUCLEI_CG_EXPECTED = ["Nucleus: cgX", "Nucleus: cgY"]
 
     # Expected source attribute value for cell data
-    CELLS_SOURCE = 'Cells'
+    CELLS_SOURCE = "Cells"
 
     # Expected source attribute value for nuclei data
-    NUCLEI_SOURCE = 'Nuclei'
+    NUCLEI_SOURCE = "Nuclei"
 
     # Expected source attribute value for organelle data
-    ORGANELLES_SOURCE = 'Organelles'
+    ORGANELLES_SOURCE = "Organelles"
 
-    def __init__(self, analysis_ctx, service_factory, original_file_provider,
-                 original_file, result_files):
+    def __init__(
+        self,
+        analysis_ctx,
+        service_factory,
+        original_file_provider,
+        original_file,
+        result_files,
+    ):
         super(InCellMeasurementCtx, self).__init__(
-            analysis_ctx, service_factory, original_file_provider,
-            original_file, result_files)
+            analysis_ctx,
+            service_factory,
+            original_file_provider,
+            original_file,
+            result_files,
+        )
 
     def check_sparse_data(self, columns):
         """
@@ -1088,19 +1227,23 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
         """
         length = None
         for i, column in enumerate(columns):
-            if column.name == 'ROI':
+            if column.name == "ROI":
                 # ROI are processed late so we don't care if this column
                 # is sparse or not.
                 continue
             current_length = len(column.values)
             if length is not None:
                 if current_length > length:
-                    log.debug("%s length %d > %d modding previous column" %
-                              (column.name, current_length, length))
+                    log.debug(
+                        "%s length %d > %d modding previous column"
+                        % (column.name, current_length, length)
+                    )
                     columns[i - 1].values.append(-1.0)
                 if current_length < length:
-                    log.debug("%s length %d < %d modding current column" %
-                              (column.name, current_length, length))
+                    log.debug(
+                        "%s length %d < %d modding current column"
+                        % (column.name, current_length, length)
+                    )
                     column.values.append(-1.0)
             length = len(column.values)
 
@@ -1112,38 +1255,44 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
         if set_of_columns is None:
             return self.original_file.name.val[:-4]
         if set_of_columns == 0:
-            return self.original_file.name.val[:-4] + ' Cells'
+            return self.original_file.name.val[:-4] + " Cells"
         if set_of_columns == 1:
-            return self.original_file.name.val[:-4] + ' Nuclei'
+            return self.original_file.name.val[:-4] + " Nuclei"
         if set_of_columns == 2:
-            return self.original_file.name.val[:-4] + ' Organelles'
+            return self.original_file.name.val[:-4] + " Organelles"
 
     def parse(self):
         log.info("Parsing: %s" % self.original_file.name.val)
         provider = self.original_file_provider
         data = provider.get_original_file_data(self.original_file)
         try:
-            events = ('start', 'end')
+            events = ("start", "end")
             well_data = None
             n_roi = 0
             n_measurements = 0
-            cells_columns = {'Image': ImageColumn('Image', '', list()),
-                             'Cell': LongColumn('Cell', '', list()),
-                             'ROI': RoiColumn('ROI', '', list())
-                             }
-            organelles_columns = {'Image': ImageColumn('Image', '', list()),
-                                  'Cell': LongColumn('Cell', '', list()),
-                                  }
-            nuclei_columns = {'Image': ImageColumn('Image', '', list()),
-                              'Cell': LongColumn('Cell', '', list()),
-                              'ROI': RoiColumn('ROI', '', list())
-                              }
+            cells_columns = {
+                "Image": ImageColumn("Image", "", list()),
+                "Cell": LongColumn("Cell", "", list()),
+                "ROI": RoiColumn("ROI", "", list()),
+            }
+            organelles_columns = {
+                "Image": ImageColumn("Image", "", list()),
+                "Cell": LongColumn("Cell", "", list()),
+            }
+            nuclei_columns = {
+                "Image": ImageColumn("Image", "", list()),
+                "Cell": LongColumn("Cell", "", list()),
+                "ROI": RoiColumn("ROI", "", list()),
+            }
             for event, element in iterparse(data, events=events):
-                if event == 'start' and element.tag == 'WellData' \
-                   and element.get('cell') != 'Summary':
-                    row = int(element.get('row')) - 1
-                    col = int(element.get('col')) - 1
-                    i = int(element.get('field')) - 1
+                if (
+                    event == "start"
+                    and element.tag == "WellData"
+                    and element.get("cell") != "Summary"
+                ):
+                    row = int(element.get("row")) - 1
+                    col = int(element.get("col")) - 1
+                    i = int(element.get("field")) - 1
                     try:
                         well, images = self.get_well_images(row, col)
                         if not images:
@@ -1155,19 +1304,22 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                     self.check_sparse_data(list(cells_columns.values()))
                     self.check_sparse_data(list(nuclei_columns.values()))
                     self.check_sparse_data(list(organelles_columns.values()))
-                    cell = int(element.get('cell'))
-                    cells_columns['Cell'].values.append(cell)
-                    nuclei_columns['Cell'].values.append(cell)
-                    organelles_columns['Cell'].values.append(cell)
+                    cell = int(element.get("cell"))
+                    cells_columns["Cell"].values.append(cell)
+                    nuclei_columns["Cell"].values.append(cell)
+                    organelles_columns["Cell"].values.append(cell)
                     well_data = element
-                    cells_columns['Image'].values.append(image.id.val)
-                    nuclei_columns['Image'].values.append(image.id.val)
-                    organelles_columns['Image'].values.append(image.id.val)
-                elif well_data is not None and event == 'start' \
-                        and element.tag == 'Measure':
-                    source = element.get('source')
-                    key = element.get('key')
-                    value = float(element.get('value'))
+                    cells_columns["Image"].values.append(image.id.val)
+                    nuclei_columns["Image"].values.append(image.id.val)
+                    organelles_columns["Image"].values.append(image.id.val)
+                elif (
+                    well_data is not None
+                    and event == "start"
+                    and element.tag == "Measure"
+                ):
+                    source = element.get("source")
+                    key = element.get("key")
+                    value = float(element.get("value"))
                     if source == self.CELLS_SOURCE:
                         columns_list = [cells_columns]
                     elif source == self.NUCLEI_SOURCE:
@@ -1175,14 +1327,17 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                     elif source == self.ORGANELLES_SOURCE:
                         columns_list = [organelles_columns]
                     else:
-                        columns_list = [cells_columns, nuclei_columns,
-                                        organelles_columns]
+                        columns_list = [
+                            cells_columns,
+                            nuclei_columns,
+                            organelles_columns,
+                        ]
                     for columns in columns_list:
                         if key not in columns:
-                            columns[key] = DoubleColumn(key, '', list())
+                            columns[key] = DoubleColumn(key, "", list())
                         columns[key].values.append(value)
                     n_measurements += 1
-                elif event == 'end' and element.tag == 'WellData':
+                elif event == "end" and element.tag == "WellData":
                     if well_data is not None:
                         n_roi += 1
                         well_data.clear()
@@ -1195,8 +1350,11 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
             self.check_sparse_data(list(organelles_columns.values()))
             log.info("Total ROI: %d" % n_roi)
             log.info("Total measurements: %d" % n_measurements)
-            sets_of_columns = [list(cells_columns.values()), list(nuclei_columns.values()),
-                               list(organelles_columns.values())]
+            sets_of_columns = [
+                list(cells_columns.values()),
+                list(nuclei_columns.values()),
+                list(organelles_columns.values()),
+            ]
             return MeasurementParsingResult(sets_of_columns)
         finally:
             data.close()
@@ -1204,12 +1362,12 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
     def parse_and_populate_roi(self, columns_as_list):
         # First sanity check our provided columns
         names = [column.name for column in columns_as_list]
-        log.debug('Parsing columns: %r' % names)
+        log.debug("Parsing columns: %r" % names)
         cells_expected = [name in names for name in self.CELLS_CG_EXPECTED]
         nuclei_expected = [name in names for name in self.NUCLEI_CG_EXPECTED]
         if (False in cells_expected) and (False in nuclei_expected):
             log.warn("Missing CGs for InCell dataset: %r" % names)
-            log.warn('Removing resultant empty ROI column.')
+            log.warn("Removing resultant empty ROI column.")
             for column in columns_as_list:
                 if RoiColumn == column.__class__:
                     columns_as_list.remove(column)
@@ -1218,14 +1376,16 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
         columns = dict()
         for column in columns_as_list:
             columns[column.name] = column
-        image_ids = columns['Image'].values
+        image_ids = columns["Image"].values
         rois = list()
         # Save our file annotation to the database so we can use an unloaded
         # annotation for the saveAndReturnIds that will be triggered below.
-        self.file_annotation = \
-            self.update_service.saveAndReturnObject(self.file_annotation)
-        unloaded_file_annotation = \
-            FileAnnotationI(self.file_annotation.id.val, False)
+        self.file_annotation = self.update_service.saveAndReturnObject(
+            self.file_annotation
+        )
+        unloaded_file_annotation = FileAnnotationI(
+            self.file_annotation.id.val, False
+        )
         # Parse and append ROI
         batch_no = 1
         batches = dict()
@@ -1237,8 +1397,8 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                 shape = PointI()
                 shape.theZ = rint(0)
                 shape.theT = rint(0)
-                shape.x = rdouble(float(columns['Cell: cgX'].values[i]))
-                shape.y = rdouble(float(columns['Cell: cgY'].values[i]))
+                shape.x = rdouble(float(columns["Cell: cgX"].values[i]))
+                shape.y = rdouble(float(columns["Cell: cgY"].values[i]))
                 roi.addShape(shape)
                 roi.image = unloaded_image
                 roi.linkAnnotation(unloaded_file_annotation)
@@ -1249,17 +1409,18 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                 shape = PointI()
                 shape.theZ = rint(0)
                 shape.theT = rint(0)
-                shape.x = rdouble(float(columns['Nucleus: cgX'].values[i]))
-                shape.y = rdouble(float(columns['Nucleus: cgY'].values[i]))
+                shape.x = rdouble(float(columns["Nucleus: cgX"].values[i]))
+                shape.y = rdouble(float(columns["Nucleus: cgY"].values[i]))
                 roi.addShape(shape)
                 roi.image = unloaded_image
                 roi.linkAnnotation(unloaded_file_annotation)
                 rois.append(roi)
             else:
-                raise MeasurementError('Not a nucleus or cell ROI')
+                raise MeasurementError("Not a nucleus or cell ROI")
             if len(rois) == self.ROI_UPDATE_LIMIT:
                 self.thread_pool.add_task(
-                    self.update_rois, rois, batches, batch_no)
+                    self.update_rois, rois, batches, batch_no
+                )
                 rois = list()
                 batch_no += 1
         self.thread_pool.add_task(self.update_rois, rois, batches, batch_no)
@@ -1267,10 +1428,11 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
         batch_keys = list(batches.keys())
         batch_keys.sort()
         for k in batch_keys:
-            columns['ROI'].values += batches[k]
+            columns["ROI"].values += batches[k]
 
     def populate(self, columns):
         self.update_table(columns)
+
 
 if __name__ == "__main__":
     try:
@@ -1280,7 +1442,7 @@ if __name__ == "__main__":
         usage(msg)
 
     try:
-        plate_id, = args
+        (plate_id,) = args
         plate_id = int(plate_id)
     except ValueError:
         usage("Plate ID must be a specified and a number!")
@@ -1327,7 +1489,7 @@ if __name__ == "__main__":
         else:
             service_factory = c.createSession(username, password)
 
-        log.debug('Creating pool of %d threads' % thread_count)
+        log.debug("Creating pool of %d threads" % thread_count)
         thread_pool = ThreadPool(thread_count)
         factory = PlateAnalysisCtxFactory(service_factory)
         analysis_ctx = factory.get_analysis_ctx(plate_id)
@@ -1337,8 +1499,9 @@ if __name__ == "__main__":
         if info:
             for i in range(n_measurements):
                 n_result_files = analysis_ctx.get_result_file_count(i)
-                print("Measurement %d has %d result files." % \
-                    (i, n_result_files))
+                print(
+                    "Measurement %d has %d result files." % (i, n_result_files)
+                )
             sys.exit(0)
         if measurement is not None:
             measurement_ctx = analysis_ctx.get_measurement_ctx(measurement)

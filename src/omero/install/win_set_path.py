@@ -54,16 +54,17 @@ def win_set_path(new_name=dummy, old_name=r"c:\omero_dist", dir=path(".")):
     for line in fileinput.input([str(cfg), str(xml)], inplace=1):
         if line.find(old_name) >= 0:
             count += 1
-            print(line.replace(old_name, new_name), end=' ')
+            print(line.replace(old_name, new_name), end=" ")
         elif line.find(old_name2) >= 0:
             count += 1
-            print(line.replace(old_name2, new_name2), end=' ')
+            print(line.replace(old_name2, new_name2), end=" ")
         else:
-            print(line, end=' ')
+            print(line, end=" ")
 
     fileinput.close()
     print("Changes made: %s" % count)
     return count
+
 
 if __name__ == "__main__":
     try:
@@ -82,9 +83,12 @@ if __name__ == "__main__":
         print("Failed to set path: ", e)
         sys.exit(1)
 
-    print("""Usage: %s [oldname] newname
+    print(
+        """Usage: %s [oldname] newname
 
 Replaces the [oldname] entries in the Windows configuration files
 with [newname]. By default, [oldname] is set to "c:\omero_dist"
-        """ % sys.argv[0])
+        """
+        % sys.argv[0]
+    )
     sys.exit(2)

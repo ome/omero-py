@@ -33,7 +33,6 @@ import pytest
 
 
 class TestArgumentErrors(object):
-
     @classmethod
     @pytest.fixture(autouse=True)
     def setup_class(cls, tmpdir, monkeypatch):

@@ -32,7 +32,6 @@ from omero.cli import OMERODIR
 
 
 class QuitControl(BaseControl):
-
     def _configure(self, parser):
         parser.set_defaults(func=self.__call__)
 
@@ -41,7 +40,6 @@ class QuitControl(BaseControl):
 
 
 class VersionControl(BaseControl):
-
     def _configure(self, parser):
         parser.set_defaults(func=self.__call__)
 
@@ -52,7 +50,7 @@ class VersionControl(BaseControl):
         for line in self.ctx.get_config_property_lines(OMERODIR):
             line = str(line).strip()
             if line.startswith("omero.version="):
-                server_version = line[len("omero.verison="):]
+                server_version = line[len("omero.verison=") :]
         if server_version:
             self.ctx.err("OMERO.server version:")
             self.ctx.err(server_version)
@@ -80,16 +78,25 @@ Examples:
 
 
 class LoadControl(BaseControl):
-
     def _configure(self, parser):
         parser.add_argument("infile", nargs="*")
         parser.add_argument(
-            "-g", "--glob", action="store_true", default=False,
-            help=("Input paths are shell globs that should be expanded and "
-                  "sorted."))
+            "-g",
+            "--glob",
+            action="store_true",
+            default=False,
+            help=(
+                "Input paths are shell globs that should be expanded and "
+                "sorted."
+            ),
+        )
         parser.add_argument(
-            "-k", "--keep-going", action="store_true", default=False,
-            help="Continue processing after an error.")
+            "-k",
+            "--keep-going",
+            action="store_true",
+            default=False,
+            help="Continue processing after an error.",
+        )
         parser.set_defaults(func=self.__call__)
 
     def _load_filehandle(self, fh, keep_going):
@@ -117,16 +124,17 @@ class LoadControl(BaseControl):
         else:
             for filename in infiles:
                 self.ctx.dbg("Loading file %s" % filename)
-                with open(filename, 'r') as fh:
+                with open(filename, "r") as fh:
                     self._load_filehandle(fh, args.keep_going)
 
 
 class ShellControl(BaseControl):
-
     def _configure(self, parser):
         parser.add_argument(
-            "--login", action="store_true",
-            help="Logins in and sets the 'client' variable")
+            "--login",
+            action="store_true",
+            help="Logins in and sets the 'client' variable",
+        )
         parser.add_argument("arg", nargs="*", help="Arguments for IPython.")
         parser.set_defaults(func=self.__call__)
 
@@ -135,8 +143,10 @@ class ShellControl(BaseControl):
         Copied from IPython embed-short example
         """
         import logging
+
         logging.basicConfig()
         from omero.util.upgrade_check import UpgradeCheck
+
         check = UpgradeCheck("shell")
         check.run()
         if check.isUpgradeNeeded():
@@ -145,17 +155,21 @@ class ShellControl(BaseControl):
         ns = {}
         if args.login:
             import omero
+
             client = self.ctx.conn(args)
             ns = {"client": client, "omero": omero}
 
         try:
             # IPython 0.11 (see #7112)
             from IPython import embed
+
             embed(user_ns=ns)
         except ImportError:
             from IPython.Shell import IPShellEmbed
+
             ipshell = IPShellEmbed(args.arg)
             ipshell(local_ns=ns)
+
 
 HELP_USAGE = """usage: %(program_name)s <command> [options] args
 See 'help <command>' or '<command> -h' for more information on syntax
@@ -183,17 +197,24 @@ class HelpControl(BaseControl):
         self.__parser__ = parser  # For formatting later
         parser.set_defaults(func=self.__call__)
         parser.add_argument(
-            "--recursive", action="store_true",
-            help="Also print help for all subcommands")
+            "--recursive",
+            action="store_true",
+            help="Also print help for all subcommands",
+        )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
-            "--all", action="store_true",
-            help="Print help for all commands and topics")
+            "--all",
+            action="store_true",
+            help="Print help for all commands and topics",
+        )
         group.add_argument(
-            "--list", action="store_true",
-            help="Print list of all commands and subcommands")
+            "--list",
+            action="store_true",
+            help="Print list of all commands and subcommands",
+        )
         group.add_argument(
-            "topic", nargs="?", help="Command or topic for more information")
+            "topic", nargs="?", help="Command or topic for more information"
+        )
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -219,13 +240,15 @@ class HelpControl(BaseControl):
 
     def print_usage(self):
         commands, topics = [
-            self.__parser__._format_list(x) for x in
-            [sorted(self.ctx.controls), sorted(self.ctx.topics)]]
+            self.__parser__._format_list(x)
+            for x in [sorted(self.ctx.controls), sorted(self.ctx.topics)]
+        ]
         key_list = {
             "program_name": sys.argv[0],
             "version": VERSION,
             "commands": commands,
-            "topics": topics}
+            "topics": topics,
+        }
         print(HELP_USAGE % key_list)
 
     def print_single_command_or_topic(self, args):
@@ -277,17 +300,20 @@ class HelpControl(BaseControl):
 
 
 class ErrorsControl(BaseControl):
-
     def _configure(self, parser):
         parser.set_defaults(func=self.__call__)
-        parser.add_argument("--length", default=50, type=int,
-                            help="Length of message to print")
-        parser.add_argument("plugins", nargs="*", default=(),
-                            help="Limit to these plugins; otherwise all")
+        parser.add_argument(
+            "--length", default=50, type=int, help="Length of message to print"
+        )
+        parser.add_argument(
+            "plugins",
+            nargs="*",
+            default=(),
+            help="Limit to these plugins; otherwise all",
+        )
 
     def __call__(self, args):
-        arranged = defaultdict(lambda: defaultdict(
-            lambda: defaultdict(list)))
+        arranged = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
         for name, control in list(self.ctx.controls.items()):
             if not args.plugins or name in args.plugins:
                 combined = []
@@ -302,23 +328,28 @@ class ErrorsControl(BaseControl):
                 for key, errors in sorted(keys.items()):
                     for err in errors:
                         msg = err.msg
-                        if len(msg) > (args.length+1):
-                            msg = msg[:args.length] + "..."
+                        if len(msg) > (args.length + 1):
+                            msg = msg[: args.length] + "..."
                         msg = msg.replace("\n", " ")
                         msg = msg.strip()
                         t = (err.rcode, name, key, msg)
                         self.ctx.out("%5d\t%10s\t%10s\t'%s'" % t)
 
+
 controls = {
     "help": (HelpControl, "Syntax help for all commands"),
     "quit": (QuitControl, "Quit application"),
     "errors": (ErrorsControl, "Display all plugin error codes"),
-    "shell": (ShellControl, """Starts an IPython interpreter session
+    "shell": (
+        ShellControl,
+        """Starts an IPython interpreter session
 
 All arguments not understood vi %(prog)s will be passed to the shell.
-Use "--" to end parsing, e.g. '%(prog)s -- --help' for IPython help"""),
+Use "--" to end parsing, e.g. '%(prog)s -- --help' for IPython help""",
+    ),
     "version": (VersionControl, "Version number"),
-    "load": (LoadControl, LOAD_HELP)}
+    "load": (LoadControl, LOAD_HELP),
+}
 
 try:
     for k, v in list(controls.items()):

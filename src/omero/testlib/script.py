@@ -26,7 +26,6 @@ from omero.gateway import BlitzGateway
 
 
 class ScriptTest(ITest):
-
     def get_script(self, path):
         script_service = self.root.sf.getScriptService()
         script = _get_script(script_service, path)
@@ -43,17 +42,17 @@ def run_script(client, script_id, args, key=None):
         while not cb.block(1000):  # ms.
             pass
         cb.close()
-        results = proc.getResults(0)    # ms
+        results = proc.getResults(0)  # ms
     finally:
         proc.close(False)
 
-    if 'stdout' in results:
-        orig_file = results['stdout'].getValue()
+    if "stdout" in results:
+        orig_file = results["stdout"].getValue()
         v = "Script generated StdOut in file:", orig_file.getId().getValue()
         logging.debug(v)
         assert orig_file.id.val > 0
-    if 'stderr' in results:
-        orig_file = results['stderr'].getValue()
+    if "stderr" in results:
+        orig_file = results["stderr"].getValue()
         v = "Script generated StdErr in file:", orig_file.getId().getValue()
         logging.debug(v)
         assert orig_file.getId().getValue() > 0
@@ -63,7 +62,7 @@ def run_script(client, script_id, args, key=None):
 
 def _get_script(script_service, script_path):
     """ Utility method, return the script or None """
-    scripts = script_service.getScripts()     # returns list of OriginalFiles
+    scripts = script_service.getScripts()  # returns list of OriginalFiles
 
     # make sure path starts with a slash.
     # ** If you are a Windows client - will need to convert all path separators
@@ -72,8 +71,10 @@ def _get_script(script_service, script_path):
         script_path = "/" + script_path
 
     named_scripts = [
-        s for s in scripts if
-        s.getPath().getValue() + s.getName().getValue() == script_path]
+        s
+        for s in scripts
+        if s.getPath().getValue() + s.getName().getValue() == script_path
+    ]
 
     if len(named_scripts) == 0:
         return None
@@ -88,9 +89,9 @@ def points_to_string(points):
     return "points[%s] points1[%s] points2[%s]" % (csv, csv, csv)
 
 
-def check_file_annotation(client, file_annotation,
-                          parent_type="Image", is_linked=True,
-                          file_name=None):
+def check_file_annotation(
+    client, file_annotation, parent_type="Image", is_linked=True, file_name=None
+):
     """
     Check validity of file annotation. If hasFileAnnotation, check the size,
     name and number of objects linked to the original file.

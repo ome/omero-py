@@ -22,6 +22,7 @@ def bzip2_tool(disable=False):
     """
 
     import tables
+
     f = tables.__file__
     p = os.path.dirname(f)
     p = os.path.abspath(p)
@@ -38,6 +39,7 @@ def _swap(f, t):
         print("%s doesn't exist" % f)
         sys.exit(0)
     os.rename(f, t)
+
 
 if __name__ == "__main__":
     try:

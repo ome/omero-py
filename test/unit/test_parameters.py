@@ -16,7 +16,6 @@ from omero_sys_ParametersI import ParametersI
 
 
 class TestParameters(object):
-
     def assertNull(self, arg):
         assert None == arg
 
@@ -161,7 +160,7 @@ class TestParameters(object):
         assert p1.map is not p2.map
 
     def testSameMap(self):
-        m = {'key': 0}
+        m = {"key": 0}
         p1 = ParametersI(parammap=m)
         p2 = ParametersI(parammap=m)
         assert p1.map is p2.map

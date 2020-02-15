@@ -11,6 +11,7 @@ Load modules with automatic updating of Ice modules.
 """
 
 import Ice
+
 update = getattr(Ice, "updateModules", None)
 
 

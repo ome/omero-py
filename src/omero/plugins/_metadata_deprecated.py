@@ -43,15 +43,17 @@ GUI clients.
 DEPRECATION_MESSAGE = (
     "This plugin is deprecated as of OMERO 5.4.8. Use the plugin"
     " available from https://pypi.org/project/omero-metadata/"
-    " instead.")
+    " instead."
+)
 
-ANNOTATION_TYPES = [t for t in dir(omero.model)
-                    if re.match(r'[A-Za-z0-9]+Annotation$', t)]
+ANNOTATION_TYPES = [
+    t for t in dir(omero.model) if re.match(r"[A-Za-z0-9]+Annotation$", t)
+]
 
 
 def guess_mimetype(filename):
     mt = mimetypes.guess_type(filename, strict=False)[0]
-    if not mt and os.path.splitext(filename) in ('yml', 'yaml'):
+    if not mt and os.path.splitext(filename) in ("yml", "yaml"):
         mt = "application/x-yaml"
     if not mt:
         mt = "application/octet-stream"
@@ -62,11 +64,13 @@ class ObjectLoadException(Exception):
     """
     Raised when a requested object could not be loaded
     """
+
     def __init__(self, klass, oid):
         self.klass = klass
         self.oid = oid
         super(ObjectLoadException, self).__init__(
-            "Failed to get object %s:%s" % (klass, oid))
+            "Failed to get object %s:%s" % (klass, oid)
+        )
 
 
 class Metadata(object):
@@ -161,77 +165,123 @@ class MetadataControl(BaseControl):
         populateroi = parser.add(sub, self.populateroi)
         pixelsize = parser.add(sub, self.pixelsize)
 
-        populate.add_argument("--batch",
-                              type=int,
-                              default=1000,
-                              help="Number of objects to process at once")
+        populate.add_argument(
+            "--batch",
+            type=int,
+            default=1000,
+            help="Number of objects to process at once",
+        )
         self._add_wait(populate)
 
-        for x in (summary, original, bulkanns, measures, mapanns, allanns,
-                  rois, populate, populateroi, pixelsize):
-            x.add_argument("obj",
-                           type=ProxyStringType(),
-                           help="Object in Class:ID format")
+        for x in (
+            summary,
+            original,
+            bulkanns,
+            measures,
+            mapanns,
+            allanns,
+            rois,
+            populate,
+            populateroi,
+            pixelsize,
+        ):
+            x.add_argument(
+                "obj", type=ProxyStringType(), help="Object in Class:ID format"
+            )
 
-        for x in (bulkanns, measures, mapanns, allanns,
-                  rois, populate, populateroi):
-            x.add_argument("--report", action="store_true", help=(
-                "Show additional information"))
+        for x in (
+            bulkanns,
+            measures,
+            mapanns,
+            allanns,
+            rois,
+            populate,
+            populateroi,
+        ):
+            x.add_argument(
+                "--report",
+                action="store_true",
+                help=("Show additional information"),
+            )
 
         for x in (rois, populate, populateroi):
             dry_or_not = x.add_mutually_exclusive_group()
             dry_or_not.add_argument("-n", "--dry-run", action="store_true")
-            dry_or_not.add_argument("-f", "--force", action="store_false",
-                                    dest="dry_run")
+            dry_or_not.add_argument(
+                "-f", "--force", action="store_false", dest="dry_run"
+            )
 
         for x in (bulkanns, measures, mapanns, allanns):
             x.add_argument(
-                "--parents", action="store_true",
-                help="Also search parents for annotations")
+                "--parents",
+                action="store_true",
+                help="Also search parents for annotations",
+            )
 
         for x in (mapanns, allanns):
             x.add_argument(
-                "--ns", default=None, help="Restrict to this namespace")
+                "--ns", default=None, help="Restrict to this namespace"
+            )
             x.add_argument(
-                "--nsre",
-                help="Restrict to this namespace (regular expression)")
+                "--nsre", help="Restrict to this namespace (regular expression)"
+            )
 
         rois.add_argument(
-            "--delete", action="store_true", help="Delete all ROIs")
+            "--delete", action="store_true", help="Delete all ROIs"
+        )
 
         populate.add_argument(
-            "--context", default=self.POPULATE_CONTEXTS[0][0],
-            choices=[a[0] for a in self.POPULATE_CONTEXTS])
+            "--context",
+            default=self.POPULATE_CONTEXTS[0][0],
+            choices=[a[0] for a in self.POPULATE_CONTEXTS],
+        )
 
         datafile = populate.add_mutually_exclusive_group()
         datafile.add_argument("--file", help="Input file")
         datafile.add_argument(
-            "--fileid", type=int, help="Input OriginalFile ID")
+            "--fileid", type=int, help="Input OriginalFile ID"
+        )
 
         cfgfile = populate.add_mutually_exclusive_group()
         cfgfile.add_argument("--cfg", help="YAML configuration file")
         cfgfile.add_argument(
-            "--cfgid", type=int, help="YAML configuration OriginalFile ID")
+            "--cfgid", type=int, help="YAML configuration OriginalFile ID"
+        )
 
-        populate.add_argument("--attach", action="store_true", help=(
-            "Upload input or configuration files and attach to parent object"))
+        populate.add_argument(
+            "--attach",
+            action="store_true",
+            help=(
+                "Upload input or configuration files and attach to parent object"
+            ),
+        )
 
-        populate.add_argument("--localcfg", help=(
-            "Local configuration file or a JSON object string"))
+        populate.add_argument(
+            "--localcfg",
+            help=("Local configuration file or a JSON object string"),
+        )
 
         populateroi.add_argument(
-            "--measurement", type=int, default=None,
-            help="Index of the measurement to populate. By default, all")
+            "--measurement",
+            type=int,
+            default=None,
+            help="Index of the measurement to populate. By default, all",
+        )
 
         pixelsize.add_argument(
-            "--x", type=float, default=None, help="Physical pixel size X")
+            "--x", type=float, default=None, help="Physical pixel size X"
+        )
         pixelsize.add_argument(
-            "--y", type=float, default=None, help="Physical pixel size Y")
+            "--y", type=float, default=None, help="Physical pixel size Y"
+        )
         pixelsize.add_argument(
-            "--z", type=float, default=None, help="Physical pixel size Z")
+            "--z", type=float, default=None, help="Physical pixel size Z"
+        )
         pixelsize.add_argument(
-            "--unit", default="micrometer",
-            help="Unit (nanometer, micrometer, etc.) (default: micrometer)")
+            "--unit",
+            default="micrometer",
+            help="Unit (nanometer, micrometer, etc.) (default: micrometer)",
+        )
 
     def _clientconn(self, args):
         client = self.ctx.conn(args)
@@ -243,7 +293,7 @@ class MetadataControl(BaseControl):
         # loaded. To raise an exception instead pass die_on_failure=False
         # and catch ObjectLoadException
         client, conn = self._clientconn(args)
-        conn.SERVICE_OPTS.setOmeroGroup('-1')
+        conn.SERVICE_OPTS.setOmeroGroup("-1")
         klass = args.obj.ice_staticId().split("::")[-1]
         oid = args.obj.id.val
         wrapper = conn.getObject(klass, oid)
@@ -265,14 +315,14 @@ class MetadataControl(BaseControl):
             s += "%sdescription: %s" % (pre, obj.getDescription())
             s += "%sdate: %s" % (pre, obj.getDate().isoformat())
 
-            if obj.get_type() == 'FileAnnotation':
+            if obj.get_type() == "FileAnnotation":
                 f = md.wrap(obj.getFile())
                 s += "%sfile: %s" % (pre, f.get_name())
                 pre = "\n%s" % ("  " * (indent + 2))
                 s += "%sname: %s" % (pre, f.getName())
                 s += "%ssize: %s" % (pre, f.getSize())
 
-            elif obj.get_type() == 'MapAnnotation':
+            elif obj.get_type() == "MapAnnotation":
                 ma = obj.getValue()
                 s += "%svalue:" % pre
                 pre = "\n%s" % ("  " * (indent + 2))
@@ -303,10 +353,10 @@ class MetadataControl(BaseControl):
             self.ctx.out("Roi count: %s" % md.get_roi_count())
         except AttributeError:
             pass
-        self.ctx.out("Bulk annotations: %d" %
-                     sum(1 for a in md.get_bulkanns()))
-        self.ctx.out("Measurement tables: %d" %
-                     sum(1 for a in md.get_measures()))
+        self.ctx.out("Bulk annotations: %d" % sum(1 for a in md.get_bulkanns()))
+        self.ctx.out(
+            "Measurement tables: %d" % sum(1 for a in md.get_measures())
+        )
         try:
             parent = md.get_parent().get_name()
             self.ctx.out("Parent: %s" % parent)
@@ -342,11 +392,11 @@ class MetadataControl(BaseControl):
         try:
             source, global_om, series_om = md.get_original()
         except AttributeError:
-            self.ctx.die(100, 'Failed to get original metadata for %s' %
-                         md.get_name())
+            self.ctx.die(
+                100, "Failed to get original metadata for %s" % md.get_name()
+            )
 
-        om = (("Global", global_om),
-              ("Series", series_om))
+        om = (("Global", global_om), ("Series", series_om))
 
         for name, tuples in om:
             # Matches the OMERO4 original_metadata.txt format
@@ -360,12 +410,12 @@ class MetadataControl(BaseControl):
             # NotImplementedError
             anns = list(func(mdobj))
         except NotImplementedError:
-            self.ctx.err('WARNING: Failed to get annotations for %s' %
-                         mdobj.get_name())
+            self.ctx.err(
+                "WARNING: Failed to get annotations for %s" % mdobj.get_name()
+            )
             anns = []
         if indent is not None:
-            self.ctx.out("%s%s" % (
-                '  ' * indent, mdobj.get_name()))
+            self.ctx.out("%s%s" % ("  " * indent, mdobj.get_name()))
             indent += 1
         for a in anns:
             self.ctx.out(self._format_ann(mdobj, a, indent))
@@ -374,34 +424,38 @@ class MetadataControl(BaseControl):
                 self._output_ann(p, func, parents, indent)
 
     def bulkanns(self, args):
-        ("Provide a list of the NSBULKANNOTATION tables linked "
-         "to the given object")
+        (
+            "Provide a list of the NSBULKANNOTATION tables linked "
+            "to the given object"
+        )
         self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         indent = None
         if args.report:
             indent = 0
-        self._output_ann(
-            md, lambda md: md.get_bulkanns(), args.parents, indent)
+        self._output_ann(md, lambda md: md.get_bulkanns(), args.parents, indent)
 
     def measures(self, args):
-        ("Provide a list of the NSMEASUREMENT tables linked "
-         "to the given object")
+        (
+            "Provide a list of the NSMEASUREMENT tables linked "
+            "to the given object"
+        )
         self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         indent = None
         if args.report:
             indent = 0
-        self._output_ann(
-            md, lambda md: md.get_measures(), args.parents, indent)
+        self._output_ann(md, lambda md: md.get_measures(), args.parents, indent)
 
     def mapanns(self, args):
         "Provide a list of all MapAnnotations linked to the given object"
+
         def get_anns(md):
-            for a in md.get_allanns(args.ns, 'MapAnnotation'):
+            for a in md.get_allanns(args.ns, "MapAnnotation"):
                 if args.nsre and not re.match(args.nsre, a.get_ns()):
                     continue
                 yield a
+
         self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         indent = None
@@ -411,11 +465,13 @@ class MetadataControl(BaseControl):
 
     def allanns(self, args):
         "Provide a list of all annotations linked to the given object"
+
         def get_anns(md):
             for a in md.get_allanns(args.ns):
                 if args.nsre and not re.match(args.nsre, a.get_ns()):
                     continue
                 yield a
+
         self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         md = self._load(args)
         indent = None
@@ -430,14 +486,14 @@ class MetadataControl(BaseControl):
 
         sf = client.getSession()
         sr = sf.sharedResources()
-        table = sr.newTable(1, 'testtables')
+        table = sr.newTable(1, "testtables")
         if table is None:
             self.ctx.die(100, "Failed to create Table")
 
         # If we have a table...
         initialized = False
         try:
-            table.initialize([LongColumn('ID', '', [])])
+            table.initialize([LongColumn("ID", "", [])])
             initialized = True
         except:
             pass
@@ -471,7 +527,8 @@ class MetadataControl(BaseControl):
 
         if args.localcfg:
             localcfg = pydict_text_io.load(
-                args.localcfg, session=client.getSession())
+                args.localcfg, session=client.getSession()
+            )
         else:
             localcfg = {}
 
@@ -481,22 +538,33 @@ class MetadataControl(BaseControl):
         if args.attach and not args.dry_run:
             if args.file:
                 fileann = conn.createFileAnnfromLocalFile(
-                    args.file, mimetype=guess_mimetype(args.file),
-                    ns=NSBULKANNOTATIONSRAW)
+                    args.file,
+                    mimetype=guess_mimetype(args.file),
+                    ns=NSBULKANNOTATIONSRAW,
+                )
                 fileid = fileann.getFile().getId()
                 md.linkAnnotation(fileann)
 
             if args.cfg:
                 cfgann = conn.createFileAnnfromLocalFile(
-                    args.cfg, mimetype=guess_mimetype(args.cfg),
-                    ns=NSBULKANNOTATIONSCONFIG)
+                    args.cfg,
+                    mimetype=guess_mimetype(args.cfg),
+                    ns=NSBULKANNOTATIONSCONFIG,
+                )
                 cfgid = cfgann.getFile().getId()
                 md.linkAnnotation(cfgann)
 
         # Note some contexts only support a subset of these args
-        ctx = context_class(client, args.obj, file=args.file, fileid=fileid,
-                            cfg=args.cfg, cfgid=cfgid, attach=args.attach,
-                            options=localcfg)
+        ctx = context_class(
+            client,
+            args.obj,
+            file=args.file,
+            fileid=fileid,
+            cfg=args.cfg,
+            cfgid=cfgid,
+            attach=args.attach,
+            options=localcfg,
+        )
         ctx.parse()
         if not args.dry_run:
             wait = args.wait
@@ -552,7 +620,7 @@ class MetadataControl(BaseControl):
         roiids = client.getSession().getQueryService().projection(q, params)
         roiids = [r[0].val for r in roiids]
         if roiids:
-            self.ctx.out('\n'.join('Roi:%d' % rid for rid in roiids))
+            self.ctx.out("\n".join("Roi:%d" % rid for rid in roiids))
 
     def populateroi(self, args):
         "Add ROIs to an object"
@@ -571,12 +639,14 @@ class MetadataControl(BaseControl):
             self.ctx.die(100, "No measurements found")
         if args.measurement is not None and args.measurement >= count:
             self.ctx.die(
-                100, "Invalid measurement index: %d" % args.measurement)
+                100, "Invalid measurement index: %d" % args.measurement
+            )
         for i in range(count):
             if args.dry_run:
                 self.ctx.out(
-                    "Measurement %d has %s result files." % (
-                        i, ctx.get_result_file_count(i)))
+                    "Measurement %d has %s result files."
+                    % (i, ctx.get_result_file_count(i))
+                )
             else:
                 if args.measurement is not None:
                     if args.measurement != i:
@@ -592,8 +662,7 @@ class MetadataControl(BaseControl):
 
         unit = getattr(UnitsLength, args.unit.upper())
         if not unit:
-            self.ctx.die(100, "%s is not recognized as valid unit."
-                              % args.unit)
+            self.ctx.die(100, "%s is not recognized as valid unit." % args.unit)
 
         md = self._load(args)
         client, conn = self._clientconn(args)
@@ -624,7 +693,7 @@ class MetadataControl(BaseControl):
         else:
             raise Exception("Not implemented for type %s" % md.get_type())
 
-        ctx = {'omero.group': '-1'}
+        ctx = {"omero.group": "-1"}
 
         params = omero.sys.ParametersI()
         params.addId(md.get_id())
@@ -642,7 +711,7 @@ class MetadataControl(BaseControl):
                 pixel.setPhysicalSizeZ(omero.model.LengthI(args.z, unit))
 
         groupId = pixels[0].getDetails().getGroup().getId().getValue()
-        ctx = {'omero.group': native_str(groupId)}
+        ctx = {"omero.group": native_str(groupId)}
         conn.getUpdateService().saveArray(pixels, ctx)
 
 

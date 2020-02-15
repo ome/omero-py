@@ -39,6 +39,7 @@ from __future__ import division
 from builtins import str
 from builtins import range
 from past.utils import old_div
+
 try:
     from PIL import Image, ImageDraw  # see ticket:2597
 except ImportError:
@@ -55,8 +56,16 @@ MINS_SECS = "MINS_SECS"
 HOURS_MINS = "HOURS_MINS"
 HOURS_MINS_SECS = "HOURS_MINS_SECS"
 HOURS_MINS_SECS_MILLIS = "HOURS_MINS_SECS_MILLIS"
-TIME_UNITS = [SECS_MILLIS, SECS, MINS, HOURS, MINS_SECS,
-              HOURS_MINS, HOURS_MINS_SECS, HOURS_MINS_SECS_MILLIS]
+TIME_UNITS = [
+    SECS_MILLIS,
+    SECS,
+    MINS,
+    HOURS,
+    MINS_SECS,
+    HOURS_MINS,
+    HOURS_MINS_SECS,
+    HOURS_MINS_SECS_MILLIS,
+]
 
 
 def getDatasetsProjectsFromImages(queryService, imageIds):
@@ -72,14 +81,16 @@ def getDatasetsProjectsFromImages(queryService, imageIds):
     """
     ids = ",".join([str(i) for i in imageIds])
 
-    query_string = "select i from Image i join fetch i.datasetLinks idl join " \
-                   "fetch idl.parent d join fetch d.projectLinks pl join " \
-                   "fetch pl.parent where i.id in (%s)" % ids
+    query_string = (
+        "select i from Image i join fetch i.datasetLinks idl join "
+        "fetch idl.parent d join fetch d.projectLinks pl join "
+        "fetch pl.parent where i.id in (%s)" % ids
+    )
 
     images = queryService.findAllByQuery(query_string, None)
     results = {}
 
-    for i in images:    # order of images not same as imageIds
+    for i in images:  # order of images not same as imageIds
         pdList = []
         imageId = i.getId().getValue()
         for link in i.iterateDatasetLinks():
@@ -111,7 +122,8 @@ def getTagsFromImages(metadataService, imageIds):
 
     types = ["ome.model.annotations.TagAnnotation"]
     annotations = metadataService.loadAnnotations(
-        "Image", imageIds, types, None, None)
+        "Image", imageIds, types, None, None
+    )
 
     tagsMap = {}
     for i in imageIds:
@@ -139,9 +151,11 @@ def getTimes(queryService, pixelsId, tIndexes, theZ=None, theC=None):
     if theC is None:
         theC = 0
     indexes = ",".join([str(t) for t in tIndexes])
-    query = "from PlaneInfo as Info where Info.theT in (%s) and Info.theZ "\
-            "in (%d) and Info.theC in (%d) and pixels.id='%d'" \
-            % (indexes, theZ, theC, pixelsId)
+    query = (
+        "from PlaneInfo as Info where Info.theT in (%s) and Info.theZ "
+        "in (%d) and Info.theC in (%d) and pixels.id='%d'"
+        % (indexes, theZ, theC, pixelsId)
+    )
     infoList = queryService.findAllByQuery(query, None)
     timeMap = {}
     for info in infoList:
@@ -193,15 +207,21 @@ def formatTime(seconds, timeUnits):
     elif timeUnits == "HOURS_MINS_SECS_MILLIS":
         hrs = old_div(seconds, 3600)
         mins = old_div((seconds % 3600), 60)
-        secs = (seconds % (3600 * 60))
+        secs = seconds % (3600 * 60)
         label = "%d:%02d:%05.2f" % (hrs, mins, secs)
     else:
         label = "%.2f sec" % seconds
     return neg and "-%s" % label or label
 
 
-def getTimeLabels(queryService, pixelsId, tIndexes, sizeT,
-                  timeUnits=None, showRoiDuration=False):
+def getTimeLabels(
+    queryService,
+    pixelsId,
+    tIndexes,
+    sizeT,
+    timeUnits=None,
+    showRoiDuration=False,
+):
     """
     Returns a list of time labels e.g. "10", "20" for the first plane at
     each t-index (C=0 and Z=0). If no planeInfo is available,
@@ -269,14 +289,19 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
     scaleBarY = iHeight - yIndent
     scaleBarX = iWidth - scalebar // pixelSizeX - xIndent
     scaleBarX2 = iWidth - xIndent
-    if (scaleBarX <= 0 or scaleBarX2 <= 0
-            or scaleBarY <= 0 or scaleBarX2 > iWidth):
+    if (
+        scaleBarX <= 0
+        or scaleBarX2 <= 0
+        or scaleBarY <= 0
+        or scaleBarX2 > iWidth
+    ):
         return False, "  Failed to add scale bar: Scale bar is too large."
     for l in range(lineThickness):
         draw.line(
-            [(scaleBarX, scaleBarY), (scaleBarX2, scaleBarY)], fill=colour)
+            [(scaleBarX, scaleBarY), (scaleBarX2, scaleBarY)], fill=colour
+        )
         scaleBarY -= 1
-    return True,  "  Scalebar added to the image."
+    return True, "  Scalebar added to the image."
 
 
 def getVerticalLabels(labels, font, textGap):

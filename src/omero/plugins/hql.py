@@ -30,28 +30,41 @@ WHITELISTED_VALUES = [0, False]
 
 
 class HqlControl(BaseControl):
-
     def _configure(self, parser):
         parser.set_defaults(func=self.__call__)
         parser.add_argument("query", nargs="?", help="Single query to run")
         parser.add_argument(
-            "--admin", help="Run an admin query (deprecated; use 'all')",
-            default=False, action="store_true")
+            "--admin",
+            help="Run an admin query (deprecated; use 'all')",
+            default=False,
+            action="store_true",
+        )
         parser.add_argument(
-            "--all", help="Perform query on all groups", default=False,
-            action="store_true", dest="admin")
+            "--all",
+            help="Perform query on all groups",
+            default=False,
+            action="store_true",
+            dest="admin",
+        )
         parser.add_argument(
             "--ids-only",
             action="store_true",
-            help="Show only the ids of returned objects")
+            help="Show only the ids of returned objects",
+        )
         parser.add_limit_arguments()
         parser.add_style_argument()
         parser.add_login_arguments()
-        self.add_error("NO_QUIET", 67,
-                       "Can't ask for query with --quiet option")
-        self.add_error("NOT_ADMIN", 53,
-                       ("SecurityViolation: Current user is not an"
-                        " admin and cannot use '--admin'"))
+        self.add_error(
+            "NO_QUIET", 67, "Can't ask for query with --quiet option"
+        )
+        self.add_error(
+            "NOT_ADMIN",
+            53,
+            (
+                "SecurityViolation: Current user is not an"
+                " admin and cannot use '--admin'"
+            ),
+        )
         self.add_error("BAD_QUERY", 52, "Bad query: %s")
 
     def __call__(self, args):
@@ -79,8 +92,7 @@ class HqlControl(BaseControl):
         p = ParametersI()
         p.page(args.offset, args.limit)
         rv = self.project(q, args.query, p, ice_map)
-        has_details = self.display(rv, style=args.style,
-                                   idsonly=args.ids_only)
+        has_details = self.display(rv, style=args.style, idsonly=args.ids_only)
         if self.ctx.isquiet or not sys.stdout.isatty():
             return
 
@@ -106,8 +118,10 @@ To quit, enter 'q' or just enter.
             # Stay in loop
             if id.startswith("p"):
                 p.page(p.getOffset().val + p.getLimit().val, p.getLimit())
-                self.ctx.dbg("\nCurrent page: offset=%s, limit=%s\n" %
-                             (p.theFilter.offset.val, p.theFilter.limit.val))
+                self.ctx.dbg(
+                    "\nCurrent page: offset=%s, limit=%s\n"
+                    % (p.theFilter.offset.val, p.theFilter.limit.val)
+                )
                 rv = self.project(q, args.query, p, ice_map)
                 self.display(rv, style=args.style, idsonly=args.ids_only)
             elif id.startswith("r"):
@@ -152,8 +166,11 @@ To quit, enter 'q' or just enter.
             id = ""
             values = {}
             # Handling for simple lookup
-            if not idsonly and len(object_list) == 1 and \
-                    isinstance(object_list[0], omero.rtypes.RObjectI):
+            if (
+                not idsonly
+                and len(object_list) == 1
+                and isinstance(object_list[0], omero.rtypes.RObjectI)
+            ):
                 has_details.append(idx)
                 o = object_list[0].val
                 if o:
@@ -188,6 +205,7 @@ To quit, enter 'q' or just enter.
         from omero.model import IObject
         from omero.model import Details
         from omero.rtypes import RTimeI
+
         # if isinstance(object, list):
         #    return [self.unwrap(x, cache) for x in object]
         # elif isinstance(object, RObject):
@@ -196,7 +214,7 @@ To quit, enter 'q' or just enter.
         if isinstance(unwrapped, IObject):
             rv = "%s:%s" % (unwrapped.__class__.__name__, unwrapped.id.val)
         elif isinstance(object, RTimeI):
-            rv = time.ctime(old_div(unwrapped,1000.0))
+            rv = time.ctime(old_div(unwrapped, 1000.0))
         elif isinstance(object, Details):
             owner = None
             group = None
@@ -220,8 +238,9 @@ To quit, enter 'q' or just enter.
             values.pop(key)
 
         # Filter out _Loaded keys
-        loaded_keys = [x for x in values if x.startswith("_")
-                       and x.endswith("Loaded")]
+        loaded_keys = [
+            x for x in values if x.startswith("_") and x.endswith("Loaded")
+        ]
         for key in loaded_keys:
             values.pop(key)
 
@@ -230,11 +249,16 @@ To quit, enter 'q' or just enter.
             values.pop("_details")
 
         # Filter out multi-valued and empty-valued items
-        multi_valued = sorted([k for k in values
-                               if isinstance(values[k], list)])
-        empty_valued = sorted([
-            k for k in values if not values[k] and values[k] not in
-            WHITELISTED_VALUES])
+        multi_valued = sorted(
+            [k for k in values if isinstance(values[k], list)]
+        )
+        empty_valued = sorted(
+            [
+                k
+                for k in values
+                if not values[k] and values[k] not in WHITELISTED_VALUES
+            ]
+        )
 
         for x in multi_valued + empty_valued:
             if x in values:
@@ -250,6 +274,7 @@ To quit, enter 'q' or just enter.
 
     def project(self, querySvc, queryStr, params, ice_map):
         import omero
+
         try:
             rv = querySvc.projection(queryStr, params, ice_map)
             self.ctx.set("last.hql.rv", rv)
@@ -262,6 +287,7 @@ To quit, enter 'q' or just enter.
         except omero.QueryException as qe:
             self.ctx.set("last.hql.rv", [])
             self.raise_error("BAD_QUERY", qe.message)
+
 
 try:
     register("hql", HqlControl, HELP)

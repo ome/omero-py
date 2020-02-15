@@ -39,7 +39,6 @@ from mox3 import mox
 
 
 class MockCLI(CLI):
-
     def conn(self, *args, **kwargs):
         return self.get_client()
 
@@ -54,7 +53,6 @@ class MockCLI(CLI):
 
 
 class TxBase(object):
-
     def setup_method(self, method):
         self.mox = mox.Mox()
         self.client = self.mox.CreateMock(BaseClient)
@@ -72,7 +70,9 @@ class TxBase(object):
 
     def queries(self, obj):
         self.sf.getQueryService().AndReturn(self.query)
-        self.query.get(mox.IgnoreArg(), mox.IgnoreArg(), mox.IgnoreArg()).AndReturn(obj)
+        self.query.get(
+            mox.IgnoreArg(), mox.IgnoreArg(), mox.IgnoreArg()
+        ).AndReturn(obj)
 
     def saves(self, obj):
         self.sf.getUpdateService().AndReturn(self.update)
@@ -80,7 +80,6 @@ class TxBase(object):
 
 
 class TestNewObjectTxAction(TxBase):
-
     def test_unknown_class(self):
         self.saves(ProjectI(1, False))
         self.mox.ReplayAll()
@@ -91,7 +90,6 @@ class TestNewObjectTxAction(TxBase):
 
 
 class TestObjControl(TxBase):
-
     def setup_method(self, method):
         super(TestObjControl, self).setup_method(method)
         self.cli.register("obj", ObjControl, "TEST")
@@ -107,15 +105,17 @@ class TestObjControl(TxBase):
         self.queries(ProjectI(1, True))
         self.saves(ProjectI(1, False))
         self.mox.ReplayAll()
-        self.cli.invoke(("obj update Project:1 name=bar "
-                        "description=loooong"), strict=True)
+        self.cli.invoke(
+            ("obj update Project:1 name=bar " "description=loooong"),
+            strict=True,
+        )
         assert self.cli._out == ["Project:1"]
 
     def testHelp(self):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('subcommand', ObjControl().get_subcommands())
+    @pytest.mark.parametrize("subcommand", ObjControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)

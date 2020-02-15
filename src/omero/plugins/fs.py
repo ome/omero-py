@@ -49,8 +49,11 @@ from omero.cli import ProxyStringType
 from omero.gateway import BlitzGateway
 from omero.model.enums import (
     AdminPrivilegeChown,
-    AdminPrivilegeWriteOwned, AdminPrivilegeWriteManagedRepo,
-    AdminPrivilegeDeleteOwned, AdminPrivilegeDeleteManagedRepo)
+    AdminPrivilegeWriteOwned,
+    AdminPrivilegeWriteManagedRepo,
+    AdminPrivilegeDeleteOwned,
+    AdminPrivilegeDeleteManagedRepo,
+)
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
 from omero.sys import Principal
@@ -63,8 +66,8 @@ from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 HELP = """Filesystem utilities"""
 
 
-if platform.system() == 'Windows':
-    HELP += ("\n\n%s" % WINDOWS_WARNING)
+if platform.system() == "Windows":
+    HELP += "\n\n%s" % WINDOWS_WARNING
 
 Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
 
@@ -78,10 +81,9 @@ def contents(mrepo, path, ctx=None):
 
     def parse(tree, level=0):
         for k, v in list(tree.items()):
-            yield Entry(level, v.get("id"),
-                        k, v.get("mimetype"))
+            yield Entry(level, v.get("id"), k, v.get("mimetype"))
             if "files" in v:
-                for sub in parse(v.get("files"), level+1):
+                for sub in parse(v.get("files"), level + 1):
                     yield sub
 
     for entry in parse(tree):
@@ -135,8 +137,8 @@ def prep_directory(client, mrepo):
         oid = list(dir.items())[0][1].get("id")
         ofile = client.sf.getQueryService().get("OriginalFile", oid)
 
-        delete1 = Delete2(targetObjects={'Fileset': [fs.id.val]})
-        delete2 = Delete2(targetObjects={'OriginalFile': [ofile.id.val]})
+        delete1 = Delete2(targetObjects={"Fileset": [fs.id.val]})
+        delete2 = Delete2(targetObjects={"OriginalFile": [ofile.id.val]})
         doall = DoAll()
         doall.requests = [delete1, delete2]
         cb = client.submit(doall)
@@ -150,11 +152,14 @@ def prep_directory(client, mrepo):
 
 def get_logfile(query, fid):
     from omero.sys import ParametersI
-    q = ("select o from FilesetJobLink l "
-         "join l.parent as fs join l.child as j "
-         "join j.originalFileLinks l2 join l2.child as o "
-         "where fs.id = :id and "
-         "o.mimetype = 'application/omero-log-file'")
+
+    q = (
+        "select o from FilesetJobLink l "
+        "join l.parent as fs join l.child as j "
+        "join j.originalFileLinks l2 join l2.child as o "
+        "where fs.id = :id and "
+        "o.mimetype = 'application/omero-log-file'"
+    )
     return query.findByQuery(q, ParametersI().addId(fid))
 
 
@@ -180,7 +185,7 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
         Note that final elements are empty
         """
         parts = dir.split("/")
-        parpath = "/".join(parts[0:-2]+[""])
+        parpath = "/".join(parts[0:-2] + [""])
         parname = parts[-2]
         logname = parts[-2] + ".log"
         return parpath, parname, logname
@@ -233,7 +238,6 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
 
 
 class FsControl(CmdControl):
-
     def _configure(self, parser):
 
         parser.add_login_arguments()
@@ -243,134 +247,188 @@ class FsControl(CmdControl):
         images.add_style_argument()
         images.add_limit_arguments()
         images.add_argument(
-            "--order", default="newest",
+            "--order",
+            default="newest",
             choices=("newest", "oldest", "largest"),
-            help="order of the rows returned")
+            help="order of the rows returned",
+        )
         images.add_argument(
-            "--archived", action="store_true",
-            help="list only images with archived data")
+            "--archived",
+            action="store_true",
+            help="list only images with archived data",
+        )
 
         mkdir = parser.add(sub, self.mkdir)
         mkdir.add_argument(
-            "new_dir",
-            help="directory to create in the repository")
+            "new_dir", help="directory to create in the repository"
+        )
         mkdir.add_argument(
-            "--parents", action="store_true",
-            help="ensure whole path exists")
+            "--parents", action="store_true", help="ensure whole path exists"
+        )
 
         rename = parser.add(sub, self.rename)
         rename.add_argument(
             "fileset",
             type=ProxyStringType("Fileset"),
-            help="Fileset which should be renamed: ID or Fileset:ID")
+            help="Fileset which should be renamed: ID or Fileset:ID",
+        )
         rename.add_argument(
-            "--no-move", action="store_true",
-            help="do not move original files and import log")
+            "--no-move",
+            action="store_true",
+            help="do not move original files and import log",
+        )
 
         repos = parser.add(sub, self.repos)
         repos.add_style_argument()
         repos.add_argument(
-            "--managed", action="store_true",
-            help="repos only managed repositories")
+            "--managed",
+            action="store_true",
+            help="repos only managed repositories",
+        )
 
         sets = parser.add(sub, self.sets)
         sets.add_style_argument()
         sets.add_limit_arguments()
         sets.add_argument(
-            "--order", default="newest",
+            "--order",
+            default="newest",
             choices=("newest", "oldest", "prefix"),
-            help="order of the rows returned")
+            help="order of the rows returned",
+        )
         sets.add_argument(
-            "--without-images", action="store_true",
-            help="list only sets without images (i.e. corrupt)")
+            "--without-images",
+            action="store_true",
+            help="list only sets without images (i.e. corrupt)",
+        )
         sets.add_argument(
-            "--with-transfer", nargs="+", action="append",
-            help="list sets by their in-place import method")
+            "--with-transfer",
+            nargs="+",
+            action="append",
+            help="list sets by their in-place import method",
+        )
         sets.add_argument(
-            "--check", action="store_true",
-            help="verify the file checksums for each fileset (admins only)")
+            "--check",
+            action="store_true",
+            help="verify the file checksums for each fileset (admins only)",
+        )
 
         ls = parser.add(sub, self.ls)
-        ls.add_argument(
-            "fileset",
-            type=ProxyStringType("Fileset"))
+        ls.add_argument("fileset", type=ProxyStringType("Fileset"))
 
         logfile = parser.add(sub, self.logfile)
         logfile.add_argument("fileset", type=ProxyStringType("Fileset"))
         logfile.add_argument(
-            "filename",  nargs="?", default="-",
-            help="Local filename to be saved to. '-' for stdout")
+            "filename",
+            nargs="?",
+            default="-",
+            help="Local filename to be saved to. '-' for stdout",
+        )
         logopts = logfile.add_mutually_exclusive_group()
         logopts.add_argument(
-            "--name", action="store_true",
-            help="return the path of the logfile within the ManagedRepository")
+            "--name",
+            action="store_true",
+            help="return the path of the logfile within the ManagedRepository",
+        )
         logopts.add_argument(
-            "--size", action="store_true",
-            help="return the size of the logfile in bytes")
+            "--size",
+            action="store_true",
+            help="return the size of the logfile in bytes",
+        )
 
         usage = parser.add(sub, self.usage)
         usage.set_args_unsorted()
         usage.add_login_arguments()
         usage.add_style_argument()
         usage.add_argument(
-            "--wait", type=int,
+            "--wait",
+            type=int,
             help="Number of seconds to wait for the processing to complete "
-            "(Indefinite < 0; No wait=0).", default=-1)
+            "(Indefinite < 0; No wait=0).",
+            default=-1,
+        )
         usage.add_argument(
-            "--size-only", action="store_true",
-            help="Print total bytes used in bytes")
+            "--size-only",
+            action="store_true",
+            help="Print total bytes used in bytes",
+        )
         usage.add_argument(
-            "--report", action="store_true",
-            help="Print detailed breakdown of disk usage")
+            "--report",
+            action="store_true",
+            help="Print detailed breakdown of disk usage",
+        )
         usage.add_argument(
-            "--sum-by", nargs="+", choices=("user", "group", "component"),
-            help=("Breakdown of disk usage by a combination of "
-                  "user, group and component"))
+            "--sum-by",
+            nargs="+",
+            choices=("user", "group", "component"),
+            help=(
+                "Breakdown of disk usage by a combination of "
+                "user, group and component"
+            ),
+        )
         usage.add_argument(
-            "--sort-by", nargs="+",
+            "--sort-by",
+            nargs="+",
             choices=("user", "group", "component", "size", "files"),
-            help=("Sort the report table by one or more of "
-                  "user, group, component, size and files"))
+            help=(
+                "Sort the report table by one or more of "
+                "user, group, component, size and files"
+            ),
+        )
         usage.add_argument(
-            "--reverse", action="store_true",
-            help="Reverse sort order")
+            "--reverse", action="store_true", help="Reverse sort order"
+        )
         unit_group = usage.add_mutually_exclusive_group()
         unit_group.add_argument(
-            "--units", choices="KMGTP",
-            help="Units to use for disk usage")
+            "--units", choices="KMGTP", help="Units to use for disk usage"
+        )
         unit_group.add_argument(
-            "--human-readable", action="store_true",
-            help="Use most appropriate units")
+            "--human-readable",
+            action="store_true",
+            help="Use most appropriate units",
+        )
         usage.add_argument(
-            "--groups",  action="store_true",
-            help="Print size for all current user's groups")
+            "--groups",
+            action="store_true",
+            help="Print size for all current user's groups",
+        )
         usage.add_argument(
-            "obj", nargs="*",
-            help=("Objects to be queried in the form "
-                  "'<Class>:<Id>[,<Id> ...]', or '<Class>:*' "
-                  "to query all the objects of the given type "))
+            "obj",
+            nargs="*",
+            help=(
+                "Objects to be queried in the form "
+                "'<Class>:<Id>[,<Id> ...]', or '<Class>:*' "
+                "to query all the objects of the given type "
+            ),
+        )
 
         importtime = parser.add(sub, self.importtime)
         importtime.add_argument(
-            "fileset", nargs="?",
-            type=ProxyStringType("Fileset"))
+            "fileset", nargs="?", type=ProxyStringType("Fileset")
+        )
         importtime_alternatives = importtime.add_mutually_exclusive_group()
         importtime_alternatives.add_argument(
-            "--cache", action="store_true",
-            help="to cache the results by annotating the fileset")
+            "--cache",
+            action="store_true",
+            help="to cache the results by annotating the fileset",
+        )
         importtime_alternatives.add_argument(
-            "--summary", action="store_true",
-            help="summarize the results cached for filesets")
+            "--summary",
+            action="store_true",
+            help="summarize the results cached for filesets",
+        )
 
         for x in (images, sets):
             x.add_argument(
-                "--extended", action="store_true",
-                help="provide more details for each (slow)")
+                "--extended",
+                action="store_true",
+                help="provide more details for each (slow)",
+            )
 
     def _table(self, args):
         """
         """
         from omero.util.text import TableBuilder
+
         tb = TableBuilder("#")
         if args.style:
             tb.set_style(args.style)
@@ -428,17 +486,17 @@ Examples:
         select = (
             "select i.id, i.name, fs.id,"
             "count(f1.id)+count(f2.id), "
-            "sum(coalesce(f1.size,0) + coalesce(f2.size, 0)) ")
-        archived = (not args.archived and "left outer " or "")
+            "sum(coalesce(f1.size,0) + coalesce(f2.size, 0)) "
+        )
+        archived = not args.archived and "left outer " or ""
         query1 = (
             "from Image i join i.pixels p "
             "%sjoin p.pixelsFileMaps m %sjoin m.parent f1 "
             "left outer join i.fileset as fs "
             "left outer join fs.usedFiles as uf "
-            "left outer join uf.originalFile as f2 ") % \
-            (archived, archived)
-        query2 = (
-            "group by i.id, i.name, fs.id ")
+            "left outer join uf.originalFile as f2 "
+        ) % (archived, archived)
+        query2 = "group by i.id, i.name, fs.id "
 
         if args.order == "newest":
             query3 = "order by i.id desc"
@@ -451,13 +509,18 @@ Examples:
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
 
-        count = unwrap(service.projection(
-            "select count(i) " + query1,
-            None, {"omero.group": "-1"}))[0][0]
-        rows = unwrap(service.projection(
-            select + query1 + query2 + query3,
-            ParametersI().page(args.offset, args.limit),
-            {"omero.group": "-1"}))
+        count = unwrap(
+            service.projection(
+                "select count(i) " + query1, None, {"omero.group": "-1"}
+            )
+        )[0][0]
+        rows = unwrap(
+            service.projection(
+                select + query1 + query2 + query3,
+                ParametersI().page(args.offset, args.limit),
+                {"omero.group": "-1"},
+            )
+        )
 
         # Formatting
         for row in rows:
@@ -495,10 +558,10 @@ omero.fs.repo.path are all set to be owned by the root user.
 
         if len(args.new_dir) < 2:
             raise ValueError("directory path too short", args.new_dir)
-        if args.new_dir[0] == '/':
+        if args.new_dir[0] == "/":
             args.new_dir = args.new_dir[1:]
-        if args.new_dir[-1] != '/':
-            args.new_dir += '/'
+        if args.new_dir[-1] != "/":
+            args.new_dir += "/"
 
         client = self.ctx.conn(args)
 
@@ -520,10 +583,14 @@ moved.
 
         # See https://trello.com/c/J3LNquSH/ for more information.
         # When reenabling, also reenable testRenameAdminOnly.
-        self.ctx.die(30, 'disabled since OMERO 5.4.7 due to Pixels.path bug')
+        self.ctx.die(30, "disabled since OMERO 5.4.7 due to Pixels.path bug")
         # Keep privilege imports used until @admin_only decorator restored.
-        [AdminPrivilegeWriteOwned, AdminPrivilegeWriteManagedRepo,
-         AdminPrivilegeDeleteOwned, AdminPrivilegeDeleteManagedRepo]
+        [
+            AdminPrivilegeWriteOwned,
+            AdminPrivilegeWriteManagedRepo,
+            AdminPrivilegeDeleteOwned,
+            AdminPrivilegeDeleteManagedRepo,
+        ]
 
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
@@ -542,17 +609,16 @@ moved.
                 self.ctx.die(111, "Fileset:%s belongs to %s" % (fid, oid))
         except ServerError as se:
             self.ctx.die(
-                112, "Could not load Fileset:%s- %s" % (fid, se.message))
+                112, "Could not load Fileset:%s- %s" % (fid, se.message)
+            )
 
         new_client = None
         if oid != uid:
             user = query.get("Experimenter", oid)
             group = query.get("ExperimenterGroup", gid)
-            principal = Principal(
-                user.omeName.val, group.name.val, "Sessions")
+            principal = Principal(user.omeName.val, group.name.val, "Sessions")
             service = client.sf.getSessionService()
-            session = service.createSessionWithTimeouts(
-                principal, 0, 30000)
+            session = service.createSessionWithTimeouts(principal, 0, 30000)
             props = client.getPropertyMap()
             new_client = Client(props)
             new_client.joinSession(session.uuid.val)
@@ -573,6 +639,7 @@ moved.
             self.ctx.die(113, "No files moved!")
         elif not args.no_move:
             from omero.grid import RawAccessRequest
+
             for from_path, to_path in tomove:
                 raw = RawAccessRequest()
                 raw.repoUuid = root.hash.val
@@ -585,9 +652,11 @@ moved.
                     self.ctx.die(114, ce.err)
         else:
             self.ctx.err(
-                "Done. You will now need to move these files manually:")
+                "Done. You will now need to move these files manually:"
+            )
             self.ctx.err(
-                "-----------------------------------------------------")
+                "-----------------------------------------------------"
+            )
             b = "".join([root.path.val, root.name.val])
             for from_path, to_path in tomove:
                 t = "/".join([b, to_path])
@@ -623,7 +692,7 @@ Examples:
         shared = client.sf.sharedResources()
         repos = shared.repositories()
         repos = list(zip(repos.descriptions, repos.proxies))
-        repos.sort(key = cmp_to_key(my_cmp))
+        repos.sort(key=cmp_to_key(my_cmp))
 
         tb = self._table(args)
         tb.cols(["Id", "UUID", "Type", "Path"])
@@ -672,19 +741,17 @@ Examples:
         annselect = (
             "(select ann.textValue from Fileset f4 "
             "join f4.annotationLinks fal join fal.child ann "
-            "where f4.id = fs.id and ann.ns =:ns) ")
+            "where f4.id = fs.id and ann.ns =:ns) "
+        )
         select = (
             "select fs.id, fs.templatePrefix, "
             "(select size(f2.images) from Fileset f2 "
             "where f2.id = fs.id),"
             "(select size(f3.usedFiles) from Fileset f3 "
-            "where f3.id = fs.id),") \
-            + annselect
-        query1 = (
-            "from Fileset fs "
-            "where 1 = 1 ")
-        query2 = (
-            "group by fs.id, fs.templatePrefix ")
+            "where f3.id = fs.id),"
+        ) + annselect
+        query1 = "from Fileset fs " "where 1 = 1 "
+        query2 = "group by fs.id, fs.templatePrefix "
 
         if args.order:
             if args.order == "newest":
@@ -701,12 +768,12 @@ Examples:
 
         params = ParametersI()
         params.addString("ns", NSFILETRANSFER)
-        count = service.projection("select count(fs) " + query1,
-                                   params, {"omero.group": "-1"})
+        count = service.projection(
+            "select count(fs) " + query1, params, {"omero.group": "-1"}
+        )
 
         params.page(args.offset, args.limit)
-        objs = service.projection(select + query,
-                                  params, {"omero.group": "-1"})
+        objs = service.projection(select + query, params, {"omero.group": "-1"})
         objs = unwrap(objs)
         count = unwrap(count)[0][0]
 
@@ -740,17 +807,22 @@ Examples:
             # Now perform check if required
             if args.check:
                 from omero.grid import RawAccessRequest
+
                 desc, prx = self.get_managed_repo(client)
                 ctx = client.getContext(group=-1)
                 check_params = ParametersI()
                 check_params.addId(obj[0])
-                rows = service.projection((
-                    "select h.value, f.hash, "
-                    "f.path || '/' || f.name "
-                    "from Fileset fs join fs.usedFiles uf "
-                    "join uf.originalFile f join f.hasher h "
-                    "where fs.id = :id"
-                    ), check_params, ctx)
+                rows = service.projection(
+                    (
+                        "select h.value, f.hash, "
+                        "f.path || '/' || f.name "
+                        "from Fileset fs join fs.usedFiles uf "
+                        "join uf.originalFile f join f.hasher h "
+                        "where fs.id = :id"
+                    ),
+                    check_params,
+                    ctx,
+                )
 
                 if not rows:
                     obj.append("Empty")
@@ -816,7 +888,8 @@ Examples:
         else:
             self.ctx.die(
                 117,
-                "Log file not accessible for Fileset:%s" % args.fileset.id.val)
+                "Log file not accessible for Fileset:%s" % args.fileset.id.val,
+            )
 
     def get_managed_repo(self, client):
         """
@@ -875,7 +948,8 @@ Examples:
                 groups = exp.linkedExperimenterGroupList()
                 gids = [x.id.val for x in groups]
                 args.obj.append(
-                    "ExperimenterGroup:%s" % ",".join(map(str, gids)))
+                    "ExperimenterGroup:%s" % ",".join(map(str, gids))
+                )
 
         req.targetObjects, req.targetClasses = self._usage_obj(args.obj)
         cb = None
@@ -898,7 +972,7 @@ Examples:
                 parts = o.split(":", 1)
                 assert len(parts) == 2
                 klass = parts[0]
-                if '*' in parts[1]:
+                if "*" in parts[1]:
                     classes.add(klass)
                 else:
                     ids = [int(id) for id in parts[1].split(",")]
@@ -913,9 +987,9 @@ Examples:
         Convert from bytes to KiB, MiB, GiB, TiB or PiB.
         """
         oneK = 1024.0
-        powers = {'K': 1, 'M': 2, 'G': 3, 'T': 4, 'P': 5}
+        powers = {"K": 1, "M": 2, "G": 3, "T": 4, "P": 5}
         if units in list(powers.keys()):
-            return round(old_div(size,oneK**powers[units]), 1)
+            return round(old_div(size, oneK ** powers[units]), 1)
         else:
             raise ValueError("Unrecognized units: ", units)
 
@@ -926,7 +1000,7 @@ Examples:
         """
         err = self.get_error(rsp)
         if err:
-            self.ctx.err("Error: " + rsp.parameters['message'])
+            self.ctx.err("Error: " + rsp.parameters["message"])
         else:
             size = sum(rsp.totalBytesUsed.values())
             if args.size_only:
@@ -934,13 +1008,15 @@ Examples:
             else:
                 files = sum(rsp.totalFileCount.values())
                 if args.units:
-                    size = ("%s %siB"
-                            % (self._to_units(size, args.units), args.units))
+                    size = "%s %siB" % (
+                        self._to_units(size, args.units),
+                        args.units,
+                    )
                 elif args.human_readable:
                     size = filesizeformat(size)
                 self.ctx.out(
-                    "Total disk usage: %s bytes in %d files"
-                    % (size, files))
+                    "Total disk usage: %s bytes in %d files" % (size, files)
+                )
 
             if args.report and not args.size_only and size > 0:
                 self._detailed_usage_report(req, rsp, status, args)
@@ -958,8 +1034,8 @@ Examples:
         showCols = list(sum_by)
         showCols.extend(["size", "files"])
 
-        align = 'l'*len(sum_by)
-        align += 'rr'
+        align = "l" * len(sum_by)
+        align += "rr"
         tb = TableBuilder(*showCols)
         tb.set_align(align)
         if args.style:
@@ -968,8 +1044,9 @@ Examples:
         subtotals = {}
         if "component" in sum_by:
             for userGroup in list(rsp.bytesUsedByReferer.keys()):
-                for (element, size) in list(rsp.bytesUsedByReferer[
-                        userGroup].items()):
+                for (element, size) in list(
+                    rsp.bytesUsedByReferer[userGroup].items()
+                ):
                     files = rsp.fileCountByReferer[userGroup][element]
                     keyList = []
                     if "user" in sum_by:
@@ -1055,30 +1132,32 @@ Examples:
 
 
 class ImportTime(object):
-
     def __init__(self, ctx, query):
         self.cli_ctx = ctx
         self.ice_ctx = {"omero.group": "-1"}
         self.query = query
-        self.ns = 'openmicroscopy.org/omero/import/metrics'
+        self.ns = "openmicroscopy.org/omero/import/metrics"
         self.metrics = dict()
 
         import_tuples = [
-            ('UPLOAD', 'upload (ms)'), ('UPLOAD_C', '# files'),
-            ('SET_ID', 'setId (ms)'),
-            ('METADATA', 'metadata (ms)'),
-            ('PIXELDATA', 'pixeldata (ms)'), ('PIXELDATA_C', '# planes'),
-            ('OVERLAY', 'overlays (ms)'),
-            ('RDEF', 'rnd defs (ms)'), ('RDEF_C', '# settings'),
-            ('THUMBNAIL', 'thumbnails (ms)'), ('THUMBNAIL_C', '# thumbnails')
+            ("UPLOAD", "upload (ms)"),
+            ("UPLOAD_C", "# files"),
+            ("SET_ID", "setId (ms)"),
+            ("METADATA", "metadata (ms)"),
+            ("PIXELDATA", "pixeldata (ms)"),
+            ("PIXELDATA_C", "# planes"),
+            ("OVERLAY", "overlays (ms)"),
+            ("RDEF", "rnd defs (ms)"),
+            ("RDEF_C", "# settings"),
+            ("THUMBNAIL", "thumbnails (ms)"),
+            ("THUMBNAIL_C", "# thumbnails"),
         ]
 
         # Easier in Python 2.7 with OrderedDict.
         # Even easier in Python 3.7 in which dictionaries preserve ordering.
         self.import_phases = [key for (key, name) in import_tuples]
         self.import_phases_to_names = dict(import_tuples)
-        self.import_names_to_phases = dict(
-            [(y, x) for (x, y) in import_tuples])
+        self.import_names_to_phases = dict([(y, x) for (x, y) in import_tuples])
 
     def query_durations(self):
         """Determine values for the phase durations for the import metrics"""
@@ -1095,14 +1174,16 @@ class ImportTime(object):
         )
 
         results = self.query.projection(
-            hql, ParametersI()
+            hql,
+            ParametersI()
             .addId(self.fileset_id)
-            .addString('mimetype', 'application/omero-log-file')
+            .addString("mimetype", "application/omero-log-file")
             .page(0, 1),
-            self.ice_ctx)
+            self.ice_ctx,
+        )
 
         if not results:
-            self.cli_ctx.die(30, 'Could not query for import log.')
+            self.cli_ctx.die(30, "Could not query for import log.")
 
         upload_job_id = results[0][0].val
         upload_start = results[0][1].val
@@ -1119,15 +1200,17 @@ class ImportTime(object):
         )
 
         results = self.query.projection(
-            hql, ParametersI()
+            hql,
+            ParametersI()
             .addId(upload_job_id)
-            .addString('type', 'ome.model.jobs.UploadJob')
-            .addString('action', 'UPDATE')
+            .addString("type", "ome.model.jobs.UploadJob")
+            .addString("action", "UPDATE")
             .page(0, 1),
-            self.ice_ctx)
+            self.ice_ctx,
+        )
 
         if not results:
-            self.cli_ctx.die(31, 'Upload job is created but not yet updated.')
+            self.cli_ctx.die(31, "Upload job is created but not yet updated.")
 
         upload_end = results[0][0].val
 
@@ -1143,15 +1226,17 @@ class ImportTime(object):
         )
 
         results = self.query.projection(
-            hql, ParametersI()
+            hql,
+            ParametersI()
             .addId(import_log_id)
-            .addString('type', 'ome.model.core.OriginalFile')
-            .addString('action', 'UPDATE')
+            .addString("type", "ome.model.core.OriginalFile")
+            .addString("action", "UPDATE")
             .page(0, 3),
-            self.ice_ctx)
+            self.ice_ctx,
+        )
 
         if not results or len(results) < 3:
-            self.cli_ctx.die(32, 'Thumbnails step is not yet finished.')
+            self.cli_ctx.die(32, "Thumbnails step is not yet finished.")
 
         metadata_before_id = results[0][0]
         pixeldata_before_id = results[1][0]
@@ -1173,16 +1258,18 @@ class ImportTime(object):
         )
 
         results = self.query.projection(
-            hql, ParametersI()
+            hql,
+            ParametersI()
             .addId(self.fileset_id)
-            .addString('type', 'ome.model.core.Image')
-            .addString('action', 'INSERT')
-            .add('last', metadata_before_id)
+            .addString("type", "ome.model.core.Image")
+            .addString("action", "INSERT")
+            .add("last", metadata_before_id)
             .page(0, 1),
-            self.ice_ctx)
+            self.ice_ctx,
+        )
 
         if not results:
-            self.cli_ctx.die(33, 'Could not find images from metadata step.')
+            self.cli_ctx.die(33, "Could not find images from metadata step.")
 
         set_id_end = results[0][0].val
 
@@ -1198,14 +1285,16 @@ class ImportTime(object):
         )
 
         results = self.query.projection(
-            hql, ParametersI()
+            hql,
+            ParametersI()
             .addId(self.fileset_id)
-            .addString('type', 'ome.model.roi.Roi')
-            .addString('action', 'INSERT')
-            .add('first', pixeldata_before_id)
-            .add('last', thumbnails_before_id)
+            .addString("type", "ome.model.roi.Roi")
+            .addString("action", "INSERT")
+            .add("first", pixeldata_before_id)
+            .add("last", thumbnails_before_id)
             .page(0, 1),
-            self.ice_ctx)
+            self.ice_ctx,
+        )
 
         overlays_start = results[0][0].val if results else None
 
@@ -1221,14 +1310,16 @@ class ImportTime(object):
         )
 
         results = self.query.projection(
-            hql, ParametersI()
+            hql,
+            ParametersI()
             .addId(self.fileset_id)
-            .addString('type', 'ome.model.display.RenderingDef')
-            .addString('action', 'INSERT')
-            .add('first', pixeldata_before_id)
-            .add('last', thumbnails_before_id)
+            .addString("type", "ome.model.display.RenderingDef")
+            .addString("action", "INSERT")
+            .add("first", pixeldata_before_id)
+            .add("last", thumbnails_before_id)
             .page(0, 1),
-            self.ice_ctx)
+            self.ice_ctx,
+        )
 
         settings_start = results[0][0].val if results else None
 
@@ -1244,90 +1335,86 @@ class ImportTime(object):
         )
 
         results = self.query.projection(
-            hql, ParametersI()
+            hql,
+            ParametersI()
             .addId(self.fileset_id)
-            .addString('type', 'ome.model.display.Thumbnail')
-            .addString('action', 'INSERT')
-            .add('first', pixeldata_before_id)
-            .add('last', thumbnails_before_id)
+            .addString("type", "ome.model.display.Thumbnail")
+            .addString("action", "INSERT")
+            .add("first", pixeldata_before_id)
+            .add("last", thumbnails_before_id)
             .page(0, 1),
-            self.ice_ctx)
+            self.ice_ctx,
+        )
 
         thumbnails_start = results[0][0].val if results else None
 
         # Calculate duration of import phases.
 
-        self.metrics['UPLOAD'] = upload_end - upload_start
-        self.metrics['SET_ID'] = set_id_end - upload_end
-        self.metrics['METADATA'] = metadata_end - set_id_end
+        self.metrics["UPLOAD"] = upload_end - upload_start
+        self.metrics["SET_ID"] = set_id_end - upload_end
+        self.metrics["METADATA"] = metadata_end - set_id_end
 
         if overlays_start:
             if settings_start:
-                self.metrics['OVERLAY'] = settings_start - pixeldata_end
+                self.metrics["OVERLAY"] = settings_start - pixeldata_end
             elif thumbnails_start:
-                self.metrics['OVERLAY'] = thumbnails_start - pixeldata_end
+                self.metrics["OVERLAY"] = thumbnails_start - pixeldata_end
             else:
-                self.metrics['OVERLAY'] = thumbnails_end - pixeldata_end
+                self.metrics["OVERLAY"] = thumbnails_end - pixeldata_end
 
         if settings_start:
             # If there are no rendering settings, pyramids must be built first.
-            self.metrics['PIXELDATA'] = pixeldata_end - metadata_end
+            self.metrics["PIXELDATA"] = pixeldata_end - metadata_end
 
             if thumbnails_start:
-                self.metrics['RDEF'] = thumbnails_start - settings_start
-                self.metrics['THUMBNAIL'] = thumbnails_end - thumbnails_start
+                self.metrics["RDEF"] = thumbnails_start - settings_start
+                self.metrics["THUMBNAIL"] = thumbnails_end - thumbnails_start
             else:
-                self.metrics['RDEF'] = thumbnails_end - settings_start
+                self.metrics["RDEF"] = thumbnails_end - settings_start
 
     def query_counts(self):
         """Determine values for the per-item counts for the import metrics"""
         from omero.sys import ParametersI
+
         fileset = ParametersI().addId(self.fileset_id)
 
-        hql = (
-            "SELECT COUNT(*) FROM FilesetEntry " +
-            "WHERE fileset.id = :id"
-        )
+        hql = "SELECT COUNT(*) FROM FilesetEntry " + "WHERE fileset.id = :id"
 
-        result = self.query.projection(hql, fileset,
-                                       self.ice_ctx)[0][0].val
+        result = self.query.projection(hql, fileset, self.ice_ctx)[0][0].val
         if result > 0:
-            self.metrics['UPLOAD_C'] = result
+            self.metrics["UPLOAD_C"] = result
 
-        if 'PIXELDATA' in self.metrics:
+        if "PIXELDATA" in self.metrics:
             hql = (
-                "SELECT SUM(sizeC * sizeT * sizeZ) FROM Pixels " +
-                "WHERE image.fileset.id = :id"
+                "SELECT SUM(sizeC * sizeT * sizeZ) FROM Pixels "
+                + "WHERE image.fileset.id = :id"
             )
 
-            result = self.query.projection(hql, fileset,
-                                           self.ice_ctx)[0][0].val
+            result = self.query.projection(hql, fileset, self.ice_ctx)[0][0].val
             if result > 0:
-                self.metrics['PIXELDATA_C'] = result
+                self.metrics["PIXELDATA_C"] = result
 
-        if 'RDEF' in self.metrics:
+        if "RDEF" in self.metrics:
             hql = (
-                "SELECT COUNT(*) FROM RenderingDef " +
-                "WHERE pixels.image.fileset.id = :id " +
-                "AND details.owner = pixels.details.owner"
-                )
+                "SELECT COUNT(*) FROM RenderingDef "
+                + "WHERE pixels.image.fileset.id = :id "
+                + "AND details.owner = pixels.details.owner"
+            )
 
-            result = self.query.projection(hql, fileset,
-                                           self.ice_ctx)[0][0].val
+            result = self.query.projection(hql, fileset, self.ice_ctx)[0][0].val
             if result > 0:
-                self.metrics['RDEF_C'] = result
+                self.metrics["RDEF_C"] = result
 
-        if 'THUMBNAIL' in self.metrics:
+        if "THUMBNAIL" in self.metrics:
             hql = (
-                "SELECT COUNT(*) FROM Thumbnail " +
-                "WHERE pixels.image.fileset.id = :id " +
-                "AND details.owner = pixels.details.owner"
-                )
+                "SELECT COUNT(*) FROM Thumbnail "
+                + "WHERE pixels.image.fileset.id = :id "
+                + "AND details.owner = pixels.details.owner"
+            )
 
-            result = self.query.projection(hql, fileset,
-                                           self.ice_ctx)[0][0].val
+            result = self.query.projection(hql, fileset, self.ice_ctx)[0][0].val
             if result > 0:
-                self.metrics['THUMBNAIL_C'] = result
+                self.metrics["THUMBNAIL_C"] = result
 
     def get_cache(self):
         """Retrieve import metrics from a map annotation on the fileset"""
@@ -1341,10 +1428,10 @@ class ImportTime(object):
         )
 
         results = self.query.projection(
-            hql, ParametersI()
-            .addId(self.fileset_id)
-            .addString('ns', self.ns),
-            self.ice_ctx)
+            hql,
+            ParametersI().addId(self.fileset_id).addString("ns", self.ns),
+            self.ice_ctx,
+        )
 
         if results:
             for [name, value] in results:
@@ -1368,9 +1455,12 @@ class ImportTime(object):
 
         for phase in self.import_phases:
             if phase in self.metrics:
-                link.child.mapValue.append(NamedValue(
-                    self.import_phases_to_names[phase],
-                    str(self.metrics[phase])))
+                link.child.mapValue.append(
+                    NamedValue(
+                        self.import_phases_to_names[phase],
+                        str(self.metrics[phase]),
+                    )
+                )
 
         update.saveObject(link)
 
@@ -1378,47 +1468,59 @@ class ImportTime(object):
         """Report how long it took to import an existing fileset"""
         metrics_keys = set(self.metrics)
 
-        if set(['UPLOAD', 'UPLOAD_C']) <= metrics_keys:
-            time = old_div(self.metrics['UPLOAD'], 1000.0)
-            count = self.metrics['UPLOAD_C']
+        if set(["UPLOAD", "UPLOAD_C"]) <= metrics_keys:
+            time = old_div(self.metrics["UPLOAD"], 1000.0)
+            count = self.metrics["UPLOAD_C"]
             plural = "s" if count > 1 else ""
-            print(("   upload time of {0:6.2f}s for "
-                   "{1} file{2} ({3:.3f}s/file)")
-                  .format(time, count, plural, old_div(time,count)))
+            print(
+                (
+                    "   upload time of {0:6.2f}s for "
+                    "{1} file{2} ({3:.3f}s/file)"
+                ).format(time, count, plural, old_div(time, count))
+            )
 
-        time = old_div(self.metrics['SET_ID'], 1000.0)
+        time = old_div(self.metrics["SET_ID"], 1000.0)
         print("    setId time of {0:6.2f}s".format(time))
 
-        time = old_div(self.metrics['METADATA'], 1000.0)
+        time = old_div(self.metrics["METADATA"], 1000.0)
         print(" metadata time of {0:6.2f}s".format(time))
 
-        if set(['PIXELDATA', 'PIXELDATA_C']) <= metrics_keys:
-            time = old_div(self.metrics['PIXELDATA'], 1000.0)
-            count = self.metrics['PIXELDATA_C']
+        if set(["PIXELDATA", "PIXELDATA_C"]) <= metrics_keys:
+            time = old_div(self.metrics["PIXELDATA"], 1000.0)
+            count = self.metrics["PIXELDATA_C"]
             plural = "s" if count > 1 else ""
-            print(("   pixels time of {0:6.2f}s for "
-                   "{1} plane{2} ({3:.3f}s/plane)")
-                  .format(time, count, plural, old_div(time,count)))
+            print(
+                (
+                    "   pixels time of {0:6.2f}s for "
+                    "{1} plane{2} ({3:.3f}s/plane)"
+                ).format(time, count, plural, old_div(time, count))
+            )
 
-        if 'OVERLAY' in metrics_keys:
-            time = old_div(self.metrics['OVERLAY'], 1000.0)
+        if "OVERLAY" in metrics_keys:
+            time = old_div(self.metrics["OVERLAY"], 1000.0)
             print(" overlays time of {0:6.2f}s".format(time))
 
-        if set(['RDEF', 'RDEF_C']) <= metrics_keys:
-            time = old_div(self.metrics['RDEF'], 1000.0)
-            count = self.metrics['RDEF_C']
+        if set(["RDEF", "RDEF_C"]) <= metrics_keys:
+            time = old_div(self.metrics["RDEF"], 1000.0)
+            count = self.metrics["RDEF_C"]
             plural = "s" if count > 1 else ""
-            print(("    rdefs time of {0:6.2f}s for "
-                   "{1} rendering setting{2} ({3:.3f}s/rdef)")
-                  .format(time, count, plural, old_div(time,count)))
+            print(
+                (
+                    "    rdefs time of {0:6.2f}s for "
+                    "{1} rendering setting{2} ({3:.3f}s/rdef)"
+                ).format(time, count, plural, old_div(time, count))
+            )
 
-        if set(['THUMBNAIL', 'THUMBNAIL_C']) <= metrics_keys:
-            time = old_div(self.metrics['THUMBNAIL'], 1000.0)
-            count = self.metrics['THUMBNAIL_C']
+        if set(["THUMBNAIL", "THUMBNAIL_C"]) <= metrics_keys:
+            time = old_div(self.metrics["THUMBNAIL"], 1000.0)
+            count = self.metrics["THUMBNAIL_C"]
             plural = "s" if count > 1 else ""
-            print(("thumbnail time of {0:6.2f}s for "
-                   "{1} thumbnail{2} ({3:.3f}s/thumbnail)")
-                  .format(time, count, plural, old_div(time,count)))
+            print(
+                (
+                    "thumbnail time of {0:6.2f}s for "
+                    "{1} thumbnail{2} ({3:.3f}s/thumbnail)"
+                ).format(time, count, plural, old_div(time, count))
+            )
 
     def print_summary(self):
         """Report import metrics from map annotations on filesets"""
@@ -1433,18 +1535,17 @@ class ImportTime(object):
         )
 
         results = self.query.projection(
-            hql, ParametersI()
-            .addString('ns', self.ns),
-            self.ice_ctx)
+            hql, ParametersI().addString("ns", self.ns), self.ice_ctx
+        )
 
         if not results:
             print("no import times to report")
             return
 
-        columns = ['fileset']
+        columns = ["fileset"]
         for phase in self.import_phases:
             columns.append(self.import_phases_to_names[phase])
-        print(','.join(['"{0}"'.format(column) for column in columns]))
+        print(",".join(['"{0}"'.format(column) for column in columns]))
 
         self.fileset_id = None
 
@@ -1466,8 +1567,8 @@ class ImportTime(object):
             if phase in self.metrics:
                 values.append(str(self.metrics[phase]))
             else:
-                values.append('')
-        print(','.join(values))
+                values.append("")
+        print(",".join(values))
         self.metrics.clear()
 
 

@@ -35,7 +35,6 @@ from omero.rtypes import rtime
 
 
 class TestModel(object):
-
     def mkentry(self, clientPath):
         originalFile = omero.model.OriginalFileI()
         parts = clientPath.split("/")
@@ -60,13 +59,13 @@ class TestModel(object):
 
         # This will be created server-side
         serverInfo = {}
-        serverInfo['bioformatsReader'] = rstring("ExampleReader")
-        serverInfo['bioformatsVersion'] = rstring("v4.4.5 git: abc123"),
-        serverInfo['omeroVersion'] = rstring("v.4.4.4 git: def456"),
-        serverInfo['osName'] = rstring("Linux"),
-        serverInfo['osArchitecture'] = rstring("amd64"),
-        serverInfo['osVersion'] = rstring("2.6.38-8-generic"),
-        serverInfo['locale'] = rstring("en_US")
+        serverInfo["bioformatsReader"] = rstring("ExampleReader")
+        serverInfo["bioformatsVersion"] = (rstring("v4.4.5 git: abc123"),)
+        serverInfo["omeroVersion"] = (rstring("v.4.4.4 git: def456"),)
+        serverInfo["osName"] = (rstring("Linux"),)
+        serverInfo["osArchitecture"] = (rstring("amd64"),)
+        serverInfo["osVersion"] = (rstring("2.6.38-8-generic"),)
+        serverInfo["locale"] = rstring("en_US")
 
         # Now that the basics are setup, we
         # need to link to all of the original files.

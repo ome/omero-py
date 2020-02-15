@@ -22,25 +22,21 @@ omeroDir = old_div(path(os.getcwd()), "build")
 
 
 class MockCLI(CLI):
-
     def conn(self, args):
         return MockClient()
 
 
 class MockClient(object):
-
     def getSession(self, *args):
         return MockSession()
 
 
 class MockSession(object):
-
     def createExporter(self):
         return MockExporter()
 
 
 class MockExporter(object):
-
     def all(self, *args, **kwargs):
         pass
 
@@ -54,7 +50,6 @@ class MockExporter(object):
 
 
 class TestExport(object):
-
     def setup_method(self, method):
         self.cli = MockCLI()
         self.cli.register("x", ExportControl, "TEST")

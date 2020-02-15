@@ -20,6 +20,7 @@ perf_log = logging.getLogger("omero.perf")
 
 def perf(func):
     """ Decorator for (optionally) printing performance statistics """
+
     def handler(*args, **kwargs):
 
         # Early Exit. Can't do this in up a level
@@ -45,7 +46,9 @@ def perf(func):
             startMillis = int(start * 1000)
             timeMillis = int(diff * 1000)
             perf_log.debug(
-                "start[%d] time[%d] tag[%s]", startMillis, timeMillis, tag)
+                "start[%d] time[%d] tag[%s]", startMillis, timeMillis, tag
+            )
+
     handler = wraps(func)(handler)
     return handler
 
@@ -75,15 +78,18 @@ def remoted(func):
                 raise
             else:
                 log.warn(
-                    "%s raised a non-ServerError (%s): %s", func, type(e), e)
+                    "%s raised a non-ServerError (%s): %s", func, type(e), e
+                )
                 msg = traceback.format_exc()
                 raise omero.InternalException(msg, None, "Internal exception")
+
     exc_handler = wraps(func)(exc_handler)
     return exc_handler
 
 
 def locked(func):
     """ Decorator for using the self._lock argument of the calling instance """
+
     def with_lock(*args, **kwargs):
         self = args[0]
         self._lock.acquire()
@@ -91,11 +97,12 @@ def locked(func):
             return func(*args, **kwargs)
         finally:
             self._lock.release()
+
     with_lock = wraps(func)(with_lock)
     return with_lock
 
 
-class TimeIt (object):
+class TimeIt(object):
 
     """
     Decorator to measure the execution time of a function. Assumes that a
@@ -105,7 +112,8 @@ class TimeIt (object):
     @param level: the level to use for logging
     @param name: the name to use when logging, function name is used if None
     """
-    logger = logging.getLogger('omero.timeit')
+
+    logger = logging.getLogger("omero.timeit")
 
     def __init__(self, level=logging.DEBUG, name=None):
         self._level = level
@@ -117,9 +125,11 @@ class TimeIt (object):
             self.logger.log(self._level, "timing %s" % (name))
             now = time.time()
             rv = func(*args, **kwargs)
-            self.logger.log(self._level, "timed %s: %f" %
-                            (name, time.time() - now))
+            self.logger.log(
+                self._level, "timed %s: %f" % (name, time.time() - now)
+            )
             return rv
+
         return wrapped
 
 
@@ -128,13 +138,16 @@ def timeit(func):
     Shortcut version of the :class:`TimeIt` decorator class.
     Logs at logging.DEBUG level.
     """
+
     def wrapped(*args, **kwargs):
         TimeIt.logger.log(logging.DEBUG, "timing %s" % (func.__name__))
         now = time.time()
         rv = func(*args, **kwargs)
-        TimeIt.logger.log(logging.DEBUG, "timed %s: %f" %
-                          (func.__name__, time.time() - now))
+        TimeIt.logger.log(
+            logging.DEBUG, "timed %s: %f" % (func.__name__, time.time() - now)
+        )
         return rv
+
     return TimeIt()(func)
 
 
@@ -146,10 +159,12 @@ def setsessiongroup(func):
 
     def wrapped(self, *args, **kwargs):
         rev = self._conn.setGroupForSession(
-            self.getDetails().getGroup().getId())
+            self.getDetails().getGroup().getId()
+        )
         try:
             return func(self, *args, **kwargs)
         finally:
             if rev:
                 self._conn.revertGroupForSession()
+
     return wrapped

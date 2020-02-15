@@ -48,20 +48,24 @@ Examples:
 
 
 class ChgrpControl(GraphControl):
-
     def cmd_type(self):
         import omero
         import omero.all
+
         return omero.cmd.Chgrp2
 
     def _pre_objects(self, parser):
         parser.add_argument(
-            "grp", nargs="?", type=ExperimenterGroupArg,
-            help="""Group to move objects to""")
+            "grp",
+            nargs="?",
+            type=ExperimenterGroupArg,
+            help="""Group to move objects to""",
+        )
 
     def is_admin(self, client):
         # check if the user currently logged is an admin
         from omero.model.enums import AdminPrivilegeChgrp
+
         ec = self.ctx.get_event_context()
         return AdminPrivilegeChgrp in ec.adminPrivileges
 
@@ -73,6 +77,7 @@ class ChgrpControl(GraphControl):
 
         # Retrieve group
         import omero
+
         try:
             group = client.sf.getAdminService().getGroup(gid)
         except omero.ApiUsageException:
@@ -84,8 +89,9 @@ class ChgrpControl(GraphControl):
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()]
         # check if the user is an admin
         if uid not in ids and not admin:
-            self.ctx.die(197, "Current user is not member of group: %s" %
-                         group.id.val)
+            self.ctx.die(
+                197, "Current user is not member of group: %s" % group.id.val
+            )
 
         # Set requests group
         if isinstance(req, omero.cmd.DoAll):
@@ -104,6 +110,7 @@ class ChgrpControl(GraphControl):
 
     def print_detailed_report(self, req, rsp, status):
         import omero
+
         if isinstance(rsp, omero.cmd.DoAllRsp):
             for response in rsp.responses:
                 if isinstance(response, omero.cmd.Chgrp2Response):
@@ -122,6 +129,7 @@ class ChgrpControl(GraphControl):
             obj_ids = self._get_object_ids(rsp.deletedObjects)
             for k in obj_ids:
                 self.ctx.out("  %s:%s" % (k, obj_ids[k]))
+
 
 try:
     register("chgrp", ChgrpControl, HELP)

@@ -26,7 +26,6 @@ import pytest
 
 
 class TestLdap(object):
-
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("ldap", LdapControl, "TEST")
@@ -36,7 +35,7 @@ class TestLdap(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('subcommand', LdapControl().get_subcommands())
+    @pytest.mark.parametrize("subcommand", LdapControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import IceImport
+
 IceImport.load("omero_FS_ice")
 
 #
@@ -15,4 +16,4 @@ TRANSFERS = {
     "ome.formats.importer.transfers.SymlinkFileTransfer": "ln_s",
     "ome.formats.importer.transfers.UploadRmFileTransfer": "upload_rm",
     "ome.formats.importer.transfers.UploadFileTransfer": "",
-    }
+}

@@ -40,25 +40,32 @@ return until stopped.
         node-name cannot be "start", "stop", "restart", "status", or "sync".
 """
 
-if platform.system() == 'Windows':
-    HELP += ("\n\n%s" % WINDOWS_WARNING)
+if platform.system() == "Windows":
+    HELP += "\n\n%s" % WINDOWS_WARNING
 
 
 class NodeControl(BaseControl):
-
     def _configure(self, parser):
         parser.add_argument(
-            "name", nargs="?",
-            help="Optional name of this node.", default=self._node())
+            "name",
+            nargs="?",
+            help="Optional name of this node.",
+            default=self._node(),
+        )
         parser.add_argument(
-            "sync", nargs="?", choices=("sync",),
-            help="Whether or not to call wait on results")
+            "sync",
+            nargs="?",
+            choices=("sync",),
+            help="Whether or not to call wait on results",
+        )
         parser.add_argument(
-            "command", nargs="+",
-            choices=("start", "stop", "status", "restart"))
+            "command", nargs="+", choices=("start", "stop", "status", "restart")
+        )
         parser.add_argument(
-            "--foreground", action="store_true",
-            help="Start in foreground mode (no daemon/service)")
+            "--foreground",
+            action="store_true",
+            help="Start in foreground mode (no daemon/service)",
+        )
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
@@ -93,22 +100,29 @@ class NodeControl(BaseControl):
                 self.ctx.die(128, "Not implemented")
                 # The following code clearly hasn't been tested.
                 # TODO: Fix this or remove it completely
-                command = command + ["--install", "OMERO."+args.node]
+                command = command + ["--install", "OMERO." + args.node]
                 self.ctx.call(command)
-                self.ctx.call(["icegridnode", "--start", "OMERO."+args.node])
+                self.ctx.call(["icegridnode", "--start", "OMERO." + args.node])
             else:
                 if args.foreground:
                     command = command + ["--nochdir"]
                 else:
-                    command = command + ["--daemon", "--pidfile",
-                                         str(self._pid()), "--nochdir"]
+                    command = command + [
+                        "--daemon",
+                        "--pidfile",
+                        str(self._pid()),
+                        "--nochdir",
+                    ]
                 self.ctx.call(command)
         except OSError as o:
-                msg = """%s\nPossibly an error finding "icegridnode". Try \
-"icegridnode -h" from the command line.""" % o
-                raise Exception(msg)
+            msg = (
+                """%s\nPossibly an error finding "icegridnode". Try \
+"icegridnode -h" from the command line."""
+                % o
+            )
+            raise Exception(msg)
         except NonZeroReturnCode as nzrc:
-                self._handleNZRC(nzrc)
+            self._handleNZRC(nzrc)
 
     def status(self, args):
         self.ctx.invoke(["admin", "status", args.name])
@@ -117,23 +131,24 @@ class NodeControl(BaseControl):
     def stop(self, args):
         if self._isWindows():
             try:
-                command = ["icegridnode", "--stop", "OMERO."+args.name]
+                command = ["icegridnode", "--stop", "OMERO." + args.name]
                 self.ctx.call(command)
-                command = ["icegridnode", "--uninstall", "OMERO."+args.name]
+                command = ["icegridnode", "--uninstall", "OMERO." + args.name]
                 self.ctx.call(command)
             except NonZeroReturnCode as nzrc:
                 self._handleNZRC(nzrc)
         else:
-                pid = open(self._pid(), "r").readline()
-                os.kill(int(pid), signal.SIGTERM)
-                # command = ["icegridadmin"] + [self._intcfg()] + ["-c", "node
-                # shutdown %s" % args.name]
-                # self.ctx.call(command)
+            pid = open(self._pid(), "r").readline()
+            os.kill(int(pid), signal.SIGTERM)
+            # command = ["icegridadmin"] + [self._intcfg()] + ["-c", "node
+            # shutdown %s" % args.name]
+            # self.ctx.call(command)
 
     @windows_warning
     def kill(self, args):
         pid = open(self._pid(), "r").readline()
         os.kill(int(pid), signal.SIGKILL)
+
 
 try:
     register("node", NodeControl, HELP)

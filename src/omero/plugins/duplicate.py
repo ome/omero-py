@@ -56,14 +56,15 @@ Examples:
 
 
 class DuplicateControl(GraphControl):
-
     def cmd_type(self):
         import omero
         import omero.all
+
         return omero.cmd.Duplicate
 
     def print_detailed_report(self, req, rsp, status):
         import omero
+
         if isinstance(rsp, omero.cmd.DoAllRsp):
             for response in rsp.responses:
                 if isinstance(response, omero.cmd.DuplicateResponse):
@@ -77,6 +78,7 @@ class DuplicateControl(GraphControl):
             objIds = self._get_object_ids(rsp.duplicates)
             for k in objIds:
                 self.ctx.out("  %s:%s" % (k, objIds[k]))
+
 
 try:
     if "OMERO_DEV_PLUGINS" in os.environ:

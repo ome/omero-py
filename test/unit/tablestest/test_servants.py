@@ -194,7 +194,6 @@ class mock_storage(object):
 
 
 class TestTables(TestCase):
-
     def setup_method(self, method):
         TestCase.setup_method(self, method)
 
@@ -208,8 +207,9 @@ class TestTables(TestCase):
         self.communicator = mock_communicator()
         self.communicator_provider = communicator_provider(self.communicator)
         self.stop_event = omero.util.concurrency.get_event()
-        self.ctx = omero.util.ServerContext(serverid, self.communicator,
-                                            self.stop_event)
+        self.ctx = omero.util.ServerContext(
+            serverid, self.communicator, self.stop_event
+        )
 
         self.current = mock_current(self.communicator)
         self.__tables = []
@@ -240,8 +240,9 @@ class TestTables(TestCase):
 
     def repodir(self, make=True):
         self.tmp = path(self.tmpdir())
-        self.communicator.getProperties().setProperty("omero.repo.dir",
-                                                      native_str(self.tmp))
+        self.communicator.getProperties().setProperty(
+            "omero.repo.dir", native_str(self.tmp)
+        )
         repo = self.tmp / ".omero" / "repository"
         if make:
             repo.makedirs()
@@ -269,8 +270,9 @@ class TestTables(TestCase):
 
     def testTablesIGetDirGetsRepoThenNoSF(self):
         self.repodir()
-        omero.util.internal_service_factory = \
-            mocked_internal_service_factory(None)
+        omero.util.internal_service_factory = mocked_internal_service_factory(
+            None
+        )
         pytest.raises(Exception, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoFile(self):
@@ -280,7 +282,8 @@ class TestTables(TestCase):
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoObject(self):
         self.repofile(self.sf.db_uuid)
         self.sf.return_values.append(
-            omero.ApiUsageException(None, None, "Can't Find"))
+            omero.ApiUsageException(None, None, "Can't Find")
+        )
         pytest.raises(omero.ApiUsageException, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFGetsRepo(self):
@@ -347,8 +350,9 @@ class TestTables(TestCase):
         storage = table.storage
         assert storage
 
-        table.initialize([LongColumnI("a", None, []),
-                          DoubleColumnI("b", None, [])])
+        table.initialize(
+            [LongColumnI("a", None, []), DoubleColumnI("b", None, [])]
+        )
         template = table.getHeaders(self.current)
         template[0].values = [1] * 5
         template[1].values = [2.0] * 5
@@ -359,7 +363,7 @@ class TestTables(TestCase):
 
     def testTableSearch(self):
         table = self.testTableAddData(True, False)
-        rv = list(table.getWhereList('(a==1)', None, None, None, None, None))
+        rv = list(table.getWhereList("(a==1)", None, None, None, None, None))
         assert list(range(5)) == rv
         data = table.readCoordinates(rv, self.current)
         assert 2 == len(data.columns)
@@ -379,8 +383,13 @@ class TestTables(TestCase):
         f.close()
 
         tables = self.tablesI(internal_repo)
-        pytest.raises(omero.ValidationException, tables.getTable, of, self.sf,
-                      self.current)
+        pytest.raises(
+            omero.ValidationException,
+            tables.getTable,
+            of,
+            self.sf,
+            self.current,
+        )
 
     def testErrorInGet(self):
         self.repofile(self.sf.db_uuid)
@@ -390,8 +399,8 @@ class TestTables(TestCase):
 
         tables = self.tablesI()
         table = tables.getTable(f, self.sf, self.current).table  # From mock
-        cols = [omero.columns.LongColumnI('name', 'desc', None)]
+        cols = [omero.columns.LongColumnI("name", "desc", None)]
         table.initialize(cols)
         cols[0].values = [1, 2, 3, 4]
         table.addData(cols)
-        table.getWhereList('(name==1)', None, 0, 0, 0, self.current)
+        table.getWhereList("(name==1)", None, 0, 0, 0, self.current)

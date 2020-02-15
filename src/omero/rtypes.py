@@ -26,6 +26,7 @@ from past.builtins import basestring, long
 import omero
 import Ice
 import IceImport
+
 IceImport.load("omero_RTypes_ice")
 IceImport.load("omero_Scripts_ice")
 IceImport.load("omero_model_RTypes_ice")
@@ -71,8 +72,7 @@ def rtype(val):
     elif isinstance(val, dict):
         return rmap(val)
     else:
-        raise omero.ClientError("Cannot handle conversion from: %s"
-                                % type(val))
+        raise omero.ClientError("Cannot handle conversion from: %s" % type(val))
 
 
 def wrap(val, cache=None):
@@ -234,6 +234,7 @@ def rtime(val):
         return val
     return RTimeI(val)
 
+
 # Static factory methods (objects)
 # =========================================================================
 
@@ -309,6 +310,7 @@ def rstring(val):
     else:
         return rstring(str(val))
 
+
 # Static factory methods (collections)
 # =========================================================================
 
@@ -328,12 +330,12 @@ def rset(val=None, *args):
 def rmap(val=None, **kwargs):
     return RMapI(val, **kwargs)
 
+
 # Implementations (primitives)
 # =========================================================================
 
 
 class RBoolI(omero.RBool):
-
     def __init__(self, value):
         omero.RBool.__init__(self, value)
 
@@ -392,7 +394,6 @@ class RBoolI(omero.RBool):
 
 
 class RDoubleI(omero.RDouble):
-
     def __init__(self, value):
         omero.RDouble.__init__(self, float(value))
 
@@ -448,7 +449,6 @@ class RDoubleI(omero.RDouble):
 
 
 class RFloatI(omero.RFloat):
-
     def __init__(self, value):
         omero.RFloat.__init__(self, float(value))
 
@@ -504,7 +504,6 @@ class RFloatI(omero.RFloat):
 
 
 class RIntI(omero.RInt):
-
     def __init__(self, value):
         omero.RInt.__init__(self, int(value))
 
@@ -560,7 +559,6 @@ class RIntI(omero.RInt):
 
 
 class RLongI(omero.RLong):
-
     def __init__(self, value):
         omero.RLong.__init__(self, long(value))
 
@@ -616,7 +614,6 @@ class RLongI(omero.RLong):
 
 
 class RTimeI(omero.RTime):
-
     def __init__(self, value):
         omero.RTime.__init__(self, long(value))
 
@@ -670,12 +667,12 @@ class RTimeI(omero.RTime):
         """
         pass  # Currently unused
 
+
 # Implementations (objects)
 # =========================================================================
 
 
 class RInternalI(omero.RInternal):
-
     def __init__(self, value):
         omero.RInternal.__init__(self, value)
 
@@ -731,7 +728,6 @@ class RInternalI(omero.RInternal):
 
 
 class RObjectI(omero.RObject):
-
     def __init__(self, value):
         omero.RObject.__init__(self, value)
 
@@ -787,7 +783,6 @@ class RObjectI(omero.RObject):
 
 
 class RStringI(omero.RString):
-
     def __init__(self, value):
         omero.RString.__init__(self, value)
 
@@ -843,7 +838,6 @@ class RStringI(omero.RString):
 
 
 class RClassI(omero.RClass):
-
     def __init__(self, value):
         omero.RClass.__init__(self, value)
 
@@ -896,6 +890,7 @@ class RClassI(omero.RClass):
         Required due to __getattr__ implementation.
         """
         pass  # Currently unused
+
 
 # Implementations (collections)
 # =========================================================================
@@ -1151,7 +1146,6 @@ class RSetI(omero.RSet):
 
 
 class RMapI(omero.RMap):
-
     def __init__(self, arg=None, **kwargs):
         if arg is None:
             self._val = {}
@@ -1229,6 +1223,7 @@ class RMapI(omero.RMap):
         """
         pass  # Currently unused
 
+
 # Helpers
 # ========================================================================
 
@@ -1236,7 +1231,6 @@ class RMapI(omero.RMap):
 
 
 class ObjectFactory(Ice.ObjectFactory):
-
     def __init__(self, cls, f):
         self.id = cls.ice_staticId()
         self.f = f
@@ -1287,5 +1281,5 @@ ObjectFactories = {
     RArrayI: ObjectFactory(RArrayI, lambda: RArrayI()),
     RListI: ObjectFactory(RListI, lambda: RListI()),
     RSetI: ObjectFactory(RSetI, lambda: RSetI()),
-    RMapI: ObjectFactory(RMapI, lambda: RMapI())
-    }
+    RMapI: ObjectFactory(RMapI, lambda: RMapI()),
+}

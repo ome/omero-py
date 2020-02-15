@@ -17,7 +17,6 @@ from omero.rtypes import rmap, rint, rlong, rstring, rlist, rset, unwrap
 
 
 class TestPrototypes(object):
-
     def testRSetRInt(self):
         params = omero.grid.JobParams()
         param = omero.grid.Param()
@@ -108,14 +107,23 @@ class TestPrototypes(object):
     def testTicket2323Min(self):
         params = omero.grid.JobParams()
         # Copied from integration/scripts.py:testUploadOfficialScripts
-        param = Long('longParam', True, description='theDesc', min=int(1),
-                     max=int(10), values=[rlong(5)])
-        assert 1 == param.min.getValue(), \
-            "Min value not correct:" + str(param.min)
-        assert 10 == param.max.getValue(), \
-            "Max value not correct:" + str(param.max)
-        assert 5 == param.values.getValue()[0].getValue(), \
-            "First option value not correct:" + str(param.values)
+        param = Long(
+            "longParam",
+            True,
+            description="theDesc",
+            min=int(1),
+            max=int(10),
+            values=[rlong(5)],
+        )
+        assert 1 == param.min.getValue(), "Min value not correct:" + str(
+            param.min
+        )
+        assert 10 == param.max.getValue(), "Max value not correct:" + str(
+            param.max
+        )
+        assert (
+            5 == param.values.getValue()[0].getValue()
+        ), "First option value not correct:" + str(param.values)
 
         params.inputs = {"a": param}
         inputs = {"a": rlong(5)}
@@ -123,6 +131,7 @@ class TestPrototypes(object):
         assert "" == errors, errors
 
     def testTicket2323List(self):
-        param = List('listParam', True, description='theDesc',
-                     values=[rlong(5)])
+        param = List(
+            "listParam", True, description="theDesc", values=[rlong(5)]
+        )
         assert [5] == unwrap(param.values), str(param.values)

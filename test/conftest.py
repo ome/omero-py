@@ -1,4 +1,3 @@
-
 #
 # --repeat argument for py.test taken from:
 # http://stackoverflow.com/questions/21764473/
@@ -13,8 +12,8 @@ import pytest
 
 def pytest_addoption(parser):
     parser.addoption(
-        '--repeat', action='store',
-        help='Number of times to repeat each test')
+        "--repeat", action="store", help="Number of times to repeat each test"
+    )
 
 
 def pytest_generate_tests(metafunc):
@@ -24,12 +23,12 @@ def pytest_generate_tests(metafunc):
         # We're going to duplicate these tests by parametrizing them,
         # which requires that each test has a fixture to accept the parameter.
         # We can add a new fixture like so:
-        metafunc.fixturenames.append('tmp_ct')
+        metafunc.fixturenames.append("tmp_ct")
 
         # Now we parametrize. This is what happens when we do e.g.,
         # @pytest.mark.parametrize('tmp_ct', range(count))
         # def test_foo(): pass
-        metafunc.parametrize('tmp_ct', list(range(count)))
+        metafunc.parametrize("tmp_ct", list(range(count)))
 
         # If ICE_CONFIG is not set, then set it to a default file
         if "ICE_CONFIG" not in os.environ:
@@ -37,11 +36,8 @@ def pytest_generate_tests(metafunc):
 
 
 class Methods(object):
-
     @classmethod
-    def assertAlmostEqual(self, first, second,
-                          places=None,
-                          delta=None):
+    def assertAlmostEqual(self, first, second, places=None, delta=None):
         # Copied largely from unittest
         """Fail if the two objects are unequal as determined by their
            difference rounded to the given number of decimal places
@@ -64,19 +60,15 @@ class Methods(object):
             if abs(first - second) <= delta:
                 return
 
-            standardMsg = '%s != %s within %s delta' % (first,
-                                                        second,
-                                                        delta)
+            standardMsg = "%s != %s within %s delta" % (first, second, delta)
         else:
             if places is None:
                 places = 7
 
-            if round(abs(second-first), places) == 0:
+            if round(abs(second - first), places) == 0:
                 return
 
-            standardMsg = '%s != %s within %r places' % (first,
-                                                         second,
-                                                         places)
+            standardMsg = "%s != %s within %r places" % (first, second, places)
         raise Exception(standardMsg)
 
 

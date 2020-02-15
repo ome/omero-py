@@ -80,6 +80,7 @@ def _make_open_and_close_config(func, allow_readonly):
         finally:
             if config:
                 config.close()
+
     return open_and_close_config
 
 
@@ -122,128 +123,186 @@ class WriteableConfigControl(BaseControl):
 
 
 class PrefsControl(WriteableConfigControl):
-
     def _configure(self, parser):
         parser.add_argument(
-            "--source", help="Configuration file to be used. Default:"
-            " etc/grid/config.xml")
+            "--source",
+            help="Configuration file to be used. Default:"
+            " etc/grid/config.xml",
+        )
 
         sub = parser.sub()
 
         parser.add(
-            sub, self.all,
-            "List all profiles in the current config.xml file.")
+            sub, self.all, "List all profiles in the current config.xml file."
+        )
 
         default = sub.add_parser(
-            "def", help="List (or set) the current active profile.",
-            description="List (or set) the current active profile.")
+            "def",
+            help="List (or set) the current active profile.",
+            description="List (or set) the current active profile.",
+        )
         default.set_defaults(func=self.default)
         default.add_argument(
-            "NAME", nargs="?",
+            "NAME",
+            nargs="?",
             help="Name of the profile which should be made the new active"
-            " profile.")
+            " profile.",
+        )
 
         list = parser.add(
-            sub, self.list,
-            "List all key-value pairs from the current profile (deprecated)")
+            sub,
+            self.list,
+            "List all key-value pairs from the current profile (deprecated)",
+        )
         list.set_defaults(func=self.list)
 
         get = parser.add(
-            sub, self.get,
-            "Get key-value pairs from the current profile. All by default")
+            sub,
+            self.get,
+            "Get key-value pairs from the current profile. All by default",
+        )
         get.set_defaults(func=self.get)
         get.add_argument(
-            "KEY", nargs="*", help="Names of keys in the current profile")
+            "KEY", nargs="*", help="Names of keys in the current profile"
+        )
 
         for x in [get, list]:
             secrets = x.add_mutually_exclusive_group()
             secrets.add_argument(
-                "--show-password", action="store_true",
+                "--show-password",
+                action="store_true",
                 help="Show values of sensitive keys (passwords, "
-                "tokens, etc.) in the current profile")
+                "tokens, etc.) in the current profile",
+            )
             secrets.add_argument(
-                "--hide-password", action="store_false",
-                dest="show_password", help=SUPPRESS)
+                "--hide-password",
+                action="store_false",
+                dest="show_password",
+                help=SUPPRESS,
+            )
 
         set = parser.add(
-            sub, self.set,
+            sub,
+            self.set,
             "Set key-value pair in the current profile. Omit the"
-            " value to remove the key.")
+            " value to remove the key.",
+        )
         append = parser.add(
-            sub, self.append, "Append value to a key in the current profile.")
+            sub, self.append, "Append value to a key in the current profile."
+        )
         remove = parser.add(
-            sub, self.remove,
-            "Remove value from a key in the current profile.")
+            sub, self.remove, "Remove value from a key in the current profile."
+        )
 
         for x in [set, append, remove]:
-            x.add_argument(
-                "KEY", help="Name of the key in the current profile")
+            x.add_argument("KEY", help="Name of the key in the current profile")
             # report is intended for use with cfg mgmt tools
-            x.add_argument("--report", action="store_true",
-                           help="Report if changes are made")
+            x.add_argument(
+                "--report",
+                action="store_true",
+                help="Report if changes are made",
+            )
         set.add_argument(
-            "-f", "--file", type=ExistingFile('r'),
-            help="Load value from file")
+            "-f", "--file", type=ExistingFile("r"), help="Load value from file"
+        )
         set.add_argument(
-            "VALUE", nargs="?",
-            help="Value to be set. If it is missing, the key will be removed")
+            "VALUE",
+            nargs="?",
+            help="Value to be set. If it is missing, the key will be removed",
+        )
         append.add_argument(
-            "--set", action="store_true",
-            help="Append only if not already in the list")
+            "--set",
+            action="store_true",
+            help="Append only if not already in the list",
+        )
         append.add_argument("VALUE", help="Value to be appended")
         remove.add_argument("VALUE", help="Value to be removed")
 
         drop = parser.add(
-            sub, self.drop, "Remove the profile from the configuration file")
+            sub, self.drop, "Remove the profile from the configuration file"
+        )
         drop.add_argument("NAME", help="Name of the profile to remove")
 
         parser.add(sub, self.keys, "List all keys for the current profile")
 
         load = parser.add(
-            sub, self.load,
-            "Read into current profile from a file or standard input")
+            sub,
+            self.load,
+            "Read into current profile from a file or standard input",
+        )
         load.add_argument(
-            "-q", action="store_true", help="No error on conflict")
+            "-q", action="store_true", help="No error on conflict"
+        )
         load.add_argument(
-            "file", nargs="*", type=ExistingFile('r'), default="-",
+            "file",
+            nargs="*",
+            type=ExistingFile("r"),
+            default="-",
             help="Files to read from. Default to standard input if not"
-            " specified")
+            " specified",
+        )
 
         parse = parser.add(
-            sub, self.parse,
+            sub,
+            self.parse,
             "Parse the configuration properties from the etc/omero.properties"
-            " file and Web properties for readability.")
+            " file and Web properties for readability.",
+        )
         parse.add_argument(
-            "-f", "--file", type=ExistingFile('r'),
-            help="Alternative location for a Java properties file")
+            "-f",
+            "--file",
+            type=ExistingFile("r"),
+            help="Alternative location for a Java properties file",
+        )
         parse_group = parse.add_mutually_exclusive_group()
         parse_group.add_argument(
-            "--defaults", action="store_true",
-            help="Show key/value configuration defaults")
+            "--defaults",
+            action="store_true",
+            help="Show key/value configuration defaults",
+        )
         parse_group.add_argument(
-            "--rst", action="store_true",
-            help="Generate reStructuredText from omero.properties")
+            "--rst",
+            action="store_true",
+            help="Generate reStructuredText from omero.properties",
+        )
         parse_group.add_argument(
-            "--keys", action="store_true",
-            help="Print just the keys from omero.properties")
+            "--keys",
+            action="store_true",
+            help="Print just the keys from omero.properties",
+        )
         parse_group.add_argument(
-            "--headers", action="store_true",
-            help="Print all headers from omero.properties")
+            "--headers",
+            action="store_true",
+            help="Print all headers from omero.properties",
+        )
         parse.add_argument(
-            "--no-web", action="store_true",
-            help="Do not parse Web properties")
+            "--no-web", action="store_true", help="Do not parse Web properties"
+        )
 
-        parser.add(sub, self.edit, "Present the properties for the current"
-                   " profile in your editor. Saving them will update your"
-                   " profile.")
-        parser.add(sub, self.version, "Print the configuration version for"
-                   " the current profile.")
-        parser.add(sub, self.path, "Print the file that is used for "
-                   " configuration")
-        parser.add(sub, self.lock, "Acquire the config file lock and hold"
-                   " it")
-        parser.add(sub, self.upgrade, "Create a 4.2 config.xml file based on"
-                   " your current Java Preferences")
+        parser.add(
+            sub,
+            self.edit,
+            "Present the properties for the current"
+            " profile in your editor. Saving them will update your"
+            " profile.",
+        )
+        parser.add(
+            sub,
+            self.version,
+            "Print the configuration version for" " the current profile.",
+        )
+        parser.add(
+            sub, self.path, "Print the file that is used for " " configuration"
+        )
+        parser.add(
+            sub, self.lock, "Acquire the config file lock and hold" " it"
+        )
+        parser.add(
+            sub,
+            self.upgrade,
+            "Create a 4.2 config.xml file based on"
+            " your current Java Preferences",
+        )
 
     def open_config(self, args):
         if args.source:
@@ -251,14 +310,13 @@ class PrefsControl(WriteableConfigControl):
             if not cfg_xml.exists():
                 self.ctx.die(124, "File not found: %s" % args.source)
         else:
-            if 'OMERODIR' in os.environ:
-                base_dir = path(os.environ.get('OMERODIR'))
+            if "OMERODIR" in os.environ:
+                base_dir = path(os.environ.get("OMERODIR"))
             else:
-                self.ctx.die(125, 'FATAL: OMERODIR env variable not set')
+                self.ctx.die(125, "FATAL: OMERODIR env variable not set")
             grid_dir = base_dir / "etc" / "grid"
             if not grid_dir.exists():
-                self.ctx.err("%s not found; creating %s" %
-                             (grid_dir, grid_dir))
+                self.ctx.err("%s not found; creating %s" % (grid_dir, grid_dir))
                 os.makedirs(grid_dir)
             cfg_xml = grid_dir / "config.xml"
         try:
@@ -271,8 +329,8 @@ class PrefsControl(WriteableConfigControl):
     def assert_valid_property_name(self, key):
         from re import search
 
-        if search(r'[^A-Za-z0-9._-]', key):
-            self.ctx.die(506, 'Illegal property name: {0}'.format(key))
+        if search(r"[^A-Za-z0-9._-]", key):
+            self.ctx.die(506, "Illegal property name: {0}".format(key))
 
     @with_config
     def all(self, args, config):
@@ -294,8 +352,9 @@ class PrefsControl(WriteableConfigControl):
 
     @with_config
     def list(self, args, config):
-        self.ctx.err('WARNING: "config list" is deprecated, '
-                     'use "config get" instead')
+        self.ctx.err(
+            'WARNING: "config list" is deprecated, ' 'use "config get" instead'
+        )
         args.KEY = []
         self.get(args, config)
 
@@ -308,17 +367,17 @@ class PrefsControl(WriteableConfigControl):
             for k in config.IGNORE:
                 k in keys and keys.remove(k)
 
-        is_password = (lambda x: x.lower().endswith('pass') or
-                       x.lower().endswith('password'))
+        is_password = lambda x: x.lower().endswith(
+            "pass"
+        ) or x.lower().endswith("password")
         for k in keys:
             if k not in orig:
                 continue
             if args.KEY and len(args.KEY) == 1:
                 self.ctx.out(config[k])
             else:
-                if is_password(k) and not getattr(
-                        args, "show_password", False):
-                    self.ctx.out("%s=%s" % (k, '*' * 8 if config[k] else ''))
+                if is_password(k) and not getattr(args, "show_password", False):
+                    self.ctx.out("%s=%s" % (k, "*" * 8 if config[k] else ""))
                 else:
                     self.ctx.out("%s=%s" % (k, config[k]))
 
@@ -336,26 +395,28 @@ class PrefsControl(WriteableConfigControl):
             if args.file == "-":
                 # Read from standard input
                 import fileinput
+
                 f = fileinput.input(args.file)
             else:
                 f = args.file
             try:
                 self.assert_valid_property_name(args.KEY)
-                config[args.KEY] = (''.join(f)).rstrip()
+                config[args.KEY] = ("".join(f)).rstrip()
             finally:
                 f.close()
         elif args.VALUE is None:
             del config[args.KEY]
             if args.report:
-                self.ctx.out('Changed: Removed %s' % args.KEY)
+                self.ctx.out("Changed: Removed %s" % args.KEY)
         else:
             self.assert_valid_property_name(args.KEY)
             config[args.KEY] = args.VALUE
             if args.report:
-                self.ctx.out('Changed: Set %s:%s' % (args.KEY, args.VALUE))
+                self.ctx.out("Changed: Set %s:%s" % (args.KEY, args.VALUE))
 
     def get_list_value(self, args, config):
         import json
+
         try:
             list_value = json.loads(config[args.KEY])
         except ValueError:
@@ -368,13 +429,15 @@ class PrefsControl(WriteableConfigControl):
     def get_omeroweb_default(self, key):
         try:
             from omeroweb import settings
+
             setting = settings.CUSTOM_SETTINGS_MAPPINGS.get(key)
             default = setting[2](setting[1]) if setting else []
         except Exception as e:
             self.ctx.dbg(traceback.format_exc())
-            self.ctx.die(514,
-                         "Cannot retrieve default value for property %s: %s" %
-                         (key, e))
+            self.ctx.die(
+                514,
+                "Cannot retrieve default value for property %s: %s" % (key, e),
+            )
         if not isinstance(default, list):
             self.ctx.die(515, "Property %s is not a list" % key)
         return default
@@ -382,9 +445,10 @@ class PrefsControl(WriteableConfigControl):
     @with_rw_config
     def append(self, args, config):
         import json
+
         if args.KEY in list(config.keys()):
             list_value = self.get_list_value(args, config)
-        elif args.KEY.startswith('omero.web.'):
+        elif args.KEY.startswith("omero.web."):
             list_value = self.get_omeroweb_default(args.KEY)
         else:
             list_value = []
@@ -393,27 +457,28 @@ class PrefsControl(WriteableConfigControl):
             list_value.append(json.loads(args.VALUE))
             config[args.KEY] = json.dumps(list_value)
             if args.report:
-                self.ctx.out(
-                    'Changed: Appended %s:%s' % (args.KEY, args.VALUE))
+                self.ctx.out("Changed: Appended %s:%s" % (args.KEY, args.VALUE))
 
     @with_rw_config
     def remove(self, args, config):
         if args.KEY not in list(config.keys()):
-            if args.KEY.startswith('omero.web.'):
+            if args.KEY.startswith("omero.web."):
                 list_value = self.get_omeroweb_default(args.KEY)
             else:
                 self.ctx.die(512, "Property %s is not defined" % (args.KEY))
         else:
             list_value = self.get_list_value(args, config)
         import json
+
         if json.loads(args.VALUE) not in list_value:
-            self.ctx.die(513, "%s is not defined in %s"
-                         % (args.VALUE, args.KEY))
+            self.ctx.die(
+                513, "%s is not defined in %s" % (args.VALUE, args.KEY)
+            )
 
         list_value.remove(json.loads(args.VALUE))
         config[args.KEY] = json.dumps(list_value)
         if args.report:
-            self.ctx.out('Changed: Removed %s:%s' % (args.KEY, args.VALUE))
+            self.ctx.out("Changed: Removed %s:%s" % (args.KEY, args.VALUE))
 
     @with_config
     def keys(self, args, config):
@@ -423,6 +488,7 @@ class PrefsControl(WriteableConfigControl):
 
     def parse(self, args):
         from omero.install.config_parser import PropertyParser
+
         pp = PropertyParser()
         if args.file:
             args.file.close()
@@ -439,7 +505,7 @@ class PrefsControl(WriteableConfigControl):
 
         # Parse OMERO.web configuration properties
         if not args.no_web:
-            pp.parse_module('omeroweb.settings')
+            pp.parse_module("omeroweb.settings")
 
         # Display options
         if args.headers:
@@ -464,6 +530,7 @@ class PrefsControl(WriteableConfigControl):
                 if f == "-":
                     # Read from standard input
                     import fileinput
+
                     f = fileinput.input(f)
 
                 try:
@@ -486,16 +553,20 @@ class PrefsControl(WriteableConfigControl):
     @with_rw_config
     def edit(self, args, config, edit_path=edit_path):
         from omero.util.temp_files import create_path, remove_path
+
         start_text = "# Edit your preferences below. Comments are ignored\n"
         for k in sorted(config.keys()):
-            start_text += ("%s=%s\n" % (k, config[k]))
+            start_text += "%s=%s\n" % (k, config[k])
         temp_file = create_path()
         try:
             edit_path(temp_file, start_text)
         except RuntimeError as re:
             self.ctx.dbg(traceback.format_exc())
-            self.ctx.die(954, "%s: Failed to edit %s"
-                         % (getattr(re, "pid", "Unknown"), temp_file))
+            self.ctx.die(
+                954,
+                "%s: Failed to edit %s"
+                % (getattr(re, "pid", "Unknown"), temp_file),
+            )
         args.NAME = config.default()
         old_config = dict(config)
         self.drop(args, config)
@@ -538,8 +609,12 @@ class PrefsControl(WriteableConfigControl):
         MSG = """Manually modify them via "omero config old set ..." and \
 re-run"""
         m = config.as_map()
-        for x in ("keyStore", "keyStorePassword", "trustStore",
-                  "trustStorePassword"):
+        for x in (
+            "keyStore",
+            "keyStorePassword",
+            "trustStore",
+            "trustStorePassword",
+        ):
             old = "omero.ldap." + x
             new = "omero.security." + x
             if old in m:
@@ -554,21 +629,24 @@ re-run"""
             values = values.split(",")
 
         if len(attributes) != len(values):
-            raise ValueError("%s != %s\nLDAP properties in pre-4.2"
-                             " configuration are invalid.\n%s"
-                             % (attributes, values, MSG))
+            raise ValueError(
+                "%s != %s\nLDAP properties in pre-4.2"
+                " configuration are invalid.\n%s" % (attributes, values, MSG)
+            )
         pairs = list(zip(attributes, values))
         if pairs:
             if len(pairs) == 1:
                 user_filter = "(%s=%s)" % (tuple(pairs[0]))
             else:
-                user_filter = "(&%s)" % ["(%s=%s)" % tuple(pair)
-                                         for pair in pairs]
+                user_filter = "(&%s)" % [
+                    "(%s=%s)" % tuple(pair) for pair in pairs
+                ]
             config["omero.ldap.user_filter"] = user_filter
 
         if "omero.ldap.groups" in m:
-            raise ValueError("Not currently handling omero.ldap.groups\n%s"
-                             % MSG)
+            raise ValueError(
+                "Not currently handling omero.ldap.groups\n%s" % MSG
+            )
 
         config["omero.config.upgraded"] = "4.2.0"
 
@@ -595,14 +673,17 @@ re-run"""
 
         if keys and _key in keys and _new != _old:
 
-            self.ctx.die(502, "Duplicate property: %s ('%s' => '%s')"
-                         % (_key, _old, _new))
+            self.ctx.die(
+                502,
+                "Duplicate property: %s ('%s' => '%s')" % (_key, _old, _new),
+            )
             keys.append(_key)
 
         config[_key] = _new
 
     def old(self, args):
         self.ctx.out(getprefs(args.target, str(old_div(self.ctx.dir, "lib"))))
+
 
 try:
     register("config", PrefsControl, HELP)

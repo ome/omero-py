@@ -11,6 +11,7 @@
 from __future__ import print_function
 
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import str
 from builtins import range
@@ -23,57 +24,67 @@ from omero.rtypes import rstring
 from omero.gateway.scripts import dbhelpers
 
 dbhelpers.USERS = {
-    'user': dbhelpers.UserEntry(
-        'weblitz_test_user', 'foobar', 'User', 'Weblitz'),
-    'author': dbhelpers.UserEntry(
-        'weblitz_test_author', 'foobar', 'Author', 'Weblitz'),
+    "user": dbhelpers.UserEntry(
+        "weblitz_test_user", "foobar", "User", "Weblitz"
+    ),
+    "author": dbhelpers.UserEntry(
+        "weblitz_test_author", "foobar", "Author", "Weblitz"
+    ),
 }
 
 dbhelpers.PROJECTS = {
-    'testpr1': dbhelpers.ProjectEntry('weblitz_test_priv_project', 'author'),
-    'testpr2': dbhelpers.ProjectEntry('weblitz_test_priv_project2', 'author'),
+    "testpr1": dbhelpers.ProjectEntry("weblitz_test_priv_project", "author"),
+    "testpr2": dbhelpers.ProjectEntry("weblitz_test_priv_project2", "author"),
 }
 
 dbhelpers.DATASETS = {
-    'testds1': dbhelpers.DatasetEntry('weblitz_test_priv_dataset', 'testpr1'),
-    'testds2': dbhelpers.DatasetEntry('weblitz_test_priv_dataset2', 'testpr1'),
-    'testds3': dbhelpers.DatasetEntry('weblitz_test_priv_dataset3', 'testpr2'),
+    "testds1": dbhelpers.DatasetEntry("weblitz_test_priv_dataset", "testpr1"),
+    "testds2": dbhelpers.DatasetEntry("weblitz_test_priv_dataset2", "testpr1"),
+    "testds3": dbhelpers.DatasetEntry("weblitz_test_priv_dataset3", "testpr2"),
 }
 
 dbhelpers.IMAGES = {
-    'testimg1': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image', 'CHOBI_d3d.dv', 'testds1'),
-    'testimg2': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image2', 'CHOBI_d3d.dv', 'testds1'),
-    'tinyimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny', 'tinyTest.d3d.dv', 'testds1'),
-    'badimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_bad', False, 'testds1'),
-    'tinyimg2': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny2', 'tinyTest.d3d.dv', 'testds2'),
-    'tinyimg3': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny3', 'tinyTest.d3d.dv', 'testds3'),
-    'bigimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_big', 'big.tiff', 'testds3'),
-    '32float': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_32float',
-        '32bitfloat&pixelType=float&sizeX=8192&sizeY=8192.fake', 'testds3'),
+    "testimg1": dbhelpers.ImageEntry(
+        "weblitz_test_priv_image", "CHOBI_d3d.dv", "testds1"
+    ),
+    "testimg2": dbhelpers.ImageEntry(
+        "weblitz_test_priv_image2", "CHOBI_d3d.dv", "testds1"
+    ),
+    "tinyimg": dbhelpers.ImageEntry(
+        "weblitz_test_priv_image_tiny", "tinyTest.d3d.dv", "testds1"
+    ),
+    "badimg": dbhelpers.ImageEntry(
+        "weblitz_test_priv_image_bad", False, "testds1"
+    ),
+    "tinyimg2": dbhelpers.ImageEntry(
+        "weblitz_test_priv_image_tiny2", "tinyTest.d3d.dv", "testds2"
+    ),
+    "tinyimg3": dbhelpers.ImageEntry(
+        "weblitz_test_priv_image_tiny3", "tinyTest.d3d.dv", "testds3"
+    ),
+    "bigimg": dbhelpers.ImageEntry(
+        "weblitz_test_priv_image_big", "big.tiff", "testds3"
+    ),
+    "32float": dbhelpers.ImageEntry(
+        "weblitz_test_priv_image_32float",
+        "32bitfloat&pixelType=float&sizeX=8192&sizeY=8192.fake",
+        "testds3",
+    ),
 }
 
 
 class TestDBHelper(object):
-
     def setUp(self, skipTestDB=False, skipTestImages=True):
         self.tmpfiles = []
         self._has_connected = False
         self._last_login = None
         self.doDisconnect()
-        self.USER = dbhelpers.USERS['user']
-        self.AUTHOR = dbhelpers.USERS['author']
+        self.USER = dbhelpers.USERS["user"]
+        self.AUTHOR = dbhelpers.USERS["author"]
         self.ADMIN = dbhelpers.ROOT
         gateway = omero.client_wrapper()
         try:
-            rp = gateway.getProperty('omero.rootpass')
+            rp = gateway.getProperty("omero.rootpass")
             if rp:
                 dbhelpers.ROOT.passwd = rp
         finally:
@@ -86,17 +97,19 @@ class TestDBHelper(object):
         if not self._has_connected:
             self.gateway.connect()
             self._has_connected = True
-        assert self.gateway.isConnected(), 'Can not connect'
-        assert self.gateway.keepAlive(
-        ), 'Could not send keepAlive to connection'
+        assert self.gateway.isConnected(), "Can not connect"
+        assert (
+            self.gateway.keepAlive()
+        ), "Could not send keepAlive to connection"
         self.gateway.setGroupForSession(
-            self.gateway.getEventContext().memberOfGroups[0])
+            self.gateway.getEventContext().memberOfGroups[0]
+        )
 
     def doDisconnect(self):
         if self._has_connected and self.gateway:
             self.doConnect()
             self.gateway.close()
-            assert not self.gateway.isConnected(), 'Can not disconnect'
+            assert not self.gateway.isConnected(), "Can not disconnect"
         self.gateway = None
         self._has_connected = False
         self._last_login = None
@@ -141,47 +154,54 @@ class TestDBHelper(object):
             raise Exception("Exception on client.closeSession")
 
     def getTestProject(self):
-        return dbhelpers.getProject(self.gateway, 'testpr1')
+        return dbhelpers.getProject(self.gateway, "testpr1")
 
     def getTestProject2(self):
-        return dbhelpers.getProject(self.gateway, 'testpr2')
+        return dbhelpers.getProject(self.gateway, "testpr2")
 
     def getTestDataset(self, project=None):
-        return dbhelpers.getDataset(self.gateway, 'testds1', project)
+        return dbhelpers.getDataset(self.gateway, "testds1", project)
 
     def getTestDataset2(self, project=None):
-        return dbhelpers.getDataset(self.gateway, 'testds2', project)
+        return dbhelpers.getDataset(self.gateway, "testds2", project)
 
     def getTestImage(self, dataset=None, autocreate=False):
-        return dbhelpers.getImage(self.gateway, 'testimg1', forceds=dataset,
-                                  autocreate=autocreate)
+        return dbhelpers.getImage(
+            self.gateway, "testimg1", forceds=dataset, autocreate=autocreate
+        )
 
     def getTestImage2(self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'testimg2', dataset)
+        return dbhelpers.getImage(self.gateway, "testimg2", dataset)
 
     def getBadTestImage(self, dataset=None, autocreate=False):
-        return dbhelpers.getImage(self.gateway, 'badimg', forceds=dataset,
-                                  autocreate=autocreate)
+        return dbhelpers.getImage(
+            self.gateway, "badimg", forceds=dataset, autocreate=autocreate
+        )
 
     def getTinyTestImage(self, dataset=None, autocreate=False):
-        return dbhelpers.getImage(self.gateway, 'tinyimg', forceds=dataset,
-                                  autocreate=autocreate)
+        return dbhelpers.getImage(
+            self.gateway, "tinyimg", forceds=dataset, autocreate=autocreate
+        )
 
     def getTinyTestImage2(self, dataset=None, autocreate=False):
-        return dbhelpers.getImage(self.gateway, 'tinyimg2', forceds=dataset,
-                                  autocreate=autocreate)
+        return dbhelpers.getImage(
+            self.gateway, "tinyimg2", forceds=dataset, autocreate=autocreate
+        )
 
     def getTinyTestImage3(self, dataset=None, autocreate=False):
-        return dbhelpers.getImage(self.gateway, 'tinyimg3', forceds=dataset,
-                                  autocreate=autocreate)
+        return dbhelpers.getImage(
+            self.gateway, "tinyimg3", forceds=dataset, autocreate=autocreate
+        )
 
     def getBigTestImage(self, dataset=None, autocreate=False):
-        return dbhelpers.getImage(self.gateway, 'bigimg', forceds=dataset,
-                                  autocreate=autocreate)
+        return dbhelpers.getImage(
+            self.gateway, "bigimg", forceds=dataset, autocreate=autocreate
+        )
 
     def get32FloatTestImage(self, dataset=None, autocreate=False):
-        return dbhelpers.getImage(self.gateway, '32float', forceds=dataset,
-                                  autocreate=autocreate)
+        return dbhelpers.getImage(
+            self.gateway, "32float", forceds=dataset, autocreate=autocreate
+        )
 
     def prepTestDB(self, onlyUsers=False, skipImages=True):
         dbhelpers.bootstrap(onlyUsers=onlyUsers, skipImages=skipImages)
@@ -242,8 +262,16 @@ class TestDBHelper(object):
 
         return returnVal
 
-    def createTestImage(self, imageName="testImage", dataset=None, sizeX=16,
-                        sizeY=16, sizeZ=1, sizeC=1, sizeT=1):
+    def createTestImage(
+        self,
+        imageName="testImage",
+        dataset=None,
+        sizeX=16,
+        sizeY=16,
+        sizeZ=1,
+        sizeC=1,
+        sizeT=1,
+    ):
         """
         Creates a test image of the required dimensions, where each pixel
         value is set to the average value of x & y. If dataset (obj or name)
@@ -277,8 +305,13 @@ class TestDBHelper(object):
                     pass
 
         image = self.gateway.createImageFromNumpySeq(
-            planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT,
-            dataset=ds)
+            planeGen(),
+            imageName,
+            sizeZ=sizeZ,
+            sizeC=sizeC,
+            sizeT=sizeT,
+            dataset=ds,
+        )
         return image
 
     def createTestFile(self, parentpath, filename, content):
@@ -292,5 +325,6 @@ class TestDBHelper(object):
         """
         sio = BytesIO(content.encode("utf-8"))
         f = self.gateway.createOriginalFileFromFileObj(
-            sio, parentpath, filename, len(content))
+            sio, parentpath, filename, len(content)
+        )
         return f

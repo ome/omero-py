@@ -27,8 +27,9 @@ the unit implementations.
 
 from builtins import str
 from builtins import object
-class UnitBase(object):
 
+
+class UnitBase(object):
     def _base_string(self, v, u):
         if v is not None:
             return "%s %s" % (v, str(u))

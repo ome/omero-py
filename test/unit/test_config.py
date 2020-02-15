@@ -70,7 +70,10 @@ def cf(elemA, elemB):
 
     === v ===
 
-    %s""" % (totext(elemA), totext(elemB))
+    %s""" % (
+        totext(elemA),
+        totext(elemB),
+    )
 
 
 def initial(default="default"):
@@ -79,13 +82,14 @@ def initial(default="default"):
     """
     icegrid = Element("icegrid")
     properties = SubElement(icegrid, "properties", id=ConfigXml.INTERNAL)
-    SubElement(properties, "property", name=ConfigXml.DEFAULT,
-               value=default)
-    SubElement(properties, "property", name=ConfigXml.KEY,
-               value=ConfigXml.VERSION)
+    SubElement(properties, "property", name=ConfigXml.DEFAULT, value=default)
+    SubElement(
+        properties, "property", name=ConfigXml.KEY, value=ConfigXml.VERSION
+    )
     properties = SubElement(icegrid, "properties", id=default)
-    SubElement(properties, "property", name=ConfigXml.KEY,
-               value=ConfigXml.VERSION)
+    SubElement(
+        properties, "property", name=ConfigXml.KEY, value=ConfigXml.VERSION
+    )
     return icegrid
 
 
@@ -94,12 +98,11 @@ def totext(elem):
     Use minidom to generate a string representation
     of an XML element.
     """
-    string = tostring(elem, 'utf-8')
+    string = tostring(elem, "utf-8")
     return xml.dom.minidom.parseString(string).toxml()
 
 
 class TestConfig(object):
-
     def testBasic(self):
         p = create_path()
         config = ConfigXml(filename=str(p))
@@ -118,6 +121,7 @@ class TestConfig(object):
         setting, then without, the __ACTIVE__ block should reflect
         "default" and not the intermediate "env" setting.
         """
+
         def get_profile_name(p):
             """
             Takes a path object to the config xml
@@ -179,8 +183,7 @@ class TestConfig(object):
         config["omero.data.dir"] = "HOME"
         config.close()
         i = initial("DICT")
-        _ = SubElement(i[0][0], "property", name="omero.data.dir",
-                       value="HOME")
+        _ = SubElement(i[0][0], "property", name="omero.data.dir", value="HOME")
         _ = SubElement(i, "properties", id="DICT")
         _ = SubElement(_, "property", name="omero.data.dir", value="HOME")
         assertXml(i, XML(p.text()))
@@ -233,15 +236,24 @@ class TestConfig(object):
         default = SubElement(XML, "properties", id="default")
         for properties in (active, default):
             SubElement(
-                properties, "property", name="omero.config.version",
-                value="4.2.0")
+                properties,
+                "property",
+                name="omero.config.version",
+                value="4.2.0",
+            )
             SubElement(
-                properties, "property", name="omero.ldap.new_user_group",
-                value="member=${dn}")
+                properties,
+                "property",
+                name="omero.ldap.new_user_group",
+                value="member=${dn}",
+            )
             SubElement(
-                properties, "property", name="omero.ldap.new_user_group_2",
-                value="member=$${omero.dollar}{dn}")
-        string = tostring(XML, 'utf-8')
+                properties,
+                "property",
+                name="omero.ldap.new_user_group_2",
+                value="member=$${omero.dollar}{dn}",
+            )
+        string = tostring(XML, "utf-8")
         txt = xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
         p.write_text(txt)
 
@@ -261,14 +273,16 @@ class TestConfig(object):
         """
 
         beforeUpdate = '[["Figure", "figure_index"]]'
-        afterUpdate = '[["Data", "webindex", ' \
-            '{"title": "Browse Data via Projects, Tags etc"}], ' \
-            '["History", "history", ' \
-            '{"title": "History"}], ' \
-            '["Help", "https://help.openmicroscopy.org/", ' \
-            '{"target": "new", "title": ' \
-            '"Open OMERO user guide in a new tab"}], ' \
+        afterUpdate = (
+            '[["Data", "webindex", '
+            '{"title": "Browse Data via Projects, Tags etc"}], '
+            '["History", "history", '
+            '{"title": "History"}], '
+            '["Help", "https://help.openmicroscopy.org/", '
+            '{"target": "new", "title": '
+            '"Open OMERO user guide in a new tab"}], '
             '["Figure", "figure_index"]]'
+        )
         p = create_path()
 
         XML = Element("icegrid")
@@ -277,12 +291,18 @@ class TestConfig(object):
         for properties in (active, default):
             # Include a property to indicate version is post-4.2.0
             SubElement(
-                properties, "property", name="omero.config.version",
-                value="4.2.1")
+                properties,
+                "property",
+                name="omero.config.version",
+                value="4.2.1",
+            )
             SubElement(
-                properties, "property", name="omero.web.ui.top_links",
-                value=beforeUpdate)
-        string = tostring(XML, 'utf-8')
+                properties,
+                "property",
+                name="omero.web.ui.top_links",
+                value=beforeUpdate,
+            )
+        string = tostring(XML, "utf-8")
         txt = xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
         p.write_text(txt)
 
@@ -316,15 +336,14 @@ class TestConfig(object):
     def testReadOnlyConfigPassesOnExplicitReadOnly(self):
         p = create_path()
         p.chmod(0o444)  # r--r--r--
-        ConfigXml(filename=str(p),
-                  env_config="default",
-                  read_only=True).close()
+        ConfigXml(filename=str(p), env_config="default", read_only=True).close()
 
     def testReadOnlyConfigFailsOnEnv1(self):
         p = create_path()
         p.chmod(0o444)  # r--r--r--
-        pytest.raises(Exception, ConfigXml, filename=str(p),
-                      env_config="default")
+        pytest.raises(
+            Exception, ConfigXml, filename=str(p), env_config="default"
+        )
 
     def testReadOnlyConfigFailsOnEnv2(self):
         old = os.environ.get("OMERO_CONFIG")
@@ -339,8 +358,9 @@ class TestConfig(object):
             else:
                 os.environ["OMERO_CONFIG"] = old
 
-    @pytest.mark.skipif(sys.platform.startswith("win"),
-                        reason="chmod requires posix")
+    @pytest.mark.skipif(
+        sys.platform.startswith("win"), reason="chmod requires posix"
+    )
     def testCannotCreate(self):
         d = create_path(folder=True)
         d.chmod(0o555)
@@ -360,8 +380,9 @@ class TestConfig(object):
             ConfigXml(filename).close()
         assert excinfo.value.errno == errno.EACCES
 
-    @pytest.mark.skipif(sys.platform.startswith("win"),
-                        reason="chmod requires posix")
+    @pytest.mark.skipif(
+        sys.platform.startswith("win"), reason="chmod requires posix"
+    )
     def testCannotRead(self):
         p = create_path()
         p.chmod(0)

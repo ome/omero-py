@@ -28,6 +28,8 @@ from __future__ import division
 from builtins import str
 from past.utils import old_div
 from builtins import object
+
+
 class Conversion(object):
     """
     Base-functor like object which can be used for preparing complex
