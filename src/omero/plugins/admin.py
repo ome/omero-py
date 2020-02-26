@@ -1498,6 +1498,7 @@ present, the user will enter a console""")
                 with ZipFile(jar) as z:
                     current = ''
                     for line in z.read('META-INF/MANIFEST.MF').splitlines():
+                        line = line.decode()
                         if line and line[0] == ' ':
                             current += line[1:]
                         else:
