@@ -1683,6 +1683,7 @@ present, the user will enter a console""")
         # See ticket #10051
         popen = self.ctx.popen(["icegridnode", "--version"])
         env = self.ctx._env()
+        # Unclear how this could have been set with the call to unsetenv
         ice_config = env.get("ICE_CONFIG")
         if ice_config is not None and not os.path.exists(ice_config):
             popen = self.ctx.popen(["icegridnode", "--version"],

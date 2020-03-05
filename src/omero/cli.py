@@ -1716,49 +1716,41 @@ def argv(args=sys.argv):
     Finally, the cli enters a command loop reading from standard in.
     """
 
-    # Modiying the run-time environment
-    old_ice_config = os.getenv("ICE_CONFIG")
-    os.unsetenv("ICE_CONFIG")
-    try:
+    # Modifying the args list if the name of the file
+    # has arguments encoded in it
+    original_executable = path(args[0])
+    base_executable = str(original_executable.basename())
+    if base_executable.find("-") >= 0:
+        parts = base_executable.split("-")
+        for arg in args[1:]:
+            parts.append(arg)
+        args = parts
 
-        # Modifying the args list if the name of the file
-        # has arguments encoded in it
-        original_executable = path(args[0])
-        base_executable = str(original_executable.basename())
-        if base_executable.find("-") >= 0:
-            parts = base_executable.split("-")
-            for arg in args[1:]:
-                parts.append(arg)
-            args = parts
+    # Now load other plugins. After debugging is turned on, but before
+    # tracing.
+    cli = CLI(prog=original_executable.split("-")[0])
 
-        # Now load other plugins. After debugging is turned on, but before
-        # tracing.
-        cli = CLI(prog=original_executable.split("-")[0])
+    parser = Parser(add_help=False)
+    # parser.add_argument("-d", "--debug", help="Use 'help debug' for more
+    # information", default = SUPPRESS)
+    parser.add_argument(
+        "--path", action="append",
+        help="Add file or directory to plugin list. Supports globs.")
+    ns, args = parser.parse_known_args(args)
+    if getattr(ns, "path"):
+        for p in ns.path:
+            for g in glob.glob(p):
+                cli._plugin_paths.append(g)
 
-        parser = Parser(add_help=False)
-        # parser.add_argument("-d", "--debug", help="Use 'help debug' for more
-        # information", default = SUPPRESS)
-        parser.add_argument(
-            "--path", action="append",
-            help="Add file or directory to plugin list. Supports globs.")
-        ns, args = parser.parse_known_args(args)
-        if getattr(ns, "path"):
-            for p in ns.path:
-                for g in glob.glob(p):
-                    cli._plugin_paths.append(g)
+    # For argparse dispatch, this cannot be done lazily
+    cli.loadplugins()
 
-        # For argparse dispatch, this cannot be done lazily
-        cli.loadplugins()
-
-        if len(args) > 1:
-            cli.invoke(args[1:])
-            return cli.rv
-        else:
-            cli.invokeloop()
-            return cli.rv
-    finally:
-        if old_ice_config:
-            os.putenv("ICE_CONFIG", old_ice_config)
+    if len(args) > 1:
+        cli.invoke(args[1:])
+        return cli.rv
+    else:
+        cli.invokeloop()
+        return cli.rv
 
 #####################################################
 #
