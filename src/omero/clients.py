@@ -706,6 +706,120 @@ class BaseClient(object):
         finally:
             self.__lock.release()
 
+    async def createAsyncSession(self, username=None, password=None):
+        """
+        This is a copy of createSesson
+        except that:
+        - the session is created asynchronously
+        - keep alive is not initialised
+        """
+        import omero
+
+        self.__lock.acquire()
+        try:
+
+            # Checking state
+
+            if self.__sf:
+                raise omero.ClientError(
+                    "Session already active. "
+                    "Create a new omero.client or closeSession()")
+
+            if not self.__ic:
+                if not self.__previous:
+                    raise omero.ClientError(
+                        "No previous data to recreate communicator.")
+                self._initData(self.__previous)
+                self.__previous = None
+
+            # Check the required properties
+
+            if not username:
+                username = self.getProperty("omero.user")
+            elif isinstance(username, omero.RString):
+                username = username.val
+
+            if not username or len(username) == 0:
+                raise omero.ClientError("No username specified")
+
+            if not password:
+                password = self.getProperty("omero.pass")
+            elif isinstance(password, omero.RString):
+                password = password.val
+
+            if not password:
+                raise omero.ClientError("No password specified")
+
+            # Acquire router and get the proxy
+            prx = None
+            retries = 0
+            while retries < 3:
+                reason = None
+                if retries > 0:
+                    self.__logger.warning(
+                        "%s - createSession retry: %s" % (reason, retries))
+                try:
+                    ctx = self.getContext()
+                    ctx[omero.constants.AGENT] = self.__agent
+                    if self.__ip is not None:
+                        ctx[omero.constants.IP] = self.__ip
+                    rtr = self.getRouter(self.__ic)
+                    prx = rtr.createSession(username, password, ctx)
+
+                    # Create the adapter
+                    self.__oa = self.__ic.createObjectAdapterWithRouter(
+                        "omero.ClientCallback", rtr)
+                    self.__oa.activate()
+
+                    id = Ice.Identity()
+                    id.name = self.__uuid
+                    id.category = rtr.getCategoryForClient()
+
+                    self.__cb = BaseClient.CallbackI(self.__ic, self.__oa, id)
+                    self.__oa.add(self.__cb, id)
+
+                    break
+                except omero.WrappedCreateSessionException as wrapped:
+                    if not wrapped.concurrency:
+                        raise wrapped  # We only retry concurrency issues.
+                    reason = "%s:%s" % (wrapped.type, wrapped.reason)
+                    retries = retries + 1
+                except Ice.ConnectTimeoutException as cte:
+                    reason = "Ice.ConnectTimeoutException:%s" % str(cte)
+                    retries = retries + 1
+
+            if not prx:
+                raise omero.ClientError("Obtained null object prox")
+
+            # Check type
+            self.__sf = omero.api.ServiceFactoryPrx.uncheckedCast(prx)
+            if not self.__sf:
+                raise omero.ClientError(
+                    "Obtained object proxy is not a ServiceFactory")
+
+            # Configure keep alive
+            self.startKeepAlive()
+
+            # Set the client callback on the session
+            # and pass it to icestorm
+            try:
+
+                raw = self.__oa.createProxy(self.__cb.id)
+                self.__sf.setCallback(
+                    omero.api.ClientCallbackPrx.uncheckedCast(raw))
+                # self.__sf.subscribe("/public/HeartBeat", raw)
+            except:
+                self.__del__()
+                raise
+
+            # Set the session uuid in the implicit context
+            self.getImplicitContext().put(
+                omero.constants.SESSIONUUID, self.getSessionId())
+
+            return self.__sf
+        finally:
+            self.__lock.release()
+
     def enableKeepAlive(self, seconds):
         """
         Resets the "omero.keep_alive" property on the current
