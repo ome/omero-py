@@ -33,6 +33,7 @@ import Ice
 import re
 import ssl
 import uuid
+from .iceasync import AsyncService, AsyncSession
 
 from past.builtins import basestring
 
@@ -764,7 +765,8 @@ class BaseClient(object):
                     if self.__ip is not None:
                         ctx[omero.constants.IP] = self.__ip
                     rtr = self.getRouter(self.__ic)
-                    prx = rtr.createSession(username, password, ctx)
+                    prx = await AsyncService(rtr).createSession(
+                        username, password, _ctx=ctx)
 
                     # Create the adapter
                     self.__oa = self.__ic.createObjectAdapterWithRouter(
@@ -792,23 +794,22 @@ class BaseClient(object):
                 raise omero.ClientError("Obtained null object prox")
 
             # Check type
-            self.__sf = omero.api.ServiceFactoryPrx.uncheckedCast(prx)
-            if not self.__sf:
+            sf = omero.api.ServiceFactoryPrx.uncheckedCast(prx)
+            if not sf:
                 raise omero.ClientError(
                     "Obtained object proxy is not a ServiceFactory")
+            self.__sf = AsyncSession(sf)
 
-            # Configure keep alive
-            self.startKeepAlive()
+            # Don't automatically configure keep alive
 
             # Set the client callback on the session
             # and pass it to icestorm
             try:
-
                 raw = self.__oa.createProxy(self.__cb.id)
-                self.__sf.setCallback(
+                await self.__sf.setCallback(
                     omero.api.ClientCallbackPrx.uncheckedCast(raw))
                 # self.__sf.subscribe("/public/HeartBeat", raw)
-            except:
+            except BaseException:
                 self.__del__()
                 raise
 
