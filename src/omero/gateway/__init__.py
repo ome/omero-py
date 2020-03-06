@@ -4575,13 +4575,6 @@ class _BlitzGateway (object):
         chown = Chown2(targetObjects={graph[0]: obj_ids})
         chown.userId = owner_id
 
-        if len(graph) > 1:
-            skiphead = SkipHead()
-            skiphead.request = chown
-            skiphead.targetObjects = chown.targetObjects
-            skiphead.startFrom = [graph[-1]]
-            chown = skiphead
-
         da = DoAll()
         da.requests = [chown]
 
