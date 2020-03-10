@@ -155,6 +155,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             "LANGUAGE",
             "LD_LIBRARY_PATH",
             "MLABRAW_CMD_STR",
+            "OMERODIR",
             "OMERO_TEMPDIR",
             "OMERO_TMPDIR",
             "PATH",
