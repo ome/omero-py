@@ -5925,7 +5925,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
         if opts is None:
             opts = {}
-        load_experimentergroups = opts.get('load_experimentergroups')
+        load_experimentergroups = opts.get('load_experimentergroups', True)
         if load_experimentergroups:
             query += (" left outer join fetch obj.groupExperimenterMap "
                       "as groupExperimenterMap "
@@ -6188,7 +6188,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         if opts is None:
             opts = {}
 
-        load_experimenters = opts.get('load_experimenters')
+        load_experimenters = opts.get('load_experimenters', True)
         if load_experimenters:
             query += (" left outer join fetch obj.groupExperimenterMap as map "
                       "left outer join fetch map.child e")
