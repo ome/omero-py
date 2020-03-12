@@ -1854,7 +1854,7 @@ class _BlitzGateway (object):
             if group is None:
                 e = self.getObject(
                     "Experimenter", attributes={'omeName': username},
-                    opts={'load_groups': True})
+                    opts={'load_experimentergroups': True})
                 if e is None:
                     return
                 group = e._obj._groupExperimenterMapSeq[0].parent.name.val
@@ -2353,7 +2353,7 @@ class _BlitzGateway (object):
             if uid is not None:
                 self._user = self.getObject(
                     "Experimenter", self._userid,
-                    opts={'load_groups': True}) or None
+                    opts={'load_experimentergroups': True}) or None
         return self._user
 
     def getAdministrators(self):
@@ -5914,7 +5914,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
         Returns a tuple of (query, clauses, params).
         Supported opts: 'group': <group_id> to filter by ExperimenterGroup
-                        'load_groups': <bool> to load ExperimenterGroups
+                        'load_experimentergroups': <bool> to load ExperimenterGroups
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -5925,14 +5925,14 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
         if opts is None:
             opts = {}
-        load_groups = opts.get('load_groups')
-        if load_groups:
+        load_experimentergroups = opts.get('load_experimentergroups')
+        if load_experimentergroups:
             query += (" left outer join fetch obj.groupExperimenterMap "
                       "as groupExperimenterMap "
                       "left outer join fetch groupExperimenterMap.parent g")
 
         if 'group' in opts:
-            if not load_groups:
+            if not load_experimentergroups:
                 query += ' join obj.groupExperimenterMap groupExperimenterMap'
             clauses.append('groupExperimenterMap.parent.id = :group')
             params.add('group', rlong(opts['group']))
@@ -5947,7 +5947,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
     def __loadedHotSwap__(self):
         """Load Experimenter with Groups loaded."""
         e = self._conn.getObject('Experimenter', self.getId(),
-                                 opts={'load_groups': True})
+                                 opts={'load_experimentergroups': True})
         self._obj = e._obj
 
     def getRawPreferences(self):
