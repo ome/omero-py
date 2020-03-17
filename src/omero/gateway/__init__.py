@@ -4585,9 +4585,9 @@ class _BlitzGateway (object):
         handle = self.c.sf.submit(da, self.SERVICE_OPTS)
         if wait:
             try:
-                self._waitOnCmd(handle)
+                cb = self._waitOnCmd(handle)
             finally:
-                handle.close()
+                cb.close(True)
         return handle
 
     ###################
