@@ -421,6 +421,7 @@ class PropertyParser(object):
                 if not p.val:
                     v = "[empty]"
 
+                v = v.replace('"', '\\\\"')
                 if ',' in v and ', ' not in v:
                     properties += "Default: `%s`\n\n" % (
                         ",\n".join(v.split(',')))
