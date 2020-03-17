@@ -1,3 +1,11 @@
+# 5.6.2 (March 2020)
+
+- Doc: escape quotes in "Default:" sections ([#185](https://github.com/ome/omero-py/pull/185))
+- Doc: List preferred conda installation first ([#190](https://github.com/ome/omero-py/pull/190))
+- Fix: pass OMERODIR to processor ([#197](https://github.com/ome/omero-py/pull/197))
+- Fix: Improve error message for 'fs usage' ([#192](https://github.com/ome/omero-py/pull/192))
+- Fix: Get file size for download ([#181](https://github.com/ome/omero-py/pull/181))
+
 # 5.6.1 (February 2020)
 
 - travis jobs: enable Windows ([#134](https://github.com/ome/omero-py/pull/134))
