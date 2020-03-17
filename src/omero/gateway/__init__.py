@@ -4552,7 +4552,8 @@ class _BlitzGateway (object):
         """
         Change the Owner for a specified objects using queue.
 
-        This can only be used by OMERO administrators and group owners.
+        This can only be used by OMERO administrators with "Chown"
+        privilege and group owners.
         Group owners can only transfer ownership between members of the
         owned group.
         Administrators can transfer ownership between any users
