@@ -3423,6 +3423,9 @@ class _BlitzGateway (object):
         # Order by... e.g. 'lower(obj.name)' or 'obj.column, obj.row' for wells
         if order_by is not None:
             query += " order by %s, obj.id" % order_by
+        else:
+            # to ensure consistent pagination etc
+            query += " order by obj.id"
 
         return (query, baseParams, wrapper)
 
