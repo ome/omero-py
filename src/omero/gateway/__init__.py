@@ -5913,7 +5913,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         Returns string for building queries, loading Experimenters only.
 
         Returns a tuple of (query, clauses, params).
-        Supported opts: 'group': <group_id> to filter by ExperimenterGroup
+        Supported opts: 'experimentergroup': <group_id> to filter by ExperimenterGroup
                         'load_experimentergroups': <bool> to load ExperimenterGroups
 
         :param opts:        Dictionary of optional parameters.
@@ -5931,11 +5931,11 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
                       "as groupExperimenterMap "
                       "left outer join fetch groupExperimenterMap.parent g")
 
-        if 'group' in opts:
+        if 'experimentergroup' in opts:
             if not load_experimentergroups:
                 query += ' join obj.groupExperimenterMap groupExperimenterMap'
             clauses.append('groupExperimenterMap.parent.id = :group')
-            params.add('group', rlong(opts['group']))
+            params.add('group', rlong(opts['experimentergroup']))
         return query, clauses, params
 
     def copyGroupExperimenterMap(self):
