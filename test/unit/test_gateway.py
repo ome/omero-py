@@ -360,3 +360,19 @@ class TestBlitzGatewayImageWrapper(object):
         data = wrapped_image.simpleMarshal(xtra={'tiled': True})
         self.assert_data(data)
         assert data['tiled'] is False
+
+
+class TestBlitzGatewayConnect(object):
+
+    def test_connect_default(self):
+        conn = BlitzGateway(
+            host='this.host.does.not.exist.example.org',
+            username='username', passwd='passwd')
+        assert conn.connect() == False
+
+    def test_connect_raise(self):
+        conn = BlitzGateway(
+            host='this.host.does.not.exist.example.org',
+            username='username', passwd='passwd')
+        with pytest.raises(Ice.DNSException):
+            conn.connect(raiseOnError=True)
