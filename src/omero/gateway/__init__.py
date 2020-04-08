@@ -1616,9 +1616,7 @@ class _BlitzGateway (object):
             print list(conn.getObjects('Project'))
         """
         if not self._connected:
-            r = self.connect()
-            if not r:
-                raise Exception("Connect failed")
+            self.connect(raiseOnError=True)
         return self
 
     def __exit__(self, *args):
@@ -2154,12 +2152,13 @@ class _BlitzGateway (object):
             if self.userip is not None:
                 self.c.setIP(self.userip)
 
-    def connect(self, sUuid=None):
+    def connect(self, sUuid=None, raiseOnError=False):
         """
         Creates or retrieves connection for the given sessionUuid.
         Returns True if connected.
 
         :param sUuid:   omero_model_SessionI
+        :param raiseOnError: Boolean
         :return:        Boolean
         """
 
@@ -2168,6 +2167,8 @@ class _BlitzGateway (object):
         if not self.c:  # pragma: no cover
             self._connected = False
             logger.debug("Ooops. no self._c")
+            if raiseOnError:
+                raise Exception('No self.c')
             return False
         try:
             if self._sessionUuid is None and sUuid:
@@ -2193,6 +2194,8 @@ class _BlitzGateway (object):
                     raise
                 except Exception as x:  # pragma: no cover
                     logger.debug("Error: " + str(x))
+                    if raiseOnError:
+                        raise
                     self._sessionUuid = None
                     if sUuid:
                         return False
@@ -2235,7 +2238,7 @@ class _BlitzGateway (object):
                         self._closeSession()
                         self._sessionUuid = None
                         self._connected = True
-                        return self.connect()
+                        return self.connect(raiseOnError=raiseOnError)
                     else:  # pragma: no cover
                         logger.debug(
                             "BlitzGateway.connect().createSession(): " +
@@ -2253,7 +2256,7 @@ class _BlitzGateway (object):
                                     "## User not in '%s' group" % self.group)
                                 self.group = None
                                 self._connected = True
-                                return self.connect()
+                                return self.connect(raiseOnError=raiseOnError)
                             else:
                                 raise
                 except Ice.SyscallException:  # pragma: no cover
@@ -2276,10 +2279,14 @@ class _BlitzGateway (object):
             raise
         except Ice.LocalException as x:  # pragma: no cover
             logger.debug("connect(): " + traceback.format_exc())
+            if raiseOnError:
+                raise
             self._last_error = x
             return False
         except Exception as x:  # pragma: no cover
             logger.debug("connect(): " + traceback.format_exc())
+            if raiseOnError:
+                raise
             self._last_error = x
             return False
         logger.debug(".. connected!")
