@@ -212,6 +212,7 @@ setup(
         'numpy',
         'Pillow',
         'zeroc-ice>=3.6.4,<3.7',
+        'pywin32; platform_system=="Windows"',
     ],
     tests_require=[
         'pytest',
