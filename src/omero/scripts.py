@@ -34,8 +34,9 @@ from omero.rtypes import wrap, unwrap
 from collections import defaultdict
 
 
-TYPE_LOG = logging.getLogger("omero.scripts.Type")
+BASE_LOG = logging.getLogger("omero.scripts")
 PROC_LOG = logging.getLogger("omero.scripts.ProcessCallback")
+TYPE_LOG = logging.getLogger("omero.scripts.Type")
 
 
 class Type(omero.grid.Param):
@@ -364,8 +365,18 @@ def client(*args, **kwargs):
             kwargs["description"] = args.pop(0)
 
     if "client" not in kwargs:
-        kwargs["client"] = omero.client()
-    c = kwargs["client"]
+        c = omero.client()
+        router = c.getProperty("Ice.Default.Router")
+        router = c.getCommunicator().stringToProxy(router)
+        for endpoint in router.ice_getEndpoints():
+            host = endpoint.getInfo().host
+            c.ic.getProperties().setProperty("omero.host", host)
+            break
+        else:
+            BASE_LOG.warn("no host configuration found for script client")
+        kwargs["client"] = c
+    else:
+        c = kwargs["client"]
     c.setAgent("OMERO.scripts")
 
     if args and isinstance(args[0], omero.grid.JobParams):
