@@ -1511,20 +1511,17 @@ present, the user will enter a console""")
                 error = str(e)
             return manifest, error
 
-        # Bio-Formats versions
+        # Jar versions
+        jars = sorted(
+            os.path.join(os.path.relpath(root, self.ctx.dir), filename)
+            for root, dirnames, filenames in os.walk(self.ctx.dir)
+            for filename in filenames
+            if filename.endswith('.jar')
+        )
         if args.all_jars:
-            jars = sorted(
-                os.path.join(os.path.relpath(root, self.ctx.dir), filename)
-                for root, dirnames, filenames in os.walk(self.ctx.dir)
-                for filename in filenames
-                if filename.endswith('.jar')
-            )
+            jar_re = r'.*'
         else:
-            jars = (
-                'lib/server/formats-api.jar',
-                'lib/server/formats-bsd.jar',
-                'lib/server/formats-gpl.jar',
-            )
+            jar_re = r'lib/server/(formats|ome|omero)-.*.jar'
         manifest_keys = (
             'Implementation-Title',
             'Implementation-Version',
@@ -1533,6 +1530,8 @@ present, the user will enter a console""")
         )
         self.ctx.out("")
         for jar in jars:
+            if not re.match(jar_re, jar):
+                continue
             manifest, error = jar_manifest(self.ctx.dir / jar)
             if error:
                 info = [error]
