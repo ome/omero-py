@@ -1511,7 +1511,7 @@ present, the user will enter a console""")
                 error = str(e)
             return manifest, error
 
-        # Bio-Format versions
+        # Bio-Formats versions
         if args.all_jars:
             jars = sorted(
                 os.path.join(os.path.relpath(root, self.ctx.dir), filename)
