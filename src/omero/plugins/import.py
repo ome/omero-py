@@ -301,8 +301,8 @@ class ImportControl(BaseControl):
         for name, help in (
             ("bulk", "Bulk YAML file for driving multiple imports"),
             ("logprefix", "Directory or file prefix for --file and --errs"),
-            ("file", "File for storing the standard out of the Java process"),
-            ("errs", "File for storing the standard err of the Java process")
+            ("file", "File for storing the standard output from the Java process"),
+            ("errs", "File for storing the standard error from the Java process")
         ):
             add_python_argument("--%s" % name, nargs="?", help=help)
             add_python_argument("---%s" % name, nargs="?", help=SUPPRESS)
