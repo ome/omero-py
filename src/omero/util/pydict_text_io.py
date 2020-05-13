@@ -27,6 +27,7 @@ import os
 import json
 import re
 from omero.rtypes import unwrap
+from future.utils import bytes_to_native_str
 
 try:
     import yaml
@@ -88,7 +89,11 @@ def load(fileobj, filetype=None, single=True, session=None):
         return data
 
     if filetype == 'json':
-        data = json.loads(rawdata)
+        try:
+            data = json.loads(rawdata)
+        except TypeError:
+            # for Python 3.5
+            data = json.loads(bytes_to_native_str(rawdata))
         if single:
             return data
         return [data]
