@@ -112,8 +112,8 @@ SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 NO_ARG = object()
 
 OMERO_JAVA_ZIP = (
-    'https://downloads.openmicroscopy.org/omero/5.6.0-m5/artifacts/'
-    'OMERO.java-5.6.0-m5-ice36-b129.zip'
+    'https://downloads.openmicroscopy.org/omero/5.6.1/artifacts/'
+    'OMERO.java-5.6.1-ice36-b225.zip'
 )
 
 
