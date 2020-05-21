@@ -972,9 +972,19 @@ class BaseClient(object):
             offset = 0
             try:
                 while (offset+block_size) < size:
-                    filehandle.write(prx.read(offset, block_size))
+                    data = prx.read(offset, block_size)
+                    try:
+                        filehandle.write(data)
+                    except TypeError:
+                        # for Python 3.5
+                        filehandle.write(bytes_to_native_str(data))
                     offset += block_size
-                filehandle.write(prx.read(offset, (size-offset)))
+                data = prx.read(offset, size - offset)
+                try:
+                    filehandle.write(data)
+                except TypeError:
+                    # for Python 3.5
+                    filehandle.write(bytes_to_native_str(data))
             finally:
                 if filename:
                     filehandle.close()
