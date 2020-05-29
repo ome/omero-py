@@ -6195,8 +6195,8 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
 
         if 'experimenter' in opts:
             if not load_experimenters:
-                query += ' join obj.groupExperimenterMap groupExperimenterMap'
-            clauses.append('groupExperimenterMap.child.id = :experimenter')
+                query += ' join obj.groupExperimenterMap as map'
+            clauses.append('map.child.id = :experimenter')
             params.add('experimenter', rlong(opts['experimenter']))
         return query, clauses, params
 
