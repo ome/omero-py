@@ -40,7 +40,7 @@ jobs:
         on:
           tags: true
 
-install: pip3 install --upgrade --upgrade-strategy=eager pip wheel pytest tox
+install: pip3 install --upgrade pip wheel pytest tox virtualenv
 
 cache:
   directories:
