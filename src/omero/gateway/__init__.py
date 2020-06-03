@@ -56,7 +56,7 @@ except ImportError:
 import omero
 import omero.clients
 from omero.util.decorators import timeit
-from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
+from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead, Chown2
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
@@ -4547,6 +4547,48 @@ class _BlitzGateway (object):
         ctx.setOmeroGroup(group_id)
         prx = self.c.sf.submit(da, ctx)
         return prx
+
+    def chownObjects(self, graph_spec, obj_ids, owner_id, wait=False):
+        """
+        Change the Owner for a specified objects using queue.
+
+        This can only be used by OMERO administrators with "Chown"
+        privilege and group owners.
+        Group owners can only transfer ownership between members of the
+        owned group.
+        Administrators can transfer ownership between any users
+        regardless of their respective groups.
+
+        :param graph_spec:      String to indicate the object type or graph
+                                specification. Examples include:
+
+                                * 'Image'
+                                * 'Project'   # will move contents too.
+        :param obj_ids:         IDs for the objects to move.
+        :param owner_id:        The owner to move the data to.
+        """
+
+        if not isinstance(obj_ids, list) or len(obj_ids) < 1:
+            raise AttributeError('Must be a list of object IDs')
+
+        graph = graph_spec.lstrip('/').split('/')
+        obj_ids = list(map(int, obj_ids))
+        chown = Chown2(targetObjects={graph[0]: obj_ids})
+        chown.userId = owner_id
+
+        da = DoAll()
+        da.requests = [chown]
+
+        logger.debug('Chown2: type: %s, ids: %s, owner: %s' %
+                     (graph_spec, obj_ids, owner_id))
+
+        handle = self.c.sf.submit(da, self.SERVICE_OPTS)
+        if wait:
+            try:
+                cb = self._waitOnCmd(handle)
+            finally:
+                cb.close(True)
+        return handle
 
     ###################
     # Searching stuff #
