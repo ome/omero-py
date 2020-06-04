@@ -773,6 +773,15 @@ present, the user will enter a console""")
             self.checkwindows(args)
         self.check_lock(config)
 
+        try:
+            config['omero.db.poolsize']
+        except KeyError:
+            self.ctx.out(
+                "WARNING: Your server has not been configured for production "
+                "use. See https://docs.openmicroscopy.org/omero/latest/"
+                "sysadmins/server-performance.html?highlight=poolsize "
+                "for more information.")
+
         self._initDir()
         # Do a check to see if we've started before.
         self._regdata()
