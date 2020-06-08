@@ -778,8 +778,8 @@ present, the user will enter a console""")
         except KeyError:
             self.ctx.out(
                 "WARNING: Your server has not been configured for production "
-                "use. See https://docs.openmicroscopy.org/omero/latest/"
-                "sysadmins/server-performance.html?highlight=poolsize "
+                "use.\nSee https://docs.openmicroscopy.org/omero/latest/"
+                "sysadmins/server-performance.html?highlight=poolsize\n"
                 "for more information.")
 
         self._initDir()
