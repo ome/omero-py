@@ -170,6 +170,11 @@ sys.path.append("target")
 from omero_version import omero_version as ov  # noqa
 
 
+scripts = [os.path.join("bin", "omero")]
+if os.name in ("nt", "ce"):
+    scripts += glob.glob(os.path.join("bin", "*.bat"))
+
+
 def read(fname):
     """
     Utility function to read the README file.
@@ -205,7 +210,7 @@ setup(
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
     py_modules=packageless,
-    scripts=glob.glob(os.path.sep.join(["bin", "*"])),
+    scripts=scripts,
     python_requires='>=3',
     install_requires=[
         'future',
