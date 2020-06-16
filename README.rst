@@ -117,10 +117,9 @@ Release process
 This repository uses `bump2version <https://pypi.org/project/bump2version/>`_ to manage version numbers.
 To tag a release run::
 
-    $ bumpversion release --sign-tags
+    $ bumpversion release
 
-This will remove the ``.dev0`` suffix from the current version, commit, and
-create a signed tag for the release.
+This will remove the ``.dev0`` suffix from the current version, commit, and tag the release.
 
 To switch back to a development version run::
 
