@@ -1853,7 +1853,8 @@ class _BlitzGateway (object):
         if self.isAdmin():
             if group is None:
                 e = self.getObject(
-                    "Experimenter", attributes={'omeName': username})
+                    "Experimenter", attributes={'omeName': username},
+                    opts={'load_experimentergroups': True})
                 if e is None:
                     return
                 group = e._obj._groupExperimenterMapSeq[0].parent.name.val
@@ -2351,7 +2352,8 @@ class _BlitzGateway (object):
             uid = self.getUserId()
             if uid is not None:
                 self._user = self.getObject(
-                    "Experimenter", self._userid) or None
+                    "Experimenter", self._userid,
+                    opts={'load_experimentergroups': True}) or None
         return self._user
 
     def getAdministrators(self):
@@ -2363,7 +2365,8 @@ class _BlitzGateway (object):
         """
         sysGroup = self.getObject(
             "ExperimenterGroup",
-            self.getAdminService().getSecurityRoles().systemGroupId)
+            self.getAdminService().getSecurityRoles().systemGroupId,
+            opts={'load_experimenters': True})
         for gem in sysGroup.copyGroupExperimenterMap():
             yield ExperimenterWrapper(self, gem.child)
 
@@ -2948,7 +2951,8 @@ class _BlitzGateway (object):
             self.getAdminService().getSecurityRoles().userGroupId]
         if len(self.getEventContext().memberOfGroups) > 0:
             for g in self.getObjects("ExperimenterGroup",
-                                     self.getEventContext().memberOfGroups):
+                                     self.getEventContext().memberOfGroups,
+                                     opts={'load_experimenters': True}):
                 if g.getId() not in system_groups:
                     yield g
 
@@ -3050,7 +3054,8 @@ class _BlitzGateway (object):
         """
 
         default = self.getObject(
-            "ExperimenterGroup", self.getEventContext().groupId)
+            "ExperimenterGroup", self.getEventContext().groupId,
+            opts={'load_experimenters': True})
         if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d is None:
@@ -3365,9 +3370,9 @@ class _BlitzGateway (object):
         # Handle dict of parameters -> convert to ParametersI()
         if opts is not None:
             # Parse opts dict to build params
-            if 'offset' in opts and 'limit' in opts:
+            if 'limit' in opts:
                 limit = opts['limit']
-                offset = opts['offset']
+                offset = opts.get('offset', 0)
             if 'owner' in opts:
                 owner = rlong(opts['owner'])
             if 'order_by' in opts:
@@ -5950,15 +5955,42 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         Returns string for building queries, loading Experimenters only.
 
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'experimentergroup': <group_id> to filter by ExperimenterGroup
+                        'load_experimentergroups': <bool> to load ExperimenterGroups
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
-        query = ("select distinct obj from Experimenter as obj "
-                 "left outer join fetch obj.groupExperimenterMap as map "
-                 "left outer join fetch map.parent g")
-        return query, [], omero.sys.ParametersI()
+        clauses = []
+        query = "select obj from Experimenter as obj"
+        params = omero.sys.ParametersI()
+
+        if opts is None:
+            opts = {}
+        load_experimentergroups = opts.get('load_experimentergroups', True)
+        if load_experimentergroups:
+            query += (" left outer join fetch obj.groupExperimenterMap "
+                      "as groupExperimenterMap "
+                      "left outer join fetch groupExperimenterMap.parent g")
+
+        if 'experimentergroup' in opts:
+            if not load_experimentergroups:
+                query += ' join obj.groupExperimenterMap groupExperimenterMap'
+            clauses.append('groupExperimenterMap.parent.id = :group')
+            params.add('group', rlong(opts['experimentergroup']))
+        return query, clauses, params
+
+    def copyGroupExperimenterMap(self):
+        """Delegate to the wrapped _obj.copyGroupExperimenterMap()."""
+        if not self._obj.groupExperimenterMapLoaded:
+            self.__loadedHotSwap__()
+        return self._obj.copyGroupExperimenterMap()
+
+    def __loadedHotSwap__(self):
+        """Load Experimenter with Groups loaded."""
+        e = self._conn.getObject('Experimenter', self.getId(),
+                                 opts={'load_experimentergroups': True})
+        self._obj = e._obj
 
     def getRawPreferences(self):
         """
@@ -6185,15 +6217,42 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         Returns string for building queries, loading Experimenters for each
         group.
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'experimenter': <experimenter_id> to filter by
+                                        Experimenter
+                        'load_experimenters': <bool> to load Experimenters
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
-        query = ("select distinct obj from ExperimenterGroup as obj "
-                 "left outer join fetch obj.groupExperimenterMap as map "
-                 "left outer join fetch map.child e")
-        return query, [], omero.sys.ParametersI()
+        clauses = []
+        query = "select obj from ExperimenterGroup as obj"
+        params = omero.sys.ParametersI()
+        if opts is None:
+            opts = {}
+
+        load_experimenters = opts.get('load_experimenters', True)
+        if load_experimenters:
+            query += (" left outer join fetch obj.groupExperimenterMap as map "
+                      "left outer join fetch map.child e")
+
+        if 'experimenter' in opts:
+            if not load_experimenters:
+                query += ' join obj.groupExperimenterMap as map'
+            clauses.append('map.child.id = :experimenter')
+            params.add('experimenter', rlong(opts['experimenter']))
+        return query, clauses, params
+
+    def copyGroupExperimenterMap(self):
+        """Delegate to the wrapped _obj.copyGroupExperimenterMap()."""
+        if not self._obj.groupExperimenterMapLoaded:
+            self.__loadedHotSwap__()
+        return self._obj.copyGroupExperimenterMap()
+
+    def __loadedHotSwap__(self):
+        """Load ExperimenterGroup with Experimenters loaded."""
+        g = self._conn.getObject('ExperimenterGroup', self.getId(),
+                                 opts={'load_experimenters': True})
+        self._obj = g._obj
 
     def groupSummary(self, exclude_self=False):
         """
