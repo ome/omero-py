@@ -1,15 +1,15 @@
 # 5.7.0 (June 2020)
 
 - Fix: pywin import in Python 3.7 ([#203](https://github.com/ome/omero-py/pull/203))
-- Support use of CLI within OMERO.scripts ([#186](https://github.com/ome/omero-py/pull/186))
+- API: Support use of CLI within OMERO.scripts ([#186](https://github.com/ome/omero-py/pull/186))
 - Fix: Don't unset ICE_CONFIG on Windows ([#193](https://github.com/ome/omero-py/pull/193))
 - Fix: Ignore owner in omero.data.dir check ([#208](https://github.com/ome/omero-py/pull/208))
 - Fix: JSON parsing on Python 3.5 ([#213](https://github.com/ome/omero-py/pull/213))
-- Add new conn.chownObjects() method ([#195](https://github.com/ome/omero-py/pull/195))
+- API: Add new conn.chownObjects() method ([#195](https://github.com/ome/omero-py/pull/195))
 - Fix: client.download() on Python 3.5 ([#215](https://github.com/ome/omero-py/pull/215))
-- Warn if omero.db.poolsize is not set ([#218](https://github.com/ome/omero-py/pull/218))
-- admin diagnostics shows jar versions ([#188](https://github.com/ome/omero-py/pull/188))
-- Loading options for Experimenters and Groups ([#196](https://github.com/ome/omero-py/pull/196))
+- Info: Warn if omero.db.poolsize is not set ([#218](https://github.com/ome/omero-py/pull/218))
+- Info: admin diagnostics shows jar versions ([#188](https://github.com/ome/omero-py/pull/188))
+- API: Loading options for Experimenters and Groups ([#196](https://github.com/ome/omero-py/pull/196))
 
 # 5.6.2 (March 2020)
 
