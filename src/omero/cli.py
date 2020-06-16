@@ -1070,6 +1070,7 @@ class DiagnosticsControl(BaseControl):
         diagnostics.add_argument(
             "--no-logs", action="store_true",
             help="Skip log parsing")
+        return diagnostics
 
     def _diagnostics_banner(self, control_name):
 

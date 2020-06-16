@@ -29,6 +29,7 @@ import time
 
 from glob import glob
 from math import ceil
+from zipfile import ZipFile
 
 import omero
 import omero.config
@@ -108,7 +109,10 @@ class AdminControl(DiagnosticsControl,
 
     def _configure(self, parser):
         sub = parser.sub()
-        self._add_diagnostics(parser, sub)
+        parser = self._add_diagnostics(parser, sub)
+        parser.add_argument(
+            "--all-jars", action="store_true",
+            help="Show information for all jars")
         self.add_error(
             "NOT_WINDOWS", 123,
             "Not Windows")
@@ -1494,6 +1498,57 @@ present, the user will enter a console""")
                 sb = " ".join([str(x) for x in v])
                 self._item("JVM settings", " %s" % (k[0].upper() + k[1:]))
                 self.ctx.out("%s" % sb)
+
+        def jar_manifest(jar):
+            manifest = {}
+            error = ''
+            try:
+                with ZipFile(jar) as z:
+                    current = ''
+                    for line in z.read('META-INF/MANIFEST.MF').splitlines():
+                        line = line.decode()
+                        if line and line[0] == ' ':
+                            current += line[1:]
+                        else:
+                            if current:
+                                manifest.update([current.split(': ', 1)])
+                            current = line
+                    if current:
+                        manifest.update([current.split(': ', 1)])
+            except Exception as e:
+                error = str(e)
+            return manifest, error
+
+        # Jar versions
+        jars = sorted(
+            os.path.join(os.path.relpath(root, self.ctx.dir), filename)
+            for root, dirnames, filenames in os.walk(self.ctx.dir)
+            for filename in filenames
+            if filename.endswith('.jar')
+        )
+        if args.all_jars:
+            jar_re = r'.*'
+        else:
+            jar_re = r'lib/server/(formats|ome|omero)-.*.jar'
+        manifest_keys = (
+            'Implementation-Title',
+            'Implementation-Version',
+            'Implementation-Date',
+            'Implementation-Build',
+        )
+        self.ctx.out("")
+        for jar in jars:
+            if not re.match(jar_re, jar):
+                continue
+            manifest, error = jar_manifest(self.ctx.dir / jar)
+            if error:
+                info = [error]
+            else:
+                info = [manifest.get(key, '') for key in manifest_keys]
+            self._item("Jar", jar)
+            self.ctx.out('\t'.join(info))
+
+
 
     def email(self, args):
         client = self.ctx.conn(args)
