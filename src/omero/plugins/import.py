@@ -260,13 +260,13 @@ class CommandArguments(object):
         if ('all' in skip or 'upgrade' in skip):
             self.__java_initial.append("--no-upgrade-check")
 
-    def open_files(self):
+    def open_files(self, mode="w"):
         # Open file handles for stdout/stderr if applicable
-        out = self.open_log(self.__args.file, self.__args.logprefix)
-        err = self.open_log(self.__args.errs, self.__args.logprefix)
+        out = self.open_log(self.__args.file, self.__args.logprefix, mode=mode)
+        err = self.open_log(self.__args.errs, self.__args.logprefix, mode=mode)
         return out, err
 
-    def open_log(self, file, prefix=None):
+    def open_log(self, file, prefix=None, mode="w"):
         if not file:
             return None
         if prefix:
@@ -274,7 +274,7 @@ class CommandArguments(object):
         dir = os.path.dirname(file)
         if not os.path.exists(dir):
             os.makedirs(dir)
-        return open(file, "w")
+        return open(file, mode)
 
 
 class ImportControl(BaseControl):
@@ -517,12 +517,12 @@ class ImportControl(BaseControl):
         else:
             self.do_import(command_args, xargs)
 
-    def do_import(self, command_args, xargs):
+    def do_import(self, command_args, xargs, mode="w"):
         out = err = None
         try:
 
             import_command = self.COMMAND + command_args.java_args()
-            out, err = command_args.open_files()
+            out, err = command_args.open_files(mode=mode)
 
             p = omero.java.popen(
                 import_command, debug=False, xargs=xargs,
@@ -583,7 +583,11 @@ class ImportControl(BaseControl):
                             # FIXME: this assumes 'omero'
                             print(sys.argv[0], "import", rv, file=o)
                 else:
-                    self.do_import(command_args, xargs)
+                    if incr == 0:
+                        mode = "w"
+                    else:
+                        mode = "a"
+                    self.do_import(command_args, xargs, mode=mode)
                 if self.ctx.rv:
                     failed += 1
                     total += self.ctx.rv
