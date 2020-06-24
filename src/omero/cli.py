@@ -530,7 +530,10 @@ class Context(object):
                 raise
         except:
             print("Error printing text", file=sys.stderr)
-            print(text, file=sys.stdout)
+            try:
+                print(text, file=sys.stdout)
+            except UnicodeEncodeError:
+                print(text.encode('utf-8', 'surrogateescape'), file=sys.stdout)
             if self.isdebug:
                 traceback.print_exc()
 
