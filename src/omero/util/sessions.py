@@ -406,9 +406,7 @@ class SessionsStore(object):
             except Exception:
                 import warnings
 
-                warnings.warn(
-                    f"Invalid session timeout ({timeout}) requested when creating session."
-                )
+                warnings.warn("Invalid session timeout requested when creating session.")
 
             # Reload session
             sess = sf.getSessionService().getSession(uuid)
