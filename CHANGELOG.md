@@ -1,3 +1,7 @@
+# 5.7.1 (June 2020)
+
+- Fix `import --log/--err` with bulk import ([#223](https://github.com/ome/omero-py/pull/223))
+
 # 5.7.0 (June 2020)
 
 - API changes:
