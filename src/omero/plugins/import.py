@@ -583,7 +583,7 @@ class ImportControl(BaseControl):
                             # FIXME: this assumes 'omero'
                             print(sys.argv[0], "import", rv, file=o)
                 else:
-                    if incr == 0:
+                    if incr == 1:
                         mode = "w"
                     else:
                         mode = "a"
