@@ -13,7 +13,6 @@ from __future__ import print_function
 
 import logging
 import os
-import stat
 import sys
 
 import warnings
@@ -30,11 +29,13 @@ def not_root():
     try:
         euid = os.geteuid()
         if euid == 0:
-            print("FATAL: Running %s as root can corrupt your directory permissions." % sys.argv[0])
+            print(
+                "FATAL: Running %s as root can corrupt your directory "
+                "permissions." % sys.argv[0])
             sys.exit(1)
         else:
             return euid
-    except AttributeError as ae:
+    except AttributeError:
         # This platform doesn't support effective uid
         # So nothing to worry about.
         return None
@@ -60,7 +61,7 @@ def readlink(file=sys.argv[0]):
 
 
 def main():
-    euid = not_root()
+    not_root()
 
     if "OMERO_HOME" in os.environ:
         print("WARN: OMERO_HOME usage is ignored in omero-py")
@@ -74,12 +75,13 @@ def main():
     top = os.path.normpath(top)
     var = os.path.join(top, "var")
     vlb = os.path.join(var, "lib")
-    sys.path.append(vlb);
+    sys.path.append(vlb)
 
     # Testing shortcut. If the first argument is an
     # empty string, exit sucessfully.
     #
-    if len(sys.argv) == 2 and sys.argv[1] == "": sys.exit(0)
+    if len(sys.argv) == 2 and sys.argv[1] == "":
+        sys.exit(0)
 
     #
     # Primary activity: import omero.cli and launch
@@ -114,12 +116,12 @@ def main():
             OMERODIR=%s
             PYTHONPATH=%s
             """ % (os.getcwd(), sys.version.replace("\n", " "), top,
-                OMERODIR, sys.path))
+                   OMERODIR, sys.path))
             sys.exit(2)
 
         logging.basicConfig(level=logging.WARN)
         rv = omero.cli.argv()
         sys.exit(rv)
-    except KeyboardInterrupt as ki:
+    except KeyboardInterrupt:
         print("Cancelled")
         sys.exit(1)
