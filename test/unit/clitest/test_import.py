@@ -338,7 +338,7 @@ class TestImport(object):
         self.cli.invoke(self.args, strict=True)
 
         o, e = capfd.readouterr()
-        result = yaml.load(StringIO(o))
+        result = yaml.safe_load(StringIO(o))
         result = result[0]
         assert "fake" in result["group"]
         assert 1 == len(result["files"])
