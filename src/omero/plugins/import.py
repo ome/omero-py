@@ -505,31 +505,31 @@ class ImportControl(BaseControl):
             self.download_omero_java(args.fetch_jars)
             return
 
-        if args.clientdir:
-            client_dirs = [path(args.clientdir)]
-        else:
-            client_dirs = [self.ctx.dir / "lib" / "client"]
-            omero_java_dir, _ = self._userdir_jars()
-            if omero_java_dir:
-                client_dirs.append(omero_java_dir)
-        etc_dir = old_div(self.ctx.dir, "etc")
-        if args.logback:
-            xml_file = path(args.logback)
-        else:
-            xml_file = old_div(etc_dir, "logback-cli.xml")
-        logback = "-Dlogback.configurationFile=%s" % xml_file
+        for attempt in [0, 1]:
+            if args.clientdir:
+                client_dirs = [path(args.clientdir)]
+            else:
+                client_dirs = [self.ctx.dir / "lib" / "client"]
+                omero_java_dir, _ = self._userdir_jars()
+                if omero_java_dir:
+                    client_dirs.append(omero_java_dir)
+            etc_dir = old_div(self.ctx.dir, "etc")
+            if args.logback:
+                xml_file = path(args.logback)
+            else:
+                xml_file = old_div(etc_dir, "logback-cli.xml")
+            logback = "-Dlogback.configurationFile=%s" % xml_file
 
-        classpath = [
-            file.abspath()
-            for client_dir in client_dirs
-            if client_dir.exists()
-            for file in client_dir.files("*.jar")
-        ]
-        if not classpath:
-            self.ctx.die(103, (
-                "No JAR files found under: %s.\n"
-                "Run 'omero import --fetch-jars' and re-try your import" %
-                ','.join(client_dirs)))
+            classpath = [
+                file.abspath()
+                for client_dir in client_dirs
+                if client_dir.exists()
+                for file in client_dir.files("*.jar")
+            ]
+            if not classpath:
+                self.download_omero_java('latest')
+            else:
+                break
 
         command_args = CommandArguments(self.ctx, args)
         xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
