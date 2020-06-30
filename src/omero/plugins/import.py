@@ -30,18 +30,12 @@ from builtins import str
 from past.utils import old_div
 from past.builtins import basestring
 from builtins import object
+from io import BytesIO
 import os
 import csv
 import sys
 import shlex
-
-try:
-    from io import BytesIO
-    from urllib.request import urlopen
-except ImportError:
-    # Python 2
-    from StringIO import StringIO as BytesIO
-    from urllib import urlopen
+from urllib.request import urlopen
 from zipfile import ZipFile
 
 
@@ -112,8 +106,7 @@ SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 NO_ARG = object()
 
 OMERO_JAVA_ZIP = (
-    'https://downloads.openmicroscopy.org/omero/5.6.1/artifacts/'
-    'OMERO.java-5.6.1-ice36-b225.zip'
+    'https://downloads.openmicroscopy.org/omero/latest/OMERO.java.zip'
 )
 
 
@@ -515,10 +508,10 @@ class ImportControl(BaseControl):
         if args.clientdir:
             client_dirs = [path(args.clientdir)]
         else:
-            client_dirs = [
-                self.ctx.dir / "lib" / "client",
-                self._userdir_jars(),
-            ]
+            client_dirs = [self.ctx.dir / "lib" / "client"]
+            omero_java_dir, _ = self._userdir_jars()
+            if omero_java_dir:
+                client_dirs.append(omero_java_dir)
         etc_dir = old_div(self.ctx.dir, "etc")
         if args.logback:
             xml_file = path(args.logback)
@@ -551,20 +544,38 @@ class ImportControl(BaseControl):
 
     def _userdir_jars(self, parentonly=False):
         user_jars = get_omero_userdir() / 'jars'
+        # Use this file instead of a symlink so it works on all platform
+        omero_java_txt = user_jars / 'OMERO.java.txt'
         if parentonly:
-            return user_jars
-        omero_java = os.path.splitext(os.path.basename(OMERO_JAVA_ZIP))[0]
-        return user_jars / omero_java / 'libs'
+            return user_jars, omero_java_txt
+        omero_java_dir = None
+        if omero_java_txt.exists():
+            omero_java_dir = omero_java_txt.text().strip()
+            return user_jars / omero_java_dir / 'libs', omero_java_txt
+        else:
+            return None, omero_java_txt
 
     def download_omero_java(self):
         self.ctx.err("Downloading %s" % OMERO_JAVA_ZIP)
-        jars_dir = self._userdir_jars(parentonly=True)
+        jars_dir, omero_java_txt = self._userdir_jars(parentonly=True)
         if not jars_dir.exists():
             jars_dir.mkdir()
         resp = urlopen(OMERO_JAVA_ZIP)
         zipfile = ZipFile(BytesIO(resp.read()))
+        topdirs = set(f.filename.split(
+            os.path.sep)[0] for f in zipfile.filelist if f.is_dir())
+        if len(topdirs) != 1:
+            self.ctx.die(
+                108, 'Expected one top directory in OMERO.java.zip: {}'.format(
+                    topdirs))
+        topdir = topdirs.pop()
+        if os.path.isabs(topdir):
+            self.ctx.die(
+                108, 'Unexpected absolute paths in OMERO.java.zip: {}'.format(
+                    topdir))
         zipfile.extractall(jars_dir)
         zipfile.close()
+        omero_java_txt.write_text(topdir)
         resp.close()
 
     def do_import(self, command_args, xargs, mode="w"):
