@@ -39,7 +39,6 @@ def not_root():
         # So nothing to worry about.
         return None
 
-euid = not_root()
 
 def readlink(file=sys.argv[0]):
     """
@@ -59,64 +58,68 @@ def readlink(file=sys.argv[0]):
     file = os.path.abspath(file)
     return file
 
-if "OMERO_HOME" in os.environ:
-    print("WARN: OMERO_HOME usage is ignored in omero-py")
 
-exe = readlink()
-top = os.path.join(exe, os.pardir, os.pardir)
+def main():
+    euid = not_root()
 
-#
-# This list needs to be kept in line with omero.cli.CLI._env
-#
-top = os.path.normpath(top)
-var = os.path.join(top, "var")
-vlb = os.path.join(var, "lib")
-sys.path.append(vlb);
+    if "OMERO_HOME" in os.environ:
+        print("WARN: OMERO_HOME usage is ignored in omero-py")
 
-# Testing shortcut. If the first argument is an
-# empty string, exit sucessfully.
-#
-if len(sys.argv) == 2 and sys.argv[1] == "": sys.exit(0)
+    exe = readlink()
+    top = os.path.join(exe, os.pardir, os.pardir)
 
-#
-# Primary activity: import omero.cli and launch
-# catching any Ctrl-Cs from the user
-#
-try:
+    #
+    # This list needs to be kept in line with omero.cli.CLI._env
+    #
+    top = os.path.normpath(top)
+    var = os.path.join(top, "var")
+    vlb = os.path.join(var, "lib")
+    sys.path.append(vlb);
+
+    # Testing shortcut. If the first argument is an
+    # empty string, exit sucessfully.
+    #
+    if len(sys.argv) == 2 and sys.argv[1] == "": sys.exit(0)
+
+    #
+    # Primary activity: import omero.cli and launch
+    # catching any Ctrl-Cs from the user
+    #
     try:
-        import omero.cli
-    except ImportError as ie:
-        OMERODIR = os.environ.get('OMERODIR', None)
-        print("*"*80)
-        print("""
-        ERROR: Could not import omero.cli! (%s)
+        try:
+            import omero.cli
+        except ImportError as ie:
+            OMERODIR = os.environ.get('OMERODIR', None)
+            print("*"*80)
+            print("""
+            ERROR: Could not import omero.cli! (%s)
 
-        This means that your installation is incomplete. Contact
-        the OME mailing lists for more information:
+            This means that your installation is incomplete. Contact
+            the OME mailing lists for more information:
 
-        https://www.openmicroscopy.org/support/
+            https://www.openmicroscopy.org/support/
 
-        If you are building from source, please supply the build log
-        as well as which version you are building from. If you
-        downloaded a distribution, please provide which link you
-        used.
-        """ % ie)
-        print("*"*80)
-        print("""
-        Debugging Info:
-        --------------
-        CWD=%s
-        VERSION=%s
-        OMERO_EXE=%s
-        OMERODIR=%s
-        PYTHONPATH=%s
-        """ % (os.getcwd(), sys.version.replace("\n", " "), top,
-               OMERODIR, sys.path))
-        sys.exit(2)
+            If you are building from source, please supply the build log
+            as well as which version you are building from. If you
+            downloaded a distribution, please provide which link you
+            used.
+            """ % ie)
+            print("*"*80)
+            print("""
+            Debugging Info:
+            --------------
+            CWD=%s
+            VERSION=%s
+            OMERO_EXE=%s
+            OMERODIR=%s
+            PYTHONPATH=%s
+            """ % (os.getcwd(), sys.version.replace("\n", " "), top,
+                OMERODIR, sys.path))
+            sys.exit(2)
 
-    logging.basicConfig(level=logging.WARN)
-    rv = omero.cli.argv()
-    sys.exit(rv)
-except KeyboardInterrupt as ki:
-    print("Cancelled")
-    sys.exit(1)
+        logging.basicConfig(level=logging.WARN)
+        rv = omero.cli.argv()
+        sys.exit(rv)
+    except KeyboardInterrupt as ki:
+        print("Cancelled")
+        sys.exit(1)
