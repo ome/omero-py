@@ -106,7 +106,7 @@ SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 NO_ARG = object()
 
 OMERO_JAVA_ZIP = (
-    'https://downloads.openmicroscopy.org/omero/latest/OMERO.java.zip'
+    'https://downloads.openmicroscopy.org/omero/{version}/OMERO.java.zip'
 )
 
 
@@ -326,8 +326,8 @@ class ImportControl(BaseControl):
             help="Path to a logback xml file. "
             " Default: etc/logback-cli.xml")
         add_python_argument(
-            "--fetch-jars", action="store_true",
-            help="Download OMERO.java jars")
+            "--fetch-jars", type=str,
+            help="Download this version of OMERO.java jars")
 
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
@@ -502,7 +502,7 @@ class ImportControl(BaseControl):
         if args.fetch_jars:
             if args.path:
                 self.ctx.err('WARNING: Ignoring extra arguments')
-            self.download_omero_java()
+            self.download_omero_java(args.fetch_jars)
             return
 
         if args.clientdir:
@@ -555,12 +555,13 @@ class ImportControl(BaseControl):
         else:
             return None, omero_java_txt
 
-    def download_omero_java(self):
-        self.ctx.err("Downloading %s" % OMERO_JAVA_ZIP)
+    def download_omero_java(self, version):
+        omero_java_zip = OMERO_JAVA_ZIP.format(version=version)
+        self.ctx.err("Downloading %s" % omero_java_zip)
         jars_dir, omero_java_txt = self._userdir_jars(parentonly=True)
         if not jars_dir.exists():
             jars_dir.mkdir()
-        resp = urlopen(OMERO_JAVA_ZIP)
+        resp = urlopen(omero_java_zip)
         zipfile = ZipFile(BytesIO(resp.read()))
         topdirs = set(f.filename.split(
             os.path.sep)[0] for f in zipfile.filelist if f.is_dir())
