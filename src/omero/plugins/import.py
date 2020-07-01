@@ -561,23 +561,23 @@ class ImportControl(BaseControl):
         jars_dir, omero_java_txt = self._userdir_jars(parentonly=True)
         if not jars_dir.exists():
             jars_dir.mkdir()
-        resp = urlopen(omero_java_zip)
-        zipfile = ZipFile(BytesIO(resp.read()))
-        topdirs = set(f.filename.split(
-            os.path.sep)[0] for f in zipfile.filelist if f.is_dir())
-        if len(topdirs) != 1:
-            self.ctx.die(
-                108, 'Expected one top directory in OMERO.java.zip: {}'.format(
-                    topdirs))
-        topdir = topdirs.pop()
-        if os.path.isabs(topdir):
-            self.ctx.die(
-                108, 'Unexpected absolute paths in OMERO.java.zip: {}'.format(
-                    topdir))
-        zipfile.extractall(jars_dir)
-        zipfile.close()
-        omero_java_txt.write_text(topdir)
-        resp.close()
+        with urlopen(omero_java_zip) as resp:
+            with ZipFile(BytesIO(resp.read())) as zipfile:
+                topdirs = set(f.filename.split(
+                    os.path.sep)[0] for f in zipfile.filelist if f.is_dir())
+                if len(topdirs) != 1:
+                    self.ctx.die(
+                        108,
+                        'Expected one top directory in OMERO.java.zip: {}'
+                        .format(topdirs))
+                topdir = topdirs.pop()
+                if os.path.isabs(topdir):
+                    self.ctx.die(
+                        108,
+                        'Unexpected absolute paths in OMERO.java.zip: {}'
+                        .format(topdir))
+                zipfile.extractall(jars_dir)
+                omero_java_txt.write_text(topdir)
 
     def do_import(self, command_args, xargs, mode="w"):
         out = err = None
