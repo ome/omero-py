@@ -243,7 +243,7 @@ class TestImport(object):
             with pytest.raises(NonZeroReturnCode):
                 self.cli.invoke(self.args, strict=True)
             o, e = capfd.readouterr()
-            assert "parsed into 0 group" in e
+            assert "parsed into 0 group" in o
 
     @pytest.mark.parametrize('with_ds_store', (True, False))
     def testImportFakeScreen(self, tmpdir, capfd, with_ds_store):
@@ -347,7 +347,9 @@ class TestImport(object):
         self.cli.invoke(self.args, strict=True)
 
         o, e = capfd.readouterr()
-        result = yaml.load(StringIO(o))
+        # o also contains loads of preceding log output, strip this off
+        yamlout = o[o.find('---'):]
+        result = yaml.safe_load(StringIO(yamlout))
         result = result[0]
         assert "fake" in result["group"]
         assert 1 == len(result["files"])
@@ -385,7 +387,7 @@ class TestImport(object):
         b = old_div(t, "bulk.yml")
 
         class MockImportControl(ImportControl):
-            def do_import(self, command_args, xargs):
+            def do_import(self, command_args, xargs, mode):
                 assert "--name=testname" in command_args.java_args()
         self.cli.register("mock-import", MockImportControl, "HELP")
 
@@ -400,7 +402,7 @@ class TestImport(object):
         b = old_div(t, "bulk.yml")
 
         class MockImportControl(ImportControl):
-            def do_import(self, command_args, xargs):
+            def do_import(self, command_args, xargs, mode):
                 cmd = command_args.java_args()
                 assert "--name=meta_one" in cmd or \
                        "--name=meta_two" in cmd
@@ -436,7 +438,7 @@ class TestImport(object):
         b = old_div(t, "bulk.yml")
 
         class MockImportControl(ImportControl):
-            def do_import(self, command_args, xargs):
+            def do_import(self, command_args, xargs, mode):
                 assert ("--checksum-algorithm=File-Size-64" in
                         command_args.java_args())
                 assert "--parallel-upload=10" in command_args.java_args()
@@ -456,7 +458,7 @@ class TestImport(object):
         b = t / "%s.yml" % skip
 
         class MockImportControl(ImportControl):
-            def do_import(self, command_args, xargs):
+            def do_import(self, command_args, xargs, mode):
                 if skip in ["all", "checksum"]:
                     assert ("--checksum-algorithm=File-Size-64" in
                             command_args.java_args())
