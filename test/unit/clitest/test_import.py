@@ -41,6 +41,21 @@ OMERODIR = False
 if 'OMERODIR' in os.environ:
     OMERODIR = os.environ.get('OMERODIR')
 
+
+@pytest.fixture(scope="session")
+def omero_userdir_tmpdir(tmpdir_factory):
+    # If OMERO_USERDIR is set assume user wants to use it for tests
+    # Otherwise avoid modifying the default userdir
+    if os.getenv("OMERO_USERDIR"):
+        return os.getenv("OMERO_USERDIR")
+    return str(tmpdir_factory.mktemp('omero_userdir'))
+
+
+@pytest.fixture(scope="function", autouse=True)
+def omero_userdir(monkeypatch, omero_userdir_tmpdir):
+    monkeypatch.setenv("OMERO_USERDIR", omero_userdir_tmpdir)
+
+
 class MockClient(omero.clients.BaseClient):
 
     def setSessionId(self, uuid):
