@@ -73,11 +73,12 @@ class TestImport(object):
         self.args = ["import"]
 
     def add_client_dir(self):
-        dist_dir = path(OMERODIR)
-        client_dir = dist_dir / "lib" / "client"
-        logback = dist_dir / "etc" / "logback-cli.xml"
-        self.args += ["--clientdir", client_dir]
-        self.args += ["--logback", logback]
+        if OMERODIR is not False:
+            dist_dir = path(OMERODIR)
+            client_dir = dist_dir / "lib" / "client"
+            logback = dist_dir / "etc" / "logback-cli.xml"
+            self.args += ["--clientdir", client_dir]
+            self.args += ["--logback", logback]
 
     def mkdir(self, parent, name, with_ds_store=False):
         child = old_div(parent, name)
@@ -166,7 +167,6 @@ class TestImport(object):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     @pytest.mark.parametrize("data", (("1", False), ("3", True)))
     def testImportDepth(self, tmpdir, capfd, data):
         """Test import using depth argument"""
@@ -195,7 +195,6 @@ class TestImport(object):
             with pytest.raises(NonZeroReturnCode):
                 f()
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     def testImportFakeImage(self, tmpdir, capfd):
         """Test fake image import"""
 
@@ -214,7 +213,6 @@ class TestImport(object):
         assert outputlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     @pytest.mark.parametrize('params', (
         ("-l", "only_fakes.txt", True),
         ("-l", "no_fakes.txt", False),
@@ -247,7 +245,6 @@ class TestImport(object):
             o, e = capfd.readouterr()
             assert "parsed into 0 group" in e
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     @pytest.mark.parametrize('with_ds_store', (True, False))
     def testImportFakeScreen(self, tmpdir, capfd, with_ds_store):
         """Test fake screen import"""
@@ -270,7 +267,6 @@ class TestImport(object):
         for i in range(len(fieldfiles)):
             assert outputlines[-1-len(fieldfiles)+i] == str(fieldfiles[i])
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     def testImportPattern(self, tmpdir, capfd):
         """Test pattern import"""
 
@@ -318,7 +314,6 @@ class TestImport(object):
         expected_args += ['test.fake']
         assert command_args.java_args() == expected_args
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     def testLogPrefix(self, tmpdir, capfd):
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
@@ -340,7 +335,6 @@ class TestImport(object):
         assert outlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     def testYamlOutput(self, tmpdir, capfd):
 
         import yaml
@@ -368,7 +362,6 @@ class TestImport(object):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     def testBulkSimple(self):
         t = path(__file__).parent / "bulk_import" / "test_simple"
         b = old_div(t, "bulk.yml")
@@ -377,7 +370,6 @@ class TestImport(object):
         self.args += ["-f", "---bulk=%s" % b]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     def testBulkInclude(self):
         t = path(__file__).parent / "bulk_import" / "test_include" / "inner"
         b = old_div(t, "bulk.yml")
@@ -386,7 +378,6 @@ class TestImport(object):
         self.args += ["-f", "---bulk=%s" % b]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     def testBulkName(self):
         # Metadata provided in the yml file will be applied
         # to the args
@@ -402,7 +393,6 @@ class TestImport(object):
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     def testBulkCols(self):
         # Metadata provided about the individual columns in
         # the tsv will be used.
@@ -430,7 +420,6 @@ class TestImport(object):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     def testBulkDry(self, capfd):
         t = path(__file__).parent / "bulk_import" / "test_dryrun"
         b = old_div(t, "bulk.yml")
@@ -441,7 +430,6 @@ class TestImport(object):
         o, e = capfd.readouterr()
         assert o == '"--name=no-op" "1.fake"\n'
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     def testBulkJavaArgs(self):
         """Test Java arguments"""
         t = path(__file__).parent / "bulk_import" / "test_javaargs"
@@ -461,7 +449,6 @@ class TestImport(object):
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
     @pytest.mark.parametrize('skip', plugin.SKIP_CHOICES)
     def testBulkSkip(self, skip):
         """Test skip arguments"""
