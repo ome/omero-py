@@ -841,6 +841,11 @@ def get_omero_userdir():
         return old_div(path.path(get_user_dir()), "omero")
 
 
+def get_omero_user_cache_dir():
+    """Returns the OMERO user cache directory"""
+    return get_omero_userdir()
+
+
 def get_user_dir():
     exceptions_to_handle = (ImportError)
     try:

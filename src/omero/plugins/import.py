@@ -41,7 +41,7 @@ from zipfile import ZipFile
 
 from omero.cli import BaseControl, CLI
 import omero.java
-from omero.util import get_omero_userdir
+from omero.util import get_omero_user_cache_dir
 from omero_ext.argparse import SUPPRESS
 from omero_ext.path import path
 
@@ -545,7 +545,7 @@ class ImportControl(BaseControl):
             self.do_import(command_args, xargs)
 
     def _userdir_jars(self, parentonly=False):
-        user_jars = get_omero_userdir() / 'jars'
+        user_jars = get_omero_user_cache_dir() / 'jars'
         # Use this file instead of a symlink so it works on all platform
         omero_java_txt = user_jars / 'OMERO.java.txt'
         if parentonly:
