@@ -515,7 +515,6 @@ class ImportControl(BaseControl):
             xml_file = path(args.logback)
         else:
             xml_file = old_div(etc_dir, "logback-cli.xml")
-        logback = "-Dlogback.configurationFile=%s" % xml_file
 
         classpath = []
         if client_dir and client_dir.exists():
@@ -523,10 +522,14 @@ class ImportControl(BaseControl):
         if auto_download:
             if classpath:
                 self.ctx.err('Using {}'.format(omero_java_txt.text()))
+                if not args.logback:
+                    xml_file = client_dir / "logback-cli.xml"
         else:
             if not classpath:
                 self.ctx.die(
                     103, "No JAR files found under '%s'" % client_dir)
+
+        logback = "-Dlogback.configurationFile=%s" % xml_file
         return classpath, logback
 
     def importer(self, args):
