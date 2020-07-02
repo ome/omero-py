@@ -499,13 +499,17 @@ class ImportControl(BaseControl):
         parser.set_defaults(func=self.importer)
 
     def _get_classpath_logback(self, args):
+        lib_client = self.ctx.dir / "lib" / "client"
+        auto_download = False
         if args.clientdir:
-            client_dirs = [path(args.clientdir)]
+            client_dir = path(args.clientdir)
+        elif lib_client.exists():
+            client_dir = lib_client
         else:
-            client_dirs = [self.ctx.dir / "lib" / "client"]
-            omero_java_dir, _ = self._userdir_jars()
-            if omero_java_dir:
-                client_dirs.append(omero_java_dir)
+            auto_download = True
+            omero_java_dir, omero_java_txt = self._userdir_jars()
+            client_dir = omero_java_dir
+
         etc_dir = old_div(self.ctx.dir, "etc")
         if args.logback:
             xml_file = path(args.logback)
@@ -513,12 +517,16 @@ class ImportControl(BaseControl):
             xml_file = old_div(etc_dir, "logback-cli.xml")
         logback = "-Dlogback.configurationFile=%s" % xml_file
 
-        classpath = [
-            file.abspath()
-            for client_dir in client_dirs
-            if client_dir.exists()
-            for file in client_dir.files("*.jar")
-        ]
+        classpath = []
+        if client_dir and client_dir.exists():
+            classpath = [f.abspath() for f in client_dir.files("*.jar")]
+        if auto_download:
+            if classpath:
+                self.ctx.err('Using {}'.format(omero_java_txt.text()))
+        else:
+            if not classpath:
+                self.ctx.die(
+                    103, "No JAR files found under '%s'" % client_dir)
         return classpath, logback
 
     def importer(self, args):
@@ -531,7 +539,7 @@ class ImportControl(BaseControl):
         classpath, logback = self._get_classpath_logback(args)
         if not classpath:
             self.download_omero_java('latest')
-        classpath, logback = self._get_classpath_logback(args)
+            classpath, logback = self._get_classpath_logback(args)
 
         command_args = CommandArguments(self.ctx, args)
         xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]

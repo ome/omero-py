@@ -334,7 +334,7 @@ class TestImport(object):
 
         o, e = capfd.readouterr()
         assert o == ""
-        assert e == ""
+        assert (e == "" or e.startswith('Using OMERO.java-'))
 
         outlines = prefix.join("out").read().split("\n")
         reader = 'loci.formats.in.FakeReader'
