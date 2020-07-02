@@ -211,6 +211,7 @@ setup(
         'future',
         'numpy',
         'Pillow',
+        'PyYAML',
         'zeroc-ice>=3.6.4,<3.7',
         'pywin32; platform_system=="Windows"',
     ],
