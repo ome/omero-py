@@ -403,10 +403,13 @@ class SessionsStore(object):
             try:
                 cb = client.submit(req)  # Response is "OK"
                 cb.close(True)
-            except Exception:
-                import warnings
-
-                warnings.warn("Invalid session timeout requested when creating session.")
+            except omero.CmdError as ce:
+                _logger = self.ctx.dbg if hasattr(self, 'ctx') else self.logger.debug
+                _logger(str(ce.err))
+            except:
+                import traceback
+                _logger = self.ctx.dbg if hasattr(self, 'ctx') else self.logger.debug
+                _logger(traceback.format_exc())
 
             # Reload session
             sess = sf.getSessionService().getSession(uuid)
