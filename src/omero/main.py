@@ -49,6 +49,8 @@ def readlink(file=sys.argv[0]):
     import stat
 
     file = sys.argv[0]
+    if not os.path.exists(file) and sys.platform == 'win32':
+        file += '.exe'
     while stat.S_ISLNK(os.lstat(file)[stat.ST_MODE]):
         target = os.readlink(file)
         if target[0] != "/":
