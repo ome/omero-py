@@ -327,7 +327,7 @@ class ImportControl(BaseControl):
             " Default: etc/logback-cli.xml")
         add_python_argument(
             "--fetch-jars", type=str,
-            help="Download this version of OMERO.java jars")
+            help="Download this version of OMERO.java jars and exit")
 
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
