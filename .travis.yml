@@ -35,6 +35,7 @@ jobs:
         - tox -e py38
     - stage: deploy
       python: "3.6"
+      if: tag IS present
       script: skip
       skip_cleanup: true
       deploy:
