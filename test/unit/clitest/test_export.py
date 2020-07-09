@@ -65,7 +65,7 @@ class TestExport(object):
         self.cli.invoke(string, strict=True)
 
     def testSimpleExport(self):
-        self.invoke("x -f %s Image:3" % self.p)
+        self.invoke(["x", "-f", self.p, "Image:3"])
 
     def testStdOutExport(self):
         """

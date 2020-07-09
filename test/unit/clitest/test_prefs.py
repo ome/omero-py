@@ -188,23 +188,23 @@ class TestPrefs(object):
     def testLoad(self, capsys):
         to_load = create_path()
         to_load.write_text("A=B")
-        self.invoke("load %s" % to_load)
+        self.invoke(["load", to_load])
         self.assertStdoutStderr(capsys)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=B")
 
         # Same property/value pairs should pass
-        self.invoke("load %s" % to_load)
+        self.invoke(["load", to_load])
 
         to_load.write_text("A=C")
         with pytest.raises(NonZeroReturnCode):
             # Different property/value pair should fail
-            self.invoke("load %s" % to_load)
+            self.invoke(["load", to_load])
         self.assertStdoutStderr(
             capsys, err="Duplicate property: A ('B' => 'C')")
 
         # Quiet load
-        self.invoke("load -q %s" % to_load)
+        self.invoke(["load", "-q", to_load])
         self.assertStdoutStderr(capsys)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=C")
@@ -217,7 +217,7 @@ class TestPrefs(object):
     def testLoadMultiLine(self, capsys):
         to_load = create_path()
         to_load.write_text("A=B\\\nC")
-        self.invoke("load %s" % to_load)
+        self.invoke(["load", to_load])
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=BC")
 
@@ -228,7 +228,7 @@ class TestPrefs(object):
         valid_key, valid_value = validkeyvalue
         to_load = create_path()
         to_load.write_text("%s=%s\n" % (valid_key, valid_value))
-        self.invoke("load %s" % to_load)
+        self.invoke(["load", to_load])
         self.invoke("get %s" % valid_key)
         self.assertStdoutStderr(capsys, out=valid_value)
 
@@ -244,7 +244,7 @@ class TestPrefs(object):
         to_load = create_path()
         to_load.write_text("C=D\n%s\nH=I\n" % invalidline)
         with pytest.raises(NonZeroReturnCode):
-            self.invoke("load %s" % to_load)
+            self.invoke(["load", to_load])
         self.assertStdoutStderr(
             capsys, err="Illegal property name: %s" % invalidkey)
         self.invoke("get")
@@ -269,7 +269,7 @@ class TestPrefs(object):
     def testSetFromFile(self, capsys):
         to_load = create_path()
         to_load.write_text("Test")
-        self.invoke("set -f %s A" % to_load)
+        self.invoke(["set", "-f", to_load, "A"])
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=Test")
 
