@@ -205,7 +205,9 @@ setup(
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
     py_modules=packageless,
-    scripts=glob.glob(os.path.sep.join(["bin", "*"])),
+    entry_points={
+        'console_scripts': ['omero=omero.main:main'],
+    },
     python_requires='>=3',
     install_requires=[
         'future',
