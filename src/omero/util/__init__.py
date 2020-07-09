@@ -12,6 +12,7 @@ from builtins import str
 from future.utils import native_str
 from past.utils import old_div
 from builtins import object
+from appdirs import user_data_dir, user_cache_dir
 import os
 import sys
 import Ice
@@ -29,6 +30,8 @@ import uuid
 import omero.ObjectFactoryRegistrar as ofr
 
 from omero.util.decorators import locked
+from omero_version import omero_version
+
 import omero_ext.path as path
 
 LOGDIR = os.path.join("var", "log")
@@ -41,6 +44,9 @@ LOGMODE = "a"
 
 orig_stdout = sys.stdout
 orig_stderr = sys.stderr
+
+# Application name, Owner (Windows only), Major version
+APPDIR_DEFAULTS = ('OMERO.cli', 'OME', omero_version.split('.')[0])
 
 
 def make_logname(self):
@@ -838,29 +844,24 @@ def get_omero_userdir():
     if omero_userdir:
         return path.path(omero_userdir)
     else:
-        return old_div(path.path(get_user_dir()), "omero")
+        return path.path(user_data_dir(*APPDIR_DEFAULTS))
 
 
 def get_omero_user_cache_dir():
     """Returns the OMERO user cache directory"""
-    return get_omero_userdir()
+    omero_userdir = os.environ.get('OMERO_USERDIR', None)
+    if omero_userdir:
+        return path.path(omero_userdir)
+    else:
+        return path.path(user_cache_dir(*APPDIR_DEFAULTS))
+
+
+# Other application directories may be added in future, see
+# https://pypi.org/project/appdirs/
 
 
 def get_user_dir():
-    exceptions_to_handle = (ImportError)
-    try:
-        from pywintypes import com_error
-        from win32com.shell import shellcon, shell
-        exceptions_to_handle = (ImportError, com_error)
-        homeprop = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
-    except exceptions_to_handle:
-        homeprop = os.path.expanduser("~")
-
-    if "~" == homeprop:
-        # ticket:5583
-        raise Exception("Unexpanded '~' from expanduser: see ticket:5583")
-
-    return homeprop
+    return get_omero_userdir()
 
 
 def edit_path(path_or_obj, start_text):

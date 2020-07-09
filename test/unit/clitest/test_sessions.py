@@ -53,7 +53,7 @@ class TestSessions(object):
 
         # Default store sessions dir is under user dir
         store = self.cli.controls['sessions'].store(None)
-        assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
+        assert store.dir == path(get_user_dir()) / 'sessions'
 
     @pytest.mark.parametrize('environment', (
         {'OMERO_USERDIR': None,
@@ -115,5 +115,5 @@ class TestSessions(object):
         elif environment.get('OMERO_USERDIR'):
             sdir = path(tmpdir) / environment.get('OMERO_USERDIR') / 'sessions'
         else:
-            sdir = path(get_user_dir()) / 'omero' / 'sessions'
+            sdir = path(get_user_dir()) / 'sessions'
         assert store.dir == str(sdir)
