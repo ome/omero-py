@@ -572,8 +572,7 @@ class ImportControl(BaseControl):
         omero_java_zip = OMERO_JAVA_ZIP.format(version=version)
         self.ctx.err("Downloading %s" % omero_java_zip)
         jars_dir, omero_java_txt = self._userdir_jars(parentonly=True)
-        if not jars_dir.exists():
-            jars_dir.mkdir()
+        jars_dir.makedirs_p()
         with urlopen(omero_java_zip) as resp:
             with ZipFile(BytesIO(resp.read())) as zipfile:
                 topdirs = set(f.filename.split(
