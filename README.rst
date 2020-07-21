@@ -129,6 +129,11 @@ specifying ``major``, ``minor`` or ``patch`` depending on whether the developmen
 
 Remember to ``git push`` all commits and tags.s essential.
 
+The CI pipeline will automatically deploy the tag onto PyPI. Once released,
+a Pull Request needs to be opened against
+`conda-omero-py <https://github.com/ome/conda-omero-py>`_ to update the 
+official `OMERO.py Conda package <https://anaconda.org/ome/omero-py>`_.
+
 License
 -------
 
