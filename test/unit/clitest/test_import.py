@@ -343,6 +343,27 @@ class TestImport(object):
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
     @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
+    def testLogs(self, tmpdir, capfd, monkeypatch):
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        monkeypatch.chdir(tmpdir)
+
+        self.add_client_dir()
+        self.args += ["-f", "--file=out", "--errs=errs"]
+        self.args += [str(fakefile)]
+        self.cli.invoke(self.args, strict=True)
+
+        o, e = capfd.readouterr()
+        assert o == ""
+        assert (e == "" or e.startswith('Using OMERO.java-'))
+
+        outlines = tmpdir.join("out").read().split("\n")
+        reader = 'loci.formats.in.FakeReader'
+        assert outlines[-2] == str(fakefile)
+        assert outlines[-3] == \
+            "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testYamlOutput(self, tmpdir, capfd):
 
         import yaml
