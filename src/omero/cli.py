@@ -1118,7 +1118,7 @@ OMERO Diagnostics (%s) %s
                              r'error:?\s')
                 warn = 0
                 err = 0
-                for l in p.lines():
+                for l in p.lines(errors="surrogateescape"):
                     # ensure errors/warnings search is case-insensitive
                     lcl = l.lower()
                     if re.match(warn_regex, lcl):
