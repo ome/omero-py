@@ -281,6 +281,7 @@ class CommandArguments(object):
             return None
         if prefix:
             file = os.path.sep.join([prefix, file])
+        file = os.path.abspath(file)
         dir = os.path.dirname(file)
         if not os.path.exists(dir):
             os.makedirs(dir)
