@@ -8717,7 +8717,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         eg {0: 1.0, 1: 0.25, 2: 0.062489446727078291, 3: 0.031237687848258006}
         Returns None if this image doesn't support tiles.
         """
-        if not self._re.requiresPixelsPyramid():
+        if self._re.getResolutionLevels() == 1:
             return None
         levels = self._re.getResolutionDescriptions()
         rv = {}
