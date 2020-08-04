@@ -6,7 +6,6 @@
 """
 
 from future import standard_library
-standard_library.install_aliases()
 from builtins import str
 from builtins import object
 from omero_version import omero_version
@@ -14,6 +13,7 @@ from omero_version import omero_version
 import platform
 import logging
 import requests
+standard_library.install_aliases()
 
 
 class UpgradeCheck(object):
@@ -100,7 +100,7 @@ class UpgradeCheck(object):
                                      platform.mac_ver()[0])
             else:
                 version = platform.platform()
-        except:
+        except Exception:
             version = platform.platform()
         return version
 
