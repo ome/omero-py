@@ -13,9 +13,7 @@ from omero_version import omero_version
 
 import platform
 import logging
-import urllib.request, urllib.error, urllib.parse
-import urllib.request, urllib.parse, urllib.error
-import socket
+import requests
 
 
 class UpgradeCheck(object):
@@ -129,20 +127,13 @@ class UpgradeCheck(object):
             params["python.version"] = platform.python_version()
             params["python.compiler"] = platform.python_compiler()
             params["python.build"] = platform.python_build()
-            params = urllib.parse.urlencode(params)
 
-            old_timeout = socket.getdefaulttimeout()
-            try:
-                socket.setdefaulttimeout(self.timeout)
-                full_url = "%s?%s" % (self.url, params)
-                request = urllib.request.Request(full_url)
-                request.add_header('User-Agent', self.agent)
-                self.log.debug("Attempting to connect to %s" % full_url)
-                response = urllib.request.urlopen(request)
-                result = response.read()
-            finally:
-                socket.setdefaulttimeout(old_timeout)
-
+            headers = {'User-Agent': self.agent}
+            request = requests.get(
+                self.url, headers=headers, params=params,
+                timeout=self.DEFAULT_TIMEOUT
+            )
+            result = request.text
         except Exception as e:
             self.log.error(str(e), exc_info=0)
             self._set(None, e)
