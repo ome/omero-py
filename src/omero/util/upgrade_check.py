@@ -143,5 +143,5 @@ class UpgradeCheck(object):
             self.log.info("no update needed")
             self._set(None, None)
         else:
-            self.log.warn("UPGRADE AVAILABLE:" + result.decode('utf-8'))
-            self._set(result.decode('utf-8'), None)
+            self.log.warn("UPGRADE AVAILABLE:" + result)
+            self._set(result, None)
