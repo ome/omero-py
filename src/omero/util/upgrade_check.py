@@ -45,7 +45,7 @@ class UpgradeCheck(object):
     """
 
     #
-    # requests timeout, default is no timeout
+    # our default timeout to use for requests; package default is no timeout
     # * https://requests.readthedocs.io/en/master/user/quickstart/#timeouts
     #
     DEFAULT_TIMEOUT = 6.0
