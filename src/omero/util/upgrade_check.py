@@ -45,8 +45,8 @@ class UpgradeCheck(object):
     """
 
     #
-    # Default timeout is 3 seconds.
-    # * http://docs.python.org/2/library/socket.html#socket.setdefaulttimeout
+    # requests timeout, default is no timeout
+    # * https://requests.readthedocs.io/en/master/user/quickstart/#timeouts
     #
     DEFAULT_TIMEOUT = 6.0
 
