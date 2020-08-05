@@ -232,7 +232,7 @@ class TestTempFileManager(object):
         elif environment.get('OMERO_USERDIR'):
             tdir = tmpdir / environment.get('OMERO_USERDIR') / "tmp"
         else:
-            tdir = path(get_user_dir()) / "tmp"
+            tdir = path(get_user_dir()) / "omero" / "tmp"
 
         assert value == str(tdir)
 
@@ -244,7 +244,7 @@ class TestTempFileManager(object):
         tmpfile.write('')
 
         value = pytest.deprecated_call(manager.tmpdir)
-        assert value == path(get_user_dir()) / "tmp"
+        assert value == path(get_user_dir()) / "omero" / "tmp"
 
     def testTmpdir2805_2(self, monkeypatch, tmpdir):
 
@@ -256,7 +256,7 @@ class TestTempFileManager(object):
         tmpfile.write('')
 
         value = pytest.deprecated_call(manager.tmpdir)
-        assert value == path(get_user_dir()) / "tmp"
+        assert value == path(get_user_dir()) / "omero" / "tmp"
 
 
 class TestImageUtils(object):

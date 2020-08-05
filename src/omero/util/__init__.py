@@ -839,12 +839,20 @@ def get_user(default=None):
 
 
 def get_omero_userdir():
-    """Returns the OMERO user directory"""
+    """
+    Returns the OMERO user directory
+
+    In 6.0.0 the default will change to use appdirs.user_data_dir.
+    You can enable this behaviour now by setting OMERO_USERDIR="" (empty
+    string) instead of unset.
+    """
     omero_userdir = os.environ.get('OMERO_USERDIR', None)
     if omero_userdir:
         return path.path(omero_userdir)
-    else:
+    elif omero_userdir == "":
         return path.path(user_data_dir(*APPDIR_DEFAULTS))
+    else:
+        return old_div(path.path(get_user_dir()), "omero")
 
 
 def get_omero_user_cache_dir():
@@ -861,7 +869,20 @@ def get_omero_user_cache_dir():
 
 
 def get_user_dir():
-    return get_omero_userdir()
+    exceptions_to_handle = (ImportError)
+    try:
+        from pywintypes import com_error
+        from win32com.shell import shellcon, shell
+        exceptions_to_handle = (ImportError, com_error)
+        homeprop = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
+    except exceptions_to_handle:
+        homeprop = os.path.expanduser("~")
+
+    if "~" == homeprop:
+        # ticket:5583
+        raise Exception("Unexpanded '~' from expanduser: see ticket:5583")
+
+    return homeprop
 
 
 def edit_path(path_or_obj, start_text):
