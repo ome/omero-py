@@ -6,16 +6,14 @@
 """
 
 from future import standard_library
-standard_library.install_aliases()
 from builtins import str
 from builtins import object
 from omero_version import omero_version
 
 import platform
 import logging
-import urllib.request, urllib.error, urllib.parse
-import urllib.request, urllib.parse, urllib.error
-import socket
+import requests
+standard_library.install_aliases()
 
 
 class UpgradeCheck(object):
@@ -47,8 +45,8 @@ class UpgradeCheck(object):
     """
 
     #
-    # Default timeout is 3 seconds.
-    # * http://docs.python.org/2/library/socket.html#socket.setdefaulttimeout
+    # our default timeout to use for requests; package default is no timeout
+    # * https://requests.readthedocs.io/en/master/user/quickstart/#timeouts
     #
     DEFAULT_TIMEOUT = 6.0
 
@@ -102,7 +100,7 @@ class UpgradeCheck(object):
                                      platform.mac_ver()[0])
             else:
                 version = platform.platform()
-        except:
+        except Exception:
             version = platform.platform()
         return version
 
@@ -129,20 +127,13 @@ class UpgradeCheck(object):
             params["python.version"] = platform.python_version()
             params["python.compiler"] = platform.python_compiler()
             params["python.build"] = platform.python_build()
-            params = urllib.parse.urlencode(params)
 
-            old_timeout = socket.getdefaulttimeout()
-            try:
-                socket.setdefaulttimeout(self.timeout)
-                full_url = "%s?%s" % (self.url, params)
-                request = urllib.request.Request(full_url)
-                request.add_header('User-Agent', self.agent)
-                self.log.debug("Attempting to connect to %s" % full_url)
-                response = urllib.request.urlopen(request)
-                result = response.read()
-            finally:
-                socket.setdefaulttimeout(old_timeout)
-
+            headers = {'User-Agent': self.agent}
+            request = requests.get(
+                self.url, headers=headers, params=params,
+                timeout=self.DEFAULT_TIMEOUT
+            )
+            result = request.text
         except Exception as e:
             self.log.error(str(e), exc_info=0)
             self._set(None, e)
@@ -152,5 +143,5 @@ class UpgradeCheck(object):
             self.log.info("no update needed")
             self._set(None, None)
         else:
-            self.log.warn("UPGRADE AVAILABLE:" + result.decode('utf-8'))
-            self._set(result.decode('utf-8'), None)
+            self.log.warn("UPGRADE AVAILABLE:" + result)
+            self._set(result, None)

@@ -35,7 +35,7 @@ import os
 import csv
 import sys
 import shlex
-from urllib.request import urlopen
+import requests
 from zipfile import ZipFile
 
 
@@ -312,8 +312,14 @@ class ImportControl(BaseControl):
         for name, help in (
             ("bulk", "Bulk YAML file for driving multiple imports"),
             ("logprefix", "Directory or file prefix for --file and --errs"),
-            ("file", "File for storing the standard output from the Java process"),
-            ("errs", "File for storing the standard error from the Java process")
+            (
+                "file",
+                "File for storing the standard output from the Java process"
+            ),
+            (
+                "errs",
+                "File for storing the standard error from the Java process"
+            )
         ):
             add_python_argument("--%s" % name, nargs="?", help=help)
             add_python_argument("---%s" % name, nargs="?", help=SUPPRESS)
@@ -575,8 +581,8 @@ class ImportControl(BaseControl):
         jars_dir, omero_java_txt = self._userdir_jars(parentonly=True)
         if not jars_dir.exists():
             jars_dir.mkdir()
-        with urlopen(omero_java_zip) as resp:
-            with ZipFile(BytesIO(resp.read())) as zipfile:
+        with requests.get(omero_java_zip) as resp:
+            with ZipFile(BytesIO(resp.content)) as zipfile:
                 topdirs = set(f.filename.split(
                     os.path.sep)[0] for f in zipfile.filelist if f.is_dir())
                 if len(topdirs) != 1:
@@ -766,6 +772,7 @@ class ImportControl(BaseControl):
 
 class TestEngine(ImportControl):
     COMMAND = [TEST_CLASS]
+
 
 try:
     register("import", ImportControl, HELP, epilog=EXAMPLES)
