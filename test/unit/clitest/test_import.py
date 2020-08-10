@@ -24,6 +24,8 @@ from omero_ext.path import path
 import omero.clients
 import uuid
 from omero.cli import CLI, NonZeroReturnCode
+from omero.util import import_candidates
+
 # Workaround for a poorly named module
 try:
     plugin = __import__('omero.plugins.import', globals(), locals(),
@@ -512,3 +514,12 @@ class TestImport(object):
         self.args = ["mock-import", "-f", "---bulk=%s" % b]
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
+
+
+    def testImportCandidates(self, tmpdir):
+        """test using import_candidates from util
+        """
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        candidates = import_candidates.as_dictionary(str(tmpdir))
+        assert str(fakefile) in candidates
