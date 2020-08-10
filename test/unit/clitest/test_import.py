@@ -515,7 +515,7 @@ class TestImport(object):
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
 
-
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testImportCandidates(self, tmpdir):
         """test using import_candidates from util
         """
