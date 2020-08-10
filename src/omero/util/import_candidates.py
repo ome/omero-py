@@ -77,7 +77,7 @@ def as_dictionary(path, readers="", extra_args=None):
 
     will go through the directories with a depth level of 6 instead of
     the default 4.  Arguments of interest might be: `debugging`,
-    `report`, `logback`. Note that the command is ran localy so options
+    `report`, `logback`. Note that the command runs locally so options
     such as `--exclude` will not work as they need information from the server.
     """
 
