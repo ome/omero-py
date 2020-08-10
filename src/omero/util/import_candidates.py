@@ -73,7 +73,7 @@ def as_dictionary(path, readers="", extra_args=None):
     you can pass more arguments to the `import` command through the
     extra_args argument in the form of a list.
 
-    to_import = as_dictionnary("/my/dir/with_tifs", extra_args=["--depth", "6"])
+    to_import = as_dictionary("/my/dir/with_tifs", extra_args=["--depth", "6"])
 
     will go through the directories with a depth level of 6 instead of
     the default 4.  Arguments of interest might be: `debugging`,
