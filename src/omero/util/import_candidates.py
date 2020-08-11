@@ -80,7 +80,6 @@ def as_dictionary(path, readers="", extra_args=None):
     `report`, `logback`. Note that the command runs locally so options
     such as `--exclude` will not work as they need information from the server.
     """
-
     t = create_path("candidates", "err")
 
     path = _to_list(path)
