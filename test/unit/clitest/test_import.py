@@ -523,3 +523,20 @@ class TestImport(object):
         fakefile.write('')
         candidates = import_candidates.as_dictionary(str(tmpdir))
         assert str(fakefile) in candidates
+
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
+    def testImportCandidatesDepth(self, tmpdir):
+        dir1 = tmpdir.join("a")
+        dir1.mkdir()
+        dir2 = old_div(dir1, "b")
+        dir2.mkdir()
+        dir3 = old_div(dir2, "c")
+        dir3.mkdir()
+        fakefile = old_div(dir2, "test.fake")
+        fakefile.write('')
+        fakefile2 = old_div(dir2, "test2.fake")
+        fakefile2.write('')
+        candidates = import_candidates.as_dictionary(str(tmpdir), extra_args=["--depth", "2"])
+        assert str(fakefile) in candidates
+        assert str(fakefile2) not in candidates
