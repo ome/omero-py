@@ -47,7 +47,7 @@ def as_stdout(path, readers="", extra_args=None):
     cli = CLI()
     cli.loadplugins()
     if readers:
-        cli.invoke(["import", "-l"] + extra_args + [readers, "-f"] + path)
+        cli.invoke(["import", "-l"] + [readers,] + extra_args + ["-f"] + path)
     else:
         cli.invoke(["import"] + extra_args + ["-f"] + path)
     if cli.rv != 0:

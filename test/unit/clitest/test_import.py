@@ -541,3 +541,26 @@ class TestImport(object):
         )
         assert str(fakefile) in candidates
         assert str(fakefile2) not in candidates
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
+    def testImportCandidatesReaders(self, tmpdir):
+        """
+        Test using import_candidates with a populated readers.txt
+        """
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        patternfile = tmpdir.join("test.pattern")
+        patternfile.write('test.fake')
+        readers = tmpdir.join("readers.txt")
+        readers.write('loci.formats.in.FakeReader')
+        candidates = import_candidates.as_dictionary(str(tmpdir))
+        assert str(patternfile) in candidates
+        assert str(fakefile) in candidates[str(patternfile)]
+        candidates = import_candidates.as_dictionary(
+            str(tmpdir), readers=str(readers))
+        assert str(fakefile) in candidates
+        assert str(patternfile) not in candidates
+        candidates = import_candidates.as_dictionary(
+            str(tmpdir), readers=str(readers), extra_args=["--debug", "WARN"])
+        assert str(fakefile) in candidates
+        assert str(patternfile) not in candidates
