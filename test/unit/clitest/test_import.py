@@ -24,6 +24,8 @@ from omero_ext.path import path
 import omero.clients
 import uuid
 from omero.cli import CLI, NonZeroReturnCode
+from omero.util import import_candidates
+
 # Workaround for a poorly named module
 try:
     plugin = __import__('omero.plugins.import', globals(), locals(),
@@ -512,3 +514,53 @@ class TestImport(object):
         self.args = ["mock-import", "-f", "---bulk=%s" % b]
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
+    def testImportCandidates(self, tmpdir):
+        """test using import_candidates from util
+        """
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        candidates = import_candidates.as_dictionary(str(tmpdir))
+        assert str(fakefile) in candidates
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
+    def testImportCandidatesDepth(self, tmpdir):
+        dir1 = tmpdir.join("a")
+        dir1.mkdir()
+        dir2 = old_div(dir1, "b")
+        dir2.mkdir()
+        dir3 = old_div(dir2, "c")
+        dir3.mkdir()
+        fakefile = old_div(dir2, "test.fake")
+        fakefile.write("")
+        fakefile2 = old_div(dir3, "test2.fake")
+        fakefile2.write("")
+        candidates = import_candidates.as_dictionary(
+            str(tmpdir), extra_args=["--debug", "WARN", "--depth", "3"]
+        )
+        assert str(fakefile) in candidates
+        assert str(fakefile2) not in candidates
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
+    def testImportCandidatesReaders(self, tmpdir):
+        """
+        Test using import_candidates with a populated readers.txt
+        """
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        patternfile = tmpdir.join("test.pattern")
+        patternfile.write('test.fake')
+        readers = tmpdir.join("readers.txt")
+        readers.write('loci.formats.in.FakeReader')
+        candidates = import_candidates.as_dictionary(str(tmpdir))
+        assert str(patternfile) in candidates
+        assert str(fakefile) in candidates[str(patternfile)]
+        candidates = import_candidates.as_dictionary(
+            str(tmpdir), readers=str(readers))
+        assert str(fakefile) in candidates
+        assert str(patternfile) not in candidates
+        candidates = import_candidates.as_dictionary(
+            str(tmpdir), readers=str(readers), extra_args=["--debug", "WARN"])
+        assert str(fakefile) in candidates
+        assert str(patternfile) not in candidates
