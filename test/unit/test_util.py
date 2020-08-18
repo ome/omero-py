@@ -344,4 +344,4 @@ class TestUserdirs(object):
 
         assert get_omero_userdir() == tmpdir
 
-        assert get_omero_user_cache_dir() == tmpdir
+        assert get_omero_user_cache_dir() == tmpdir / "cache"

@@ -859,7 +859,7 @@ def get_omero_user_cache_dir():
     """Returns the OMERO user cache directory"""
     omero_userdir = os.environ.get('OMERO_USERDIR', None)
     if omero_userdir:
-        return path.path(omero_userdir)
+        return path.path(omero_userdir) / "cache"
     else:
         return path.path(user_cache_dir(*APPDIR_DEFAULTS))
 
