@@ -845,6 +845,8 @@ def get_omero_userdir():
     In 6.0.0 the default will change to use appdirs.user_data_dir.
     You can enable this behaviour now by setting OMERO_USERDIR="" (empty
     string) instead of unset.
+
+    Note that files in the old user directory will not be migrated.
     """
     omero_userdir = os.environ.get('OMERO_USERDIR', None)
     if omero_userdir:
