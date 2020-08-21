@@ -929,18 +929,21 @@ Examples:
             self.ctx.err(err)
         else:
             size = sum(rsp.totalBytesUsed.values())
+            if args.human_readable:
+                size_str = filesizeformat(size)
+            else:
+                size_str = f"{size}"
+
             if args.size_only:
-                self.ctx.out(size)
+                self.ctx.out(size_str)
             else:
                 files = sum(rsp.totalFileCount.values())
                 if args.units:
-                    size = ("%s %siB"
+                    size_str = ("%s %siB"
                             % (self._to_units(size, args.units), args.units))
-                elif args.human_readable:
-                    size = filesizeformat(size)
                 self.ctx.out(
                     "Total disk usage: %s bytes in %d files"
-                    % (size, files))
+                    % (size_str, files))
 
             if args.report and not args.size_only and size > 0:
                 self._detailed_usage_report(req, rsp, status, args)
