@@ -242,32 +242,6 @@ class TestAdmin(object):
         assert 0 == self.cli.rv
 
 
-class TestAdminCommandsFailFast(object):
-    # These commands should fail immediately so there's no need for the full
-    # setup
-
-    @pytest.fixture(autouse=True)
-    def setup_method(self, tmpdir, monkeypatch):
-        # Other setup
-        self.cli = MockCLI()
-        monkeypatch.setenv('OMERODIR', str(tmpdir))
-        self.cli.dir = tmpdir
-        self.cli.register("admin", AdminControl, "TEST")
-        self.cli.register("config", PrefsControl, "TEST")
-
-    @pytest.mark.parametrize("command", ["start", "stop", "restart"])
-    def testCheckServiceManagerEnv(self, command):
-        self.cli.invoke([
-            "config", "set",
-            "omero.admin.servicemanager.checkenv",
-            "TESTOMERO_ADMIN_SERVICEMANAGER_CHECKENV"],
-            strict=True)
-        self.cli.invoke(["admin", command, "--force-rewrite"], strict=False)
-        assert self.cli.getStderr()[-1] == (
-            "ERROR: OMERO is configured to run under a service manager but "
-            "TESTOMERO_ADMIN_SERVICEMANAGER_CHECKENV is not set")
-
-
 def check_registry(topdir, prefix='', registry=4061, **kwargs):
     for key in ['master.cfg', 'internal.cfg']:
         s = path(old_div(topdir, "etc" / key)).text()
