@@ -721,6 +721,20 @@ present, the user will enter a console""")
                          % os.path.sep.join(["etc", "grid", __d__]))
         return descript
 
+    def _requires_service_manager(self, config):
+        """
+        Checks whether OMERO is being managed by a service manager by
+        checking that a specified environment variable is non-empty
+        """
+        service_env = config.as_map().get(
+            "omero.admin.servicemanager.checkenv")
+        if service_env:
+            service_envvalue = os.getenv(service_env)
+            if not service_envvalue:
+                self.ctx.die(112, (
+                    "ERROR: OMERO is configured to run under a service "
+                    "manager but {} is not set".format(service_env)))
+
     def checkwindows(self, args):
         r"""
         Checks that the templates file as defined in etc\Windows.cfg
@@ -760,6 +774,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
+        self._requires_service_manager(config)
         self.check_access(mask=os.R_OK, config=config)
         self.checkice()
         self.check_node(args)
@@ -974,6 +989,7 @@ present, the user will enter a console""")
         """
         Returns true if the server was already stopped
         """
+        self._requires_service_manager(config)
         self.check_node(args)
         if args.force_rewrite:
             self.rewrite(args, config, force=True)
