@@ -36,12 +36,14 @@ import omero.config
 
 from omero.grid import RawAccessRequest
 
-from omero.cli import admin_only
-from omero.cli import CLI
-from omero.cli import DirectoryType
-from omero.cli import NonZeroReturnCode
-from omero.cli import DiagnosticsControl
-from omero.cli import UserGroupControl
+from omero.cli import (
+    admin_only,
+    CLI,
+    DiagnosticsControl,
+    DirectoryType,
+    NonZeroReturnCode,
+    UserGroupControl,
+)
 
 from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import \
