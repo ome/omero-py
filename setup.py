@@ -199,7 +199,9 @@ setup(
     url='https://github.com/ome/omero-py',
     project_urls={
         'Documentation':
-            'https://docs.openmicroscopy.org/latest/omero/developers',
+            'https://docs.openmicroscopy.org/omero/latest/developers/'
+            'Python.html',
+        'Bug tracker': 'https://github.com/ome/omero-py/issues',
     },
     package_dir={"": "target"},
     packages=packages,
