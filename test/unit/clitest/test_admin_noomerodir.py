@@ -20,10 +20,50 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import pytest
+from omero.cli import ServiceManagerMixin
 from omero.plugins.admin import AdminControl
 from omero.plugins.prefs import PrefsControl
 
 from mocks import MockCLI
+
+
+class MockServiceManagerMixin(MockCLI, ServiceManagerMixin):
+    SERVICE_MANAGER_KEY = 'test_servicemanager_mixin'
+
+    class MockCtx:
+        _die_args = []
+
+        def die(self, *args):
+            self._die_args.append(args)
+
+    ctx = MockCtx()
+
+
+class MockConfigXml(object):
+    def __init__(self, configmap):
+        self.configmap = configmap
+
+    def as_map(self):
+        return self.configmap
+
+
+class TestServiceManagerMixin:
+
+    def test_not_required(self, monkeypatch, tmpdir):
+        monkeypatch.setenv('OMERODIR', str(tmpdir))
+        cli = MockServiceManagerMixin()
+        cli.requires_service_manager(MockConfigXml({}))
+
+    def test_required(self, monkeypatch, tmpdir):
+        monkeypatch.setenv('OMERODIR', str(tmpdir))
+        cli = MockServiceManagerMixin()
+        cli.requires_service_manager(MockConfigXml({
+            'omero.test_servicemanager_mixin.servicemanager.checkenv':
+            'TEST_SERVICEMANAGER_MIXIN'}))
+        assert cli.ctx._die_args == [(
+            112,
+            "ERROR: OMERO is configured to run under a service manager but "
+            "TEST_SERVICEMANAGER_MIXIN is not set")]
 
 
 class TestAdminCommandsFailFast(object):
@@ -43,7 +83,7 @@ class TestAdminCommandsFailFast(object):
     def testCheckServiceManagerEnv(self, command):
         self.cli.invoke([
             "config", "set",
-            "omero.admin.servicemanager.checkenv",
+            "omero.server.servicemanager.checkenv",
             "TESTOMERO_ADMIN_SERVICEMANAGER_CHECKENV"],
             strict=True)
         self.cli.invoke(["admin", command, "--force-rewrite"], strict=False)
