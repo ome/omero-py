@@ -1160,7 +1160,7 @@ class ServiceManagerMixin:
             if not service_envvalue:
                 self.ctx.die(112, (
                     "ERROR: OMERO is configured to run under a service "
-                    "manager but {} is not set".format(service_env)))
+                    "manager which should also set {}".format(service_env)))
 
 
 class CLI(cmd.Cmd, Context):

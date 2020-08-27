@@ -62,8 +62,8 @@ class TestServiceManagerMixin:
             'TEST_SERVICEMANAGER_MIXIN'}))
         assert cli.ctx._die_args == [(
             112,
-            "ERROR: OMERO is configured to run under a service manager but "
-            "TEST_SERVICEMANAGER_MIXIN is not set")]
+            "ERROR: OMERO is configured to run under a service manager which "
+            "should also set TEST_SERVICEMANAGER_MIXIN")]
 
 
 class TestAdminCommandsFailFast(object):
@@ -88,5 +88,5 @@ class TestAdminCommandsFailFast(object):
             strict=True)
         self.cli.invoke(["admin", command, "--force-rewrite"], strict=False)
         assert self.cli.getStderr()[-1] == (
-            "ERROR: OMERO is configured to run under a service manager but "
-            "TESTOMERO_ADMIN_SERVICEMANAGER_CHECKENV is not set")
+            "ERROR: OMERO is configured to run under a service manager which "
+            "should also set TESTOMERO_ADMIN_SERVICEMANAGER_CHECKENV")
