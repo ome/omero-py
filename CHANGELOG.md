@@ -2,13 +2,14 @@
 
 # New features
 - `omero import` automatically downloads import jars if missing ([#162](https://github.com/ome/omero-py/pull/162))
-- Use OS specific application directories instead of ~/omero for local cache ([#242](https://github.com/ome/omero-py/pull/242))
+- Use OS specific application directories instead of `~/omero` for local cache ([#242](https://github.com/ome/omero-py/pull/242))
 
 # Bug fixes
 - CLI UTF-8 Fixes ([#224](https://github.com/ome/omero-py/pull/224))
 - Fix sessions logging attribute error ([#226](https://github.com/ome/omero-py/pull/226))
 - `omero hql`: when querying masks, filter `bytes` field ([#230](https://github.com/ome/omero-py/pull/230))
-- CLI error handling when attempting to check log files ([#236](https://github.com/ome/omero-py/pull/236))
+- Fix CLI error handling when attempting to check log files ([#236](https://github.com/ome/omero-py/pull/236))
+- `omero import`: fix `--logprefix` ([#238](https://github.com/ome/omero-py/pull/238))
 - `fs usage`: don't overwrite size ([#245](https://github.com/ome/omero-py/pull/245))
 
 # Other updates
@@ -17,7 +18,6 @@
 - Tox: Python 3.8, use travis bionic ice-py wheels ([#232](https://github.com/ome/omero-py/pull/232))
 - Update release paragraph to mention downstream conda repository ([#234](https://github.com/ome/omero-py/pull/234))
 - Remove long-deprecated module `functional.py` ([#237](https://github.com/ome/omero-py/pull/237))
-- Import logprefix ([#238](https://github.com/ome/omero-py/pull/238))
 - Use requests for HTTP/HTTPS calls in library ([#240](https://github.com/ome/omero-py/pull/240))
 - Adds optional extra args to the `util/import_candidates.py` ([#241](https://github.com/ome/omero-py/pull/241))
 - Link to source on pypi homepage ([#247](https://github.com/ome/omero-py/pull/247))
