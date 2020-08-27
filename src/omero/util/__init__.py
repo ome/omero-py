@@ -45,7 +45,7 @@ LOGMODE = "a"
 orig_stdout = sys.stdout
 orig_stderr = sys.stderr
 
-# Application name, Owner (Windows only), Major version
+# Application name, Author (Windows only), Major version
 APPDIR_DEFAULTS = ('OMERO.cli', 'OME', omero_version.split('.')[0])
 
 
