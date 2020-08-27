@@ -1,24 +1,24 @@
 # 5.8.0 (September 2020)
 
 # New features
-- import --fetch-jars ([#162](https://github.com/ome/omero-py/pull/162))
+- `omero import` automatically downloads import jars if missing ([#162](https://github.com/ome/omero-py/pull/162))
 
 # Bug fixes
-- UTF-8 Fixes ([#224](https://github.com/ome/omero-py/pull/224))
-- fix logging attribute error ([#226](https://github.com/ome/omero-py/pull/226))
-- hql.py: when querying masks, filter `bytes` field ([#230](https://github.com/ome/omero-py/pull/230))
-- Error handling when attempting to check log files ([#236](https://github.com/ome/omero-py/pull/236))
-- fs usage: don't overwrite size (Fix #243) ([#245](https://github.com/ome/omero-py/pull/245))
+- CLI UTF-8 Fixes ([#224](https://github.com/ome/omero-py/pull/224))
+- Fix sessions logging attribute error ([#226](https://github.com/ome/omero-py/pull/226))
+- `omero hql`: when querying masks, filter `bytes` field ([#230](https://github.com/ome/omero-py/pull/230))
+- CLI error handling when attempting to check log files ([#236](https://github.com/ome/omero-py/pull/236))
+- `fs usage`: don't overwrite size ([#245](https://github.com/ome/omero-py/pull/245))
 
 # Other updates
 - Add PyYAML as a dependency of omero-py ([#228](https://github.com/ome/omero-py/pull/228))
-- bin/omero entrypoint ([#229](https://github.com/ome/omero-py/pull/229))
+- `bin/omero` entrypoint ([#229](https://github.com/ome/omero-py/pull/229))
 - Tox: Python 3.8, use travis bionic ice-py wheels ([#232](https://github.com/ome/omero-py/pull/232))
 - Update release paragraph to mention downstream conda repository ([#234](https://github.com/ome/omero-py/pull/234))
-- Remove long-deprecated module. ([#237](https://github.com/ome/omero-py/pull/237))
+- Remove long-deprecated module `functional.py` ([#237](https://github.com/ome/omero-py/pull/237))
 - Import logprefix ([#238](https://github.com/ome/omero-py/pull/238))
 - Use requests for HTTP/HTTPS calls in library ([#240](https://github.com/ome/omero-py/pull/240))
-- Adds optional extra args to the  util ([#241](https://github.com/ome/omero-py/pull/241))
+- Adds optional extra args to the `util/import_candidates.py` ([#241](https://github.com/ome/omero-py/pull/241))
 
 
 # 5.7.1 (June 2020)
