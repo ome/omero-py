@@ -31,12 +31,15 @@ class MockServiceManagerMixin(MockCLI, ServiceManagerMixin):
     SERVICE_MANAGER_KEY = 'test_servicemanager_mixin'
 
     class MockCtx:
-        _die_args = []
+        def __init__(self):
+            self._die_args = []
 
         def die(self, *args):
             self._die_args.append(args)
 
-    ctx = MockCtx()
+    def __init__(self):
+        super().__init__()
+        self.ctx = self.MockCtx()
 
 
 class MockConfigXml(object):
@@ -53,8 +56,9 @@ class TestServiceManagerMixin:
         monkeypatch.setenv('OMERODIR', str(tmpdir))
         cli = MockServiceManagerMixin()
         cli.requires_service_manager(MockConfigXml({}))
+        assert not cli.ctx._die_args
 
-    def test_required(self, monkeypatch, tmpdir):
+    def test_required_notset(self, monkeypatch, tmpdir):
         monkeypatch.setenv('OMERODIR', str(tmpdir))
         cli = MockServiceManagerMixin()
         cli.requires_service_manager(MockConfigXml({
@@ -64,6 +68,15 @@ class TestServiceManagerMixin:
             112,
             "ERROR: OMERO is configured to run under a service manager which "
             "should also set TEST_SERVICEMANAGER_MIXIN")]
+
+    def test_required_set(self, monkeypatch, tmpdir):
+        monkeypatch.setenv('OMERODIR', str(tmpdir))
+        monkeypatch.setenv('TEST_SERVICEMANAGER_MIXIN', '123')
+        cli = MockServiceManagerMixin()
+        cli.requires_service_manager(MockConfigXml({
+            'omero.test_servicemanager_mixin.servicemanager.checkenv':
+            'TEST_SERVICEMANAGER_MIXIN'}))
+        assert not cli.ctx._die_args
 
 
 class TestAdminCommandsFailFast(object):
