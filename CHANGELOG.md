@@ -2,6 +2,7 @@
 
 # New features
 - `omero import` automatically downloads import jars if missing ([#162](https://github.com/ome/omero-py/pull/162))
+- Use OS specific application directories instead of ~/omero for local cache ([#242](https://github.com/ome/omero-py/pull/242))
 
 # Bug fixes
 - CLI UTF-8 Fixes ([#224](https://github.com/ome/omero-py/pull/224))
@@ -19,6 +20,7 @@
 - Import logprefix ([#238](https://github.com/ome/omero-py/pull/238))
 - Use requests for HTTP/HTTPS calls in library ([#240](https://github.com/ome/omero-py/pull/240))
 - Adds optional extra args to the `util/import_candidates.py` ([#241](https://github.com/ome/omero-py/pull/241))
+- Link to source on pypi homepage ([#247](https://github.com/ome/omero-py/pull/247))
 
 
 # 5.7.1 (June 2020)
