@@ -164,8 +164,6 @@ packageless = glob.glob("target/*.py")
 packageless = [x[7:-3] for x in packageless]
 packages = find_packages(where="target")
 
-url = 'https://docs.openmicroscopy.org/latest/omero/developers'
-
 sys.path.append("target")
 from omero_version import omero_version as ov  # noqa
 
@@ -198,7 +196,13 @@ setup(
         # http://pypi.python.org/pypi?%3Aaction=list_classifiers
     author="The Open Microscopy Team",
     author_email="ome-devel@lists.openmicroscopy.org.uk",
-    url=url,
+    url='https://github.com/ome/omero-py',
+    project_urls={
+        'Documentation':
+            'https://docs.openmicroscopy.org/omero/latest/developers/'
+            'Python.html',
+        'Bug tracker': 'https://github.com/ome/omero-py/issues',
+    },
     package_dir={"": "target"},
     packages=packages,
     package_data={
