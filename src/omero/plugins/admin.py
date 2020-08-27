@@ -36,12 +36,15 @@ import omero.config
 
 from omero.grid import RawAccessRequest
 
-from omero.cli import admin_only
-from omero.cli import CLI
-from omero.cli import DirectoryType
-from omero.cli import NonZeroReturnCode
-from omero.cli import DiagnosticsControl
-from omero.cli import UserGroupControl
+from omero.cli import (
+    admin_only,
+    CLI,
+    DiagnosticsControl,
+    DirectoryType,
+    NonZeroReturnCode,
+    ServiceManagerMixin,
+    UserGroupControl,
+)
 
 from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import \
@@ -91,7 +94,11 @@ if platform.system() == 'Windows':
 
 class AdminControl(DiagnosticsControl,
                    WriteableConfigControl,
-                   UserGroupControl):
+                   UserGroupControl,
+                   ServiceManagerMixin):
+
+    # Require by omero.cli.ServiceManagerMixin
+    SERVICE_MANAGER_KEY = 'server'
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -760,6 +767,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
+        self.requires_service_manager(config)
         self.check_access(mask=os.R_OK, config=config)
         self.checkice()
         self.check_node(args)
@@ -974,6 +982,7 @@ present, the user will enter a console""")
         """
         Returns true if the server was already stopped
         """
+        self.requires_service_manager(config)
         self.check_node(args)
         if args.force_rewrite:
             self.rewrite(args, config, force=True)

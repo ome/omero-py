@@ -1131,6 +1131,38 @@ OMERO Diagnostics (%s) %s
                 self.ctx.out("%-12s %s" % (self._sz_str(p.size), msg))
 
 
+class ServiceManagerMixin:
+    """
+    A mixin that adds a requires_service_manager method.
+
+    This method can be called to check for the presence of an environment
+    variable that indicates the plugin is being controlled by an external
+    service manager.
+
+    The class must define a property SERVICE_MANAGER_KEY that is used to
+    construct the name of the OMERO property
+    `omero.{SERVICE_MANAGER_KEY}.servicemanager.checkenv` defining the name of
+    the environment variable.
+    """
+
+    def requires_service_manager(self, config):
+        """
+        Checks whether OMERO is being managed by a service manager by
+        checking that a specified environment variable is non-empty.
+
+        config: An OMERO ConfigXml object
+        """
+        service_env = config.as_map().get(
+            "omero.{}.servicemanager.checkenv".format(
+                self.SERVICE_MANAGER_KEY))
+        if service_env:
+            service_envvalue = os.getenv(service_env)
+            if not service_envvalue:
+                self.ctx.die(112, (
+                    "ERROR: OMERO is configured to run under a service "
+                    "manager which should also set {}".format(service_env)))
+
+
 class CLI(cmd.Cmd, Context):
     """
     Command line interface class. Supports various styles of executing the

@@ -90,6 +90,12 @@ class MockCLI(CLI):
         finally:
             self.__error = []
 
+    def getStdout(self):
+        return self.__output
+
+    def getStderr(self):
+        return self.__error
+
     def addCall(self, rv):
         self.__call.append(rv)
 
