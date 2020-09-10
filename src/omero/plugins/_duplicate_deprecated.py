@@ -26,6 +26,7 @@
 
 import sys
 import os
+import warnings
 
 from omero.cli import CLI, GraphControl
 
@@ -55,6 +56,12 @@ Examples:
 """
 
 
+DEPRECATION_MESSAGE = (
+    "This plugin is deprecated as of OMERO 5.8.0. Use the plugin"
+    " available from https://pypi.org/project/omero-cli-duplicate/"
+    " instead.")
+
+
 class DuplicateControl(GraphControl):
 
     def cmd_type(self):
@@ -72,6 +79,7 @@ class DuplicateControl(GraphControl):
             self.print_duplicate_response(rsp)
 
     def print_duplicate_response(self, rsp):
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         if rsp.duplicates:
             self.ctx.out("Duplicates")
             objIds = self._get_object_ids(rsp.duplicates)
@@ -80,6 +88,7 @@ class DuplicateControl(GraphControl):
 
 try:
     if "OMERO_DEV_PLUGINS" in os.environ:
+        warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
         register("duplicate", DuplicateControl, HELP)
 except NameError:
     if __name__ == "__main__":
