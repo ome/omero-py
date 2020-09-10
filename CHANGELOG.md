@@ -12,6 +12,7 @@
 - Fix CLI error handling when attempting to check log files ([#236](https://github.com/ome/omero-py/pull/236))
 - `omero import`: fix `--logprefix` ([#238](https://github.com/ome/omero-py/pull/238))
 - `fs usage`: don't overwrite size ([#245](https://github.com/ome/omero-py/pull/245))
+- `omero.gateway`: always marshal tile metadata on presence of pyramid ([#239](https://github.com/ome/omero-py/pull/239))
 
 # Other updates
 - Add PyYAML as a dependency of omero-py ([#228](https://github.com/ome/omero-py/pull/228))
