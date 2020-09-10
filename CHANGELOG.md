@@ -21,7 +21,7 @@
 - Update release paragraph to mention downstream conda repository ([#234](https://github.com/ome/omero-py/pull/234))
 - Remove long-deprecated module `functional.py` ([#237](https://github.com/ome/omero-py/pull/237))
 - Use requests for HTTP/HTTPS calls in library ([#240](https://github.com/ome/omero-py/pull/240))
-- Adds optional extra args to the `util/import_candidates.py`, thanks to [Guillaume Gay](@glyg)  ([#241](https://github.com/ome/omero-py/pull/241))
+- Adds optional extra args to the `util/import_candidates.py`, thanks to [Guillaume Gay](https://github.com/glyg)  ([#241](https://github.com/ome/omero-py/pull/241))
 - Link to source on PyPI homepage ([#247](https://github.com/ome/omero-py/pull/247))
 
 
