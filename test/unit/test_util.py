@@ -326,18 +326,18 @@ class TestUserdirs(object):
 
         c = get_omero_user_cache_dir()
         assert c.basename() == omero_version.split('.')[0]
-        assert 'OMERO.cli' in str(c)
+        assert 'OMERO.py' in str(c)
 
     def testUserdirEnvironmentAppdir(self, monkeypatch):
         monkeypatch.setenv('OMERO_USERDIR', '')
 
         d = get_omero_userdir()
         assert d.basename() == omero_version.split('.')[0]
-        assert 'OMERO.cli' in str(d)
+        assert 'OMERO.py' in str(d)
 
         c = get_omero_user_cache_dir()
         assert c.basename() == omero_version.split('.')[0]
-        assert 'OMERO.cli' in str(c)
+        assert 'OMERO.py' in str(c)
 
     def testUserdirEnvironmentSet(self, monkeypatch, tmpdir):
         monkeypatch.setenv('OMERO_USERDIR', str(tmpdir))

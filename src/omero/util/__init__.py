@@ -46,7 +46,7 @@ orig_stdout = sys.stdout
 orig_stderr = sys.stderr
 
 # Application name, Author (Windows only), Major version
-APPDIR_DEFAULTS = ('OMERO.cli', 'OME', omero_version.split('.')[0])
+APPDIR_DEFAULTS = ('OMERO.py', 'OME', omero_version.split('.')[0])
 
 
 def make_logname(self):
