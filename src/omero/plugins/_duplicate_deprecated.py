@@ -64,6 +64,10 @@ DEPRECATION_MESSAGE = (
 
 class DuplicateControl(GraphControl):
 
+    def main_method(self, args):
+        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
+        super(DuplicateControl, self).main_method(args)
+
     def cmd_type(self):
         import omero
         import omero.all
@@ -79,7 +83,6 @@ class DuplicateControl(GraphControl):
             self.print_duplicate_response(rsp)
 
     def print_duplicate_response(self, rsp):
-        self.ctx.err(DEPRECATION_MESSAGE, DeprecationWarning)
         if rsp.duplicates:
             self.ctx.out("Duplicates")
             objIds = self._get_object_ids(rsp.duplicates)
