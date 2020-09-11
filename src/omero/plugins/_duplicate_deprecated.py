@@ -57,7 +57,7 @@ Examples:
 
 
 DEPRECATION_MESSAGE = (
-    "This plugin is deprecated as of OMERO 5.8.0. Use the plugin"
+    "This plugin is deprecated as of OMERO.py 5.8.0. Use the plugin"
     " available from https://pypi.org/project/omero-cli-duplicate/"
     " instead.")
 
