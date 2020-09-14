@@ -2016,11 +2016,11 @@ class GraphControl(CmdControl):
         self._add_wait(parser, default=-1)
         parser.add_argument(
             "--include",
-            help="Modifies the given option by including a list of classes",
+            help="Specify kinds of object to include",
             metavar="CLASS")
         parser.add_argument(
             "--exclude",
-            help="Modifies the given option by excluding a list of classes",
+            help="Specify kinds of object to exclude",
             metavar="CLASS")
         parser.add_argument(
             "--ordered", action="store_true",
