@@ -2017,11 +2017,13 @@ class GraphControl(CmdControl):
         parser.add_argument(
             "--include",
             help="Specify kinds of object to include",
-            metavar="CLASS")
+            metavar="CLASS",
+            nargs="+", type=lambda s: s.split(","), action="append")
         parser.add_argument(
             "--exclude",
             help="Specify kinds of object to exclude",
-            metavar="CLASS")
+            metavar="CLASS",
+            nargs="+", type=lambda s: s.split(","), action="append")
         parser.add_argument(
             "--ordered", action="store_true",
             help=("Pass multiple objects to commands strictly in the order "
@@ -2071,6 +2073,7 @@ class GraphControl(CmdControl):
 
     def main_method(self, args):
 
+        from itertools import chain
         client = self.ctx.conn(args)
         if args.list_details or args.list:
             cb = None
@@ -2095,10 +2098,10 @@ class GraphControl(CmdControl):
 
         inc = []
         if args.include:
-            inc = args.include.split(",")
+            inc.extend(chain(*chain(*args.include)))
         exc = self.default_exclude()
         if args.exclude:
-            exc.extend(args.exclude.split(","))
+            exc.extend(chain(*chain(*args.exclude)))
 
         if inc or exc:
             opt = omero.cmd.graphs.ChildOption()
