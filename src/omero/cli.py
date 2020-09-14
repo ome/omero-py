@@ -33,7 +33,6 @@ from builtins import input
 from builtins import map
 from builtins import str
 from builtins import range
-from builtins import bytes
 from past.utils import old_div
 from builtins import object
 sys = __import__("sys")
