@@ -4,6 +4,7 @@
 - `omero import` automatically downloads import jars if missing ([#162](https://github.com/ome/omero-py/pull/162))
 - Use OS-specific application directories instead of `~/omero` for local cache ([#242](https://github.com/ome/omero-py/pull/242))
 - `omero admin`: optionally check for system manager environment variable ([#246](https://github.com/ome/omero-py/pull/246))
+- Add support for mutliple Ice TLS protocols ([#251](https://github.com/ome/omero-py/pull/251))
 
 ## Bug fixes
 - CLI UTF-8 Fixes ([#224](https://github.com/ome/omero-py/pull/224))
