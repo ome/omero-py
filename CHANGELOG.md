@@ -1,11 +1,11 @@
 # 5.8.0 (September 2020)
 
-# New features
+## New features
 - `omero import` automatically downloads import jars if missing ([#162](https://github.com/ome/omero-py/pull/162))
 - Use OS-specific application directories instead of `~/omero` for local cache ([#242](https://github.com/ome/omero-py/pull/242))
 - `omero admin`: optionally check for system manager environment variable ([#246](https://github.com/ome/omero-py/pull/246))
 
-# Bug fixes
+## Bug fixes
 - CLI UTF-8 Fixes ([#224](https://github.com/ome/omero-py/pull/224))
 - Fix sessions logging attribute error ([#226](https://github.com/ome/omero-py/pull/226))
 - `omero hql`: when querying masks, filter `bytes` field ([#230](https://github.com/ome/omero-py/pull/230))
@@ -14,7 +14,7 @@
 - `fs usage`: don't overwrite size ([#245](https://github.com/ome/omero-py/pull/245))
 - `omero.gateway`: always marshal tile metadata on presence of pyramid ([#239](https://github.com/ome/omero-py/pull/239))
 
-# Other updates
+## Other updates
 - Add PyYAML as a dependency of omero-py ([#228](https://github.com/ome/omero-py/pull/228))
 - `bin/omero` entrypoint ([#229](https://github.com/ome/omero-py/pull/229))
 - Tox: Python 3.8, use travis bionic ice-py wheels ([#232](https://github.com/ome/omero-py/pull/232))
