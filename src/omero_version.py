@@ -1,3 +1,3 @@
-omero_version = "5.7.2.dev0"
+omero_version = "5.8.0"
 ice_compatibility = "3.6.5"
 build_year = "2020"
