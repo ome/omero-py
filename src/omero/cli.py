@@ -2027,7 +2027,6 @@ class GraphControl(CmdControl):
         parser.add_argument(
             "--ordered", action="store_true",
             help=("Pass objects to commands in the given order"))
-                  "given, otherwise group into as few commands as possible."))
         parser.add_argument(
             "--list", action="store_true",
             help="Print a list of all available graph specs")
