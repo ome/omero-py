@@ -2026,7 +2026,7 @@ class GraphControl(CmdControl):
             nargs="+", type=lambda s: s.split(","), action="append")
         parser.add_argument(
             "--ordered", action="store_true",
-            help=("Pass multiple objects to commands strictly in the order "
+            help=("Pass objects to commands in the given order"))
                   "given, otherwise group into as few commands as possible."))
         parser.add_argument(
             "--list", action="store_true",
