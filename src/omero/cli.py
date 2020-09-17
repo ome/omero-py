@@ -33,7 +33,6 @@ from builtins import input
 from builtins import map
 from builtins import str
 from builtins import range
-from builtins import bytes
 from past.utils import old_div
 from builtins import object
 sys = __import__("sys")
@@ -2017,13 +2016,17 @@ class GraphControl(CmdControl):
         self._add_wait(parser, default=-1)
         parser.add_argument(
             "--include",
-            help="Modifies the given option by including a list of classes")
+            help="Specify kinds of object to include",
+            metavar="CLASS",
+            nargs="+", type=lambda s: s.split(","), action="append")
         parser.add_argument(
             "--exclude",
-            help="Modifies the given option by excluding a list of classes")
+            help="Specify kinds of object to exclude",
+            metavar="CLASS",
+            nargs="+", type=lambda s: s.split(","), action="append")
         parser.add_argument(
             "--ordered", action="store_true",
-            help=("Pass multiple objects to commands strictly in the order "
+            help=("Pass objects to commands in the given order"))
                   "given, otherwise group into as few commands as possible."))
         parser.add_argument(
             "--list", action="store_true",
@@ -2070,6 +2073,7 @@ class GraphControl(CmdControl):
 
     def main_method(self, args):
 
+        from itertools import chain
         client = self.ctx.conn(args)
         if args.list_details or args.list:
             cb = None
@@ -2094,10 +2098,10 @@ class GraphControl(CmdControl):
 
         inc = []
         if args.include:
-            inc = args.include.split(",")
+            inc.extend(chain(*chain(*args.include)))
         exc = self.default_exclude()
         if args.exclude:
-            exc.extend(args.exclude.split(","))
+            exc.extend(chain(*chain(*args.exclude)))
 
         if inc or exc:
             opt = omero.cmd.graphs.ChildOption()
