@@ -40,6 +40,8 @@ def istty(monkeypatch):
         return True
     monkeypatch.setattr(sys.stdin, 'isatty', isatty)
     assert sys.stdin.isatty()
+    monkeypatch.setattr(sys.stdout, 'isatty', isatty)
+    assert sys.stdout.isatty()
 
 
 class MyStore(SessionsStore):
