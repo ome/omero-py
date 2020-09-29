@@ -1,3 +1,11 @@
+# 5.8.1 (September 2020)
+
+## Bug fixes
+
+- CLI: improve description of `--include` and ``--exclude` options ([#252](https://github.com/ome/omero-py/pull/252), [#254](https://github.com/ome/omero-py/pull/254))
+- Restore Python 3.5 compatibility ([#257](https://github.com/ome/omero-py/pull/257))
+
+
 # 5.8.0 (September 2020)
 
 ## New features
