@@ -2,7 +2,7 @@
 
 ## Bug fixes
 
-- CLI: improve description of `--include` and ``--exclude` options ([#252](https://github.com/ome/omero-py/pull/252), [#254](https://github.com/ome/omero-py/pull/254))
+- CLI: improve description of `--include` and `--exclude` options ([#252](https://github.com/ome/omero-py/pull/252), [#254](https://github.com/ome/omero-py/pull/254))
 - Restore Python 3.5 compatibility ([#257](https://github.com/ome/omero-py/pull/257))
 
 
