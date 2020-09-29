@@ -932,7 +932,7 @@ Examples:
             if args.human_readable:
                 size_str = filesizeformat(size)
             else:
-                size_str = f"{size}"
+                size_str = "%s" % size
 
             if args.size_only:
                 self.ctx.out(size_str)
