@@ -975,9 +975,12 @@ class SessionsControl(UserGroupControl):
             return rv
 
     def _require_tty(self, msg):
-        if sys.stdin.isatty():
+        if not sys.stdin.isatty():
+            self.ctx.die(564, "stdin is not a terminal: %s" % msg)
+        elif not sys.stdout.isatty():
+            self.ctx.die(564, "stdout is not a terminal: %s" % msg)
+        else:
             return
-        self.ctx.die(564, "stdin is not a terminal: %s" % msg)
 
 
 try:

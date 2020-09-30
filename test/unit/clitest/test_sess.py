@@ -40,6 +40,8 @@ def istty(monkeypatch):
         return True
     monkeypatch.setattr(sys.stdin, 'isatty', isatty)
     assert sys.stdin.isatty()
+    monkeypatch.setattr(sys.stdout, 'isatty', isatty)
+    assert sys.stdout.isatty()
 
 
 class MyStore(SessionsStore):
@@ -408,7 +410,7 @@ class TestSessions(object):
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('group', DIFFERENT_GROUPS)
-    def testReuseFromDifferentGroupDoesntWork(self, connection, group, capsys):
+    def testReuseFromDifferentGroupDoesntWork(self, connection, group):
         """
         Test session reuse with different groups fails
         """
@@ -423,9 +425,6 @@ class TestSessions(object):
         conn_args = self.get_conn_args(connection, group=group[1])
         cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
-        out, err = capsys.readouterr()
-        msg = (self.get_conflict_message() + 'omero.group: %s!=%s')
-        assert err.splitlines()[-2] == msg % ('testsessid', group[0], group[1])
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', MATCHING_PORTS)
