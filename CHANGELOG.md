@@ -1,4 +1,4 @@
-# 5.8.2 (September 2020)
+# 5.8.2 (October 2020)
 
 ## Bug fix
 
