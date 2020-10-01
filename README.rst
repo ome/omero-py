@@ -1,8 +1,8 @@
 OMERO.py
 ========
 
-.. image:: https://travis-ci.org/ome/omero-py.png
-   :target: http://travis-ci.org/ome/omero-py
+.. image:: https://github.com/ome/omero-py/workflows/Build/badge.svg
+   :target: https://github.com/ome/omero-py/actions
 
 .. image:: https://badge.fury.io/py/omero-py.svg
     :target: https://badge.fury.io/py/omero-py
