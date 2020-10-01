@@ -1,3 +1,10 @@
+# 5.8.2 (September 2020)
+
+## Bug fix
+
+- CLI: fail login when user input is required but stdout is not connected to
+  a tty(-like) device [#256](https://github.com/ome/omero-py/pull/256)
+
 # 5.8.1 (September 2020)
 
 ## Bug fixes
