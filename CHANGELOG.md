@@ -1,3 +1,15 @@
+# 5.8.2 (October 2020)
+
+## Bug fix
+
+- CLI: fail login when user input is required but stdout is not connected to
+  a tty(-like) device [#256](https://github.com/ome/omero-py/pull/256)
+
+## Other updates
+
+- Import test: check stderr for output [#260](https://github.com/ome/omero-py/pull/260)
+- Switch from Travis CI to GitHub actions ([#261](https://github.com/ome/omero-py/pull/261), [#262](https://github.com/ome/omero-py/pull/262))
+
 # 5.8.1 (September 2020)
 
 ## Bug fixes
