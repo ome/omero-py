@@ -249,7 +249,7 @@ class TestImport(object):
             with pytest.raises(NonZeroReturnCode):
                 self.cli.invoke(self.args, strict=True)
             o, e = capfd.readouterr()
-            assert "parsed into 0 group" in o
+            assert "parsed into 0 group" in e
 
     @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     @pytest.mark.parametrize('with_ds_store', (True, False))
