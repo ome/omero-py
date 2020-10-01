@@ -1,0 +1,62 @@
+# https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Build
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  test:
+    name: Test
+    strategy:
+      # Keep running so we can see if other tests pass
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.6'
+          - '3.7'
+          - '3.8'
+        os:
+          - ubuntu-20.04
+        include:
+          - python-version: '3.7'
+            os: macos-latest
+          - python-version: '3.7'
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Get tox target
+        id: toxtarget
+        run: |
+          py=$(echo ${{ matrix.python-version }} | tr -d .)
+          echo "::set-output name=py::$py"
+        shell: bash
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: python -mpip install --upgrade wheel pytest tox virtualenv
+      - name: Run tests
+        run: tox -e py${{ steps.toxtarget.outputs.py }}
+
+  # https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
+  publish-pypi:
+    name: Pypi
+    if: startsWith(github.ref, 'refs/tags')
+    needs:
+      # Only publish if other jobs passed
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - name: Build package
+        run: |
+          python -mpip install wheel
+          python setup.py sdist bdist_wheel
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.3.0
+        with:
+          password: ${{ secrets.PYPI_PASSWORD }}
