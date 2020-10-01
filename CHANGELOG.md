@@ -8,6 +8,7 @@
 ## Other updates
 
 - Import test: check stderr for output [#260](https://github.com/ome/omero-py/pull/260)
+- Switch from Travis CI to GitHub actions ([#261](https://github.com/ome/omero-py/pull/261), [#262](https://github.com/ome/omero-py/pull/262))
 
 # 5.8.1 (September 2020)
 
