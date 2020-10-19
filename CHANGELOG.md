@@ -1,3 +1,10 @@
+# 5.8.3 (October 2020)
+
+## Bug fix
+
+- CLI: fix `omero errors` command under Python 3
+  [#264](https://github.com/ome/omero-py/pull/264)
+
 # 5.8.2 (October 2020)
 
 ## Bug fix
