@@ -79,3 +79,8 @@ class TestBasics(object):
         captured = capsys.readouterr()
         lines = captured.out.splitlines()
         assert lines == ['a=a', 'b=b', 'c=c']
+
+    def testErrors(object, monkeypatch, tmp_path, capsys):
+        cli.invoke(["errors"], strict=True)
+        captured = capsys.readouterr()
+        assert "52	       hql	 BAD_QUERY" in captured.out

@@ -293,7 +293,7 @@ class ErrorsControl(BaseControl):
                 combined = []
                 if hasattr(control, "get_errors"):
                     combined.extend(list(control.get_errors().items()))
-                    combined.sort(lambda a, b: cmp(a[1].rcode, b[1].rcode))
+                    combined.sort(key=lambda x: x[1].rcode)
                     for key, err in combined:
                         arranged[err.rcode][name][key].append(err)
 
