@@ -57,7 +57,7 @@ from omero_ext.which import whichall
 from omero_ext.argparse import FileType
 from omero_version import ice_compatibility
 
-from ..util._process_defaultxml import _process_xml
+from omero.util._process_defaultxml import _process_xml
 
 
 try:
