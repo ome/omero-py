@@ -57,6 +57,8 @@ from omero_ext.which import whichall
 from omero_ext.argparse import FileType
 from omero_version import ice_compatibility
 
+from ..util._process_defaultxml import _process_xml
+
 
 try:
     import pywintypes
@@ -1186,9 +1188,10 @@ present, the user will enter a console""")
             for clienttp in client_transports.split(',')]
         substitutions['@omero.client.endpoints@'] = ':'.join(client_endpoints)
 
-        def copy_template(input_file, output_dir):
-            """Replace templates"""
+        node_descriptors = config.get('omero.server.nodedescriptors', '')
 
+        def copy_template(input_file, output_dir, post_process=None):
+            """Replace templates"""
             with open(input_file) as template:
                 data = template.read()
             output_file = path(old_div(output_dir,
@@ -1198,6 +1201,8 @@ present, the user will enter a console""")
             with open(output_file, 'w') as f:
                 for key, value in substitutions.items():
                     data = re.sub(key, value, data)
+                if post_process:
+                    data = post_process(data)
                 f.write(data)
 
         # Regenerate various configuration files from templates
@@ -1205,7 +1210,9 @@ present, the user will enter a console""")
             copy_template(cfg_file, self._get_etc_dir())
         for xml_file in glob(
                 self._get_templates_dir() / "grid" / "*default.xml"):
-            copy_template(xml_file, old_div(self._get_etc_dir(), "grid"))
+            copy_template(
+                xml_file, old_div(self._get_etc_dir(), "grid"),
+                lambda xml: _process_xml(xml, node_descriptors))
         ice_config = old_div(self._get_templates_dir(), "ice.config")
         substitutions['@omero.master.host@'] = config.get(
             'omero.master.host', config.get('Ice.Default.Host', 'localhost'))

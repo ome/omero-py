@@ -48,8 +48,12 @@ if 'OMERODIR' in os.environ:
     OMERODIR = os.environ.get('OMERODIR')
 
 
+def _squashWhiteSpace(s):
+    # Attempt to make the XML comparison more robust
+    return ' '.join(s.split())
+
 @pytest.fixture(autouse=True)
-def tmpadmindir(tmpdir):
+def tmpadmindir(tmpdir, monkeypatch):
     etc_dir = tmpdir.mkdir('etc')
     etc_dir.mkdir('grid')
     tmpdir.mkdir('var')
@@ -67,6 +71,9 @@ def tmpadmindir(tmpdir):
     for f in glob(os.path.join(old_templates_dir, "grid", "*.xml")):
         path(f).copy(path(old_div(templates_dir, "grid")))
     path(os.path.join(old_templates_dir, "ice.config")).copy(path(templates_dir))
+    # The OMERODIR env-var is directly reference in other omero components so
+    # we need to override it
+    monkeypatch.setenv('OMERODIR', str(tmpdir))
 
     return path(tmpdir)
 
@@ -329,6 +336,72 @@ class TestJvmCfg(object):
             self.cli.invoke(self.args, strict=True)
 
 
+
+DEFAULT_XML_PARAMS = {
+    # "": """\
+    # <node name="master">
+    #   <server-instance template="Glacier2Template"
+    #     client-endpoints="ssl -p 4064:tcp -p 4063"
+    #     server-endpoints="tcp -h 127.0.0.1"/>
+    #   <server-instance template="BlitzTemplate" index="0" config="default"/>
+    #   <server-instance template="IndexerTemplate" index="0"/>
+    #   <server-instance template="DropBoxTemplate"/>
+    #   <server-instance template="MonitorServerTemplate"/>
+    #   <server-instance template="FileServerTemplate"/>
+    #   <server-instance template="StormTemplate"/>
+    #   <server-instance template="PixelDataTemplate" index="0" dir=""/><!-- assumes legacy -->
+    #   <server-instance template="ProcessorTemplate" index="0" dir=""/><!-- assumes legacy -->
+    #   <server-instance template="TablesTemplate" index="0" dir=""/><!-- assumes legacy -->
+    #   <server-instance template="TestDropBoxTemplate"/>
+    # </node>""",
+    # "master:Blitz-0,Indexer-0,DropBox,MonitorServer,FileServer,Storm,PixelData-0,Tables-0,TestDropBox slave:Processor-0": """
+    # <node name="master">
+    #   <server-instance template="Glacier2Template"
+    #     client-endpoints="@omero.client.endpoints@"
+    #     server-endpoints="tcp -h @omero.master.host@"/>
+    #   <server-instance template="BlitzTemplate" index="0" config="default"/>
+    #   <server-instance template="IndexerTemplate" index="0"/>
+    #   <server-instance template="DropBoxTemplate"/>
+    #   <server-instance template="MonitorServerTemplate"/>
+    #   <server-instance template="FileServerTemplate"/>
+    #   <server-instance template="StormTemplate"/>
+    #   <server-instance template="PixelDataTemplate" index="0" dir=""/>
+    #   <server-instance template="TablesTemplate" index="0" dir=""/>
+    #   <server-instance template="TestDropBoxTemplate"/>
+    # </node>
+
+    # <node name="worker">
+    #   <server-instance template="ProcessorTemplate" index="0" dir=""/>
+    # </node>
+    # """,
+    "master:Blitz-0,Indexer-0,DropBox,MonitorServer,FileServer,Storm,Tables-0,TestDropBox worker-1:Processor-0,PixelData-0 worker-2:Processor-1,PixelData-1": """
+    <node name="master">
+      <server-instance template="Glacier2Template"
+        client-endpoints="ssl -p 4064:tcp -p 4063"
+        server-endpoints="tcp -h 127.0.0.1"/>
+      <server-instance template="BlitzTemplate" index="0" config="default"/>
+      <server-instance template="IndexerTemplate" index="0"/>
+      <server-instance template="DropBoxTemplate"/>
+      <server-instance template="MonitorServerTemplate"/>
+      <server-instance template="FileServerTemplate"/>
+      <server-instance template="StormTemplate"/>
+      <server-instance template="TablesTemplate" index="0" dir=""/>
+      <server-instance template="TestDropBoxTemplate"/>
+    </node>
+
+    <node name="worker-1">
+      <server-instance template="ProcessorTemplate" index="0" dir=""/>
+      <server-instance template="PixelDataTemplate" index="0" dir=""/>
+    </node>
+
+    <node name="worker-2">
+      <server-instance template="ProcessorTemplate" index="1" dir=""/>
+      <server-instance template="PixelDataTemplate" index="1" dir=""/>
+    </node>
+    """,
+}
+
+
 @pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
 class TestRewrite(object):
     """Test template files regeneration"""
@@ -446,3 +519,20 @@ class TestRewrite(object):
             strict=True)
         self.cli.invoke(self.args, strict=True)
         check_templates_xml(self.cli.dir, glacier2)
+
+    @pytest.mark.parametrize('descriptor', DEFAULT_XML_PARAMS.keys())
+    def testNodeDescriptors(self, descriptor, monkeypatch):
+        """
+        Test omero.server.nodedescriptors for configuring the available
+        services in master and other nodes
+        """
+        self.cli.invoke(
+            ["config", "set", "omero.server.nodedescriptors", descriptor],
+            strict=True)
+        self.cli.invoke(self.args, strict=True)
+
+        defaultxml = (self.cli.dir / "etc" / "grid" / "default.xml").text()
+        # print(defaultxml)
+        expected = DEFAULT_XML_PARAMS[descriptor]
+
+        assert _squashWhiteSpace(expected) in _squashWhiteSpace(defaultxml)

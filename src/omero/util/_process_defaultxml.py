@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Convert the nodes and server-instances in default.xml to a multi-node
 configuration
@@ -23,7 +21,7 @@ import re
 import sys
 
 
-def getnodes(nodedescs):
+def _getnodes(nodedescs):
     nodes = {}
     for nd in nodedescs:
         s = ''
@@ -47,27 +45,23 @@ def getnodes(nodedescs):
     return nodes
 
 
-with open(sys.argv[1]) as f:
-    xml = f.read()
+def _process_xml(xml, nodedescs):
+    pattern = r'\<node name="master"\>\s*\<server-instance[^\>]*\>(.*?\</node\>)'
+    m = re.search(pattern, xml, re.DOTALL)
+    assert m
 
-pattern = r'\<node name="master"\>\s*\<server-instance[^\>]*\>(.*?\</node\>)'
-m = re.search(pattern, xml, re.DOTALL)
-assert m
+    master = '\n    </node>\n'
+    slaves = ''
+    nodes = _getnodes(nodedescs.split())
+    for nodename in sorted(nodes.keys()):
+        servers = nodes[nodename]
+        if nodename == 'master':
+            master = '%s%s' % (servers, master)
+        else:
+            slaves += '    <node name="%s">\n%s    </node>\n' % (nodename, servers)
 
-nodedescs = sys.argv[2:]
-
-master = '\n    </node>\n'
-slaves = ''
-nodes = getnodes(nodedescs)
-for nodename in sorted(nodes.keys()):
-    servers = nodes[nodename]
-    if nodename == 'master':
-        master = '%s%s' % (servers, master)
+    if nodes:
+        xmlout = xml[:m.start(1)] + master + slaves + xml[m.end(1):]
     else:
-        slaves += '    <node name="%s">\n%s    </node>\n' % (nodename, servers)
-
-if nodes:
-    xmlout = xml[:m.start(1)] + master + slaves + xml[m.end(1):]
-else:
-    xmlout = xml
-print xmlout
+        xmlout = xml
+    return xmlout
