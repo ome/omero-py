@@ -1,3 +1,9 @@
+# 5.9.0 (January 2021)
+
+- Admin: introduce `omero.server.nodedescriptors` configuration property
+  for configuring services launched on start-up
+  [#272](https://github.com/ome/omero-py/pull/272)
+
 # 5.8.3 (October 2020)
 
 ## Bug fix
