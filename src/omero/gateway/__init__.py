@@ -3731,13 +3731,18 @@ class _BlitzGateway (object):
         return self.countAnnotations(obj_type, obj_ids)
 
 
-    def upload_tiles(self, image, zct_plane_gen):
+    def upload_tiles(self, image, zct_plane_gen, tile_size=256):
+        """
+        Upload numpy planes to a 'big' image as tiles.
+
+        @param  image           omero.model.ImageI
+        @param  zct_plane_gen   A generator of numpy 2D arrays
+        @param  tile_size       Size of tiles
+        """
 
         pixels_service = self.getPixelsService()
-        query_service = self.getQueryService()
         pixels = image.getPrimaryPixels()
-        tile_height = 256
-        tile_width = tile_height
+        tile_width = tile_height = tile_size
         channelsMinMax = []
         # Make a generator of all the tiles we're going to need.
         # This is the SAME ORDER that RPSTileLoop will ask for them.
@@ -3811,7 +3816,12 @@ class _BlitzGateway (object):
     def _createImage(self, dtype, imageName, sizeX, sizeY, sizeZ=1, sizeC=1,
                      sizeT=1, channelList=None, sourceImageId=None,
                      description=None):
-            """ Create our new Image once we have the first plane in hand """
+            """
+            Create a new Image according to numpy dtype or sourceImage.
+
+            If sourceImageId is not None, the new image will be derived from
+            the source image, sharing some channel metadata.
+            """
             pixelsService = self.getPixelsService()
             containerService = self.getContainerService()
             convertToType = dtype
@@ -3886,7 +3896,7 @@ class _BlitzGateway (object):
         :param session:         An OMERO service factory or equivalent
                                 with getQueryService() etc.
         :param zctPlanes:       A generator of numpy 2D arrays,
-                                corresponding to Z-planes of new image.
+                                corresponding to Z, C, T planes of new image.
         :param imageName:       Name of new image
         :param description:     Description for the new image
         :param dataset:         If specified, put the image in this dataset.
@@ -3921,9 +3931,10 @@ class _BlitzGateway (object):
         channelsMinMax = []
         # add the first plane back into generator
         zct_plane_gen = chain([first_plane], zctPlanes)
-        # FIXME: use right numbers
-        if sizeX * sizeY > 3000 * 3000:
-            # plane generator needs to start with first plane
+
+        big_image_size = self.getMaxPlaneSize()
+        if sizeX * sizeY > big_image_size[0] * big_image_size[1]:
+            # For 'big' images, need to upload tiles
             self.upload_tiles(image, zct_plane_gen)
         else:
             pixelsId = image.getPrimaryPixels().getId().getValue()
@@ -3970,8 +3981,6 @@ class _BlitzGateway (object):
         for theC, mm in enumerate(channelsMinMax):
             pixelsService.setChannelGlobalMinMax(
                 pixelsId, theC, float(mm[0]), float(mm[1]), self.SERVICE_OPTS)
-            # resetRenderingSettings(
-            #     renderingEngine, pixelsId, theC, mm[0], mm[1])
 
         # put the image in dataset, if specified.
         if dataset:
