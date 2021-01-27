@@ -26,6 +26,8 @@ from past.builtins import basestring
 from past.utils import old_div
 from builtins import object
 import os
+import numpy
+from itertools import chain
 
 import warnings
 from collections import defaultdict
@@ -56,6 +58,7 @@ except ImportError:
 import omero
 import omero.clients
 from omero.util.decorators import timeit
+from omero.util.tiles import TileLoopIteration, RPSTileLoop
 from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead, Chown2
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
@@ -3727,6 +3730,130 @@ class _BlitzGateway (object):
 
         return self.countAnnotations(obj_type, obj_ids)
 
+
+    def upload_tiles(self, image, zct_plane_gen):
+
+        pixels_service = self.getPixelsService()
+        query_service = self.getQueryService()
+        pixels = image.getPrimaryPixels()
+        tile_height = 256
+        tile_width = tile_height
+        channelsMinMax = []
+        # Make a generator of all the tiles we're going to need.
+        # This is the SAME ORDER that RPSTileLoop will ask for them.
+        def tile_gen():
+            for theZ in range(pixels.getSizeZ().val):
+                for theC in range(pixels.getSizeC().val):
+                    for theT in range(pixels.getSizeT().val):
+                        plane = next(zct_plane_gen)
+                        size_y, size_x = plane.shape
+                        # first plane of each channel
+                        minValue = plane.min()
+                        maxValue = plane.max()
+                        if len(channelsMinMax) < (theC + 1):
+                            channelsMinMax.append([minValue, maxValue])
+                        else:
+                            channelsMinMax[theC][0] = min(
+                                channelsMinMax[theC][0], minValue)
+                            channelsMinMax[theC][1] = max(
+                                channelsMinMax[theC][1], maxValue)
+                        for tile_offset_y in range(
+                                0, ((size_y + tile_height - 1) // tile_height)):
+                            for tile_offset_x in range(
+                                    0, ((size_x + tile_width - 1) // tile_width)):
+                                x = tile_offset_x * tile_width
+                                y = tile_offset_y * tile_height
+                                x2 = min(x + tile_width, size_x)
+                                y2 = min(y + tile_height, size_y)
+                                tile = plane[y:y2, x:x2]
+                                byte_swapped_tile = tile.byteswap()
+                                yield byte_swapped_tile.tostring()
+
+        tile_iter = tile_gen()
+
+        class Iteration(TileLoopIteration):
+
+            def run(self, data, z, c, t, x, y, tile_width, tile_height,
+                    tile_count):
+                tile2d = next(tile_iter)
+                data.setTile(tile2d, z, c, t, x, y, tile_width, tile_height)
+
+        loop = RPSTileLoop(self.c.sf, omero.model.PixelsI(pixels.id.val, False))
+        loop.forEachTile(tile_width, tile_height, Iteration())
+
+        for theC, mm in enumerate(channelsMinMax):
+            pixels_service.setChannelGlobalMinMax(
+                pixels.id.val, theC, float(mm[0]), float(mm[1]), self.SERVICE_OPTS)
+        return image
+
+
+    def get_pixel_type(self, dtype):
+        # need to map numpy pixel types to omero - don't handle: bool_,
+        # character, int_, int64, object_
+        queryService = self.getQueryService()
+        pTypes = {'int8': PixelsTypeint8,
+                    'int16': PixelsTypeint16,
+                    'uint16': PixelsTypeuint16,
+                    'int32': PixelsTypeint32,
+                    'float_': PixelsTypefloat,
+                    'float8': PixelsTypefloat,
+                    'float16': PixelsTypefloat,
+                    'float32': PixelsTypefloat,
+                    'float64': PixelsTypedouble,
+                    'complex_': PixelsTypecomplex,
+                    'complex64': PixelsTypecomplex}
+        # try to look up any not named above
+        pType = pTypes.get(dtype.name, dtype.name)
+        # omero::model::PixelsType
+        return queryService.findByQuery(
+            "from PixelsType as p where p.value='%s'" % pType, None)
+
+    def _createImage(self, dtype, imageName, sizeX, sizeY, sizeZ=1, sizeC=1,
+                     sizeT=1, channelList=None, sourceImageId=None,
+                     description=None):
+            """ Create our new Image once we have the first plane in hand """
+            pixelsService = self.getPixelsService()
+            containerService = self.getContainerService()
+            convertToType = dtype
+            if sourceImageId is not None:
+                if channelList is None:
+                    channelList = list(range(sizeC))
+                iId = pixelsService.copyAndResizeImage(
+                    sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ),
+                    rint(sizeT), channelList, None, False, self.SERVICE_OPTS)
+                # need to ensure that the plane dtype matches the pixels type
+                # of our new image
+                img = self.getObject("Image", iId.getValue())
+                newPtype = img.getPrimaryPixels().getPixelsType().getValue()
+                omeroToNumpy = {PixelsTypeint8: 'int8',
+                                PixelsTypeuint8: 'uint8',
+                                PixelsTypeint16: 'int16',
+                                PixelsTypeuint16: 'uint16',
+                                PixelsTypeint32: 'int32',
+                                PixelsTypeuint32: 'uint32',
+                                PixelsTypefloat: 'float32',
+                                PixelsTypedouble: 'double'}
+                if omeroToNumpy[newPtype] != dtype.name:
+                    convertToType = getattr(numpy, omeroToNumpy[newPtype])
+                img._obj.setName(rstring(imageName))
+                img._obj.setSeries(rint(0))
+                updateService.saveObject(img._obj, self.SERVICE_OPTS)
+            else:
+                pixelsType = self.get_pixel_type(dtype)
+                if pixelsType is None:
+                    raise Exception(
+                        "Cannot create an image in omero from numpy array "
+                        "with dtype: %s" % dType)
+                channelList = list(range(sizeC))
+                iId = pixelsService.createImage(
+                    sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType,
+                    imageName, description, self.SERVICE_OPTS)
+
+            imageId = iId.getValue()
+            return (containerService.getImages(
+                "Image", [imageId], None, self.SERVICE_OPTS)[0], convertToType)
+
+
     def createImageFromNumpySeq(self, zctPlanes, imageName, sizeZ=1, sizeC=1,
                                 sizeT=1, description=None, dataset=None,
                                 sourceImageId=None, channelList=None):
@@ -3770,76 +3897,16 @@ class _BlitzGateway (object):
                                 source image (if specified). E.g. [0,2]
         :return: The new OMERO image: omero.model.ImageI
         """
-        queryService = self.getQueryService()
         pixelsService = self.getPixelsService()
         # Make sure we don't get an existing rpStore
         rawPixelsStore = self.c.sf.createRawPixelsStore()
-        containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
-        import numpy
-
-        def createImage(firstPlane, channelList):
-            """ Create our new Image once we have the first plane in hand """
-            convertToType = None
-            sizeY, sizeX = firstPlane.shape
-            if sourceImageId is not None:
-                if channelList is None:
-                    channelList = list(range(sizeC))
-                iId = pixelsService.copyAndResizeImage(
-                    sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ),
-                    rint(sizeT), channelList, None, False, self.SERVICE_OPTS)
-                # need to ensure that the plane dtype matches the pixels type
-                # of our new image
-                img = self.getObject("Image", iId.getValue())
-                newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {PixelsTypeint8: 'int8',
-                                PixelsTypeuint8: 'uint8',
-                                PixelsTypeint16: 'int16',
-                                PixelsTypeuint16: 'uint16',
-                                PixelsTypeint32: 'int32',
-                                PixelsTypeuint32: 'uint32',
-                                PixelsTypefloat: 'float32',
-                                PixelsTypedouble: 'double'}
-                if omeroToNumpy[newPtype] != firstPlane.dtype.name:
-                    convertToType = getattr(numpy, omeroToNumpy[newPtype])
-                img._obj.setName(rstring(imageName))
-                img._obj.setSeries(rint(0))
-                updateService.saveObject(img._obj, self.SERVICE_OPTS)
-            else:
-                # need to map numpy pixel types to omero - don't handle: bool_,
-                # character, int_, int64, object_
-                pTypes = {'int8': PixelsTypeint8,
-                          'int16': PixelsTypeint16,
-                          'uint16': PixelsTypeuint16,
-                          'int32': PixelsTypeint32,
-                          'float_': PixelsTypefloat,
-                          'float8': PixelsTypefloat,
-                          'float16': PixelsTypefloat,
-                          'float32': PixelsTypefloat,
-                          'float64': PixelsTypedouble,
-                          'complex_': PixelsTypecomplex,
-                          'complex64': PixelsTypecomplex}
-                dType = firstPlane.dtype.name
-                if dType not in pTypes:  # try to look up any not named above
-                    pType = dType
-                else:
-                    pType = pTypes[dType]
-                # omero::model::PixelsType
-                pixelsType = queryService.findByQuery(
-                    "from PixelsType as p where p.value='%s'" % pType, None)
-                if pixelsType is None:
-                    raise Exception(
-                        "Cannot create an image in omero from numpy array "
-                        "with dtype: %s" % dType)
-                channelList = list(range(sizeC))
-                iId = pixelsService.createImage(
-                    sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType,
-                    imageName, description, self.SERVICE_OPTS)
-
-            imageId = iId.getValue()
-            return (containerService.getImages(
-                "Image", [imageId], None, self.SERVICE_OPTS)[0], convertToType)
+        # use the first plane to create image.
+        first_plane = next(zctPlanes)
+        sizeY, sizeX = first_plane.shape
+        image, dtype = self._createImage(first_plane.dtype, imageName, sizeX, sizeY, sizeZ, sizeC,
+            sizeT, channelList, sourceImageId, description)
 
         def uploadPlane(plane, z, c, t, convertToType):
             # if we're given a numpy dtype, need to convert plane to that dtype
@@ -3851,53 +3918,54 @@ class _BlitzGateway (object):
             convertedPlane = byteSwappedPlane.tostring()
             rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
-        image = None
-        dtype = None
         channelsMinMax = []
-        exc = None
-        try:
-            for theZ in range(sizeZ):
-                for theC in range(sizeC):
-                    for theT in range(sizeT):
-                        plane = next(zctPlanes)
-                        # use the first plane to create image.
-                        if image is None:
-                            image, dtype = createImage(plane, channelList)
-                            pixelsId = image.getPrimaryPixels(
-                                ).getId().getValue()
-                            rawPixelsStore.setPixelsId(
-                                pixelsId, True, self.SERVICE_OPTS)
-                        uploadPlane(plane, theZ, theC, theT, dtype)
-                        # init or update min and max for this channel
-                        minValue = plane.min()
-                        maxValue = plane.max()
-                        # first plane of each channel
-                        if len(channelsMinMax) < (theC + 1):
-                            channelsMinMax.append([minValue, maxValue])
-                        else:
-                            channelsMinMax[theC][0] = min(
-                                channelsMinMax[theC][0], minValue)
-                            channelsMinMax[theC][1] = max(
-                                channelsMinMax[theC][1], maxValue)
-        except Exception as e:
-            logger.error(
-                "Failed to setPlane() on rawPixelsStore while creating Image",
-                exc_info=True)
-            exc = e
-        try:
-            rawPixelsStore.close(self.SERVICE_OPTS)
-        except Exception as e:
-            logger.error("Failed to close rawPixelsStore", exc_info=True)
-            if exc is None:
-                exc = e
-        if exc is not None:
-            raise exc
+        # add the first plane back into generator
+        zct_plane_gen = chain([first_plane], zctPlanes)
+        # FIXME: use right numbers
+        if sizeX * sizeY > 3000 * 3000:
+            # plane generator needs to start with first plane
+            self.upload_tiles(image, zct_plane_gen)
+        else:
+            pixelsId = image.getPrimaryPixels().getId().getValue()
+            rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
 
-        # simply completing the generator - to avoid a GeneratorExit error.
-        try:
-            next(zctPlanes)
-        except StopIteration:
-            pass
+            exc = None
+            try:
+                for theZ in range(sizeZ):
+                    for theC in range(sizeC):
+                        for theT in range(sizeT):
+                            plane = next(zct_plane_gen)
+                            uploadPlane(plane, theZ, theC, theT, dtype)
+                            # init or update min and max for this channel
+                            minValue = plane.min()
+                            maxValue = plane.max()
+                            # first plane of each channel
+                            if len(channelsMinMax) < (theC + 1):
+                                channelsMinMax.append([minValue, maxValue])
+                            else:
+                                channelsMinMax[theC][0] = min(
+                                    channelsMinMax[theC][0], minValue)
+                                channelsMinMax[theC][1] = max(
+                                    channelsMinMax[theC][1], maxValue)
+            except Exception as e:
+                logger.error(
+                    "Failed to setPlane() on rawPixelsStore while creating Image",
+                    exc_info=True)
+                exc = e
+            try:
+                rawPixelsStore.close(self.SERVICE_OPTS)
+            except Exception as e:
+                logger.error("Failed to close rawPixelsStore", exc_info=True)
+                if exc is None:
+                    exc = e
+            if exc is not None:
+                raise exc
+
+            # simply completing the generator - to avoid a GeneratorExit error.
+            try:
+                next(zctPlanes)
+            except StopIteration:
+                pass
 
         for theC, mm in enumerate(channelsMinMax):
             pixelsService.setChannelGlobalMinMax(
