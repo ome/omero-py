@@ -3731,7 +3731,7 @@ class _BlitzGateway (object):
         return self.countAnnotations(obj_type, obj_ids)
 
 
-    def upload_tiles(self, image, zct_plane_gen, tile_size=256):
+    def upload_tiles(self, image, zct_plane_gen, convertToType, tile_size=512):
         """
         Upload numpy planes to a 'big' image as tiles.
 
@@ -3747,10 +3747,14 @@ class _BlitzGateway (object):
         # Make a generator of all the tiles we're going to need.
         # This is the SAME ORDER that RPSTileLoop will ask for them.
         def tile_gen():
-            for theZ in range(pixels.getSizeZ().val):
+            for theT in range(pixels.getSizeT().val):
                 for theC in range(pixels.getSizeC().val):
-                    for theT in range(pixels.getSizeT().val):
+                    for theZ in range(pixels.getSizeZ().val):
                         plane = next(zct_plane_gen)
+                        if convertToType is not None:
+                            p = numpy.zeros(plane.shape, dtype=convertToType)
+                            p += plane
+                            plane = p
                         size_y, size_x = plane.shape
                         # first plane of each channel
                         minValue = plane.min()
@@ -3846,8 +3850,10 @@ class _BlitzGateway (object):
                 if omeroToNumpy[newPtype] != dtype.name:
                     convertToType = getattr(numpy, omeroToNumpy[newPtype])
                 img._obj.setName(rstring(imageName))
+                if description is not None:
+                    img._obj.setDescription(rstring(description))
                 img._obj.setSeries(rint(0))
-                updateService.saveObject(img._obj, self.SERVICE_OPTS)
+                self.getUpdateService().saveObject(img._obj, self.SERVICE_OPTS)
             else:
                 pixelsType = self.get_pixel_type(dtype)
                 if pixelsType is None:
@@ -3927,6 +3933,7 @@ class _BlitzGateway (object):
             byteSwappedPlane = plane.byteswap()
             convertedPlane = byteSwappedPlane.tostring()
             rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
+            return (plane.min(), plane.max())
 
         channelsMinMax = []
         # add the first plane back into generator
@@ -3935,7 +3942,7 @@ class _BlitzGateway (object):
         big_image_size = self.getMaxPlaneSize()
         if sizeX * sizeY > big_image_size[0] * big_image_size[1]:
             # For 'big' images, need to upload tiles
-            self.upload_tiles(image, zct_plane_gen)
+            self.upload_tiles(image, zct_plane_gen, dtype)
         else:
             pixelsId = image.getPrimaryPixels().getId().getValue()
             rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
@@ -3946,10 +3953,8 @@ class _BlitzGateway (object):
                     for theC in range(sizeC):
                         for theT in range(sizeT):
                             plane = next(zct_plane_gen)
-                            uploadPlane(plane, theZ, theC, theT, dtype)
+                            minValue, maxValue = uploadPlane(plane, theZ, theC, theT, dtype)
                             # init or update min and max for this channel
-                            minValue = plane.min()
-                            maxValue = plane.max()
                             # first plane of each channel
                             if len(channelsMinMax) < (theC + 1):
                                 channelsMinMax.append([minValue, maxValue])
