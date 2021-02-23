@@ -43,7 +43,7 @@ class TxField(object):
 
     ARG_RE = re.compile((r"(?P<FIELD>[a-zA-Z][a-zA-Z0-9]*)"
                          "(?P<OPER>[@])?="
-                         "(?P<VALUE>.*)"))
+                         "(?P<VALUE>.*)"), re.MULTILINE|re.DOTALL)
 
     def __init__(self, tx_state, arg):
         self.tx_state = tx_state
