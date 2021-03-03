@@ -87,7 +87,7 @@ class ConfigXml(object):
     in etc/grid. For a copy of the dict, use "as_map"
     """
     KEY = "omero.config.version"
-    VERSION = "5.1.0"
+    VERSION = "5.2.0"
     INTERNAL = "__ACTIVE__"
     DEFAULT = "omero.config.profile"
     IGNORE = (KEY, DEFAULT)
@@ -124,6 +124,7 @@ class ConfigXml(object):
             try:
                 self.version_check()
                 self.toplinks_check()
+                self.middleware_check()
             except:
                 self.close()
                 raise
@@ -218,6 +219,21 @@ class ConfigXml(object):
                                     "Open OMERO user guide in a new tab"}]]
                         toplinks = defaultlinks + toplinks
                         val = json.dumps(toplinks)
+                        x.set("value", val)
+                    if x.get("name") == self.KEY:
+                        x.set("value", self.VERSION)
+
+    def middleware_check(self):
+        for k, v in self.properties(None, True):
+            version = self.version(k)
+            if version == "5.1.0" and v is not None:
+                for x in list(v):
+                    # User has configured their middleware list.
+                    if x.get("name") == "omero.web.middleware":
+                        val = x.get("value", "")
+                        middleware = json.loads(val)
+                        middleware.append({"index": 7, "class": "omeroweb.middleware.CustomHeadersMiddleware"})
+                        val = json.dumps(middleware)
                         x.set("value", val)
                     if x.get("name") == self.KEY:
                         x.set("value", self.VERSION)
