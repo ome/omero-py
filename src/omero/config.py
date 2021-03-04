@@ -227,16 +227,29 @@ class ConfigXml(object):
         for k, v in self.properties(None, True):
             version = self.version(k)
             if version == "5.1.0" and v is not None:
-                for x in list(v):
-                    # User has configured their middleware list.
-                    if x.get("name") == "omero.web.middleware":
-                        val = x.get("value", "")
-                        middleware = json.loads(val)
-                        middleware.append({"index": 7, "class": "omeroweb.middleware.CustomHeadersMiddleware"})
-                        val = json.dumps(middleware)
-                        x.set("value", val)
-                    if x.get("name") == self.KEY:
-                        x.set("value", self.VERSION)
+                try:
+                    from omeroweb.middleware import CustomHeadersMiddleware
+                except:
+                    self.logger.info(
+                        "Failed to import"
+                        " omeroweb.middleware.CustomHeadersMiddleware")
+                else:
+                    self.logger.info(
+                        "Adding omeroweb.middleware.CustomHeadersMiddleware"
+                        " to omero.web.middleware")
+                    for x in list(v):
+                        # User has configured their middleware list.
+                        if x.get("name") == "omero.web.middleware":
+                            val = x.get("value", "")
+                            middleware = json.loads(val)
+                            middleware.append({
+                                "index": 7,
+                                "class":
+                                "omeroweb.middleware.CustomHeadersMiddleware"})
+                            val = json.dumps(middleware)
+                            x.set("value", val)
+                        if x.get("name") == self.KEY:
+                            x.set("value", self.VERSION)
 
     def version_fix(self, props, version):
         """
