@@ -232,7 +232,8 @@ class ConfigXml(object):
                 except:
                     self.logger.info(
                         "Failed to import"
-                        " omeroweb.middleware.CustomHeadersMiddleware")
+                        " omeroweb.middleware.CustomHeadersMiddleware."
+                        " Please upgrade omero-web")
                 else:
                     self.logger.info(
                         "Adding omeroweb.middleware.CustomHeadersMiddleware"
@@ -240,7 +241,7 @@ class ConfigXml(object):
                     for x in list(v):
                         # User has configured their middleware list.
                         if x.get("name") == "omero.web.middleware":
-                            val = x.get("value", "")
+                            val = x.get("value", "[]")
                             middleware = json.loads(val)
                             middleware.append({
                                 "index": 7,
