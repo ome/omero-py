@@ -244,8 +244,8 @@ class ConfigXml(object):
                         " Please upgrade omero-web")
                 else:
                     self.logger.info(
-                        "Adding omeroweb.middleware.CustomHeadersMiddleware"
-                        " to omero.web.middleware")
+                        "Removing default middleware classes"
+                        " from omero.web.middleware")
                     for x in list(v):
                         # User has configured their middleware list.
                         if x.get("name") == "omero.web.middleware":
