@@ -224,6 +224,14 @@ class ConfigXml(object):
                         x.set("value", self.VERSION)
 
     def middleware_check(self):
+        mw_classes = [
+            "django.middleware.common.BrokenLinkEmailsMiddleware",
+            "django.middleware.common.CommonMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
+            "django.middleware.csrf.CsrfViewMiddleware",
+            "django.contrib.messages.middleware.MessageMiddleware",
+            "django.middleware.clickjacking.XFrameOptionsMiddleware"
+        ]
         for k, v in self.properties(None, True):
             version = self.version(k)
             if version == "5.1.0" and v is not None:
@@ -243,11 +251,9 @@ class ConfigXml(object):
                         if x.get("name") == "omero.web.middleware":
                             val = x.get("value", "[]")
                             middleware = json.loads(val)
-                            middleware.append({
-                                "index": 7,
-                                "class":
-                                "omeroweb.middleware.CustomHeadersMiddleware"})
-                            val = json.dumps(middleware)
+                            custom = [mw for mw in middleware
+                                if mw['class'] not in mw_classes]
+                            val = json.dumps(custom)
                             x.set("value", val)
                         if x.get("name") == self.KEY:
                             x.set("value", self.VERSION)
