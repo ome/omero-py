@@ -203,7 +203,7 @@ class TestConfig(object):
         config = ConfigXml(filename=str(p))
         m = config.as_map()
         for k, v in list(m.items()):
-            assert "5.1.0" == v
+            assert ConfigXml.VERSION == v
 
     def testOldVersionDetected(self):
         p = create_path()
@@ -297,11 +297,11 @@ class TestConfig(object):
         finally:
             config.close()
 
-        # After config.close() calls config.save() new version should be 5.1.0
+        # After config.close() calls config.save() new version should be updated
         config = ConfigXml(filename=str(p), env_config="default")
         try:
             # Check version has been updated
-            assert config.version() == "5.1.0"
+            assert config.version() == config.VERSION
             # And that top_links has not been modified further
             compare_json_maps(config, afterUpdate)
         finally:
