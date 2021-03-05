@@ -238,7 +238,7 @@ class ConfigXml(object):
                 try:
                     from omeroweb.middleware import CustomHeadersMiddleware
                 except:
-                    self.logger.info(
+                    self.logger.error(
                         "Failed to import"
                         " omeroweb.middleware.CustomHeadersMiddleware."
                         " Please upgrade omero-web")
