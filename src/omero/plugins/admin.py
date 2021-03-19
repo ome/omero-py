@@ -1155,7 +1155,7 @@ present, the user will enter a console""")
             elem.tail = ""
             if elem.text is not None and not elem.text.strip():
                 elem.text = ""
-            for child in elem.getchildren():
+            for child in list(elem):
                 clear_tail(child)
 
         clear_tail(template_xml)
