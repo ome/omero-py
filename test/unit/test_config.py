@@ -52,8 +52,8 @@ def assertXml(elementA, elementB):
     for k in B_attr:
         assert A_attr[k] == B_attr[k], cf(elementA, elementB)
 
-    A_kids = dict([pair(x) for x in elementA.getchildren()])
-    B_kids = dict([pair(x) for x in elementB.getchildren()])
+    A_kids = dict([pair(x) for x in list(elementA)])
+    B_kids = dict([pair(x) for x in list(elementB)])
     for k in A_attr:
         assertXml(A_kids[k], B_kids[k])
     for k in B_attr:
@@ -127,7 +127,7 @@ class TestConfig(object):
             for x in props:
                 id = x.attrib["id"]
                 if id == "__ACTIVE__":
-                    for y in x.getchildren():
+                    for y in list(x):
                         if y.attrib["name"] == "omero.config.profile":
                             return y.attrib["value"]
 
