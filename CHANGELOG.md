@@ -1,3 +1,15 @@
+# 5.9.1 (March 2021)
+
+## Bug Fix
+- remove usage of deprecated method preventing usage on Python 3.9
+  [#282](https://github.com/ome/omero-py/pull/282)
+- CLI: obj update strips newlines [#279](https://github.com/ome/omero-py/pull/279)
+- roi_utils: fix possible division by zero [#278](https://github.com/ome/omero-py/pull/278)
+
+
+## Other updates
+- download provider uses NamedTemporaryFile [#274](https://github.com/ome/omero-py/pull/274)
+
 # 5.9.0 (January 2021)
 
 - Admin: introduce `omero.server.nodedescriptors` configuration property
