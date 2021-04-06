@@ -4183,6 +4183,45 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield wrapper(self, e)
 
+    def getObjectsByMapAnnotations(self, obj_type, key=None, value=None, ns=None,
+                                   opts={}):
+
+        wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
+        if not wrapper:
+            raise AttributeError("Don't know how to handle '%s'" % obj_type)
+
+        params = omero.sys.ParametersI()
+        clauses = []
+        if key is not None:
+            clauses.append("mv.name = :key")
+            params.addString("key", key)
+        if value is not None:
+            clauses.append("mv.value = :value")
+            params.addString("value", value)
+        if ns is not None:
+            clauses.append("ann.ns = :ns")
+            params.addString("ns", ns)
+
+        # Parse opts dict to build params
+        limit = opts.get('limit', 500)
+        offset = opts.get('offset', 0)
+        if offset is not None and limit is not None:
+            params.page(offset, limit)
+
+        # Using projection since can't seem to fetch objects AND filter by mapValue
+        query = """
+            select obj.id, obj.name from
+            %sAnnotationLink ial
+            join ial.child ann
+            join ann.mapValue mv
+            join ial.parent obj""" % wrapper().OMERO_CLASS
+        if len(clauses) > 0:
+            query += " where " + " and ".join(clauses)
+        result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
+        ids = [row[0].val for row in result]
+        return self.getObjects(obj_type, ids)
+
+
     ################
     # Enumerations #
 
