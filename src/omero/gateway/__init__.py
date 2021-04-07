@@ -4219,6 +4219,8 @@ class _BlitzGateway (object):
             query += " where " + " and ".join(clauses)
         result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
         ids = [row[0].val for row in result]
+        if len(ids) == 0:
+            return []
         return self.getObjects(obj_type, ids)
 
 
