@@ -4192,12 +4192,24 @@ class _BlitzGateway (object):
 
         params = omero.sys.ParametersI()
         clauses = []
-        if key is not None:
-            clauses.append("mv.name = :key")
-            params.addString("key", key)
-        if value is not None:
-            clauses.append("mv.value = :value")
-            params.addString("value", value)
+
+        def add_param(param, value):
+            if value is None:
+                return
+            # Replace wild-cards with `%%` for `like` search
+            wild_card = (value[0] == "*" or value[-1] == "*")
+            if value[0] == "*":
+                value = "%%" + value[1:]
+            if value[-1] == "*":
+                value = value[:-1] + "%%"
+            like = "like" if wild_card else "="
+            clauses.append("mv.%s %s :%s" % (param, like, param))
+            params.addString(param, value)
+
+        # Build the query, handling wildcards for key and value
+        add_param("name", key)
+        add_param("value", value)
+
         if ns is not None:
             clauses.append("ann.ns = :ns")
             params.addString("ns", ns)
