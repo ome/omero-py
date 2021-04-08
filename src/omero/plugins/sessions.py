@@ -201,9 +201,6 @@ class SessionsControl(UserGroupControl):
         logout = parser.add(
             sub, self.logout, "Logout and remove current session key")
         self._configure_login(login)
-        login.add_argument(
-            "--retry", nargs="?", type=int, default=0,
-            help="Number of seconds to retry login (default: no retry)")
 
         group = parser.add(
             sub, self.group,
@@ -277,6 +274,9 @@ class SessionsControl(UserGroupControl):
             "-t", "--timeout", type=int,
             help="Timeout for session. After this many inactive seconds, the"
             " session will be closed")
+        login.add_argument(
+            "--retry", nargs="?", type=int, default=0,
+            help="Number of seconds to retry login (default: no retry)")
         login.add_argument(
             "connection", nargs="?",
             help="Connection string. See extended help for examples")
