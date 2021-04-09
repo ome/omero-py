@@ -4222,7 +4222,7 @@ class _BlitzGateway (object):
 
         # Using projection since can't seem to fetch objects AND filter by mapValue
         query = """
-            select obj.id, obj.name from
+            select distinct obj.id from
             %sAnnotationLink ial
             join ial.child ann
             join ann.mapValue mv
