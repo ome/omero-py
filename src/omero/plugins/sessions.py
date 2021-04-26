@@ -28,6 +28,7 @@ from __future__ import division
 
 from builtins import str
 from past.utils import old_div
+import datetime
 import os
 import sys
 import Ice
@@ -273,6 +274,9 @@ class SessionsControl(UserGroupControl):
             "-t", "--timeout", type=int,
             help="Timeout for session. After this many inactive seconds, the"
             " session will be closed")
+        login.add_argument(
+            "--retry", nargs="?", type=int, default=0,
+            help="Number of seconds to retry login (default: no retry)")
         login.add_argument(
             "connection", nargs="?",
             help="Connection string. See extended help for examples")
@@ -531,7 +535,26 @@ class SessionsControl(UserGroupControl):
                             prompt = "Password:"
                         pasw = self.ctx.input(prompt, hidden=True,
                                               required=True)
-                    rv = store.create(name, pasw, props, sudo=args.sudo)
+
+                    ### Retry logic ############################################
+                    start = time.time()
+                    retries = 0
+                    while True:
+                        try:
+                            rv = store.create(name, pasw, props, sudo=args.sudo)
+                            break
+                        except Exception as e:
+                            elapsed = (time.time() - start)
+                            if not args.retry or (elapsed > args.retry):
+                                raise
+                            else:
+                                retries += 1
+                                msg = str(datetime.datetime.now().time())
+                                msg += ": Login retry #%d in 3s" % (retries)
+                                self.ctx.err(msg)
+                                time.sleep(3)
+                    ### End retry ##############################################
+
                     break
                 except PermissionDeniedException as pde:
                     tries -= 1
