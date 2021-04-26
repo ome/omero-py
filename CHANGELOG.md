@@ -1,3 +1,9 @@
+# 5.9.2 (April 2021)
+
+## New CLI option
+- Add `--retry [RETRIES]` to `omero login`
+  [#283](https://github.com/ome/omero-py/pull/283)
+
 # 5.9.1 (March 2021)
 
 ## Bug Fix
