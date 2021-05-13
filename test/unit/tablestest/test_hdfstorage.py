@@ -304,6 +304,28 @@ class TestHdfStorage(TestCase):
         # Doesn't work yet.
         hdf.cleanup()
 
+    @pytest.mark.parametrize('name', [
+        "my name", "name [unit]", "name (unit)"])
+    def testNonNaturalNameWarning(self, name):
+        # Tests String column with non-pythonic names
+        # See also Pytables NaturalNameWarning
+        bytesize = 3
+        hdf = HdfStorage(self.hdfpath(), self.lock)
+        cols = [omero.columns.StringColumnI(
+            name, "A column with non natural name", bytesize, None)]
+        hdf.initialize(cols)
+        cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
+        cols[0].values = ["foo", "bar"]
+        hdf.append(cols)
+        rows = hdf.getWhereList(
+            time.time(), '(x=="bar")',
+            { 'x' : getattr(hdf._HdfStorage__mea.cols, name) },
+            'b', None, None, None)
+        assert rows == [1]
+        assert bytesize == hdf.readCoordinates(
+            time.time(), rows, self.current).columns[0].size
+        hdf.cleanup()
+
     #
     # ROIs
     #
