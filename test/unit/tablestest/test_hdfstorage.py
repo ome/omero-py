@@ -129,20 +129,39 @@ class TestHdfStorage(TestCase):
         self.append(hdf, {"a": 1, "b": 2, "c": 3})
         self.append(hdf, {"a": 5, "b": 6, "c": 7})
         data = hdf.readCoordinates(hdf._stamp, [0, 1], self.current)
+        assert 1 == data.columns[0].values[0]
+        assert 5 == data.columns[0].values[1]
+        assert 2 == data.columns[1].values[0]
+        assert 6 == data.columns[1].values[1]
+        assert 3 == data.columns[2].values[0]
+        assert 7 == data.columns[2].values[1]
+
         data.columns[0].values[0] = 100
         data.columns[0].values[1] = 200
         data.columns[1].values[0] = 300
         data.columns[1].values[1] = 400
         hdf.update(hdf._stamp, data)
         hdf.readCoordinates(hdf._stamp, [0, 1], self.current)
+        assert 100 == data.columns[0].values[0]
+        assert 200 == data.columns[0].values[1]
+        assert 300 == data.columns[1].values[0]
+        assert 400 == data.columns[1].values[1]
+        assert 3 == data.columns[2].values[0]
+        assert 7 == data.columns[2].values[1]
         hdf.cleanup()
 
     def testReadTicket1951(self):
         hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         self.append(hdf, {"a": 1, "b": 2, "c": 3})
-        hdf.readCoordinates(hdf._stamp, [0], self.current)
-        hdf.read(hdf._stamp, [0, 1, 2], 0, 1, self.current)
+        data = hdf.readCoordinates(hdf._stamp, [0], self.current)
+        assert 1 == data.columns[0].values[0]
+        assert 2 == data.columns[1].values[0]
+        assert 3 == data.columns[2].values[0]
+        data = hdf.read(hdf._stamp, [0, 1, 2], 0, 1, self.current)
+        assert 1 == data.columns[0].values[0]
+        assert 2 == data.columns[1].values[0]
+        assert 3 == data.columns[2].values[0]
         hdf.cleanup()
 
     def testSorting(self):  # Probably shouldn't work
