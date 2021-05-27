@@ -319,7 +319,7 @@ class TestHdfStorage(TestCase):
         hdf.append(cols)
         rows = hdf.getWhereList(
             time.time(), '(x=="bar")',
-            { 'x' : getattr(hdf._HdfStorage__mea.cols, name) },
+            { 'x' : name },
             'b', None, None, None)
         assert rows == [1]
         assert bytesize == hdf.readCoordinates(
