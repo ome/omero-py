@@ -334,6 +334,52 @@ class TestHdfStorage(TestCase):
         # Doesn't work yet.
         hdf.cleanup()
 
+    def testRead(self):
+        hdf = HdfStorage(self.hdfpath(), self.lock)
+        cols = [
+            omero.columns.LongColumnI('a'),
+            omero.columns.LongColumnI('b'),
+            omero.columns.LongColumnI('c')]
+        hdf.initialize(cols)
+        cols[0].values = [1, 2, 3]
+        cols[1].values = [4, 5, 6]
+        cols[2].values = [7, 8, 9]
+        hdf.append(cols)
+
+        data = hdf.read(time.time(), [0, 1, 2], 0, 2, self.current)
+        assert len(data.columns) == 3
+        assert len(data.columns[0].values) == 2
+        assert data.columns[0].name == 'a'
+        assert data.columns[0].values[0] == 1
+        assert data.columns[0].values[1] == 2
+        assert data.columns[1].name == 'b'
+        assert data.columns[1].values[0] == 4
+        assert data.columns[1].values[1] == 5
+        assert data.columns[2].name == 'c'
+        assert data.columns[2].values[0] == 7
+        assert data.columns[2].values[1] == 8
+
+        data = hdf.read(time.time(), [0, 2], 1, 3, self.current)
+        assert len(data.columns) == 2
+        assert len(data.columns[0].values) == 2
+        assert data.columns[0].name == 'a'
+        assert data.columns[0].values[0] == 2
+        assert data.columns[0].values[1] == 3
+        assert data.columns[1].name == 'c'
+        assert data.columns[1].values[0] == 8
+        assert data.columns[1].values[1] == 9
+
+        data = hdf.read(time.time(), [1], 1, 2, self.current)
+        assert len(data.columns) == 1
+        assert len(data.columns[0].values) == 1
+        assert data.columns[0].name == 'b'
+        assert data.columns[0].values[0] == 5
+
+        data = hdf.read(time.time(), [0, 1, 2], 1, 1, self.current)
+        assert len(data.columns) == 3
+        assert len(data.columns[0].values) == 0
+        hdf.cleanup()
+
     #
     # ROIs
     #
