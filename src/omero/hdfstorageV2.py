@@ -576,11 +576,12 @@ class HdfStorage(object):
     def read(self, stamp, colNumbers, start, stop, current):
         self.__initcheck()
         self.__sizecheck(colNumbers, None)
-        cols = self.cols(None, current)
+        all_cols = self.cols(None, current)
+        cols = [all_cols[i] for i in colNumbers]
 
-        rows = self._getrows(start, stop)
-        rv, l = self._rowstocols(rows, colNumbers, cols)
-        return self._as_data(rv, list(range(start, start + l)))
+        for col in cols:
+            col.read(self.__mea, start, stop)
+        return self._as_data(cols, range(stop - start + 1))
 
     def _getrows(self, start, stop):
         return self.__mea.read(start, stop)
