@@ -357,7 +357,7 @@ class TestHdfStorage(TestCase):
         assert 5 == test.y[1]
         assert 6 == test.w[1]
         assert 7 == test.h[1]
-        assert [0 == 1, 2, 3, 4], test.bytes[1]
+        assert [0, 1, 2, 3, 4] == test.bytes[1]
 
         data = hdf.read(hdf._stamp, [0], 0, 1, self.current)
         hdf.cleanup()
