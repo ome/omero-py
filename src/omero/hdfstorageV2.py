@@ -593,7 +593,7 @@ class HdfStorage(object):
             col.fromrows(rows)
             rv.append(col)
             if not l:
-                l = len(col.values)
+                l = col.getsize()
         return rv, l
 
     @stamped
