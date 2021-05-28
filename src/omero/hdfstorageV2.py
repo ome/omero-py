@@ -590,20 +590,6 @@ class HdfStorage(object):
 
         return self._as_data(cols, rowNumbers)
 
-    def _getrows(self, start, stop):
-        return self.__mea.read(start, stop)
-
-    def _rowstocols(self, rows, colNumbers, cols):
-        l = 0
-        rv = []
-        for i in colNumbers:
-            col = cols[i]
-            col.fromrows(rows)
-            rv.append(col)
-            if not l:
-                l = col.getsize()
-        return rv, l
-
     @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):
         self.__initcheck()
