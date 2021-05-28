@@ -375,9 +375,39 @@ class TestHdfStorage(TestCase):
         assert data.columns[0].name == 'b'
         assert data.columns[0].values[0] == 5
 
+        # (start=1, stop=1) should return no rows
         data = hdf.read(time.time(), [0, 1, 2], 1, 1, self.current)
         assert len(data.columns) == 3
         assert len(data.columns[0].values) == 0
+        hdf.cleanup()
+
+        # (start=None, stop=None) should return all rows
+        data = hdf.read(time.time(), [0, 1, 2], None, None, self.current)
+        assert len(data.columns) == 3
+        assert len(data.columns[0].values) == 3
+        assert data.columns[0].name == 'a'
+        assert data.columns[0].values[0] == 1
+        assert data.columns[0].values[1] == 2
+        assert data.columns[0].values[2] == 3
+        assert data.columns[1].name == 'b'
+        assert data.columns[1].values[0] == 4
+        assert data.columns[1].values[1] == 5
+        assert data.columns[1].values[2] == 6
+        assert data.columns[2].name == 'c'
+        assert data.columns[2].values[0] == 7
+        assert data.columns[2].values[1] == 8
+        assert data.columns[2].values[2] == 9
+
+        # (start=0, stop=None) should return one rows
+        data = hdf.read(time.time(), [0, 1, 2], 1, None, self.current)
+        assert len(data.columns) == 3
+        assert len(data.columns[0].values) == 1
+        assert data.columns[0].name == 'a'
+        assert data.columns[0].values[0] == 2
+        assert data.columns[1].name == 'b'
+        assert data.columns[1].values[0] == 5
+        assert data.columns[2].name == 'c'
+        assert data.columns[2].values[0] == 8
         hdf.cleanup()
 
     #
