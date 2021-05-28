@@ -371,6 +371,7 @@ class TestHdfStorage(TestCase):
         assert data.columns[1].values[1] == 9
         assert data.rowNumbers == [1, 2]
 
+        # Reads row 1
         data = hdf.read(time.time(), [1], 1, 2, self.current)
         assert len(data.columns) == 1
         assert len(data.columns[0].values) == 1
@@ -378,13 +379,13 @@ class TestHdfStorage(TestCase):
         assert data.columns[0].values[0] == 5
         assert data.rowNumbers == [1]
 
-        # (start=1, stop=1) should return no rows
+       # Reads no row
         data = hdf.read(time.time(), [0, 1, 2], 1, 1, self.current)
         assert len(data.columns) == 3
         assert len(data.columns[0].values) == 0
         assert data.rowNumbers == []
 
-        # (start=None, stop=None) should return all rows
+        # Read all rows
         data = hdf.read(time.time(), [0, 1, 2], None, None, self.current)
         assert len(data.columns) == 3
         assert len(data.columns[0].values) == 3
@@ -400,19 +401,19 @@ class TestHdfStorage(TestCase):
         assert data.columns[2].values[0] == 7
         assert data.columns[2].values[1] == 8
         assert data.columns[2].values[2] == 9
-        assert data.rowNumbers == [1, 2, 3]
+        assert data.rowNumbers == [0, 1, 2]
 
-        # (start=0, stop=None) should return one rows
-        data = hdf.read(time.time(), [0, 1, 2], 1, None, self.current)
-        assert len(data.columns) == 3
-        assert len(data.columns[0].values) == 1
+        # Read from row 1 until the end of the table
+        data = hdf.read(time.time(), [0, 2], 1, None, self.current)
+        assert len(data.columns) == 2
+        assert len(data.columns[0].values) == 2
         assert data.columns[0].name == 'a'
         assert data.columns[0].values[0] == 2
-        assert data.columns[1].name == 'b'
-        assert data.columns[1].values[0] == 5
-        assert data.columns[2].name == 'c'
-        assert data.columns[2].values[0] == 8
-        assert data.rowNumbers == [1]
+        assert data.columns[0].values[1] == 3
+        assert data.columns[1].name == 'c'
+        assert data.columns[1].values[0] == 8
+        assert data.columns[1].values[1] == 9
+        assert data.rowNumbers == [1, 2]
         hdf.cleanup()
 
     #

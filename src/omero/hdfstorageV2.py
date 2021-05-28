@@ -584,7 +584,7 @@ class HdfStorage(object):
         if start is not None and stop is not None:
             rowNumbers = list(range(start, stop))
         elif start is not None and stop is None:
-            rowNumbers =  list(range(start, start + 1))
+            rowNumbers =  list(range(start, self.__length()))
         elif start is None and stop is None:
             rowNumbers = list(range(self.__length()))
 
