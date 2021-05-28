@@ -30,7 +30,7 @@ import pytest
 import sys
 
 from omero.gateway import BlitzGateway, ImageWrapper, \
-    WellWrapper, LogicalChannelWrapper, OriginalFileWrapper
+    WellWrapper, LogicalChannelWrapper, OriginalFileWrapper, assertConnected
 from omero.model import ImageI, PixelsI, ExperimenterI, EventI, \
     ProjectI, TagAnnotationI, FileAnnotationI, OriginalFileI, \
     MapAnnotationI, NamedValue, PlateI, WellI, \
@@ -38,6 +38,23 @@ from omero.model import ImageI, PixelsI, ExperimenterI, EventI, \
     DetectorSettingsI, DichroicI, LightPathI
 from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rtime, rlong, rint, rdouble
+
+
+def test_assertConnected():
+
+    conn = BlitzGateway(
+        host="localhost",
+        username="admin",
+        passwd="omero",
+        secure=True
+    )
+    assert not conn.isConnected()
+    with pytest.raises(Ice.ConnectionLostException):
+        conn.getEventContext()
+
+    assert conn.connect()
+    ctx = conn.getEventContext()
+    assert ctx is not None
 
 
 class MockQueryService(object):
