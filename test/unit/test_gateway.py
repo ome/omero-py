@@ -62,7 +62,6 @@ def test_assertConnected():
         conn.foo()
 
     assert conn.connect()
-    ctx = conn.getEventContext()
     assert conn.foo()
 
 
