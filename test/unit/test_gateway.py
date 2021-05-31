@@ -47,6 +47,7 @@ def test_assertConnected():
 
         def connect(self):
             self._connected = True
+            return True
 
         def isConnected(self):
             return self._connected
