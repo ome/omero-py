@@ -42,19 +42,27 @@ from omero.rtypes import rstring, rtime, rlong, rint, rdouble
 
 def test_assertConnected():
 
-    conn = BlitzGateway(
-        host="localhost",
-        username="admin",
-        passwd="omero",
-        secure=True
-    )
+    class MockGateway:
+        _connected = False
+
+        def connect(self):
+            self._connected = True
+
+        def isConnected(self):
+            return self._connected
+
+        @assertConnected
+        def foo(self):
+            return 1
+
+    conn = MockGateway()
     assert not conn.isConnected()
     with pytest.raises(Ice.ConnectionLostException):
-        conn.getEventContext()
+        conn.foo()
 
     assert conn.connect()
     ctx = conn.getEventContext()
-    assert ctx is not None
+    assert conn.foo()
 
 
 class MockQueryService(object):
