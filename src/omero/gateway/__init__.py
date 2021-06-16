@@ -4185,6 +4185,16 @@ class _BlitzGateway (object):
 
     def getObjectsByMapAnnotations(self, obj_type, key=None, value=None, ns=None,
                                    opts={}):
+        """
+        Retrieve objects linked to Map Annotations, filter by key and value.
+
+        :param obj_type:    'Dataset', 'Image' etc.
+        :param key:         Filter by key. Can start or end with * wild card
+        :param value:       Filter by value. Can start or end with * wild card
+        :param ns:          Filter by namespace
+        :return:            Generator yielding Objects
+        :rtype:             :class:`BlitzObjectWrapper` generator
+        """
 
         wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
         if not wrapper:
