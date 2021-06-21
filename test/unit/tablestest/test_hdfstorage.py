@@ -129,20 +129,41 @@ class TestHdfStorage(TestCase):
         self.append(hdf, {"a": 1, "b": 2, "c": 3})
         self.append(hdf, {"a": 5, "b": 6, "c": 7})
         data = hdf.readCoordinates(hdf._stamp, [0, 1], self.current)
+        assert len(data.columns) == 3
+        assert 1 == data.columns[0].values[0]
+        assert 5 == data.columns[0].values[1]
+        assert 2 == data.columns[1].values[0]
+        assert 6 == data.columns[1].values[1]
+        assert 3 == data.columns[2].values[0]
+        assert 7 == data.columns[2].values[1]
+
         data.columns[0].values[0] = 100
         data.columns[0].values[1] = 200
         data.columns[1].values[0] = 300
         data.columns[1].values[1] = 400
         hdf.update(hdf._stamp, data)
         hdf.readCoordinates(hdf._stamp, [0, 1], self.current)
+        assert len(data.columns) == 3
+        assert 100 == data.columns[0].values[0]
+        assert 200 == data.columns[0].values[1]
+        assert 300 == data.columns[1].values[0]
+        assert 400 == data.columns[1].values[1]
+        assert 3 == data.columns[2].values[0]
+        assert 7 == data.columns[2].values[1]
         hdf.cleanup()
 
     def testReadTicket1951(self):
         hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         self.append(hdf, {"a": 1, "b": 2, "c": 3})
-        hdf.readCoordinates(hdf._stamp, [0], self.current)
-        hdf.read(hdf._stamp, [0, 1, 2], 0, 1, self.current)
+        data = hdf.readCoordinates(hdf._stamp, [0], self.current)
+        assert 1 == data.columns[0].values[0]
+        assert 2 == data.columns[1].values[0]
+        assert 3 == data.columns[2].values[0]
+        data = hdf.read(hdf._stamp, [0, 1, 2], 0, 1, self.current)
+        assert 1 == data.columns[0].values[0]
+        assert 2 == data.columns[1].values[0]
+        assert 3 == data.columns[2].values[0]
         hdf.cleanup()
 
     def testSorting(self):  # Probably shouldn't work
@@ -257,8 +278,17 @@ class TestHdfStorage(TestCase):
         # Unicode conditions don't work on Python 3
         # Fetching should still work though
         r1 = hdf.readCoordinates(time.time(), [1], self.current)
+        assert len(r1.columns) == 1
+        assert len(r1.columns[0].values) == 1
         assert r1.columns[0].size == bytesize
         assert r1.columns[0].values[0] == "მიკროსკოპის პონი"
+
+        r2 = hdf.read(time.time(), [0], 0, 2, self.current)
+        assert len(r2.columns) == 1
+        assert len(r2.columns[0].values) == 2
+        assert r2.columns[0].size == bytesize
+        assert r2.columns[0].values[0] == "foo"
+        assert r2.columns[0].values[1] == "მიკროსკოპის პონი"
 
         # Doesn't work yet.
         hdf.cleanup()
@@ -326,10 +356,91 @@ class TestHdfStorage(TestCase):
             time.time(), rows, self.current).columns[0].size
         hdf.cleanup()
 
+    def testRead(self):
+        hdf = HdfStorage(self.hdfpath(), self.lock)
+        cols = [
+            omero.columns.LongColumnI('a'),
+            omero.columns.LongColumnI('b'),
+            omero.columns.LongColumnI('c')]
+        hdf.initialize(cols)
+        cols[0].values = [1, 2, 3]
+        cols[1].values = [4, 5, 6]
+        cols[2].values = [7, 8, 9]
+        hdf.append(cols)
+
+        data = hdf.read(time.time(), [0, 1, 2], 0, 2, self.current)
+        assert len(data.columns) == 3
+        assert len(data.columns[0].values) == 2
+        assert data.columns[0].name == 'a'
+        assert data.columns[0].values[0] == 1
+        assert data.columns[0].values[1] == 2
+        assert data.columns[1].name == 'b'
+        assert data.columns[1].values[0] == 4
+        assert data.columns[1].values[1] == 5
+        assert data.columns[2].name == 'c'
+        assert data.columns[2].values[0] == 7
+        assert data.columns[2].values[1] == 8
+        assert data.rowNumbers == [0, 1]
+
+        data = hdf.read(time.time(), [0, 2], 1, 3, self.current)
+        assert len(data.columns) == 2
+        assert len(data.columns[0].values) == 2
+        assert data.columns[0].name == 'a'
+        assert data.columns[0].values[0] == 2
+        assert data.columns[0].values[1] == 3
+        assert data.columns[1].name == 'c'
+        assert data.columns[1].values[0] == 8
+        assert data.columns[1].values[1] == 9
+        assert data.rowNumbers == [1, 2]
+
+        # Reads row 1
+        data = hdf.read(time.time(), [1], 1, 2, self.current)
+        assert len(data.columns) == 1
+        assert len(data.columns[0].values) == 1
+        assert data.columns[0].name == 'b'
+        assert data.columns[0].values[0] == 5
+        assert data.rowNumbers == [1]
+
+       # Reads no row
+        data = hdf.read(time.time(), [0, 1, 2], 1, 1, self.current)
+        assert len(data.columns) == 3
+        assert len(data.columns[0].values) == 0
+        assert data.rowNumbers == []
+
+        # Read all rows
+        data = hdf.read(time.time(), [0, 1, 2], None, None, self.current)
+        assert len(data.columns) == 3
+        assert len(data.columns[0].values) == 3
+        assert data.columns[0].name == 'a'
+        assert data.columns[0].values[0] == 1
+        assert data.columns[0].values[1] == 2
+        assert data.columns[0].values[2] == 3
+        assert data.columns[1].name == 'b'
+        assert data.columns[1].values[0] == 4
+        assert data.columns[1].values[1] == 5
+        assert data.columns[1].values[2] == 6
+        assert data.columns[2].name == 'c'
+        assert data.columns[2].values[0] == 7
+        assert data.columns[2].values[1] == 8
+        assert data.columns[2].values[2] == 9
+        assert data.rowNumbers == [0, 1, 2]
+
+        # Read from row 1 until the end of the table
+        data = hdf.read(time.time(), [0, 2], 1, None, self.current)
+        assert len(data.columns) == 2
+        assert len(data.columns[0].values) == 2
+        assert data.columns[0].name == 'a'
+        assert data.columns[0].values[0] == 2
+        assert data.columns[0].values[1] == 3
+        assert data.columns[1].name == 'c'
+        assert data.columns[1].values[0] == 8
+        assert data.columns[1].values[1] == 9
+        assert data.rowNumbers == [1, 2]
+        hdf.cleanup()
+
     #
     # ROIs
     #
-    @pytest.mark.broken
     def testMaskColumn(self):
         hdf = HdfStorage(self.hdfpath(), self.lock)
         mask = omero.columns.MaskColumnI('mask', 'desc', None)
@@ -344,24 +455,37 @@ class TestHdfStorage(TestCase):
         mask.bytes = [[0], [0, 1, 2, 3, 4]]
         hdf.append([mask])
         data = hdf.readCoordinates(hdf._stamp, [0, 1], self.current)
-        test = data.columns[0]
-        assert 1 == test.imageId[0]
-        assert 2 == test.theZ[0]
-        assert 3 == test.theT[0]
-        assert 4 == test.x[0]
-        assert 5 == test.y[0]
-        assert 6 == test.w[0]
-        assert 7 == test.h[0]
-        assert [0] == test.bytes[0]
+        assert len(data.columns) == 1
+        assert len(data.columns[0].imageId) == 2
+        assert 1 == data.columns[0].imageId[0]
+        assert 2 == data.columns[0].theZ[0]
+        assert 3 == data.columns[0].theT[0]
+        assert 4 == data.columns[0].x[0]
+        assert 5 == data.columns[0].y[0]
+        assert 6 == data.columns[0].w[0]
+        assert 7 == data.columns[0].h[0]
+        assert [0] == data.columns[0].bytes[0]
 
-        assert 2 == test.imageId[1]
-        assert 2 == test.theZ[1]
-        assert 3 == test.theT[1]
-        assert 4 == test.x[1]
-        assert 5 == test.y[1]
-        assert 6 == test.w[1]
-        assert 7 == test.h[1]
-        assert [0 == 1, 2, 3, 4], test.bytes[1]
+        assert 2 == data.columns[0].imageId[1]
+        assert 2 == data.columns[0].theZ[1]
+        assert 3 == data.columns[0].theT[1]
+        assert 4 == data.columns[0].x[1]
+        assert 5 == data.columns[0].y[1]
+        assert 6 == data.columns[0].w[1]
+        assert 7 == data.columns[0].h[1]
+        assert [0, 1, 2, 3, 4] == data.columns[0].bytes[1]
+
+        data = hdf.read(hdf._stamp, [0], 0, 1, self.current)
+        assert len(data.columns) == 1
+        assert len(data.columns[0].imageId) == 1
+        assert 1 == data.columns[0].imageId[0]
+        assert 2 == data.columns[0].theZ[0]
+        assert 3 == data.columns[0].theT[0]
+        assert 4 == data.columns[0].x[0]
+        assert 5 == data.columns[0].y[0]
+        assert 6 == data.columns[0].w[0]
+        assert 7 == data.columns[0].h[0]
+        assert [0] == data.columns[0].bytes[0]
         hdf.cleanup()
 
 
