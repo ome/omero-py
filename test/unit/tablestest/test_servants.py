@@ -299,7 +299,7 @@ class TestTables(TestCase):
         assert table
         assert table.table
         assert table.table.storage
-        table.table.set_storage(storage)
+        table.table.set_storage(table.table.storage)
         return table
 
     def testTableOriginalFileLoaded(self):
@@ -320,6 +320,7 @@ class TestTables(TestCase):
         storage = table1.storage
         storage.initialize([LongColumnI("a", None, [])])
         table2 = omero.tables.TableI(self.ctx, f, self.sf)
+        storage.incr(table2)
         table2.set_storage(storage)
         table2.cleanup()
         table1.cleanup()
@@ -365,12 +366,12 @@ class TestTables(TestCase):
         self.repofile(self.sf.db_uuid)
         of = omero.model.OriginalFileI(1, False)
         self.sf.return_values.append(of)
+        self.sf.return_values.append(of)
 
         internal_repo = mock_internal_repo(self.tmp)
         f = open(internal_repo.path, "w")
         f.write("this file is not HDF")
         f.close()
-
         tables = self.tablesI(internal_repo)
         pytest.raises(omero.ValidationException, tables.getTable, of, self.sf,
                       self.current)
