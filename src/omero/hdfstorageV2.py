@@ -118,7 +118,6 @@ class HdfList(object):
 
     @locked
     def addOrThrow(self, hdfpath, hdfstorage, read_only=False):
-
         if hdfpath in self.__paths:
             raise omero.LockTimeout(
                 None, None, "Path already in HdfList: %s" % hdfpath)
@@ -156,12 +155,15 @@ class HdfList(object):
         return hdffile
 
     @locked
-    def getOrCreate(self, hdfpath, read_only=False):
+    def getOrCreate(self, hdfpath, table, read_only=False):
+        storage = None
         try:
-            return self.__paths[hdfpath]
+            storage = self.__paths[hdfpath]
         except KeyError:
             # Adds itself to the global list
-            return HdfStorage(hdfpath, self._lock, read_only=read_only)
+            storage = HdfStorage(hdfpath, self._lock, read_only=read_only)
+        storage.incr(table)
+        return storage
 
     @locked
     def remove(self, hdfpath, hdffile):
@@ -576,9 +578,9 @@ class HdfStorage(object):
     def read(self, stamp, colNumbers, start, stop, current):
         self.__initcheck()
         self.__sizecheck(colNumbers, None)
+
         all_cols = self.cols(None, current)
         cols = [all_cols[i] for i in colNumbers]
-
         for col in cols:
             col.read(self.__mea, start, stop)
         if start is not None and stop is not None:
