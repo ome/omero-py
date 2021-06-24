@@ -65,6 +65,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
         self._closed = False
 
+        self.storage = None
+
         if (not self.file_obj.isLoaded() or
                 self.file_obj.getDetails() is None or
                 self.file_obj.details.group is None):

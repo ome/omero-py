@@ -299,6 +299,7 @@ class TestTables(TestCase):
         assert table
         assert table.table
         assert table.table.storage
+        table.table.set_storage(storage)
         return table
 
     def testTableOriginalFileLoaded(self):
@@ -308,17 +309,8 @@ class TestTables(TestCase):
         self.sf.return_values.append(f2)
         storage = mock_storage()
         self.ctx.newSession()
-        table = omero.tables.TableI(self.ctx, f1, self.sf, storage)
+        table = omero.tables.TableI(self.ctx, f1, self.sf)
         assert table.file_obj.details.group
-
-    def testTableIncrDecr(self):
-        f = omero.model.OriginalFileI(1, True)
-        f.details.group = omero.model.ExperimenterGroupI(1, False)
-        storage = mock_storage()
-        table = omero.tables.TableI(self.ctx, f, self.sf, storage)
-        assert storage.up
-        table.cleanup()
-        assert storage.down
 
     def testTablePreInitialized(self):
         f = omero.model.OriginalFileI(1, True)
@@ -327,7 +319,8 @@ class TestTables(TestCase):
         table1 = mocktable.table
         storage = table1.storage
         storage.initialize([LongColumnI("a", None, [])])
-        table2 = omero.tables.TableI(self.ctx, f, self.sf, storage)
+        table2 = omero.tables.TableI(self.ctx, f, self.sf)
+        table2.set_storage(storage)
         table2.cleanup()
         table1.cleanup()
 
