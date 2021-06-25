@@ -118,6 +118,7 @@ class HdfList(object):
 
     @locked
     def addOrThrow(self, hdfpath, hdfstorage, read_only=False):
+
         if hdfpath in self.__paths:
             raise omero.LockTimeout(
                 None, None, "Path already in HdfList: %s" % hdfpath)
@@ -578,9 +579,9 @@ class HdfStorage(object):
     def read(self, stamp, colNumbers, start, stop, current):
         self.__initcheck()
         self.__sizecheck(colNumbers, None)
-
         all_cols = self.cols(None, current)
         cols = [all_cols[i] for i in colNumbers]
+
         for col in cols:
             col.read(self.__mea, start, stop)
         if start is not None and stop is not None:
