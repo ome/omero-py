@@ -192,6 +192,15 @@ class mock_storage(object):
     def size(self):
         return 0
 
+class mock_storage_factory():
+    def __init__(self):
+        self.storages = []
+
+    def add_storage(self, storage):
+        self.storages.append(storage)
+
+    def getOrCreate(self, hdfpath, table, read_only=False):
+        return self.storages.pop()
 
 class TestTables(TestCase):
 
@@ -299,7 +308,6 @@ class TestTables(TestCase):
         assert table
         assert table.table
         assert table.table.storage
-        table.table.set_storage(table.table.storage)
         return table
 
     def testTableOriginalFileLoaded(self):
@@ -308,8 +316,10 @@ class TestTables(TestCase):
         f2.details.group = omero.model.ExperimenterGroupI(1, False)
         self.sf.return_values.append(f2)
         storage = mock_storage()
+        storage_factory = mock_storage_factory()
+        storage_factory.add_storage(storage)
         self.ctx.newSession()
-        table = omero.tables.TableI(self.ctx, f1, self.sf)
+        table = omero.tables.TableI(self.ctx, f1, 'dummy/path', self.sf, storage_factory)
         assert table.file_obj.details.group
 
     def testTablePreInitialized(self):
@@ -319,9 +329,8 @@ class TestTables(TestCase):
         table1 = mocktable.table
         storage = table1.storage
         storage.initialize([LongColumnI("a", None, [])])
-        table2 = omero.tables.TableI(self.ctx, f, self.sf)
-        storage.incr(table2)
-        table2.set_storage(storage)
+        storage_factory = self._TestTables__tables[0]._storage_factory
+        table2 = omero.tables.TableI(self.ctx, f, str(storage._HdfStorage__hdf_path), self.sf, storage_factory)
         table2.cleanup()
         table1.cleanup()
 

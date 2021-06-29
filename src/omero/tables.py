@@ -50,22 +50,22 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, ctx, file_obj, factory, uuid="unknown",
+    def __init__(self, ctx, file_obj, file_path, factory, storage_factory, read_only=False, uuid="unknown",
                  call_context=None, adapter=None):
         self.id = Ice.Identity()
         self.id.name = uuid
         self.uuid = uuid
         self.file_obj = file_obj
         self.factory = factory
+        self.storage = storage_factory.getOrCreate(file_path, self, read_only)
         self.call_context = call_context
         self.adapter = adapter
         self.can_write = factory.getAdminService().canUpdate(
             file_obj, call_context)
         omero.util.SimpleServant.__init__(self, ctx)
 
+        self.stamp = time.time()
         self._closed = False
-
-        self.storage = None
 
         if (not self.file_obj.isLoaded() or
                 self.file_obj.getDetails() is None or
@@ -73,10 +73,6 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             self.file_obj = self.ctx.getSession().getQueryService().get(
                 'omero.model.OriginalFileI', unwrap(file_obj.id),
                 {"omero.group": "-1"})
-
-    def set_storage(self, storage):
-        self.storage = storage
-        self.stamp = self.storage._stamp
 
     def assert_write(self):
         """
@@ -533,14 +529,13 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         if not p.exists():
             p.makedirs()
 
-        table = TableI(self.ctx, file_obj, factory,
+        table = TableI(self.ctx, file_obj,file_path,
+                       factory,
+                       self._storage_factory,
+                       read_only=self.read_only,
                        uuid=Ice.generateUUID(),
                        call_context=current.ctx,
                        adapter=current.adapter)
-        storage = self._storage_factory.getOrCreate(file_path, table, self.read_only)
-
-        table.set_storage(storage)
-
         self.resources.add(table)
         prx = current.adapter.add(table, table.id)
         return self._table_cast(prx)
