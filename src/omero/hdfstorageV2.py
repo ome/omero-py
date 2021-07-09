@@ -156,12 +156,15 @@ class HdfList(object):
         return hdffile
 
     @locked
-    def getOrCreate(self, hdfpath, read_only=False):
+    def getOrCreate(self, hdfpath, table, read_only=False):
+        storage = None
         try:
-            return self.__paths[hdfpath]
+            storage = self.__paths[hdfpath]
         except KeyError:
             # Adds itself to the global list
-            return HdfStorage(hdfpath, self._lock, read_only=read_only)
+            storage = HdfStorage(hdfpath, self._lock, read_only=read_only)
+        storage.incr(table)
+        return storage
 
     @locked
     def remove(self, hdfpath, hdffile):
