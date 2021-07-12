@@ -1,3 +1,15 @@
+# 5.9.3 (July 2021)
+
+## Bug Fix
+
+- Fix OMERO.tables to work with all column types
+  [#288](https://github.com/ome/omero-py/pull/288)
+- Fix race condition in OMERO.tables
+  [#292](https://github.com/ome/omero-py/pull/292)
+- Fix Python2-ism in omero.gateway findExperimenters method,
+  thanks to [Alex Herbert](https://github.com/aherbert)
+  [#293](https://github.com/ome/omero-py/pull/293)
+
 # 5.9.2 (April 2021)
 
 ## New CLI option
