@@ -1516,7 +1516,7 @@ def assertConnected(func):
     @wraps(func)
     def wrapped(conn, *args, **kwargs):
         if not conn._connected:
-            raise Ice.ConnectionLostException(f"Trying to call {func.__name__} while not connected")
+            raise Ice.ConnectionLostException("You need to be connected to execute this function")
 
         return func(conn, *args, **kwargs)
     return wrapped
