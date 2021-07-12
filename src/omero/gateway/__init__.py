@@ -3015,16 +3015,13 @@ class _BlitzGateway (object):
         :return:        Generator of experimenters
         :rtype:         :class:`ExperimenterWrapper` generator
         """
-
-        if isinstance(start, UnicodeType):
-            start = start.encode('utf8')
         params = omero.sys.Parameters()
-        params.map = {'start': rstring('%s%%' % start.lower())}
+        params.map = {'start': omero_type('%s%%' % start.lower())}
         q = self.getQueryService()
         rv = q.findAllByQuery(
             "from Experimenter e where lower(e.omeName) like :start",
             params, self.SERVICE_OPTS)
-        rv.sort(lambda x, y: cmp(x.omeName.val, y.omeName.val))
+        rv.sort(key=lambda x: x.omeName.val)
         for e in rv:
             yield ExperimenterWrapper(self, e)
 
