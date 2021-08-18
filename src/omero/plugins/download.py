@@ -16,7 +16,7 @@ import sys
 import omero
 import os
 import re
-from omero.cli import BaseControl, CLI
+from omero.cli import BaseControl, CLI, ProxyStringType
 from omero.rtypes import unwrap
 from omero.gateway import BlitzGateway
 
@@ -59,53 +59,41 @@ class DownloadControl(BaseControl):
 
     def _configure(self, parser):
         parser.add_argument(
-            "object", help="Object to download of form <object>:<id>. "
+            "object", type=ProxyStringType("OriginalFile"),
+            help="Object to download of form <object>:<id>. "
             "OriginalFile is assumed if <object>: is omitted.")
         parser.add_argument(
-            "--filename", help="Local filename to be saved to. '-' for stdout")
+            "filename", help="Local filename (or path for Fileset) to be saved to. '-' for stdout")
         parser.set_defaults(func=self.__call__)
         parser.add_login_arguments()
 
     def __call__(self, args):
         client = self.ctx.conn(args)
-        dtype = None
-        obj_id = None
-        if ":" in args.object:
-            dtype, obj_id = args.object.split(":")
+        obj = args.object
+        dtype = obj.__class__.name
         conn = BlitzGateway(client_obj=client)
         conn.SERVICE_OPTS.setOmeroGroup(-1)
-        if dtype == "Project":
-            self.download_project(conn, self.get_object(conn, dtype, obj_id))
-        elif dtype == "Dataset":
-            self.download_dataset(conn, self.get_object(conn, dtype, obj_id))
-        elif dtype == "Image":
-            self.download_image(conn, conn, self.get_object(conn, dtype, obj_id))
+
+        if dtype == "FilesetI":
+            fileset = self.get_object(conn, dtype, obj.id.val)
+            self.download_fileset(conn, fileset, args.filename)
+        elif dtype == "ImageI":
+            image = self.get_object(conn, dtype, obj.id.val)
+            self.download_fileset(conn, image.getFileset(), args.filename)
         else:
-            orig_files = self.get_files(client.sf, args.object)
-            if args.filename is not None:
-                target_file = str(args.filename)
-            else:
-                target_file = orig_files[0].name.val
+            orig_file = self.get_file(client.sf, dtype, obj.id.val)
+            target_file = str(args.filename)
             # only expect single file
-            self.download_file(client, orig_files[0], target_file)
+            self.download_file(client, orig_file, target_file)
 
-    def download_project(self, conn, project):
-        # make a directory named as the project
-        project_name = project.name
-        if not os.path.exists(project_name):
-            os.makedirs(project_name)
-        for dataset in project.listChildren():
-            self.download_dataset(conn, dataset, project_name)
-
-    def download_dataset(self, conn, dataset, directory=None):
-        # make a directory named as the dataset
-        dir_name = dataset.name
-        if directory is not None:
-            dir_name = os.path.join(directory, dir_name)
-        if not os.path.exists(dir_name):
-            os.makedirs(dir_name)
-        for image in dataset.listChildren():
-            self.download_image(conn, image, dir_name)
+    def download_fileset(self, conn, fileset, dir_path):
+        template_prefix = fileset.getTemplatePrefix()
+        for orig_file in fileset.listFiles():
+            file_path = orig_file.path.replace(template_prefix, "")
+            target_dir = os.path.join(dir_path, file_path)
+            os.makedirs(target_dir, exist_ok=True)
+            target_path = os.path.join(target_dir, orig_file.name)
+            self.download_file(conn.c, orig_file._obj, target_path)
 
     def download_file(self, client, orig_file, target_file):
         perms = orig_file.details.permissions
@@ -116,6 +104,9 @@ class DownloadControl(BaseControl):
                               "%s is restricted") % orig_file.id.val)
 
         self.ctx.out(f"Downloading file ID: {orig_file.id.val} to {target_file}")
+        if os.path.exists(target_file):
+            self.ctx.out(f"File exists! Skipping...")
+
         try:
             if target_file == "-":
                 client.download(orig_file, filehandle=StdOutHandle())
@@ -132,89 +123,42 @@ class DownloadControl(BaseControl):
             # ID exists in DB, but not on FS
             self.ctx.die(67, "ResourceError: %s" % re.message)
 
-    def download_image(self, conn, image, directory=None):
-
-        self.ctx.out(f"Downloading Image:{image.id}")
-        orig_files = self.get_files(conn.c.sf, f"Image:{image.id}")
-
-        for orig_file in orig_files:
-            target_file = orig_file.name.val
-            if directory is not None:
-                target_file = os.path.join(directory, target_file)
-            self.download_file(conn.c, orig_file, target_file)
-
     def get_object(self, conn, dtype, obj_id):
         result = conn.getObject(dtype, obj_id)
         if result is None:
             self.ctx.die(601, f'No {dtype} with input ID: {obj_id}')
         return result
 
-    def get_files(self, session, value):
+    def get_file(self, session, dtype, obj_id):
 
         query = session.getQueryService()
-        if ':' not in value:
+
+        # Handle OriginalFile:id
+        if dtype == "OriginalFile":
             try:
-                ofile = query.get("OriginalFile", int(value),
+                ofile = query.get("OriginalFile", obj_id,
                                   {'omero.group': '-1'})
-                return [ofile]
-            except ValueError:
-                self.ctx.die(601, 'Invalid OriginalFile ID input')
+                return ofile
             except omero.ValidationException:
                 self.ctx.die(601, 'No OriginalFile with input ID')
 
-        # Assume input is of form OriginalFile:id
-        file_id = self.parse_object_id("OriginalFile", value)
-        if file_id:
-            try:
-                ofile = query.get("OriginalFile", file_id,
-                                  {'omero.group': '-1'})
-                return [ofile]
-            except omero.ValidationException:
-                self.ctx.die(601, 'No OriginalFile with input ID')
-
-        # Assume input is of form FileAnnotation:id
-        fa_id = self.parse_object_id("FileAnnotation", value)
-        if fa_id:
+        # Handle FileAnnotation:id
+        if dtype == "FileAnnotation":
             fa = None
             try:
                 fa = query.findByQuery((
                     "select fa from FileAnnotation fa "
                     "left outer join fetch fa.file "
                     "where fa.id = :id"),
-                    omero.sys.ParametersI().addId(fa_id),
+                    omero.sys.ParametersI().addId(obj_id),
                     {'omero.group': '-1'})
             except omero.ValidationException:
                 pass
             if fa is None:
                 self.ctx.die(601, 'No FileAnnotation with input ID')
-            return [fa.getFile()]
-
-        # Assume input is of form Image:id
-        image_id = self.parse_object_id("Image", value)
-        params = omero.sys.ParametersI()
-        if image_id:
-            params.addLong('iid', image_id)
-            sql = "select f from Image i" \
-                " left outer join i.fileset as fs" \
-                " join fs.usedFiles as uf" \
-                " join uf.originalFile as f" \
-                " where i.id = :iid"
-            query_out = query.projection(sql, params, {'omero.group': '-1'})
-            if not query_out:
-                self.ctx.die(602, 'Input image has no associated Fileset')
-
-            return [unwrap(result)[0] for result in query_out]
+            return fa.getFile()
 
         self.ctx.die(601, 'Invalid object input. Use e.g. Image:ID')
-
-    def parse_object_id(self, object_type, value):
-
-        pattern = r'%s:(?P<id>\d+)' % object_type
-        pattern = re.compile('^' + pattern + '$')
-        m = pattern.match(value)
-        if not m:
-            return
-        return int(m.group('id'))
 
 try:
     register("download", DownloadControl, HELP)
