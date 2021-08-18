@@ -70,14 +70,15 @@ class DownloadControl(BaseControl):
     def __call__(self, args):
         client = self.ctx.conn(args)
         obj = args.object
-        dtype = obj.__class__.name
+        # e.g. "ImageI" -> "Image"
+        dtype = obj.__class__.__name__[:-1]
         conn = BlitzGateway(client_obj=client)
         conn.SERVICE_OPTS.setOmeroGroup(-1)
 
-        if dtype == "FilesetI":
+        if dtype == "Fileset":
             fileset = self.get_object(conn, dtype, obj.id.val)
             self.download_fileset(conn, fileset, args.filename)
-        elif dtype == "ImageI":
+        elif dtype == "Image":
             image = self.get_object(conn, dtype, obj.id.val)
             self.download_fileset(conn, image.getFileset(), args.filename)
         else:
@@ -87,6 +88,7 @@ class DownloadControl(BaseControl):
             self.download_file(client, orig_file, target_file)
 
     def download_fileset(self, conn, fileset, dir_path):
+        self.ctx.out(f"Fileset: {fileset.id}")
         template_prefix = fileset.getTemplatePrefix()
         for orig_file in fileset.listFiles():
             file_path = orig_file.path.replace(template_prefix, "")
