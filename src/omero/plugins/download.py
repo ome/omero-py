@@ -80,7 +80,10 @@ class DownloadControl(BaseControl):
             self.download_fileset(conn, fileset, args.filename)
         elif dtype == "Image":
             image = self.get_object(conn, dtype, obj.id.val)
-            self.download_fileset(conn, image.getFileset(), args.filename)
+            fileset = image.getFileset()
+            if fileset is None:
+                self.ctx.die(602, 'Input image has no associated Fileset')
+            self.download_fileset(conn, fileset, args.filename)
         else:
             orig_file = self.get_file(client.sf, dtype, obj.id.val)
             target_file = str(args.filename)
