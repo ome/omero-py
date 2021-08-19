@@ -6,7 +6,7 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 
-   Copyright 2007 - 2014 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007 - 2021 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -20,8 +20,8 @@ from omero.cli import BaseControl, CLI, ProxyStringType
 from omero.rtypes import unwrap
 from omero.gateway import BlitzGateway
 
-HELP = """Download the given file with a specified ID to a target file with
-a specified filename.
+HELP = """Download a File, Image or Fileset with a specified ID to a target file
+or directory.
 
 Examples:
 
@@ -33,9 +33,11 @@ Examples:
     # Download the OriginalFile linked to FileAnnotation 20 to local_file
     omero download FileAnnotation:20 local_file
 
-    # Download the OriginalFile linked to Image 5
-    # Works only with single files imported with OMERO 5.0.0 and above
-    omero download Image:5 original_image
+    # Download the OriginalFiles linked to Image 5 into a directory
+    # The Files will be named as they are in OMERO's Managed repository
+    omero download Image:5 output_dir
+    # Download the OriginalFiles linked to Fileset 6 into a directory
+    omero download Fileset:6 output_dir
 """
 
 
