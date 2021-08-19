@@ -105,16 +105,17 @@ class DownloadControl(BaseControl):
             self.ctx.die(66, ("Download of OriginalFile:"
                               "%s is restricted") % orig_file.id.val)
 
-        self.ctx.out(f"Downloading file ID: {orig_file.id.val} to {target_file}")
-        if os.path.exists(target_file):
-            self.ctx.out(f"File exists! Skipping...")
-
         try:
             if target_file == "-":
                 client.download(orig_file, filehandle=StdOutHandle())
                 sys.stdout.flush()
             else:
-                client.download(orig_file, target_file)
+                self.ctx.out(
+                    f"Downloading file ID: {orig_file.id.val} to {target_file}")
+                if os.path.exists(target_file):
+                    self.ctx.out(f"File exists! Skipping...")
+                else:
+                    client.download(orig_file, target_file)
         except omero.ClientError as ce:
             self.ctx.die(67, "ClientError: %s" % ce)
         except omero.ValidationException as ve:
