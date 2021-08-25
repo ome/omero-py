@@ -4180,6 +4180,69 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield wrapper(self, e)
 
+    def getObjectsByMapAnnotations(self, obj_type, key=None, value=None, ns=None,
+                                   opts={}):
+        """
+        Retrieve objects linked to Map Annotations, filter by key and value.
+
+        :param obj_type:    'Dataset', 'Image' etc.
+        :param key:         Filter by key. Can start or end with * wild card
+        :param value:       Filter by value. Can start or end with * wild card
+        :param ns:          Filter by namespace
+        :return:            Generator yielding Objects
+        :rtype:             :class:`BlitzObjectWrapper` generator
+        """
+
+        wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
+        if not wrapper:
+            raise AttributeError("Don't know how to handle '%s'" % obj_type)
+
+        params = omero.sys.ParametersI()
+        clauses = []
+
+        def add_param(param, value):
+            if value is None:
+                return
+            # Replace wild-cards with `%%` for `like` search
+            wild_card = (value[0] == "*" or value[-1] == "*")
+            if value[0] == "*":
+                value = "%%" + value[1:]
+            if value[-1] == "*":
+                value = value[:-1] + "%%"
+            like = "like" if wild_card else "="
+            clauses.append("mv.%s %s :%s" % (param, like, param))
+            params.addString(param, value)
+
+        # Build the query, handling wildcards for key and value
+        add_param("name", key)
+        add_param("value", value)
+
+        if ns is not None:
+            clauses.append("ann.ns = :ns")
+            params.addString("ns", ns)
+
+        # Parse opts dict to build params
+        limit = opts.get('limit', 500)
+        offset = opts.get('offset', 0)
+        if offset is not None and limit is not None:
+            params.page(offset, limit)
+
+        # Using projection since can't seem to fetch objects AND filter by mapValue
+        query = """
+            select distinct obj.id from
+            %sAnnotationLink ial
+            join ial.child ann
+            join ann.mapValue mv
+            join ial.parent obj""" % wrapper().OMERO_CLASS
+        if len(clauses) > 0:
+            query += " where " + " and ".join(clauses)
+        result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
+        ids = [row[0].val for row in result]
+        if len(ids) == 0:
+            return []
+        return self.getObjects(obj_type, ids)
+
+
     ################
     # Enumerations #
 
