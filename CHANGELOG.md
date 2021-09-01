@@ -12,6 +12,11 @@ renaming files. The command now specifies a directory path under which all
 files associated with the image are downloaded using the original file names
 and structure.
 
+## Bug Fix
+
+- CLI: point users at image.sc for reporting bugs
+  [#297](https://github.com/ome/omero-py/pull/297)
+
 # 5.9.3 (July 2021)
 
 ## Bug Fix
