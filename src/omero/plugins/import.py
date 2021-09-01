@@ -97,7 +97,7 @@ Examples:
 
 For additional information, see:
 https://docs.openmicroscopy.org/latest/omero/users/cli/import.html
-Report bugs to <ome-users@lists.openmicroscopy.org.uk>
+Report bugs at https://forum.image.sc/
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]

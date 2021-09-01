@@ -74,7 +74,7 @@ Options:
 Examples:
   %s --dry-run -u root /OMERO
 
-Report bugs to OME Users <ome-users@lists.openmicroscopy.org.uk>""" % \
+Report bugs at https://forum.image.sc/""" % \
         (error, cmd, cmd))
     sys.exit(2)
 
