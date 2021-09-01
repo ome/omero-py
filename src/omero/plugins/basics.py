@@ -169,7 +169,7 @@ Other help topics:
 
 For additional information, see:
 https://docs.openmicroscopy.org/latest/omero/users/cli/index.html
-Report bugs at https://forum.image.sc/
+Report bugs at https://forum.image.sc/tag/omero-cli
 """
 
 
