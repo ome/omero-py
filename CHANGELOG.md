@@ -1,3 +1,22 @@
+# 5.10.0 (September 2021)
+
+## New feature
+
+- omero.gateway: add new `getObjectsByMapAnnotations` API
+  [#285](https://github.com/ome/omero-py/pull/285)
+- CLI: Add support for downloading fileset and multi-file images [#298](https://github.com/ome/omero-py/pull/298)
+
+The CLI feature also introduces a backwards-incompatible layout change for
+the download of images to mitigate the risk of data corruption associated with
+renaming files. The command now specifies a directory path under which all
+files associated with the image are downloaded using the original file names
+and structure.
+
+## Bug Fix
+
+- CLI: point users at [image.sc](https://forum.image.sc/) for reporting bugs
+  [#297](https://github.com/ome/omero-py/pull/297)
+
 # 5.9.3 (July 2021)
 
 ## Bug Fix
