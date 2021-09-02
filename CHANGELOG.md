@@ -14,7 +14,7 @@ and structure.
 
 ## Bug Fix
 
-- CLI: point users at image.sc for reporting bugs
+- CLI: point users at [image.sc](https://forum.image.sc/) for reporting bugs
   [#297](https://github.com/ome/omero-py/pull/297)
 
 # 5.9.3 (July 2021)
