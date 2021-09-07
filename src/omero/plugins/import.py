@@ -576,7 +576,10 @@ class ImportControl(BaseControl):
             return None, omero_java_txt
 
     def download_omero_java(self, version):
-        omero_java_zip = OMERO_JAVA_ZIP.format(version=version)
+        if version.startswith("http"):
+            omero_java_zip = version
+        else:
+            omero_java_zip = OMERO_JAVA_ZIP.format(version=version)
         self.ctx.err("Downloading %s" % omero_java_zip)
         jars_dir, omero_java_txt = self._userdir_jars(parentonly=True)
         jars_dir.makedirs_p()
