@@ -36,6 +36,7 @@ import csv
 import sys
 import shlex
 import requests
+import re
 from zipfile import ZipFile
 
 
@@ -576,7 +577,7 @@ class ImportControl(BaseControl):
             return None, omero_java_txt
 
     def download_omero_java(self, version):
-        if version.startswith("http"):
+        if re.match("^\w+://", version):
             omero_java_zip = version
         else:
             omero_java_zip = OMERO_JAVA_ZIP.format(version=version)
