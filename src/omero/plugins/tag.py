@@ -193,10 +193,10 @@ JSON File Format:
         if self.console_length is None:
                 self.ctx.out(line)
         elif index % self.console_length == 0 and index:
-            input = input("[Enter], [f]orward forever, or [q]uit: ")
-            if input.lower() == 'q':
+            input_val = input("[Enter], [f]orward forever, or [q]uit: ")
+            if input_val.lower() == 'q':
                 sys.exit(0)
-            elif input.lower() == 'f':
+            elif input_val.lower() == 'f':
                 self.console_length = None
         else:
             self.ctx.out(line)
