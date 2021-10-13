@@ -1,3 +1,11 @@
+# 5.10.1 (October 2021)
+
+## Bug Fix
+
+- Fix UnbondLocalError in `omero tag list`,
+  thanks to [Lucille Delisle](https://github.com/lldelisle)
+  [#307](https://github.com/ome/omero-py/pull/307)
+
 # 5.10.0 (September 2021)
 
 ## New feature
