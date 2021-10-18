@@ -15,6 +15,13 @@ import logging
 import requests
 standard_library.install_aliases()
 
+# Ensure we are using pyopenssl (ome/omero-py#240)
+try:
+    import urllib3.contrib.pyopenssl
+    urllib3.contrib.pyopenssl.inject_into_urllib3()
+except ImportError:
+    pass
+
 
 class UpgradeCheck(object):
 
