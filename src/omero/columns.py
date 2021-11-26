@@ -199,6 +199,15 @@ class PlateColumnI(AbstractColumn, omero.grid.PlateColumn):
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
+class DatasetColumnI(AbstractColumn, omero.grid.DatasetColumn):
+
+    def __init__(self, name="Unknown", *args):
+        omero.grid.DatasetColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
+    def descriptor(self, pos):
+        return tables.Int64Col(pos=pos)
+
 
 class RoiColumnI(AbstractColumn, omero.grid.RoiColumn):
 
@@ -587,6 +596,7 @@ ObjectFactories = {
     RoiColumnI: ObjectFactory(RoiColumnI, lambda: RoiColumnI()),
     WellColumnI: ObjectFactory(WellColumnI, lambda: WellColumnI()),
     PlateColumnI: ObjectFactory(PlateColumnI, lambda: PlateColumnI()),
+    DatasetColumnI: ObjectFactory(DatasetColumnI, lambda: DatasetColumnI()),
     BoolColumnI: ObjectFactory(BoolColumnI, lambda: BoolColumnI()),
     DoubleColumnI: ObjectFactory(DoubleColumnI, lambda: DoubleColumnI()),
     LongColumnI: ObjectFactory(LongColumnI, lambda: LongColumnI()),
