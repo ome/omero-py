@@ -436,7 +436,7 @@ class ScriptControl(BaseControl):
         def p(m):
             class handle(object):
                 def write(this, val):
-                    val = "\t* %s" % val
+                    val = "\t* %s" % val.decode()
                     val = val.replace("\n", "\n\t* ")
                     self.ctx.out(val, newline=False)
 
