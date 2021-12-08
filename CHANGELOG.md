@@ -1,3 +1,12 @@
+# 5.10.2 (December 2021)
+
+## Bug Fix
+
+- Decode script stdout/stderr before printing,
+  thanks to [Jeremy Muhlich](https://github.com/jmuhlich)
+  [#310](https://github.com/ome/omero-py/pull/310)
+- Ensure we are using pyopenssl [#305](https://github.com/ome/omero-py/pull/305)
+
 # 5.10.1 (October 2021)
 
 ## Bug Fix
