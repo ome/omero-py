@@ -36,6 +36,7 @@ import csv
 import sys
 import shlex
 import requests
+import re
 from zipfile import ZipFile
 
 
@@ -334,7 +335,7 @@ class ImportControl(BaseControl):
             " Default: etc/logback-cli.xml")
         add_python_argument(
             "--fetch-jars", type=str,
-            help="Download this version of OMERO.java jars and exit")
+            help="Download OMERO.java jars by version or URL, then exit")
 
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
@@ -575,8 +576,11 @@ class ImportControl(BaseControl):
         else:
             return None, omero_java_txt
 
-    def download_omero_java(self, version):
-        omero_java_zip = OMERO_JAVA_ZIP.format(version=version)
+    def download_omero_java(self, version_or_uri):
+        if re.match("^\w+://", version_or_uri):
+            omero_java_zip = version_or_uri
+        else:
+            omero_java_zip = OMERO_JAVA_ZIP.format(version=version_or_uri)
         self.ctx.err("Downloading %s" % omero_java_zip)
         jars_dir, omero_java_txt = self._userdir_jars(parentonly=True)
         jars_dir.makedirs_p()
