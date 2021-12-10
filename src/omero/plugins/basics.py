@@ -52,7 +52,7 @@ class VersionControl(BaseControl):
         for line in self.ctx.get_config_property_lines(OMERODIR):
             line = str(line).strip()
             if line.startswith("omero.version="):
-                server_version = line[len("omero.verison="):]
+                server_version = line[len("omero.version="):]
         if server_version:
             self.ctx.err("OMERO.server version:")
             self.ctx.err(server_version)
