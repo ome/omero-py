@@ -173,6 +173,8 @@ BLACK_LIST = ("##", "versions", "omero.upgrades")
 
 STOP = "### END"
 
+VERSION = "version"
+
 import os
 import argparse
 import fileinput
@@ -215,8 +217,9 @@ class Property(object):
     def detect(self, line):
         dbg("detect:" + line)
         idx = line.index("=")
-        self.key = line[0:idx]
-        self.val = line[idx + 1:]
+        if VERSION not in line[0:idx]:
+            self.key = line[0:idx]
+            self.val = line[idx + 1:]
 
     def cont(self, line):
         dbg("cont:  " + line)
