@@ -519,3 +519,16 @@ class TestPrefs(object):
         assert props[2].val == 'line1line2'
         assert props[3].key == 'f.g'
         assert props[3].val == '\\n'
+
+    def testConfigNoVersionPropertyParser(self, tmpdir):
+        cfg = tmpdir.join("test-noversion.properties")
+        s = "omero.version=5.6.1\na.1=a"
+        cfg.write(s)
+        pp = PropertyParser()
+        props = pp.parse_file(str(cfg))
+
+        # Fails, the last two properties are parsed as one:
+        # 'd.e' = 'line1line2f.g=\\n'
+        assert len(props) == 1
+        assert props[0].key == 'a.1'
+        assert props[0].val == 'a'
