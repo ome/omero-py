@@ -173,7 +173,7 @@ BLACK_LIST = ("##", "versions", "omero.upgrades")
 
 STOP = "### END"
 
-VERSION = "version"
+EXCLUDED_VERSION = ["omero.version"]
 
 import os
 import argparse
@@ -217,7 +217,7 @@ class Property(object):
     def detect(self, line):
         dbg("detect:" + line)
         idx = line.index("=")
-        if VERSION not in line[0:idx]:
+        if line[0:idx] not in EXCLUDED_VERSION:
             self.key = line[0:idx]
             self.val = line[idx + 1:]
 
