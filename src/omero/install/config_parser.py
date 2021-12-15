@@ -169,7 +169,7 @@ HEADER = \
 
 %(properties)s"""
 
-BLACK_LIST = ("##", "versions", "omero.upgrades")
+EXCLUDE_LIST = ("##", "versions", "omero.upgrades", "omero.version")
 
 STOP = "### END"
 
@@ -278,7 +278,7 @@ class PropertyParser(object):
         return self.properties
 
     def black_list(self, line):
-        for x in BLACK_LIST:
+        for x in EXCLUDE_LIST:
             if line.startswith(x):
                 return True
 
