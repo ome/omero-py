@@ -169,11 +169,9 @@ HEADER = \
 
 %(properties)s"""
 
-BLACK_LIST = ("##", "versions", "omero.upgrades")
+BLACK_LIST = ("##", "versions", "omero.upgrades", "omero.version")
 
 STOP = "### END"
-
-EXCLUDED_VERSION = ["omero.version"]
 
 import os
 import argparse
@@ -217,9 +215,8 @@ class Property(object):
     def detect(self, line):
         dbg("detect:" + line)
         idx = line.index("=")
-        if line[0:idx] not in EXCLUDED_VERSION:
-            self.key = line[0:idx]
-            self.val = line[idx + 1:]
+        self.key = line[0:idx]
+        self.val = line[idx + 1:]
 
     def cont(self, line):
         dbg("cont:  " + line)
