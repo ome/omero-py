@@ -1,3 +1,11 @@
+# 5.10.3 (December 2021)
+
+## Bug Fix
+
+- Allow direct URL to be passed to `omero import --fetch-jars`
+  [#303](https://github.com/ome/omero-py/pull/303)
+- Exclude `omero.version` from output of `omero config parse` [#312](https://github.com/ome/omero-py/pull/312)
+
 # 5.10.2 (December 2021)
 
 ## Bug Fix
