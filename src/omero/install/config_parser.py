@@ -177,6 +177,7 @@ import os
 import argparse
 import fileinput
 import logging
+import warnings
 
 from collections import defaultdict
 
@@ -260,7 +261,7 @@ class PropertyParser(object):
             if line.startswith(STOP):
                 self.cleanup()
                 break
-            if self.black_list(line):
+            if self.is_excluded(line):
                 self.cleanup()
                 continue
             elif not line.strip():
@@ -278,6 +279,12 @@ class PropertyParser(object):
         return self.properties
 
     def black_list(self, line):
+        warnings.warn(
+            "This method is deprecated. Use is_excluded instead",
+            DeprecationWarning)
+        return self.is_excluded(line)
+
+    def is_excluded(self, line):
         for x in EXCLUDE_LIST:
             if line.startswith(x):
                 return True
