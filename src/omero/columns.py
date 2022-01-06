@@ -102,7 +102,7 @@ class AbstractColumn(object):
                 rows = tbl.read_coordinates(rowNumbers, field=self.name)
             else:
                 rows = tbl.readCoordinates(rowNumbers, field=self.name)
-            self.fromrows(rows)
+        self.fromrows(rows)
 
     def read(self, tbl, start, stop):
         rows = tbl.read(start, stop, field=self.name)
