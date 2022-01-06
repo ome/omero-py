@@ -99,13 +99,13 @@ class AbstractColumn(object):
             rows = tbl.read()
         else:
             if has_pytables3:
-                rows = tbl.read_coordinates(rowNumbers)
+                rows = tbl.read_coordinates(rowNumbers, field=self.name)
             else:
-                rows = tbl.readCoordinates(rowNumbers)
-        self.fromrows(rows)
+                rows = tbl.readCoordinates(rowNumbers, field=self.name)
+            self.fromrows(rows)
 
     def read(self, tbl, start, stop):
-        rows = tbl.read(start, stop)
+        rows = tbl.read(start, stop, field=self.name)
         self.fromrows(rows)
 
     def getsize(self):
@@ -148,7 +148,7 @@ class AbstractColumn(object):
         Any method which does not use the "values" field
         will need to override this method.
         """
-        self.values = rows[self.name]
+        self.values = rows
         # WORKAROUND:
         # http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         # see ticket:1951 and #2160
@@ -157,7 +157,6 @@ class AbstractColumn(object):
         # if isinstance(d, str):
         #     d = numpy.dtype(d)
         # if d.kind == "S" or (d.kind == "i" and d.itemsize == "8"):
-        self.values = self.values.tolist()
 
 
 class FileColumnI(AbstractColumn, omero.grid.FileColumn):
