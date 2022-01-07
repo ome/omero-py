@@ -157,6 +157,7 @@ class AbstractColumn(object):
         # if isinstance(d, str):
         #     d = numpy.dtype(d)
         # if d.kind == "S" or (d.kind == "i" and d.itemsize == "8"):
+        self.values = self.values.tolist()
 
 
 class FileColumnI(AbstractColumn, omero.grid.FileColumn):
