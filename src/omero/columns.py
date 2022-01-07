@@ -518,8 +518,7 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         for idx in rowNumbers:
             self.bytes.append(masks[idx].tolist())
 
-    def fromrows(self, all_rows):
-        rows = all_rows[self.name]
+    def fromrows(self, rows):
         # WORKAROUND:
         # http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         self.imageId = rows["i"].tolist()
