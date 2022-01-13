@@ -102,11 +102,11 @@ class AbstractColumn(object):
                 rows = tbl.read_coordinates(rowNumbers, field=self.name)
             else:
                 rows = tbl.readCoordinates(rowNumbers, field=self.name)
-        self.fromrows(rows)
+        self.fromrows(rows, field_only=True)
 
     def read(self, tbl, start, stop):
         rows = tbl.read(start, stop, field=self.name)
-        self.fromrows(rows)
+        self.fromrows(rows, field_only=True)
 
     def getsize(self):
         """
@@ -143,12 +143,17 @@ class AbstractColumn(object):
         names = [self.name + sn for sn in self._subnames]
         return list(zip(names, self._types))
 
-    def fromrows(self, rows):
+    def fromrows(self, rows, field_only=False):
         """
         Any method which does not use the "values" field
         will need to override this method.
         """
+
+        if not field_only:
+            rows = all_rows[self.name]
+
         self.values = rows
+
         # WORKAROUND:
         # http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         # see ticket:1951 and #2160
@@ -312,8 +317,8 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
                 % self.name)
         return tables.StringCol(pos=pos, itemsize=self.size)
 
-    def fromrows(self, rows):
-        AbstractColumn.fromrows(self, rows)
+    def fromrows(self, rows, field_only=False):
+        AbstractColumn.fromrows(self, rows, field_only=field_only)
         for i, val in enumerate(self.values):
             if isbytes(val):
                 self.values[i] = bytes_to_native_str(val)
@@ -508,7 +513,8 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 
     def read(self, tbl, start, stop):
         self.__sanitycheck()
-        AbstractColumn.read(self, tbl, start, stop)  # calls fromrows
+        # calls fromrows
+        AbstractColumn.read(self, tbl, start, stop)
         masks = self._getmasks(tbl)
         rowNumbers = list(range(start, stop))
         self.getbytes(masks, rowNumbers)
@@ -518,7 +524,11 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         for idx in rowNumbers:
             self.bytes.append(masks[idx].tolist())
 
-    def fromrows(self, rows):
+    def fromrows(self, rows, field_only=False):
+
+        if not field_only:
+            rows = rows[self.name]
+
         # WORKAROUND:
         # http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         self.imageId = rows["i"].tolist()
