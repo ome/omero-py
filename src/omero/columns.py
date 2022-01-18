@@ -150,7 +150,7 @@ class AbstractColumn(object):
         """
 
         if not field_only:
-            rows = all_rows[self.name]
+            rows = rows[self.name]
 
         self.values = rows
 
