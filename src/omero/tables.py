@@ -50,14 +50,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, ctx, file_obj, factory, storage, uuid="unknown",
+    def __init__(self, ctx, file_obj, file_path, factory, storage_factory, read_only=False, uuid="unknown",
                  call_context=None, adapter=None):
         self.id = Ice.Identity()
         self.id.name = uuid
         self.uuid = uuid
         self.file_obj = file_obj
         self.factory = factory
-        self.storage = storage
+        self.storage = storage_factory.getOrCreate(file_path, self, read_only)
         self.call_context = call_context
         self.adapter = adapter
         self.can_write = factory.getAdminService().canUpdate(
@@ -65,8 +65,6 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         omero.util.SimpleServant.__init__(self, ctx)
 
         self.stamp = time.time()
-        self.storage.incr(self)
-
         self._closed = False
 
         if (not self.file_obj.isLoaded() or
@@ -321,16 +319,16 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             raise
 
         try:
-            callback.loop(20, 500)
-        except LockTimeout:
+            try:
+                callback.loop(20, 500)
+            except LockTimeout:
+                raise omero.InternalException(None, None, "delete timed-out")
+
+            rsp = callback.getResponse()
+            if isinstance(rsp, omero.cmd.ERR):
+                raise omero.InternalException(None, None, str(rsp))
+        finally:
             callback.close(True)
-            raise omero.InternalException(None, None, "delete timed-out")
-
-        rsp = callback.getResponse()
-        if isinstance(rsp, omero.cmd.ERR):
-            raise omero.InternalException(None, None, str(rsp))
-
-        self.file_obj = None
 
     # TABLES METADATA API ===========================
 
@@ -531,8 +529,10 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         if not p.exists():
             p.makedirs()
 
-        storage = self._storage_factory.getOrCreate(file_path, self.read_only)
-        table = TableI(self.ctx, file_obj, factory, storage,
+        table = TableI(self.ctx, file_obj,file_path,
+                       factory,
+                       self._storage_factory,
+                       read_only=self.read_only,
                        uuid=Ice.generateUUID(),
                        call_context=current.ctx,
                        adapter=current.adapter)

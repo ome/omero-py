@@ -58,6 +58,8 @@ class TestCli(object):
         self.cli = CLI()
         self.cli.register("load", LoadControl, "help")
 
+        # replace slashes, otherwise C:\\x becomes C:x
+        tmpfile = tmpfile.strpath.replace("\\", "/")
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke("load %s" % tmpfile, strict=True)
 

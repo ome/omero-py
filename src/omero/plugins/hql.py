@@ -25,7 +25,7 @@ If no query is given, then a shell is opened which will run any entered query
 with the current parameters.
 """
 
-BLACKLISTED_KEYS = ["_id", "_loaded"]
+BLACKLISTED_KEYS = ["_id", "_loaded", "_bytes"]
 WHITELISTED_VALUES = [0, False]
 
 

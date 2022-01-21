@@ -33,7 +33,6 @@ from builtins import input
 from builtins import map
 from builtins import str
 from builtins import range
-from builtins import bytes
 from past.utils import old_div
 from builtins import object
 sys = __import__("sys")
@@ -544,7 +543,10 @@ class Context(object):
                 raise
         except:
             print("Error printing text", file=sys.stderr)
-            print(text, file=sys.stdout)
+            try:
+                print(text, file=sys.stdout)
+            except UnicodeEncodeError:
+                print(text.encode('utf-8', 'surrogateescape'), file=sys.stdout)
             if self.isdebug:
                 traceback.print_exc()
 
@@ -1084,6 +1086,7 @@ class DiagnosticsControl(BaseControl):
         diagnostics.add_argument(
             "--no-logs", action="store_true",
             help="Skip log parsing")
+        return diagnostics
 
     def _diagnostics_banner(self, control_name):
 
@@ -1128,7 +1131,7 @@ OMERO Diagnostics (%s) %s
                              r'error:?\s')
                 warn = 0
                 err = 0
-                for l in p.lines():
+                for l in p.lines(errors="surrogateescape"):
                     # ensure errors/warnings search is case-insensitive
                     lcl = l.lower()
                     if re.match(warn_regex, lcl):
@@ -1139,6 +1142,38 @@ OMERO Diagnostics (%s) %s
                 if warn or err:
                     msg = " errors=%-4s warnings=%-4s" % (err, warn)
                 self.ctx.out("%-12s %s" % (self._sz_str(p.size), msg))
+
+
+class ServiceManagerMixin:
+    """
+    A mixin that adds a requires_service_manager method.
+
+    This method can be called to check for the presence of an environment
+    variable that indicates the plugin is being controlled by an external
+    service manager.
+
+    The class must define a property SERVICE_MANAGER_KEY that is used to
+    construct the name of the OMERO property
+    `omero.{SERVICE_MANAGER_KEY}.servicemanager.checkenv` defining the name of
+    the environment variable.
+    """
+
+    def requires_service_manager(self, config):
+        """
+        Checks whether OMERO is being managed by a service manager by
+        checking that a specified environment variable is non-empty.
+
+        config: An OMERO ConfigXml object
+        """
+        service_env = config.as_map().get(
+            "omero.{}.servicemanager.checkenv".format(
+                self.SERVICE_MANAGER_KEY))
+        if service_env:
+            service_envvalue = os.getenv(service_env)
+            if not service_envvalue:
+                self.ctx.die(112, (
+                    "ERROR: OMERO is configured to run under a service "
+                    "manager which should also set {}".format(service_env)))
 
 
 class CLI(cmd.Cmd, Context):
@@ -1408,10 +1443,8 @@ class CLI(cmd.Cmd, Context):
         This list needs to be kept in line with omero-py/bin/omero
 
         """
-        lpy = str(self.dir / "lib" / "python")
-        ipy = str(self.dir / "lib" / "fallback")
         vlb = str(self.dir / "var" / "lib")
-        paths = os.path.pathsep.join([lpy, vlb, ipy])
+        paths = os.path.pathsep.join([vlb])
 
         env = dict(os.environ)
         pypath = env.get("PYTHONPATH", None)
@@ -1732,49 +1765,41 @@ def argv(args=sys.argv):
     Finally, the cli enters a command loop reading from standard in.
     """
 
-    # Modiying the run-time environment
-    old_ice_config = os.getenv("ICE_CONFIG")
-    os.unsetenv("ICE_CONFIG")
-    try:
+    # Modifying the args list if the name of the file
+    # has arguments encoded in it
+    original_executable = path(args[0])
+    base_executable = str(original_executable.basename())
+    if base_executable.find("-") >= 0:
+        parts = base_executable.split("-")
+        for arg in args[1:]:
+            parts.append(arg)
+        args = parts
 
-        # Modifying the args list if the name of the file
-        # has arguments encoded in it
-        original_executable = path(args[0])
-        base_executable = str(original_executable.basename())
-        if base_executable.find("-") >= 0:
-            parts = base_executable.split("-")
-            for arg in args[1:]:
-                parts.append(arg)
-            args = parts
+    # Now load other plugins. After debugging is turned on, but before
+    # tracing.
+    cli = CLI(prog=original_executable.split("-")[0])
 
-        # Now load other plugins. After debugging is turned on, but before
-        # tracing.
-        cli = CLI(prog=original_executable.split("-")[0])
+    parser = Parser(add_help=False)
+    # parser.add_argument("-d", "--debug", help="Use 'help debug' for more
+    # information", default = SUPPRESS)
+    parser.add_argument(
+        "--path", action="append",
+        help="Add file or directory to plugin list. Supports globs.")
+    ns, args = parser.parse_known_args(args)
+    if getattr(ns, "path"):
+        for p in ns.path:
+            for g in glob.glob(p):
+                cli._plugin_paths.append(g)
 
-        parser = Parser(add_help=False)
-        # parser.add_argument("-d", "--debug", help="Use 'help debug' for more
-        # information", default = SUPPRESS)
-        parser.add_argument(
-            "--path", action="append",
-            help="Add file or directory to plugin list. Supports globs.")
-        ns, args = parser.parse_known_args(args)
-        if getattr(ns, "path"):
-            for p in ns.path:
-                for g in glob.glob(p):
-                    cli._plugin_paths.append(g)
+    # For argparse dispatch, this cannot be done lazily
+    cli.loadplugins()
 
-        # For argparse dispatch, this cannot be done lazily
-        cli.loadplugins()
-
-        if len(args) > 1:
-            cli.invoke(args[1:])
-            return cli.rv
-        else:
-            cli.invokeloop()
-            return cli.rv
-    finally:
-        if old_ice_config:
-            os.putenv("ICE_CONFIG", old_ice_config)
+    if len(args) > 1:
+        cli.invoke(args[1:])
+        return cli.rv
+    else:
+        cli.invokeloop()
+        return cli.rv
 
 #####################################################
 #
@@ -2005,14 +2030,17 @@ class GraphControl(CmdControl):
         self._add_wait(parser, default=-1)
         parser.add_argument(
             "--include",
-            help="Modifies the given option by including a list of classes")
+            help="Specify kinds of object to include",
+            metavar="CLASS",
+            nargs="+", type=lambda s: s.split(","), action="append")
         parser.add_argument(
             "--exclude",
-            help="Modifies the given option by excluding a list of classes")
+            help="Specify kinds of object to exclude",
+            metavar="CLASS",
+            nargs="+", type=lambda s: s.split(","), action="append")
         parser.add_argument(
             "--ordered", action="store_true",
-            help=("Pass multiple objects to commands strictly in the order "
-                  "given, otherwise group into as few commands as possible."))
+            help=("Pass objects to commands in the given order"))
         parser.add_argument(
             "--list", action="store_true",
             help="Print a list of all available graph specs")
@@ -2058,6 +2086,7 @@ class GraphControl(CmdControl):
 
     def main_method(self, args):
 
+        from itertools import chain
         client = self.ctx.conn(args)
         if args.list_details or args.list:
             cb = None
@@ -2082,10 +2111,10 @@ class GraphControl(CmdControl):
 
         inc = []
         if args.include:
-            inc = args.include.split(",")
+            inc.extend(chain(*chain(*args.include)))
         exc = self.default_exclude()
         if args.exclude:
-            exc.extend(args.exclude.split(","))
+            exc.extend(chain(*chain(*args.exclude)))
 
         if inc or exc:
             opt = omero.cmd.graphs.ChildOption()

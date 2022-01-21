@@ -165,7 +165,8 @@ class DownloadingOriginalFileProvider(object):
         """
         log.info("Downloading original file: %d" % original_file.id.val)
         self.raw_file_store.setFileId(original_file.id.val)
-        temporary_file = tempfile.TemporaryFile(mode='rt+', dir=str(self.dir))
+        temporary_file = tempfile.NamedTemporaryFile(mode='rt+',
+                                                     dir=str(self.dir))
         size = original_file.size.val
         for i in range((old_div(size, self.BUFFER_SIZE)) + 1):
             index = i * self.BUFFER_SIZE

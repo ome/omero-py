@@ -30,10 +30,15 @@ from builtins import str
 from past.utils import old_div
 from past.builtins import basestring
 from builtins import object
+from io import BytesIO
 import os
 import csv
 import sys
 import shlex
+import requests
+import re
+from zipfile import ZipFile
+
 
 from omero.cli import (
     BaseControl,
@@ -41,6 +46,7 @@ from omero.cli import (
     require_ctxdir,
 )
 import omero.java
+from omero.util import get_omero_user_cache_dir
 from omero_ext.argparse import SUPPRESS
 from omero_ext.path import path
 
@@ -96,13 +102,17 @@ Examples:
 
 For additional information, see:
 https://docs.openmicroscopy.org/latest/omero/users/cli/import.html
-Report bugs to <ome-users@lists.openmicroscopy.org.uk>
+Report bugs at https://forum.image.sc/
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
 OUTPUT_CHOICES = ["ids", "legacy", "yaml"]
 SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 NO_ARG = object()
+
+OMERO_JAVA_ZIP = (
+    'https://downloads.openmicroscopy.org/omero/{version}/OMERO.java.zip'
+)
 
 
 class CommandArguments(object):
@@ -122,6 +132,7 @@ class CommandArguments(object):
             "port", "password", "group", "create", "func",
             "bulk", "prog", "user", "key", "path", "logprefix",
             "JAVA_DEBUG", "quiet", "server", "depth", "clientdir",
+            "fetch_jars",
             "sudo")
         self.set_login_arguments(ctx, args)
         self.set_skip_arguments(args)
@@ -264,21 +275,22 @@ class CommandArguments(object):
         if ('all' in skip or 'upgrade' in skip):
             self.__java_initial.append("--no-upgrade-check")
 
-    def open_files(self):
+    def open_files(self, mode="w"):
         # Open file handles for stdout/stderr if applicable
-        out = self.open_log(self.__args.file, self.__args.logprefix)
-        err = self.open_log(self.__args.errs, self.__args.logprefix)
+        out = self.open_log(self.__args.file, self.__args.logprefix, mode=mode)
+        err = self.open_log(self.__args.errs, self.__args.logprefix, mode=mode)
         return out, err
 
-    def open_log(self, file, prefix=None):
+    def open_log(self, file, prefix=None, mode="w"):
         if not file:
             return None
         if prefix:
             file = os.path.sep.join([prefix, file])
+        file = os.path.abspath(file)
         dir = os.path.dirname(file)
         if not os.path.exists(dir):
             os.makedirs(dir)
-        return open(file, "w")
+        return open(file, mode)
 
 
 class ImportControl(BaseControl):
@@ -305,8 +317,14 @@ class ImportControl(BaseControl):
         for name, help in (
             ("bulk", "Bulk YAML file for driving multiple imports"),
             ("logprefix", "Directory or file prefix for --file and --errs"),
-            ("file", "File for storing the standard out of the Java process"),
-            ("errs", "File for storing the standard err of the Java process")
+            (
+                "file",
+                "File for storing the standard output from the Java process"
+            ),
+            (
+                "errs",
+                "File for storing the standard error from the Java process"
+            )
         ):
             add_python_argument("--%s" % name, nargs="?", help=help)
             add_python_argument("---%s" % name, nargs="?", help=SUPPRESS)
@@ -319,6 +337,9 @@ class ImportControl(BaseControl):
             "--logback", type=str,
             help="Path to a logback xml file. "
             " Default: etc/logback-cli.xml")
+        add_python_argument(
+            "--fetch-jars", type=str,
+            help="Download OMERO.java jars by version or URL, then exit")
 
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
@@ -489,30 +510,51 @@ class ImportControl(BaseControl):
 
         parser.set_defaults(func=self.importer)
 
-    # TODO: This could be relaxed in future:
-    # - Jars can be in a different client dir
-    # - logback config file could be optional
-    @require_ctxdir
-    def importer(self, args):
-
+    def _get_classpath_logback(self, args):
+        lib_client = self.ctx.dir / "lib" / "client"
+        auto_download = False
         if args.clientdir:
             client_dir = path(args.clientdir)
+        elif lib_client.exists():
+            client_dir = lib_client
         else:
-            client_dir = self.ctx.dir / "lib" / "client"
+            auto_download = True
+            omero_java_dir, omero_java_txt = self._userdir_jars()
+            client_dir = omero_java_dir
+
         etc_dir = old_div(self.ctx.dir, "etc")
         if args.logback:
             xml_file = path(args.logback)
         else:
             xml_file = old_div(etc_dir, "logback-cli.xml")
-        logback = "-Dlogback.configurationFile=%s" % xml_file
 
-        try:
-            classpath = [file.abspath() for file in client_dir.files("*.jar")]
-        except OSError as e:
-            self.ctx.die(102, "Cannot get JAR files from '%s' (%s)"
-                         % (client_dir, e.strerror))
+        classpath = []
+        if client_dir and client_dir.exists():
+            classpath = [f.abspath() for f in client_dir.files("*.jar")]
+        if auto_download:
+            if classpath:
+                self.ctx.err('Using {}'.format(omero_java_txt.text()))
+                if not args.logback:
+                    xml_file = client_dir / "logback-cli.xml"
+        else:
+            if not classpath:
+                self.ctx.die(
+                    103, "No JAR files found under '%s'" % client_dir)
+
+        logback = "-Dlogback.configurationFile=%s" % xml_file
+        return classpath, logback
+
+    def importer(self, args):
+        if args.fetch_jars:
+            if args.path:
+                self.ctx.err('WARNING: Ignoring extra arguments')
+            self.download_omero_java(args.fetch_jars)
+            return
+
+        classpath, logback = self._get_classpath_logback(args)
         if not classpath:
-            self.ctx.die(103, "No JAR files found under '%s'" % client_dir)
+            self.download_omero_java('latest')
+            classpath, logback = self._get_classpath_logback(args)
 
         command_args = CommandArguments(self.ctx, args)
         xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
@@ -525,12 +567,51 @@ class ImportControl(BaseControl):
         else:
             self.do_import(command_args, xargs)
 
-    def do_import(self, command_args, xargs):
+    def _userdir_jars(self, parentonly=False):
+        user_jars = get_omero_user_cache_dir() / 'jars'
+        # Use this file instead of a symlink so it works on all platform
+        omero_java_txt = user_jars / 'OMERO.java.txt'
+        if parentonly:
+            return user_jars, omero_java_txt
+        omero_java_dir = None
+        if omero_java_txt.exists():
+            omero_java_dir = omero_java_txt.text().strip()
+            return user_jars / omero_java_dir / 'libs', omero_java_txt
+        else:
+            return None, omero_java_txt
+
+    def download_omero_java(self, version_or_uri):
+        if re.match("^\w+://", version_or_uri):
+            omero_java_zip = version_or_uri
+        else:
+            omero_java_zip = OMERO_JAVA_ZIP.format(version=version_or_uri)
+        self.ctx.err("Downloading %s" % omero_java_zip)
+        jars_dir, omero_java_txt = self._userdir_jars(parentonly=True)
+        jars_dir.makedirs_p()
+        with requests.get(omero_java_zip) as resp:
+            with ZipFile(BytesIO(resp.content)) as zipfile:
+                topdirs = set(f.filename.split(
+                    os.path.sep)[0] for f in zipfile.filelist if f.is_dir())
+                if len(topdirs) != 1:
+                    self.ctx.die(
+                        108,
+                        'Expected one top directory in OMERO.java.zip: {}'
+                        .format(topdirs))
+                topdir = topdirs.pop()
+                if os.path.isabs(topdir):
+                    self.ctx.die(
+                        108,
+                        'Unexpected absolute paths in OMERO.java.zip: {}'
+                        .format(topdir))
+                zipfile.extractall(jars_dir)
+                omero_java_txt.write_text(topdir)
+
+    def do_import(self, command_args, xargs, mode="w"):
         out = err = None
         try:
 
             import_command = self.COMMAND + command_args.java_args()
-            out, err = command_args.open_files()
+            out, err = command_args.open_files(mode=mode)
 
             p = omero.java.popen(
                 import_command, debug=False, xargs=xargs,
@@ -550,7 +631,7 @@ class ImportControl(BaseControl):
         try:
             from yaml import safe_load
         except ImportError:
-            self.ctx.die(105, "yaml is unsupported")
+            self.ctx.die(105, "ERROR: PyYAML is not installed")
 
         old_pwd = os.getcwd()
         try:
@@ -591,7 +672,11 @@ class ImportControl(BaseControl):
                             # FIXME: this assumes 'omero'
                             print(sys.argv[0], "import", rv, file=o)
                 else:
-                    self.do_import(command_args, xargs)
+                    if incr == 1:
+                        mode = "w"
+                    else:
+                        mode = "a"
+                    self.do_import(command_args, xargs, mode=mode)
                 if self.ctx.rv:
                     failed += 1
                     total += self.ctx.rv
@@ -694,6 +779,7 @@ class ImportControl(BaseControl):
 
 class TestEngine(ImportControl):
     COMMAND = [TEST_CLASS]
+
 
 try:
     register("import", ImportControl, HELP, epilog=EXAMPLES)

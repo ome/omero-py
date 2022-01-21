@@ -243,7 +243,7 @@ class BaseClient(object):
 
         self._optSetProp(id, "IceSSL.VerifyDepthMax", "6")
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
-        self._optSetProp(id, "IceSSL.Protocols", "tls1")
+        self._optSetProp(id, "IceSSL.Protocols", "tls1_0,tls1_1,tls1_2")
 
         # Setting block size
         self._optSetProp(
@@ -944,13 +944,20 @@ class BaseClient(object):
             ofile = self.__sf.getQueryService().get(
                 "OriginalFile", ofile.id.val, ctx)
 
-            if block_size > ofile.size.val:
-                block_size = ofile.size.val
-
             prx.setFileId(ofile.id.val, ctx)
+            size = None
+            if prx.size() is None:
+                name = omero.rtypes.unwrap(ofile.name)
+                mimetype = omero.rtypes.unwrap(ofile.mimetype)
+                raise omero.ClientError(
+                    ("invalid size for OriginalFile '%s' "
+                     "(mimetype:%s)") % (name, mimetype))
+            else:
+                size = prx.size()
 
-            size = ofile.size.val
-            offset = 0
+            if block_size > size:
+                block_size = size
+
 
             if filehandle is None:
                 if filename is None:
@@ -962,11 +969,22 @@ class BaseClient(object):
                     raise omero.ClientError(
                         "filename and filehandle specified.")
 
+            offset = 0
             try:
                 while (offset+block_size) < size:
-                    filehandle.write(prx.read(offset, block_size))
+                    data = prx.read(offset, block_size)
+                    try:
+                        filehandle.write(data)
+                    except TypeError:
+                        # for Python 3.5
+                        filehandle.write(bytes_to_native_str(data))
                     offset += block_size
-                filehandle.write(prx.read(offset, (size-offset)))
+                data = prx.read(offset, size - offset)
+                try:
+                    filehandle.write(data)
+                except TypeError:
+                    # for Python 3.5
+                    filehandle.write(bytes_to_native_str(data))
             finally:
                 if filename:
                     filehandle.close()

@@ -27,21 +27,15 @@ import os
 import json
 import re
 from omero.rtypes import unwrap
-
-try:
-    import yaml
-    YAML_ENABLED = True
-except ImportError:
-    YAML_ENABLED = False
+from future.utils import bytes_to_native_str
+import yaml
 
 
 def get_supported_formats():
     """
     Return the supported formats
     """
-    if YAML_ENABLED:
-        return ('json', 'yaml')
-    return ('json',)
+    return ('json', 'yaml')
 
 
 def load(fileobj, filetype=None, single=True, session=None):
@@ -76,9 +70,7 @@ def load(fileobj, filetype=None, single=True, session=None):
         rawdata, filetype = get_format_filename(fileobj, filetype)
 
     if filetype == 'yaml':
-        if not YAML_ENABLED:
-            raise ImportError("yaml (PyYAML) module required")
-        data = list(yaml.load_all(rawdata))
+        data = list(yaml.safe_load_all(rawdata))
         if single:
             if len(data) != 1:
                 raise Exception(
@@ -88,7 +80,11 @@ def load(fileobj, filetype=None, single=True, session=None):
         return data
 
     if filetype == 'json':
-        data = json.loads(rawdata)
+        try:
+            data = json.loads(rawdata)
+        except TypeError:
+            # for Python 3.5
+            data = json.loads(bytes_to_native_str(rawdata))
         if single:
             return data
         return [data]
@@ -103,8 +99,6 @@ def dump(data, formattype):
     """
 
     if formattype == 'yaml':
-        if not YAML_ENABLED:
-            raise ImportError("yaml (PyYAML) module required")
         return yaml.dump(data)
 
     if formattype == 'json':

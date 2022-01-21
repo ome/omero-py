@@ -404,10 +404,11 @@ class SessionsStore(object):
                 cb = client.submit(req)  # Response is "OK"
                 cb.close(True)
             except omero.CmdError as ce:
-                self.ctx.dbg(str(ce.err))
+                self.logger.warn(str(ce.err))
             except:
                 import traceback
-                self.ctx.dbg(traceback.format_exc())
+
+                self.logger.error(traceback.format_exc())
 
             # Reload session
             sess = sf.getSessionService().getSession(uuid)

@@ -192,6 +192,15 @@ class mock_storage(object):
     def size(self):
         return 0
 
+class mock_storage_factory():
+    def __init__(self):
+        self.storages = []
+
+    def add_storage(self, storage):
+        self.storages.append(storage)
+
+    def getOrCreate(self, hdfpath, table, read_only=False):
+        return self.storages.pop()
 
 class TestTables(TestCase):
 
@@ -307,18 +316,11 @@ class TestTables(TestCase):
         f2.details.group = omero.model.ExperimenterGroupI(1, False)
         self.sf.return_values.append(f2)
         storage = mock_storage()
+        storage_factory = mock_storage_factory()
+        storage_factory.add_storage(storage)
         self.ctx.newSession()
-        table = omero.tables.TableI(self.ctx, f1, self.sf, storage)
+        table = omero.tables.TableI(self.ctx, f1, 'dummy/path', self.sf, storage_factory)
         assert table.file_obj.details.group
-
-    def testTableIncrDecr(self):
-        f = omero.model.OriginalFileI(1, True)
-        f.details.group = omero.model.ExperimenterGroupI(1, False)
-        storage = mock_storage()
-        table = omero.tables.TableI(self.ctx, f, self.sf, storage)
-        assert storage.up
-        table.cleanup()
-        assert storage.down
 
     def testTablePreInitialized(self):
         f = omero.model.OriginalFileI(1, True)
@@ -327,7 +329,8 @@ class TestTables(TestCase):
         table1 = mocktable.table
         storage = table1.storage
         storage.initialize([LongColumnI("a", None, [])])
-        table2 = omero.tables.TableI(self.ctx, f, self.sf, storage)
+        storage_factory = self._TestTables__tables[0]._storage_factory
+        table2 = omero.tables.TableI(self.ctx, f, str(storage._HdfStorage__hdf_path), self.sf, storage_factory)
         table2.cleanup()
         table1.cleanup()
 
@@ -372,12 +375,12 @@ class TestTables(TestCase):
         self.repofile(self.sf.db_uuid)
         of = omero.model.OriginalFileI(1, False)
         self.sf.return_values.append(of)
+        self.sf.return_values.append(of)
 
         internal_repo = mock_internal_repo(self.tmp)
         f = open(internal_repo.path, "w")
         f.write("this file is not HDF")
         f.close()
-
         tables = self.tablesI(internal_repo)
         pytest.raises(omero.ValidationException, tables.getTable, of, self.sf,
                       self.current)

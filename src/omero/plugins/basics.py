@@ -28,6 +28,7 @@ from collections import defaultdict
 from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import VERSION
+from omero.cli import OMERODIR
 
 
 class QuitControl(BaseControl):
@@ -45,7 +46,17 @@ class VersionControl(BaseControl):
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
+        self.ctx.err("OMERO.py version:")
         self.ctx.out(VERSION)
+        server_version = None
+        for line in self.ctx.get_config_property_lines(OMERODIR):
+            line = str(line).strip()
+            if line.startswith("omero.version="):
+                server_version = line[len("omero.version="):]
+        if server_version:
+            self.ctx.err("OMERO.server version:")
+            self.ctx.err(server_version)
+
 
 LOAD_HELP = """Load file as if it were sent on standard in.
 
@@ -158,7 +169,7 @@ Other help topics:
 
 For additional information, see:
 https://docs.openmicroscopy.org/latest/omero/users/cli/index.html
-Report bugs to <ome-users@lists.openmicroscopy.org.uk>
+Report bugs at https://forum.image.sc/tag/omero-cli
 """
 
 
@@ -282,7 +293,7 @@ class ErrorsControl(BaseControl):
                 combined = []
                 if hasattr(control, "get_errors"):
                     combined.extend(list(control.get_errors().items()))
-                    combined.sort(lambda a, b: cmp(a[1].rcode, b[1].rcode))
+                    combined.sort(key=lambda x: x[1].rcode)
                     for key, err in combined:
                         arranged[err.rcode][name][key].append(err)
 

@@ -156,12 +156,15 @@ class HdfList(object):
         return hdffile
 
     @locked
-    def getOrCreate(self, hdfpath, read_only=False):
+    def getOrCreate(self, hdfpath, table, read_only=False):
+        storage = None
         try:
-            return self.__paths[hdfpath]
+            storage = self.__paths[hdfpath]
         except KeyError:
             # Adds itself to the global list
-            return HdfStorage(hdfpath, self._lock, read_only=read_only)
+            storage = HdfStorage(hdfpath, self._lock, read_only=read_only)
+        storage.incr(table)
+        return storage
 
     @locked
     def remove(self, hdfpath, hdffile):
@@ -504,11 +507,6 @@ class HdfStorage(object):
     @locked
     @modifies
     def append(self, cols):
-        def _encode_string_array(sarray):
-            if sys.version_info >= (3, 0, 0):
-                return [s.encode() for s in sarray]
-            return sarray
-
         self.__initcheck()
         # Optimize!
         arrays = []
@@ -521,37 +519,8 @@ class HdfStorage(object):
                 if sz != col.getsize():
                     raise omero.ValidationException(
                         "Columns are of differing length")
-            # StringColumns are actually numpy dtype 'S':
-            #   "zero-terminated bytes (not recommended)"
-            # https://github.com/ome/omero-py/blob/v5.6.dev8/src/omero/columns.py#L269
-            # https://docs.scipy.org/doc/numpy-1.15.1/reference/arrays.dtypes.html#specifying-and-constructing-data-types
-            #
-            # In any case HDF5 doesn't seem to properly support unicode,
-            # and numexpr doesn't even pretend to support it:
-            #   https://github.com/PyTables/PyTables/issues/499
-            #   https://github.com/pydata/numexpr/issues/142
-            #   https://github.com/pydata/numexpr/issues/150
-            #   https://github.com/pydata/numexpr/issues/263
-            #   https://github.com/pydata/numexpr/blob/v2.7.0/numexpr/necompiler.py#L340-L341
-            #
-            # > import numexpr
-            # > a = "£"
-            # > numexpr.evaluate('a=="£"')
-            #   ValueError: unknown type str32
-            # > b = "£".encode()
-            # > numexpr.evaluate('b=="£"')
-            #   UnicodeEncodeError: 'ascii' codec can't encode character '\xa3'
-            #     in position 0: ordinal not in range(128)
-            #
-            # You should be able to store/load unicode data but you can't use
-            # unicode in a where condition
-            dtype = col.dtypes()
-            if dtype[0][1] == 'S':
-                arrays.extend(_encode_string_array(array)
-                              for array in col.arrays())
-            else:
-                arrays.extend(col.arrays())
-            dtypes.extend(dtype)
+            arrays.extend(col.arrays())
+            dtypes.extend(col.dtypes())
             col.append(self.__mea)  # Potential corruption !!!
 
         # Convert column-wise data to row-wise records
@@ -610,25 +579,19 @@ class HdfStorage(object):
     def read(self, stamp, colNumbers, start, stop, current):
         self.__initcheck()
         self.__sizecheck(colNumbers, None)
-        cols = self.cols(None, current)
+        all_cols = self.cols(None, current)
+        cols = [all_cols[i] for i in colNumbers]
 
-        rows = self._getrows(start, stop)
-        rv, l = self._rowstocols(rows, colNumbers, cols)
-        return self._as_data(rv, list(range(start, start + l)))
+        for col in cols:
+            col.read(self.__mea, start, stop)
+        if start is not None and stop is not None:
+            rowNumbers = list(range(start, stop))
+        elif start is not None and stop is None:
+            rowNumbers =  list(range(start, self.__length()))
+        elif start is None and stop is None:
+            rowNumbers = list(range(self.__length()))
 
-    def _getrows(self, start, stop):
-        return self.__mea.read(start, stop)
-
-    def _rowstocols(self, rows, colNumbers, cols):
-        l = 0
-        rv = []
-        for i in colNumbers:
-            col = cols[i]
-            col.fromrows(rows)
-            rv.append(col)
-            if not l:
-                l = len(col.values)
-        return rv, l
+        return self._as_data(cols, rowNumbers)
 
     @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):

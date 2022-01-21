@@ -19,10 +19,13 @@ from builtins import object
 from past.utils import old_div
 import os
 import pytest
+import sys
 from omero_ext.path import path
 import omero.clients
 import uuid
 from omero.cli import CLI, NonZeroReturnCode
+from omero.util import import_candidates
+
 # Workaround for a poorly named module
 try:
     plugin = __import__('omero.plugins.import', globals(), locals(),
@@ -41,6 +44,21 @@ OMERODIR = False
 if 'OMERODIR' in os.environ:
     OMERODIR = os.environ.get('OMERODIR')
 
+
+@pytest.fixture(scope="session")
+def omero_userdir_tmpdir(tmpdir_factory):
+    # If OMERO_USERDIR is set assume user wants to use it for tests
+    # Otherwise avoid modifying the default userdir
+    if os.getenv("OMERO_USERDIR"):
+        return os.getenv("OMERO_USERDIR")
+    return str(tmpdir_factory.mktemp('omero_userdir'))
+
+
+@pytest.fixture(scope="function", autouse=True)
+def omero_userdir(monkeypatch, omero_userdir_tmpdir):
+    monkeypatch.setenv("OMERO_USERDIR", omero_userdir_tmpdir)
+
+
 class MockClient(omero.clients.BaseClient):
 
     def setSessionId(self, uuid):
@@ -58,11 +76,12 @@ class TestImport(object):
         self.args = ["import"]
 
     def add_client_dir(self):
-        dist_dir = path(OMERODIR)
-        client_dir = dist_dir / "lib" / "client"
-        logback = dist_dir / "etc" / "logback-cli.xml"
-        self.args += ["--clientdir", client_dir]
-        self.args += ["--logback", logback]
+        if OMERODIR is not False:
+            dist_dir = path(OMERODIR)
+            client_dir = dist_dir / "lib" / "client"
+            logback = dist_dir / "etc" / "logback-cli.xml"
+            self.args += ["--clientdir", client_dir]
+            self.args += ["--logback", logback]
 
     def mkdir(self, parent, name, with_ds_store=False):
         child = old_div(parent, name)
@@ -151,7 +170,7 @@ class TestImport(object):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     @pytest.mark.parametrize("data", (("1", False), ("3", True)))
     def testImportDepth(self, tmpdir, capfd, data):
         """Test import using depth argument"""
@@ -180,7 +199,7 @@ class TestImport(object):
             with pytest.raises(NonZeroReturnCode):
                 f()
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testImportFakeImage(self, tmpdir, capfd):
         """Test fake image import"""
 
@@ -199,7 +218,7 @@ class TestImport(object):
         assert outputlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     @pytest.mark.parametrize('params', (
         ("-l", "only_fakes.txt", True),
         ("-l", "no_fakes.txt", False),
@@ -232,7 +251,7 @@ class TestImport(object):
             o, e = capfd.readouterr()
             assert "parsed into 0 group" in e
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     @pytest.mark.parametrize('with_ds_store', (True, False))
     def testImportFakeScreen(self, tmpdir, capfd, with_ds_store):
         """Test fake screen import"""
@@ -255,7 +274,7 @@ class TestImport(object):
         for i in range(len(fieldfiles)):
             assert outputlines[-1-len(fieldfiles)+i] == str(fieldfiles[i])
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testImportPattern(self, tmpdir, capfd):
         """Test pattern import"""
 
@@ -303,7 +322,7 @@ class TestImport(object):
         expected_args += ['test.fake']
         assert command_args.java_args() == expected_args
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testLogPrefix(self, tmpdir, capfd):
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
@@ -317,7 +336,7 @@ class TestImport(object):
 
         o, e = capfd.readouterr()
         assert o == ""
-        assert e == ""
+        assert (e == "" or e.startswith('Using OMERO.java-'))
 
         outlines = prefix.join("out").read().split("\n")
         reader = 'loci.formats.in.FakeReader'
@@ -325,7 +344,28 @@ class TestImport(object):
         assert outlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
+    def testLogs(self, tmpdir, capfd, monkeypatch):
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        monkeypatch.chdir(tmpdir)
+
+        self.add_client_dir()
+        self.args += ["-f", "--file=out", "--errs=errs"]
+        self.args += [str(fakefile)]
+        self.cli.invoke(self.args, strict=True)
+
+        o, e = capfd.readouterr()
+        assert o == ""
+        assert (e == "" or e.startswith('Using OMERO.java-'))
+
+        outlines = tmpdir.join("out").read().split("\n")
+        reader = 'loci.formats.in.FakeReader'
+        assert outlines[-2] == str(fakefile)
+        assert outlines[-3] == \
+            "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testYamlOutput(self, tmpdir, capfd):
 
         import yaml
@@ -338,7 +378,9 @@ class TestImport(object):
         self.cli.invoke(self.args, strict=True)
 
         o, e = capfd.readouterr()
-        result = yaml.load(StringIO(o))
+        # o also contains loads of preceding log output, strip this off
+        yamlout = o[o.find('---'):]
+        result = yaml.safe_load(StringIO(yamlout))
         result = result[0]
         assert "fake" in result["group"]
         assert 1 == len(result["files"])
@@ -353,7 +395,7 @@ class TestImport(object):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkSimple(self):
         t = path(__file__).parent / "bulk_import" / "test_simple"
         b = old_div(t, "bulk.yml")
@@ -362,7 +404,7 @@ class TestImport(object):
         self.args += ["-f", "---bulk=%s" % b]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkInclude(self):
         t = path(__file__).parent / "bulk_import" / "test_include" / "inner"
         b = old_div(t, "bulk.yml")
@@ -371,7 +413,7 @@ class TestImport(object):
         self.args += ["-f", "---bulk=%s" % b]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkName(self):
         # Metadata provided in the yml file will be applied
         # to the args
@@ -379,7 +421,7 @@ class TestImport(object):
         b = old_div(t, "bulk.yml")
 
         class MockImportControl(ImportControl):
-            def do_import(self, command_args, xargs):
+            def do_import(self, command_args, xargs, mode):
                 assert "--name=testname" in command_args.java_args()
         self.cli.register("mock-import", MockImportControl, "HELP")
 
@@ -387,7 +429,7 @@ class TestImport(object):
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkCols(self):
         # Metadata provided about the individual columns in
         # the tsv will be used.
@@ -395,7 +437,7 @@ class TestImport(object):
         b = old_div(t, "bulk.yml")
 
         class MockImportControl(ImportControl):
-            def do_import(self, command_args, xargs):
+            def do_import(self, command_args, xargs, mode):
                 cmd = command_args.java_args()
                 assert "--name=meta_one" in cmd or \
                        "--name=meta_two" in cmd
@@ -415,7 +457,7 @@ class TestImport(object):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkDry(self, capfd):
         t = path(__file__).parent / "bulk_import" / "test_dryrun"
         b = old_div(t, "bulk.yml")
@@ -426,14 +468,14 @@ class TestImport(object):
         o, e = capfd.readouterr()
         assert o == '"--name=no-op" "1.fake"\n'
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkJavaArgs(self):
         """Test Java arguments"""
         t = path(__file__).parent / "bulk_import" / "test_javaargs"
         b = old_div(t, "bulk.yml")
 
         class MockImportControl(ImportControl):
-            def do_import(self, command_args, xargs):
+            def do_import(self, command_args, xargs, mode):
                 assert ("--checksum-algorithm=File-Size-64" in
                         command_args.java_args())
                 assert "--parallel-upload=10" in command_args.java_args()
@@ -446,7 +488,7 @@ class TestImport(object):
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="Needs client dir")
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     @pytest.mark.parametrize('skip', plugin.SKIP_CHOICES)
     def testBulkSkip(self, skip):
         """Test skip arguments"""
@@ -454,7 +496,7 @@ class TestImport(object):
         b = t / "%s.yml" % skip
 
         class MockImportControl(ImportControl):
-            def do_import(self, command_args, xargs):
+            def do_import(self, command_args, xargs, mode):
                 if skip in ["all", "checksum"]:
                     assert ("--checksum-algorithm=File-Size-64" in
                             command_args.java_args())
@@ -472,3 +514,53 @@ class TestImport(object):
         self.args = ["mock-import", "-f", "---bulk=%s" % b]
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
+    def testImportCandidates(self, tmpdir):
+        """test using import_candidates from util
+        """
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        candidates = import_candidates.as_dictionary(str(tmpdir))
+        assert str(fakefile) in candidates
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
+    def testImportCandidatesDepth(self, tmpdir):
+        dir1 = tmpdir.join("a")
+        dir1.mkdir()
+        dir2 = old_div(dir1, "b")
+        dir2.mkdir()
+        dir3 = old_div(dir2, "c")
+        dir3.mkdir()
+        fakefile = old_div(dir2, "test.fake")
+        fakefile.write("")
+        fakefile2 = old_div(dir3, "test2.fake")
+        fakefile2.write("")
+        candidates = import_candidates.as_dictionary(
+            str(tmpdir), extra_args=["--debug", "WARN", "--depth", "3"]
+        )
+        assert str(fakefile) in candidates
+        assert str(fakefile2) not in candidates
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
+    def testImportCandidatesReaders(self, tmpdir):
+        """
+        Test using import_candidates with a populated readers.txt
+        """
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        patternfile = tmpdir.join("test.pattern")
+        patternfile.write('test.fake')
+        readers = tmpdir.join("readers.txt")
+        readers.write('loci.formats.in.FakeReader')
+        candidates = import_candidates.as_dictionary(str(tmpdir))
+        assert str(patternfile) in candidates
+        assert str(fakefile) in candidates[str(patternfile)]
+        candidates = import_candidates.as_dictionary(
+            str(tmpdir), readers=str(readers))
+        assert str(fakefile) in candidates
+        assert str(patternfile) not in candidates
+        candidates = import_candidates.as_dictionary(
+            str(tmpdir), readers=str(readers), extra_args=["--debug", "WARN"])
+        assert str(fakefile) in candidates
+        assert str(patternfile) not in candidates

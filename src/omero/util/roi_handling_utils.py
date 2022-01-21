@@ -51,7 +51,7 @@ def get_line_data(pixels, x1, y1, x2, y2, line_w=2, the_z=0, the_c=0, the_t=0):
     line_x = x2-x1
     line_y = y2-y1
 
-    rads = math.atan(old_div(float(line_x),line_y))
+    rads = math.atan2(line_x, line_y)
 
     # How much extra Height do we need, top and bottom?
     extra_h = abs(math.sin(rads) * line_w)

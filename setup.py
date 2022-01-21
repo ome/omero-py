@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-   Copyright 2008-2019 The Open Microscopy Environment, Glencoe Software, Inc.
+   Copyright 2008-2020 The Open Microscopy Environment, Glencoe Software, Inc.
    All rights reserved.
 
    Use is subject to license terms supplied in LICENSE.txt
@@ -164,8 +164,6 @@ packageless = glob.glob("target/*.py")
 packageless = [x[7:-3] for x in packageless]
 packages = find_packages(where="target")
 
-url = 'https://docs.openmicroscopy.org/latest/omero/developers'
-
 sys.path.append("target")
 from omero_version import omero_version as ov  # noqa
 
@@ -192,28 +190,41 @@ setup(
       'or later (GPLv2+)',
       'Natural Language :: English',
       'Operating System :: OS Independent',
-      'Programming Language :: Python :: 2',
+      'Programming Language :: Python :: 3',
       'Topic :: Software Development :: Libraries :: Python Modules',
     ],  # Get strings from
         # http://pypi.python.org/pypi?%3Aaction=list_classifiers
     author="The Open Microscopy Team",
     author_email="ome-devel@lists.openmicroscopy.org.uk",
-    url=url,
+    url='https://github.com/ome/omero-py',
+    project_urls={
+        'Documentation':
+            'https://docs.openmicroscopy.org/omero/latest/developers/'
+            'Python.html',
+        'Bug tracker': 'https://github.com/ome/omero-py/issues',
+    },
     package_dir={"": "target"},
     packages=packages,
     package_data={
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
     py_modules=packageless,
-    scripts=glob.glob(os.path.sep.join(["bin", "*"])),
+    entry_points={
+        'console_scripts': ['omero=omero.main:main'],
+    },
+    python_requires='>=3',
     install_requires=[
+        'appdirs',
         'future',
         'numpy',
         'Pillow',
+        'PyYAML',
         'zeroc-ice>=3.6.4,<3.7',
+        'pywin32; platform_system=="Windows"',
+        'requests'
     ],
     tests_require=[
-        'pytest<3',
+        'pytest',
         'mox3',
     ],
     cmdclass={

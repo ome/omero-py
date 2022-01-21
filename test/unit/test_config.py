@@ -14,6 +14,7 @@ from builtins import str
 from builtins import object
 from past.utils import old_div
 import os
+import sys
 import json
 import errno
 import pytest
@@ -51,8 +52,8 @@ def assertXml(elementA, elementB):
     for k in B_attr:
         assert A_attr[k] == B_attr[k], cf(elementA, elementB)
 
-    A_kids = dict([pair(x) for x in elementA.getchildren()])
-    B_kids = dict([pair(x) for x in elementB.getchildren()])
+    A_kids = dict([pair(x) for x in list(elementA)])
+    B_kids = dict([pair(x) for x in list(elementB)])
     for k in A_attr:
         assertXml(A_kids[k], B_kids[k])
     for k in B_attr:
@@ -126,7 +127,7 @@ class TestConfig(object):
             for x in props:
                 id = x.attrib["id"]
                 if id == "__ACTIVE__":
-                    for y in x.getchildren():
+                    for y in list(x):
                         if y.attrib["name"] == "omero.config.profile":
                             return y.attrib["value"]
 
@@ -338,6 +339,8 @@ class TestConfig(object):
             else:
                 os.environ["OMERO_CONFIG"] = old
 
+    @pytest.mark.skipif(sys.platform.startswith("win"),
+                        reason="chmod requires posix")
     def testCannotCreate(self):
         d = create_path(folder=True)
         d.chmod(0o555)
@@ -357,6 +360,8 @@ class TestConfig(object):
             ConfigXml(filename).close()
         assert excinfo.value.errno == errno.EACCES
 
+    @pytest.mark.skipif(sys.platform.startswith("win"),
+                        reason="chmod requires posix")
     def testCannotRead(self):
         p = create_path()
         p.chmod(0)

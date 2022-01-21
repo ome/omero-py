@@ -39,7 +39,8 @@ from os import linesep
 from omero.util.text import CSVStyle, JSONStyle, PlainStyle, TableBuilder
 from omero.util.upgrade_check import UpgradeCheck
 from omero.util.temp_files import manager
-from omero.util import get_user_dir
+from omero.util import (
+    get_omero_userdir, get_omero_user_cache_dir, get_user_dir)
 from omero_version import omero_version
 import omero.util.image_utils as image_utils
 try:
@@ -314,3 +315,33 @@ class TestImageUtils(object):
         data_canvas[256, 256] = [255, 255, 0]
         canvas = Image.fromarray(data_canvas, 'RGB')
         image_utils.paste_image(img, canvas, 0, 0)
+
+
+class TestUserdirs(object):
+
+    def testUserdirEnvironmentDefault(self, monkeypatch):
+        monkeypatch.delenv('OMERO_USERDIR', raising=False)
+
+        assert get_omero_userdir().basename() == 'omero'
+
+        c = get_omero_user_cache_dir()
+        assert c.basename() == omero_version.split('.')[0]
+        assert 'OMERO.py' in str(c)
+
+    def testUserdirEnvironmentAppdir(self, monkeypatch):
+        monkeypatch.setenv('OMERO_USERDIR', '')
+
+        d = get_omero_userdir()
+        assert d.basename() == omero_version.split('.')[0]
+        assert 'OMERO.py' in str(d)
+
+        c = get_omero_user_cache_dir()
+        assert c.basename() == omero_version.split('.')[0]
+        assert 'OMERO.py' in str(c)
+
+    def testUserdirEnvironmentSet(self, monkeypatch, tmpdir):
+        monkeypatch.setenv('OMERO_USERDIR', str(tmpdir))
+
+        assert get_omero_userdir() == tmpdir
+
+        assert get_omero_user_cache_dir() == tmpdir / "cache"

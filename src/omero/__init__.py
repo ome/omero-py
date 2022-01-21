@@ -85,6 +85,12 @@ class CmdError(ClientError):
         ClientError.__init__(self, *args, **kwargs)
         self.err = err
 
+    def __str__(self):
+        sb = ClientError.__str__(self)
+        sb += "\n"
+        sb += str(self.err)
+        return sb
+
 
 class UnloadedEntityException(ClientError):
     pass

@@ -56,7 +56,7 @@ except ImportError:
 import omero
 import omero.clients
 from omero.util.decorators import timeit
-from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
+from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead, Chown2
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
@@ -1853,7 +1853,8 @@ class _BlitzGateway (object):
         if self.isAdmin():
             if group is None:
                 e = self.getObject(
-                    "Experimenter", attributes={'omeName': username})
+                    "Experimenter", attributes={'omeName': username},
+                    opts={'load_experimentergroups': True})
                 if e is None:
                     return
                 group = e._obj._groupExperimenterMapSeq[0].parent.name.val
@@ -2351,7 +2352,8 @@ class _BlitzGateway (object):
             uid = self.getUserId()
             if uid is not None:
                 self._user = self.getObject(
-                    "Experimenter", self._userid) or None
+                    "Experimenter", self._userid,
+                    opts={'load_experimentergroups': True}) or None
         return self._user
 
     def getAdministrators(self):
@@ -2363,7 +2365,8 @@ class _BlitzGateway (object):
         """
         sysGroup = self.getObject(
             "ExperimenterGroup",
-            self.getAdminService().getSecurityRoles().systemGroupId)
+            self.getAdminService().getSecurityRoles().systemGroupId,
+            opts={'load_experimenters': True})
         for gem in sysGroup.copyGroupExperimenterMap():
             yield ExperimenterWrapper(self, gem.child)
 
@@ -2948,7 +2951,8 @@ class _BlitzGateway (object):
             self.getAdminService().getSecurityRoles().userGroupId]
         if len(self.getEventContext().memberOfGroups) > 0:
             for g in self.getObjects("ExperimenterGroup",
-                                     self.getEventContext().memberOfGroups):
+                                     self.getEventContext().memberOfGroups,
+                                     opts={'load_experimenters': True}):
                 if g.getId() not in system_groups:
                     yield g
 
@@ -3011,16 +3015,13 @@ class _BlitzGateway (object):
         :return:        Generator of experimenters
         :rtype:         :class:`ExperimenterWrapper` generator
         """
-
-        if isinstance(start, UnicodeType):
-            start = start.encode('utf8')
         params = omero.sys.Parameters()
-        params.map = {'start': rstring('%s%%' % start.lower())}
+        params.map = {'start': omero_type('%s%%' % start.lower())}
         q = self.getQueryService()
         rv = q.findAllByQuery(
             "from Experimenter e where lower(e.omeName) like :start",
             params, self.SERVICE_OPTS)
-        rv.sort(lambda x, y: cmp(x.omeName.val, y.omeName.val))
+        rv.sort(key=lambda x: x.omeName.val)
         for e in rv:
             yield ExperimenterWrapper(self, e)
 
@@ -3050,7 +3051,8 @@ class _BlitzGateway (object):
         """
 
         default = self.getObject(
-            "ExperimenterGroup", self.getEventContext().groupId)
+            "ExperimenterGroup", self.getEventContext().groupId,
+            opts={'load_experimenters': True})
         if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d is None:
@@ -3365,9 +3367,9 @@ class _BlitzGateway (object):
         # Handle dict of parameters -> convert to ParametersI()
         if opts is not None:
             # Parse opts dict to build params
-            if 'offset' in opts and 'limit' in opts:
+            if 'limit' in opts:
                 limit = opts['limit']
-                offset = opts['offset']
+                offset = opts.get('offset', 0)
             if 'owner' in opts:
                 owner = rlong(opts['owner'])
             if 'order_by' in opts:
@@ -4178,6 +4180,69 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield wrapper(self, e)
 
+    def getObjectsByMapAnnotations(self, obj_type, key=None, value=None, ns=None,
+                                   opts={}):
+        """
+        Retrieve objects linked to Map Annotations, filter by key and value.
+
+        :param obj_type:    'Dataset', 'Image' etc.
+        :param key:         Filter by key. Can start or end with * wild card
+        :param value:       Filter by value. Can start or end with * wild card
+        :param ns:          Filter by namespace
+        :return:            Generator yielding Objects
+        :rtype:             :class:`BlitzObjectWrapper` generator
+        """
+
+        wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
+        if not wrapper:
+            raise AttributeError("Don't know how to handle '%s'" % obj_type)
+
+        params = omero.sys.ParametersI()
+        clauses = []
+
+        def add_param(param, value):
+            if value is None:
+                return
+            # Replace wild-cards with `%%` for `like` search
+            wild_card = (value[0] == "*" or value[-1] == "*")
+            if value[0] == "*":
+                value = "%%" + value[1:]
+            if value[-1] == "*":
+                value = value[:-1] + "%%"
+            like = "like" if wild_card else "="
+            clauses.append("mv.%s %s :%s" % (param, like, param))
+            params.addString(param, value)
+
+        # Build the query, handling wildcards for key and value
+        add_param("name", key)
+        add_param("value", value)
+
+        if ns is not None:
+            clauses.append("ann.ns = :ns")
+            params.addString("ns", ns)
+
+        # Parse opts dict to build params
+        limit = opts.get('limit', 500)
+        offset = opts.get('offset', 0)
+        if offset is not None and limit is not None:
+            params.page(offset, limit)
+
+        # Using projection since can't seem to fetch objects AND filter by mapValue
+        query = """
+            select distinct obj.id from
+            %sAnnotationLink ial
+            join ial.child ann
+            join ann.mapValue mv
+            join ial.parent obj""" % wrapper().OMERO_CLASS
+        if len(clauses) > 0:
+            query += " where " + " and ".join(clauses)
+        result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
+        ids = [row[0].val for row in result]
+        if len(ids) == 0:
+            return []
+        return self.getObjects(obj_type, ids)
+
+
     ################
     # Enumerations #
 
@@ -4547,6 +4612,48 @@ class _BlitzGateway (object):
         ctx.setOmeroGroup(group_id)
         prx = self.c.sf.submit(da, ctx)
         return prx
+
+    def chownObjects(self, graph_spec, obj_ids, owner_id, wait=False):
+        """
+        Change the Owner for a specified objects using queue.
+
+        This can only be used by OMERO administrators with "Chown"
+        privilege and group owners.
+        Group owners can only transfer ownership between members of the
+        owned group.
+        Administrators can transfer ownership between any users
+        regardless of their respective groups.
+
+        :param graph_spec:      String to indicate the object type or graph
+                                specification. Examples include:
+
+                                * 'Image'
+                                * 'Project'   # will move contents too.
+        :param obj_ids:         IDs for the objects to move.
+        :param owner_id:        The owner to move the data to.
+        """
+
+        if not isinstance(obj_ids, list) or len(obj_ids) < 1:
+            raise AttributeError('Must be a list of object IDs')
+
+        graph = graph_spec.lstrip('/').split('/')
+        obj_ids = list(map(int, obj_ids))
+        chown = Chown2(targetObjects={graph[0]: obj_ids})
+        chown.userId = owner_id
+
+        da = DoAll()
+        da.requests = [chown]
+
+        logger.debug('Chown2: type: %s, ids: %s, owner: %s' %
+                     (graph_spec, obj_ids, owner_id))
+
+        handle = self.c.sf.submit(da, self.SERVICE_OPTS)
+        if wait:
+            try:
+                cb = self._waitOnCmd(handle)
+            finally:
+                cb.close(True)
+        return handle
 
     ###################
     # Searching stuff #
@@ -5908,15 +6015,42 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         Returns string for building queries, loading Experimenters only.
 
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'experimentergroup': <group_id> to filter by ExperimenterGroup
+                        'load_experimentergroups': <bool> to load ExperimenterGroups
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
-        query = ("select distinct obj from Experimenter as obj "
-                 "left outer join fetch obj.groupExperimenterMap as map "
-                 "left outer join fetch map.parent g")
-        return query, [], omero.sys.ParametersI()
+        clauses = []
+        query = "select obj from Experimenter as obj"
+        params = omero.sys.ParametersI()
+
+        if opts is None:
+            opts = {}
+        load_experimentergroups = opts.get('load_experimentergroups', True)
+        if load_experimentergroups:
+            query += (" left outer join fetch obj.groupExperimenterMap "
+                      "as groupExperimenterMap "
+                      "left outer join fetch groupExperimenterMap.parent g")
+
+        if 'experimentergroup' in opts:
+            if not load_experimentergroups:
+                query += ' join obj.groupExperimenterMap groupExperimenterMap'
+            clauses.append('groupExperimenterMap.parent.id = :group')
+            params.add('group', rlong(opts['experimentergroup']))
+        return query, clauses, params
+
+    def copyGroupExperimenterMap(self):
+        """Delegate to the wrapped _obj.copyGroupExperimenterMap()."""
+        if not self._obj.groupExperimenterMapLoaded:
+            self.__loadedHotSwap__()
+        return self._obj.copyGroupExperimenterMap()
+
+    def __loadedHotSwap__(self):
+        """Load Experimenter with Groups loaded."""
+        e = self._conn.getObject('Experimenter', self.getId(),
+                                 opts={'load_experimentergroups': True})
+        self._obj = e._obj
 
     def getRawPreferences(self):
         """
@@ -6143,15 +6277,42 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         Returns string for building queries, loading Experimenters for each
         group.
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'experimenter': <experimenter_id> to filter by
+                                        Experimenter
+                        'load_experimenters': <bool> to load Experimenters
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
-        query = ("select distinct obj from ExperimenterGroup as obj "
-                 "left outer join fetch obj.groupExperimenterMap as map "
-                 "left outer join fetch map.child e")
-        return query, [], omero.sys.ParametersI()
+        clauses = []
+        query = "select obj from ExperimenterGroup as obj"
+        params = omero.sys.ParametersI()
+        if opts is None:
+            opts = {}
+
+        load_experimenters = opts.get('load_experimenters', True)
+        if load_experimenters:
+            query += (" left outer join fetch obj.groupExperimenterMap as map "
+                      "left outer join fetch map.child e")
+
+        if 'experimenter' in opts:
+            if not load_experimenters:
+                query += ' join obj.groupExperimenterMap as map'
+            clauses.append('map.child.id = :experimenter')
+            params.add('experimenter', rlong(opts['experimenter']))
+        return query, clauses, params
+
+    def copyGroupExperimenterMap(self):
+        """Delegate to the wrapped _obj.copyGroupExperimenterMap()."""
+        if not self._obj.groupExperimenterMapLoaded:
+            self.__loadedHotSwap__()
+        return self._obj.copyGroupExperimenterMap()
+
+    def __loadedHotSwap__(self):
+        """Load ExperimenterGroup with Experimenters loaded."""
+        g = self._conn.getObject('ExperimenterGroup', self.getId(),
+                                 opts={'load_experimenters': True})
+        self._obj = g._obj
 
     def groupSummary(self, exclude_self=False):
         """
@@ -8616,7 +8777,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         eg {0: 1.0, 1: 0.25, 2: 0.062489446727078291, 3: 0.031237687848258006}
         Returns None if this image doesn't support tiles.
         """
-        if not self._re.requiresPixelsPyramid():
+        if self._re.getResolutionLevels() == 1:
             return None
         levels = self._re.getResolutionDescriptions()
         rv = {}

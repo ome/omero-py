@@ -28,6 +28,7 @@ from __future__ import division
 
 from builtins import str
 from past.utils import old_div
+import datetime
 import os
 import sys
 import Ice
@@ -125,8 +126,8 @@ Other sessions commands:
 
     # List or change the timeToLive for the session
     $ omero sessions timeout
-    $ omero sessions timeout 300.0 # Seconds
-    $ omero sessions timeout 300.0 --session=$UUID
+    $ omero sessions timeout 300 # Seconds
+    $ omero sessions timeout 300 --session=$UUID
 
 Custom sessions directory:
 
@@ -227,8 +228,12 @@ class SessionsControl(UserGroupControl):
             "--no-purge", dest="purge", action="store_false",
             help="Do not remove inactive sessions")
 
-        parser.add(sub, self.who, (
+        who = parser.add(sub, self.who, (
             "List all active server sessions\n\n" + WHOHELP))
+        who.add_argument(
+            "--show-uuid", help="Show uuids for sessions",
+            action="store_true")
+
 
         keepalive = parser.add(
             sub, self.keepalive, "Keeps the current session alive")
@@ -269,6 +274,9 @@ class SessionsControl(UserGroupControl):
             "-t", "--timeout", type=int,
             help="Timeout for session. After this many inactive seconds, the"
             " session will be closed")
+        login.add_argument(
+            "--retry", nargs="?", type=int, default=0,
+            help="Number of seconds to retry login (default: no retry)")
         login.add_argument(
             "connection", nargs="?",
             help="Connection string. See extended help for examples")
@@ -527,7 +535,26 @@ class SessionsControl(UserGroupControl):
                             prompt = "Password:"
                         pasw = self.ctx.input(prompt, hidden=True,
                                               required=True)
-                    rv = store.create(name, pasw, props, sudo=args.sudo)
+
+                    ### Retry logic ############################################
+                    start = time.time()
+                    retries = 0
+                    while True:
+                        try:
+                            rv = store.create(name, pasw, props, sudo=args.sudo)
+                            break
+                        except Exception as e:
+                            elapsed = (time.time() - start)
+                            if not args.retry or (elapsed > args.retry):
+                                raise
+                            else:
+                                retries += 1
+                                msg = str(datetime.datetime.now().time())
+                                msg += ": Login retry #%d in 3s" % (retries)
+                                self.ctx.err(msg)
+                                time.sleep(3)
+                    ### End retry ##############################################
+
                     break
                 except PermissionDeniedException as pde:
                     tries -= 1
@@ -777,6 +804,7 @@ class SessionsControl(UserGroupControl):
         self.ctx.out(str(Table(*columns)))
 
     def who(self, args):
+        show_uuid = args.show_uuid
         client = self.ctx.conn(args)
         uuid = self.ctx.get_event_context().sessionUuid
         req = omero.cmd.CurrentSessionsRequest()
@@ -791,12 +819,14 @@ class SessionsControl(UserGroupControl):
             extra = set()
             results = {"name": [], "group": [],
                        "logged in": [], "agent": [],
-                       "timeout": []}
+                       "timeout": [], "uuid": []}
 
             # Preparse data to find extra columns
             for idx, s in enumerate(rsp.sessions):
                 for k in list(rsp.data[idx].keys()):
                     extra.add(k)
+            if show_uuid:
+                headers.append("uuid")
             for add in sorted(extra):
                 headers.append(add)
                 results[add] = []
@@ -829,6 +859,7 @@ class SessionsControl(UserGroupControl):
                     results["agent"].append(unwrap(s.userAgent))
                     results["timeout"].append(
                         self._parse_timeout(s.timeToIdle))
+                    results["uuid"].append(ec.sessionUuid)
                 else:
                     # Insufficient privileges. The EventContext
                     # will be missing fields as well.
@@ -836,6 +867,7 @@ class SessionsControl(UserGroupControl):
                     results["logged in"].append(msg)
                     results["agent"].append(msg)
                     results["timeout"].append(msg)
+                    results["uuid"].append(msg)
 
             from omero.util.text import Table, Column
             columns = tuple([Column(x, results[x]) for x in headers])
@@ -966,9 +998,12 @@ class SessionsControl(UserGroupControl):
             return rv
 
     def _require_tty(self, msg):
-        if sys.stdin.isatty():
+        if not sys.stdin.isatty():
+            self.ctx.die(564, "stdin is not a terminal: %s" % msg)
+        elif not sys.stdout.isatty():
+            self.ctx.die(564, "stdout is not a terminal: %s" % msg)
+        else:
             return
-        self.ctx.die(564, "stdin is not a terminal: %s" % msg)
 
 
 try:

@@ -169,7 +169,7 @@ HEADER = \
 
 %(properties)s"""
 
-BLACK_LIST = ("##", "versions", "omero.upgrades")
+EXCLUDE_LIST = ("##", "versions", "omero.upgrades", "omero.version")
 
 STOP = "### END"
 
@@ -177,6 +177,7 @@ import os
 import argparse
 import fileinput
 import logging
+import warnings
 
 from collections import defaultdict
 
@@ -260,7 +261,7 @@ class PropertyParser(object):
             if line.startswith(STOP):
                 self.cleanup()
                 break
-            if self.black_list(line):
+            if self.is_excluded(line):
                 self.cleanup()
                 continue
             elif not line.strip():
@@ -278,7 +279,13 @@ class PropertyParser(object):
         return self.properties
 
     def black_list(self, line):
-        for x in BLACK_LIST:
+        warnings.warn(
+            "This method is deprecated. Use is_excluded instead",
+            DeprecationWarning)
+        return self.is_excluded(line)
+
+    def is_excluded(self, line):
+        for x in EXCLUDE_LIST:
             if line.startswith(x):
                 return True
 
@@ -421,6 +428,7 @@ class PropertyParser(object):
                 if not p.val:
                     v = "[empty]"
 
+                v = v.replace('"', '\\\\"')
                 if ',' in v and ', ' not in v:
                     properties += "Default: `%s`\n\n" % (
                         ",\n".join(v.split(',')))

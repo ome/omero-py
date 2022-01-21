@@ -23,26 +23,29 @@ from builtins import object
 import re
 import os
 import sys
-import stat
 import platform
 import datetime
 import time
 
 from glob import glob
 from math import ceil
+from zipfile import ZipFile
 
 import omero
 import omero.config
 
 from omero.grid import RawAccessRequest
 
-from omero.cli import admin_only
-from omero.cli import CLI
-from omero.cli import DirectoryType
-from omero.cli import NonZeroReturnCode
-from omero.cli import DiagnosticsControl
-from omero.cli import UserGroupControl
-from omero.cli import require_ctxdir
+from omero.cli import (
+    admin_only,
+    CLI,
+    DiagnosticsControl,
+    DirectoryType,
+    NonZeroReturnCode,
+    require_ctxdir
+    ServiceManagerMixin,
+    UserGroupControl,
+)
 
 from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import \
@@ -54,6 +57,8 @@ from omero_ext.path import path
 from omero_ext.which import whichall
 from omero_ext.argparse import FileType
 from omero_version import ice_compatibility
+
+from omero.util._process_defaultxml import _process_xml
 
 
 try:
@@ -92,7 +97,11 @@ if platform.system() == 'Windows':
 
 class AdminControl(DiagnosticsControl,
                    WriteableConfigControl,
-                   UserGroupControl):
+                   UserGroupControl,
+                   ServiceManagerMixin):
+
+    # Require by omero.cli.ServiceManagerMixin
+    SERVICE_MANAGER_KEY = 'server'
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -110,7 +119,10 @@ class AdminControl(DiagnosticsControl,
 
     def _configure(self, parser):
         sub = parser.sub()
-        self._add_diagnostics(parser, sub)
+        parser = self._add_diagnostics(parser, sub)
+        parser.add_argument(
+            "--all-jars", action="store_true",
+            help="Show information for all jars")
         self.add_error(
             "NOT_WINDOWS", 123,
             "Not Windows")
@@ -759,6 +771,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
+        self.requires_service_manager(config)
         self.check_access(mask=os.R_OK, config=config)
         self.checkice()
         self.check_node(args)
@@ -775,6 +788,15 @@ present, the user will enter a console""")
         if self._isWindows():
             self.checkwindows(args)
         self.check_lock(config)
+
+        try:
+            config['omero.db.poolsize']
+        except KeyError:
+            self.ctx.out(
+                "WARNING: Your server has not been configured for production "
+                "use.\nSee https://docs.openmicroscopy.org/omero/latest/"
+                "sysadmins/server-performance.html?highlight=poolsize\n"
+                "for more information.")
 
         self._initDir()
         # Do a check to see if we've started before.
@@ -964,6 +986,7 @@ present, the user will enter a console""")
         """
         Returns true if the server was already stopped
         """
+        self.requires_service_manager(config)
         self.check_node(args)
         if args.force_rewrite:
             self.rewrite(args, config, force=True)
@@ -1134,7 +1157,7 @@ present, the user will enter a console""")
             elem.tail = ""
             if elem.text is not None and not elem.text.strip():
                 elem.text = ""
-            for child in elem.getchildren():
+            for child in list(elem):
                 clear_tail(child)
 
         clear_tail(template_xml)
@@ -1167,9 +1190,10 @@ present, the user will enter a console""")
             for clienttp in client_transports.split(',')]
         substitutions['@omero.client.endpoints@'] = ':'.join(client_endpoints)
 
-        def copy_template(input_file, output_dir):
-            """Replace templates"""
+        node_descriptors = config.get('omero.server.nodedescriptors', '')
 
+        def copy_template(input_file, output_dir, post_process=None):
+            """Replace templates"""
             with open(input_file) as template:
                 data = template.read()
             output_file = path(old_div(output_dir,
@@ -1179,6 +1203,8 @@ present, the user will enter a console""")
             with open(output_file, 'w') as f:
                 for key, value in substitutions.items():
                     data = re.sub(key, value, data)
+                if post_process:
+                    data = post_process(data)
                 f.write(data)
 
         # Regenerate various configuration files from templates
@@ -1186,7 +1212,9 @@ present, the user will enter a console""")
             copy_template(cfg_file, self._get_etc_dir())
         for xml_file in glob(
                 self._get_templates_dir() / "grid" / "*default.xml"):
-            copy_template(xml_file, old_div(self._get_etc_dir(), "grid"))
+            copy_template(
+                xml_file, old_div(self._get_etc_dir(), "grid"),
+                lambda xml: _process_xml(xml, node_descriptors))
         ice_config = old_div(self._get_templates_dir(), "ice.config")
         substitutions['@omero.master.host@'] = config.get(
             'omero.master.host', config.get('Ice.Default.Host', 'localhost'))
@@ -1489,6 +1517,57 @@ present, the user will enter a console""")
                 self._item("JVM settings", " %s" % (k[0].upper() + k[1:]))
                 self.ctx.out("%s" % sb)
 
+        def jar_manifest(jar):
+            manifest = {}
+            error = ''
+            try:
+                with ZipFile(jar) as z:
+                    current = ''
+                    for line in z.read('META-INF/MANIFEST.MF').splitlines():
+                        line = line.decode()
+                        if line and line[0] == ' ':
+                            current += line[1:]
+                        else:
+                            if current:
+                                manifest.update([current.split(': ', 1)])
+                            current = line
+                    if current:
+                        manifest.update([current.split(': ', 1)])
+            except Exception as e:
+                error = str(e)
+            return manifest, error
+
+        # Jar versions
+        jars = sorted(
+            os.path.join(os.path.relpath(root, self.ctx.dir), filename)
+            for root, dirnames, filenames in os.walk(self.ctx.dir)
+            for filename in filenames
+            if filename.endswith('.jar')
+        )
+        if args.all_jars:
+            jar_re = r'.*'
+        else:
+            jar_re = r'lib/server/(formats|ome|omero)-.*.jar'
+        manifest_keys = (
+            'Implementation-Title',
+            'Implementation-Version',
+            'Implementation-Date',
+            'Implementation-Build',
+        )
+        self.ctx.out("")
+        for jar in jars:
+            if not re.match(jar_re, jar):
+                continue
+            manifest, error = jar_manifest(self.ctx.dir / jar)
+            if error:
+                info = [error]
+            else:
+                info = [manifest.get(key, '') for key in manifest_keys]
+            self._item("Jar", jar)
+            self.ctx.out('\t'.join(info))
+
+
+
     def email(self, args):
         client = self.ctx.conn(args)
         iadmin = client.sf.getAdminService()
@@ -1595,18 +1674,9 @@ present, the user will enter a console""")
             self.ctx.die(8, "FATAL: OMERO directory does not exist: %s"
                          % pathobj)
 
-        owner = os.stat(filepath)[stat.ST_UID]
-        if owner == 0:
-            msg = ""
-            msg += "FATAL: OMERO directory which needs to be writeable"\
-                " belongs to root: %s\n" % filepath
-            msg += "Please use \"chown -R NEWUSER %s\" and run as then"\
-                " run %s as NEWUSER" % (filepath, sys.argv[0])
-            self.ctx.die(9, msg)
-        else:
-            if not os.access(filepath, mask):
-                self.ctx.die(10, "FATAL: Cannot access %s, a required"
-                             " file/directory for OMERO" % filepath)
+        if not os.access(filepath, mask):
+            self.ctx.die(10, "FATAL: Cannot access %s, a required"
+                         " file/directory for OMERO" % filepath)
 
     def check_access(self, mask=os.R_OK | os.W_OK, config=None):
         """Check that 'var' is accessible by the current user."""
@@ -1685,6 +1755,7 @@ present, the user will enter a console""")
         # See ticket #10051
         popen = self.ctx.popen(["icegridnode", "--version"])
         env = self.ctx._env()
+        # Unclear how this could have been set with the call to unsetenv
         ice_config = env.get("ICE_CONFIG")
         if ice_config is not None and not os.path.exists(ice_config):
             popen = self.ctx.popen(["icegridnode", "--version"],

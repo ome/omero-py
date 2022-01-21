@@ -12,6 +12,7 @@ from builtins import str
 from future.utils import native_str
 from past.utils import old_div
 from builtins import object
+from appdirs import user_data_dir, user_cache_dir
 import os
 import sys
 import Ice
@@ -29,6 +30,8 @@ import uuid
 import omero.ObjectFactoryRegistrar as ofr
 
 from omero.util.decorators import locked
+from omero_version import omero_version
+
 import omero_ext.path as path
 
 LOGDIR = os.path.join("var", "log")
@@ -41,6 +44,9 @@ LOGMODE = "a"
 
 orig_stdout = sys.stdout
 orig_stderr = sys.stderr
+
+# Application name, Author (Windows only), Major version
+APPDIR_DEFAULTS = ('OMERO.py', 'OME', omero_version.split('.')[0])
 
 
 def make_logname(self):
@@ -850,12 +856,35 @@ def get_omerodir(throw=True):
 
 
 def get_omero_userdir():
-    """Returns the OMERO user directory"""
+    """
+    Returns the OMERO user directory
+
+    In 6.0.0 the default will change to use appdirs.user_data_dir.
+    You can enable this behaviour now by setting OMERO_USERDIR="" (empty
+    string) instead of unset.
+
+    Note that files in the old user directory will not be migrated.
+    """
     omero_userdir = os.environ.get('OMERO_USERDIR', None)
     if omero_userdir:
         return path.path(omero_userdir)
+    elif omero_userdir == "":
+        return path.path(user_data_dir(*APPDIR_DEFAULTS))
     else:
         return old_div(path.path(get_user_dir()), "omero")
+
+
+def get_omero_user_cache_dir():
+    """Returns the OMERO user cache directory"""
+    omero_userdir = os.environ.get('OMERO_USERDIR', None)
+    if omero_userdir:
+        return path.path(omero_userdir) / "cache"
+    else:
+        return path.path(user_cache_dir(*APPDIR_DEFAULTS))
+
+
+# Other application directories may be added in future, see
+# https://pypi.org/project/appdirs/
 
 
 def get_user_dir():
