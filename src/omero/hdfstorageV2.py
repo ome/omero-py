@@ -546,7 +546,12 @@ class HdfStorage(object):
                      start, stop, step):
         self.__initcheck()
         try:
-            return self.__mea.get_where_list(condition, variables, None,
+            condvars = variables
+            if variables:
+                for key, value in condvars.items():
+                    if isinstance(value, str):
+                        condvars[key] = getattr(self.__mea.cols, value)
+            return self.__mea.get_where_list(condition, condvars, None,
                                              start, stop, step).tolist()
         except (NameError, SyntaxError, TypeError, ValueError) as err:
             aue = omero.ApiUsageException()
