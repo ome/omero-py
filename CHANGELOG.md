@@ -1,3 +1,20 @@
+# 5.11.0 (February 2022)
+
+## New features
+
+-   Add implementation for `DatasetColumn`
+    [#309](https://github.com/ome/omero-py/pull/309)
+-   Add support for searching OMERO.tables by column which name is not a valid
+    Python identifier [#309](https://github.com/ome/omero-py/pull/309)
+
+## Bug fixes
+
+-   Fix OMERO.table memory issue when using `table.read()` with large number of
+    rows [#314](https://github.com/ome/omero-py/pull/314)
+-   Deprecate `PropertyParser.black_list` in favor of
+    `PropertyParser.is_excluded`
+    [#313](https://github.com/ome/omero-py/pull/313)
+
 # 5.10.3 (December 2021)
 
 ## Bug Fix
