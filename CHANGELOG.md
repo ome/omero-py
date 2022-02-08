@@ -5,7 +5,7 @@
 -   Add implementation for `DatasetColumn`
     [#309](https://github.com/ome/omero-py/pull/309)
 -   Add support for searching OMERO.tables by column which name is not a valid
-    Python identifier [#309](https://github.com/ome/omero-py/pull/309)
+    Python identifier [#287](https://github.com/ome/omero-py/pull/287)
 
 ## Bug fixes
 
