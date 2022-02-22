@@ -55,7 +55,9 @@ def get_blitz_location():
     url_key = "versions.omero-blitz-url"
 
     # detect if in Jenkins or not
-    if "JENKINS_URL" in os.environ:
+    if "ZIP_FILE" in os.environ:
+        config_blitz_url = os.environ.get("ZIP_FILE")
+    elif "JENKINS_URL" in os.environ:
         config_blitz_url = os.environ.get("JENKINS_URL")
         config_blitz_url += "job/OMERO-build-build/lastSuccessfulBuild/"
         config_blitz_url += "artifact/omero-blitz/build/distributions/"
@@ -82,17 +84,20 @@ def get_blitz_location():
 
     # replace VERSION in the final url and return
     config_blitz_url = config_blitz_url.replace(
-        "VERSION", config_blitz_version)
+            "VERSION", config_blitz_version)
     return config_blitz_url
 
 
 def download_blitz_target():
     loc = get_blitz_location()
-    print("Downloading %s ..." % loc, file=sys.stderr)
-    resp = urlopen(loc)
-    content = resp.read()
-    content = BytesIO(content)
-    zipfile = ZipFile(content)
+    if "ZIP_FILE" in os.environ:
+        zipfile = ZipFile(loc)
+    else: 
+        print("Downloading %s ..." % loc, file=sys.stderr)
+        resp = urlopen(loc)
+        content = resp.read()
+        content = BytesIO(content)
+        zipfile = ZipFile(content)
     zipfile.extractall("target")
 
 
