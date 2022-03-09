@@ -3381,13 +3381,16 @@ class _BlitzGateway (object):
             # pagination
             ofs = params.theFilter.offset
             lmt = params.theFilter.limit
-            if ofs is not None and lmt is not None:
+            if ofs is not None:
                 offset = ofs.val
+            if lmt is not None:
                 limit = lmt.val
-            # Other params args will be ignored unless we handle here
 
-        if limit is not None and offset is not None:
-            baseParams.page(offset, limit)
+        baseParams.theFilter = omero.sys.Filter()
+        if limit is not None:
+            baseParams.theFilter.limit = rint(limit)
+        if offset is not None:
+            baseParams.theFilter.offset = rint(offset)
 
         # getting object by ids
         if ids is not None:
