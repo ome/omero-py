@@ -3386,11 +3386,10 @@ class _BlitzGateway (object):
             if lmt is not None:
                 limit = lmt.val
 
-        baseParams.theFilter = omero.sys.Filter()
         if limit is not None:
-            baseParams.theFilter.limit = rint(limit)
-        if offset is not None:
-            baseParams.theFilter.offset = rint(offset)
+            if offset is None:
+                offset = 0
+            baseParams.page(offset, limit)
 
         # getting object by ids
         if ids is not None:
