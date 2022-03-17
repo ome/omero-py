@@ -3381,12 +3381,14 @@ class _BlitzGateway (object):
             # pagination
             ofs = params.theFilter.offset
             lmt = params.theFilter.limit
-            if ofs is not None and lmt is not None:
+            if ofs is not None:
                 offset = ofs.val
+            if lmt is not None:
                 limit = lmt.val
-            # Other params args will be ignored unless we handle here
 
-        if limit is not None and offset is not None:
+        if limit is not None:
+            if offset is None:
+                offset = 0
             baseParams.page(offset, limit)
 
         # getting object by ids
