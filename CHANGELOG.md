@@ -1,3 +1,9 @@
+# 5.11.1 (March 2022)
+
+## Bug fix
+
+-   Fix params.limit ignored in conn.getObjects() [#321](https://github.com/ome/omero-py/pull/321)
+
 # 5.11.0 (February 2022)
 
 ## New features
