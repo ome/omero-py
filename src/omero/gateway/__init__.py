@@ -26,7 +26,7 @@ from past.builtins import basestring
 from past.utils import old_div
 from builtins import object
 import os
-
+from functools import wraps
 import warnings
 from collections import defaultdict
 
@@ -1505,6 +1505,23 @@ class NoProxies (object):
         return ()
 
 
+def assertConnected(func):
+    """decorator that raises an exception if  the decorated function is used when the gateway
+    is not connected.
+
+    Assumes the first argument is a BlitzGateway instance, or the function
+    is a BlitzGateway method
+
+    """
+    @wraps(func)
+    def wrapped(conn, *args, **kwargs):
+        if not conn._connected:
+            raise Ice.ConnectionLostException("You need to be connected to execute this function")
+
+        return func(conn, *args, **kwargs)
+    return wrapped
+
+
 class _BlitzGateway (object):
     """
     Connection wrapper. Handles connecting and keeping the session alive,
@@ -2301,12 +2318,11 @@ class _BlitzGateway (object):
 
         :return:    Boolean
         """
-
         return self._connected
 
     ########################
     # # Connection Stuff # #
-
+    @assertConnected
     def getEventContext(self):
         """
         Returns omero_System_ice.EventContext.
