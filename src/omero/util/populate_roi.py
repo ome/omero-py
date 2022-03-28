@@ -157,7 +157,7 @@ class DownloadingOriginalFileProvider(object):
         self.raw_file_store = self.service_factory.createRawFileStore()
         self.dir = create_path("populate_roi", "dir", folder=True)
 
-    def get_original_file_data(self, original_file):
+    def get_original_file_data(self, original_file, encoding="utf-8"):
         """
         Downloads an original file to a temporary file and returns an open
         file handle to that temporary file seeked to zero. The caller is
@@ -167,13 +167,20 @@ class DownloadingOriginalFileProvider(object):
         self.raw_file_store.setFileId(original_file.id.val)
         temporary_file = tempfile.NamedTemporaryFile(mode='rt+',
                                                      dir=str(self.dir))
+        
         size = original_file.size.val
+        if encoding != "utf-8": size_new = 0 # Needed to keep track of reencoded file size if encoding is not utf-8 already
+        else: size_new = size # Else can be the same as the old data size
+
         for i in range((old_div(size, self.BUFFER_SIZE)) + 1):
             index = i * self.BUFFER_SIZE
             data = self.raw_file_store.read(index, self.BUFFER_SIZE)
-            temporary_file.write(data.decode("utf-8"))
+            data_write = data.decode(encoding)
+            if encoding != "utf-8": size_new += len(data_write.encode("utf-8")) # Track total size
+            temporary_file.write(data_write)
         temporary_file.seek(0)
-        temporary_file.truncate(size)
+        temporary_file.truncate(size_new)
+            
         return temporary_file
 
     def __delete__(self):
