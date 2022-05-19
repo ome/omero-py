@@ -586,8 +586,8 @@ class ImportControl(BaseControl):
         jars_dir.makedirs_p()
         with requests.get(omero_java_zip) as resp:
             with ZipFile(BytesIO(resp.content)) as zipfile:
-                topdirs = set(f.filename.split(
-                    os.path.sep)[0] for f in zipfile.filelist if f.is_dir())
+                topdirs = set(f.filename.split("/")[0]
+                              for f in zipfile.filelist if f.is_dir())
                 if len(topdirs) != 1:
                     self.ctx.die(
                         108,
