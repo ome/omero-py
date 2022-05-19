@@ -212,8 +212,8 @@ class TestImport(object):
         o, e = capfd.readouterr()
         outputlines = str(o).split('\n')
         reader = 'loci.formats.in.FakeReader'
-        assert outputlines[-2] == str(fakefile)
-        assert outputlines[-3] == \
+        assert outputlines[-2].rstrip() == str(fakefile)
+        assert outputlines[-3].rstrip() == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
     @pytest.mark.parametrize('params', (
@@ -239,8 +239,8 @@ class TestImport(object):
             o, e = capfd.readouterr()
             outputlines = str(o).split('\n')
             reader = 'loci.formats.in.FakeReader'
-            assert outputlines[-2] == str(fakefile)
-            assert outputlines[-3] == \
+            assert outputlines[-2].rstrip() == str(fakefile)
+            assert outputlines[-3].rstrip() == \
                 "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
         else:
             with pytest.raises(NonZeroReturnCode):
@@ -265,10 +265,10 @@ class TestImport(object):
         o, e = capfd.readouterr()
         outputlines = str(o).split('\n')
         reader = 'loci.formats.in.FakeReader'
-        assert outputlines[-len(fieldfiles)-2] == \
+        assert outputlines[-len(fieldfiles)-2].rstrip() == \
             "# Group: %s SPW: true Reader: %s" % (str(fieldfiles[0]), reader)
         for i in range(len(fieldfiles)):
-            assert outputlines[-1-len(fieldfiles)+i] == str(fieldfiles[i])
+            assert outputlines[-1-len(fieldfiles)+i].rstrip() == str(fieldfiles[i])
 
     def testImportPattern(self, tmpdir, capfd):
         """Test pattern import"""
@@ -284,11 +284,11 @@ class TestImport(object):
         outputlines = str(o).split('\n')
         reader = 'loci.formats.in.FilePatternReader'
         print(o)
-        assert outputlines[-len(tiffiles)-3] == \
+        assert outputlines[-len(tiffiles)-3].rstrip() == \
             "# Group: %s SPW: false Reader: %s" % (str(patternfile), reader)
-        assert outputlines[-len(tiffiles)-2] == str(patternfile)
+        assert outputlines[-len(tiffiles)-2].rstrip() == str(patternfile)
         for i in range(len(tiffiles)):
-            assert outputlines[-1-len(tiffiles)+i] == str(tiffiles[i])
+            assert outputlines[-1-len(tiffiles)+i].rstrip() == str(tiffiles[i])
 
     @pytest.mark.parametrize('hostname', ['localhost', 'servername'])
     @pytest.mark.parametrize('port', [None, 4064, 14064])
