@@ -322,7 +322,6 @@ class TestImport(object):
         expected_args += ['test.fake']
         assert command_args.java_args() == expected_args
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testLogPrefix(self, tmpdir, capfd):
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
