@@ -170,7 +170,6 @@ class TestImport(object):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     @pytest.mark.parametrize("data", (("1", False), ("3", True)))
     def testImportDepth(self, tmpdir, capfd, data):
         """Test import using depth argument"""
@@ -199,7 +198,6 @@ class TestImport(object):
             with pytest.raises(NonZeroReturnCode):
                 f()
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testImportFakeImage(self, tmpdir, capfd):
         """Test fake image import"""
 
@@ -218,7 +216,6 @@ class TestImport(object):
         assert outputlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     @pytest.mark.parametrize('params', (
         ("-l", "only_fakes.txt", True),
         ("-l", "no_fakes.txt", False),
@@ -251,7 +248,6 @@ class TestImport(object):
             o, e = capfd.readouterr()
             assert "parsed into 0 group" in e
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     @pytest.mark.parametrize('with_ds_store', (True, False))
     def testImportFakeScreen(self, tmpdir, capfd, with_ds_store):
         """Test fake screen import"""
@@ -274,7 +270,6 @@ class TestImport(object):
         for i in range(len(fieldfiles)):
             assert outputlines[-1-len(fieldfiles)+i] == str(fieldfiles[i])
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testImportPattern(self, tmpdir, capfd):
         """Test pattern import"""
 
@@ -343,7 +338,6 @@ class TestImport(object):
         assert outlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testLogs(self, tmpdir, capfd, monkeypatch):
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
@@ -364,7 +358,6 @@ class TestImport(object):
         assert outlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testYamlOutput(self, tmpdir, capfd):
 
         import yaml
@@ -394,7 +387,6 @@ class TestImport(object):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkSimple(self):
         t = path(__file__).parent / "bulk_import" / "test_simple"
         b = old_div(t, "bulk.yml")
@@ -403,7 +395,6 @@ class TestImport(object):
         self.args += ["-f", "---bulk=%s" % b]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkInclude(self):
         t = path(__file__).parent / "bulk_import" / "test_include" / "inner"
         b = old_div(t, "bulk.yml")
@@ -412,7 +403,6 @@ class TestImport(object):
         self.args += ["-f", "---bulk=%s" % b]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkName(self):
         # Metadata provided in the yml file will be applied
         # to the args
@@ -428,7 +418,6 @@ class TestImport(object):
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkCols(self):
         # Metadata provided about the individual columns in
         # the tsv will be used.
@@ -456,7 +445,6 @@ class TestImport(object):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkDry(self, capfd):
         t = path(__file__).parent / "bulk_import" / "test_dryrun"
         b = old_div(t, "bulk.yml")
@@ -467,7 +455,6 @@ class TestImport(object):
         o, e = capfd.readouterr()
         assert o == '"--name=no-op" "1.fake"\n'
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testBulkJavaArgs(self):
         """Test Java arguments"""
         t = path(__file__).parent / "bulk_import" / "test_javaargs"
@@ -487,7 +474,6 @@ class TestImport(object):
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     @pytest.mark.parametrize('skip', plugin.SKIP_CHOICES)
     def testBulkSkip(self, skip):
         """Test skip arguments"""
@@ -514,7 +500,6 @@ class TestImport(object):
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testImportCandidates(self, tmpdir):
         """test using import_candidates from util
         """
@@ -523,7 +508,6 @@ class TestImport(object):
         candidates = import_candidates.as_dictionary(str(tmpdir))
         assert str(fakefile) in candidates
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testImportCandidatesDepth(self, tmpdir):
         dir1 = tmpdir.join("a")
         dir1.mkdir()
@@ -541,7 +525,6 @@ class TestImport(object):
         assert str(fakefile) in candidates
         assert str(fakefile2) not in candidates
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows")
     def testImportCandidatesReaders(self, tmpdir):
         """
         Test using import_candidates with a populated readers.txt
