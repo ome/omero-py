@@ -359,4 +359,8 @@ class ParametersI(omero.sys.Parameters):
         self.add(name, rstring(stringValue))
         return self
 
+    def addTime(self, name, TimeValue):
+        self.add(name, rtime(TimeValue))
+        return self
+
 _omero_sys.ParametersI = ParametersI

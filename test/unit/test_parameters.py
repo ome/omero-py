@@ -196,6 +196,16 @@ class TestParameters(object):
         p.addLong("long", rlong(1))
         assert rlong(1) == p.map["long"]
 
+    def testAddTimeRaw(self):
+        p = ParametersI()
+        p.addTime("time", 1)
+        assert rtime(1) == p.map["time"]
+
+    def testAddTimeRType(self):
+        p = ParametersI()
+        p.addTime("time", rtime(1))
+        assert rtime(1) == p.map["time"]
+
     def testAddIds(self):
         p = ParametersI()
         p.addIds([1, 2])
