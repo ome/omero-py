@@ -1,3 +1,9 @@
+# 5.11.2 (May 2022)
+
+## Bug fix
+
+-   Fix `omero import` on Windows [#326](https://github.com/ome/omero-py/pull/326)
+
 # 5.11.1 (March 2022)
 
 ## Bug fix
