@@ -1817,7 +1817,7 @@ present, the user will enter a console""")
         cfg = config.as_map()
         omero_data_dir = self._get_data_dir(config)
         config.close()  # Early close. See #9800
-        for x in ("name", "user", "host", "port"):
+        for x in ("name", "user", "host", "port", "properties"):
             # NOT passing password on command-line
             k = "omero.db.%s" % x
             if k in cfg:
