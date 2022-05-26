@@ -19,7 +19,6 @@ import json
 import errno
 import pytest
 from omero.config import ConfigXml, xml
-from omero.util.temp_files import create_path
 from omero_ext import portalocker
 
 from xml.etree.ElementTree import XML, Element, SubElement, tostring
@@ -100,19 +99,19 @@ def totext(elem):
 
 class TestConfig(object):
 
-    def testBasic(self):
-        p = create_path()
+    def testBasic(self, tmp_path):
+        p = tmp_path / "config.xml"
         config = ConfigXml(filename=str(p))
         config.close()
-        assertXml(initial(), XML(p.text()))
+        assertXml(initial(), XML(p.read_text()))
 
-    def testWithEnv(self):
-        p = create_path()
+    def testWithEnv(self, tmp_path):
+        p = tmp_path / "config.xml"
         config = ConfigXml(filename=str(p), env_config="FOO")
         config.close()
-        assertXml(initial("FOO"), XML(p.text()))
+        assertXml(initial("FOO"), XML(p.read_text()))
 
-    def testWithEnvThenWithoutEnv(self):
+    def testWithEnvThenWithoutEnv(self, tmp_path):
         """
         This test shows that if you create the config using an env
         setting, then without, the __ACTIVE__ block should reflect
@@ -122,7 +121,7 @@ class TestConfig(object):
             """
             Takes a path object to the config xml
             """
-            xml = XML(p.text())
+            xml = XML(p.read_text())
             props = xml.findall("./properties")
             for x in props:
                 id = x.attrib["id"]
@@ -131,7 +130,7 @@ class TestConfig(object):
                         if y.attrib["name"] == "omero.config.profile":
                             return y.attrib["value"]
 
-        p = create_path()
+        p = tmp_path / "config.xml"
 
         current = os.environ.get("OMERO_CONFIG", "default")
         assert current != "FOO"  # Just in case.
@@ -173,8 +172,8 @@ class TestConfig(object):
         config.close()
         assert "XYZ" == get_profile_name(p)
 
-    def testAsDict(self):
-        p = create_path()
+    def testAsDict(self, tmp_path):
+        p = tmp_path / "config.xml"
         config = ConfigXml(filename=str(p), env_config="DICT")
         config["omero.data.dir"] = "HOME"
         config.close()
@@ -183,10 +182,10 @@ class TestConfig(object):
                        value="HOME")
         _ = SubElement(i, "properties", id="DICT")
         _ = SubElement(_, "property", name="omero.data.dir", value="HOME")
-        assertXml(i, XML(p.text()))
+        assertXml(i, XML(p.read_text()))
 
-    def testLocking(self):
-        p = create_path()
+    def testLocking(self, tmp_path):
+        p = tmp_path / "config.xml"
         config1 = ConfigXml(filename=str(p))
         try:
             ConfigXml(filename=str(p))
@@ -195,18 +194,18 @@ class TestConfig(object):
             pass
         config1.close()
 
-    def testNewVersioning(self):
+    def testNewVersioning(self, tmp_path):
         """
         All property blocks should always have a version set.
         """
-        p = create_path()
+        p = tmp_path / "config.xml"
         config = ConfigXml(filename=str(p))
         m = config.as_map()
         for k, v in list(m.items()):
             assert "5.1.0" == v
 
-    def testOldVersionDetected(self):
-        p = create_path()
+    def testOldVersionDetected(self, tmp_path):
+        p = tmp_path / "config.xml"
         config = ConfigXml(filename=str(p))
         X = config.XML
         O = SubElement(X, "properties", {"id": "old"})
@@ -219,13 +218,13 @@ class TestConfig(object):
         except:
             pass
 
-    def test421Upgrade(self):
+    def test421Upgrade(self, tmp_path):
         """
         When upgraded 4.2.0 properties to 4.2.1,
         ${dn} items in omero.ldap.* properties are
         changed to @{dn}
         """
-        p = create_path()
+        p = tmp_path / "config.xml"
 
         # How config was written in 4.2.0
         XML = Element("icegrid")
@@ -253,7 +252,7 @@ class TestConfig(object):
         finally:
             config.close()
 
-    def testSettings510Upgrade(self):
+    def testSettings510Upgrade(self, tmp_path):
         """
         When upgraded 5.0.x properties to 5.1.0 or later,
         if omero.web.ui.top_links is set, we need to prepend
@@ -269,7 +268,7 @@ class TestConfig(object):
             '{"target": "new", "title": ' \
             '"Open OMERO user guide in a new tab"}], ' \
             '["Figure", "figure_index"]]'
-        p = create_path()
+        p = tmp_path / "config.xml"
 
         XML = Element("icegrid")
         active = SubElement(XML, "properties", id="__ACTIVE__")
@@ -307,30 +306,34 @@ class TestConfig(object):
         finally:
             config.close()
 
-    def testReadOnlyConfigSimple(self):
-        p = create_path()
+    def testReadOnlyConfigSimple(self, tmp_path):
+        p = tmp_path / "config.xml"
+        p.write_text("")
         p.chmod(0o444)  # r--r--r--
         config = ConfigXml(filename=str(p), env_config=None)  # Must be None
         config.close()  # Shouldn't save
 
-    def testReadOnlyConfigPassesOnExplicitReadOnly(self):
-        p = create_path()
+    def testReadOnlyConfigPassesOnExplicitReadOnly(self, tmp_path):
+        p = tmp_path / "config.xml"
+        p.write_text("")
         p.chmod(0o444)  # r--r--r--
         ConfigXml(filename=str(p),
                   env_config="default",
                   read_only=True).close()
 
-    def testReadOnlyConfigFailsOnEnv1(self):
-        p = create_path()
+    def testReadOnlyConfigFailsOnEnv1(self, tmp_path):
+        p = tmp_path / "config.xml"
+        p.write_text("")
         p.chmod(0o444)  # r--r--r--
         pytest.raises(Exception, ConfigXml, filename=str(p),
                       env_config="default")
 
-    def testReadOnlyConfigFailsOnEnv2(self):
+    def testReadOnlyConfigFailsOnEnv2(self, tmp_path):
         old = os.environ.get("OMERO_CONFIG")
         os.environ["OMERO_CONFIG"] = "default"
         try:
-            p = create_path()
+            p = tmp_path / "config.xml"
+            p.write_text("")
             p.chmod(0o444)  # r--r--r--
             pytest.raises(Exception, ConfigXml, filename=str(p))
         finally:
@@ -341,16 +344,16 @@ class TestConfig(object):
 
     @pytest.mark.skipif(sys.platform.startswith("win"),
                         reason="chmod requires posix")
-    def testCannotCreate(self):
-        d = create_path(folder=True)
+    def testCannotCreate(self, tmp_path):
+        d = tmp_path
         d.chmod(0o555)
         filename = str(old_div(d, "config.xml"))
         with pytest.raises(IOError) as excinfo:
             ConfigXml(filename).close()
         assert excinfo.value.errno == errno.EACCES
 
-    def testCannotCreateLock(self):
-        d = create_path(folder=True)
+    def testCannotCreateLock(self, tmp_path):
+        d = tmp_path
         filename = str(old_div(d, "config.xml"))
         lock_filename = "%s.lock" % filename
         with open(lock_filename, "w") as fo:
@@ -362,8 +365,9 @@ class TestConfig(object):
 
     @pytest.mark.skipif(sys.platform.startswith("win"),
                         reason="chmod requires posix")
-    def testCannotRead(self):
-        p = create_path()
+    def testCannotRead(self, tmp_path):
+        p = tmp_path / "config.xml"
+        p.write_text("")
         p.chmod(0)
         with pytest.raises(IOError) as excinfo:
             ConfigXml(str(p)).close()
