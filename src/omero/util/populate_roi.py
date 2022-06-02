@@ -142,7 +142,6 @@ class MeasurementError(Exception):
     """
     pass
 
-
 class DownloadingOriginalFileProvider(object):
 
     """
@@ -169,15 +168,21 @@ class DownloadingOriginalFileProvider(object):
                                                      dir=str(self.dir))
         
         size = original_file.size.val
-        if encoding != "utf-8": size_new = 0 # Needed to keep track of reencoded file size if encoding is not utf-8 already
+        if encoding != "utf-8": size_new = 0 # Needed to keep track of re-encoded file size if encoding is not utf-8 already
         else: size_new = size # Else can be the same as the old data size
 
-        for i in range((old_div(size, self.BUFFER_SIZE)) + 1):
-            index = i * self.BUFFER_SIZE
-            data = self.raw_file_store.read(index, self.BUFFER_SIZE)
-            data_write = data.decode(encoding)
-            if encoding != "utf-8": size_new += len(data_write.encode("utf-8")) # Track total size
-            temporary_file.write(data_write)
+        try:
+            for i in range((old_div(size, self.BUFFER_SIZE)) + 1):
+                index = i * self.BUFFER_SIZE
+                data = self.raw_file_store.read(index, self.BUFFER_SIZE)
+                data_write = data.decode(encoding)
+                if encoding != "utf-8": size_new += len(data_write.encode("utf-8")) # Track total size
+                temporary_file.write(data_write)
+        except UnicodeDecodeError as e:
+            e.add_note("The original file data could not be decoded assuming unicode encoding. Please specify the correct encoding used for the file!")
+            raise
+        finally:
+            temporary_file.close()
         temporary_file.seek(0)
         temporary_file.truncate(size_new)
             
