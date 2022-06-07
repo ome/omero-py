@@ -123,6 +123,7 @@ class ThreadPool(object):
         """Wait for completion of all the tasks in the queue"""
         self.tasks.join()
 
+
 # Global thread pool for use by ROI workers
 thread_pool = None
 
@@ -141,6 +142,7 @@ class MeasurementError(Exception):
     is reached.
     """
     pass
+
 
 class DownloadingOriginalFileProvider(object):
 
@@ -166,17 +168,22 @@ class DownloadingOriginalFileProvider(object):
         self.raw_file_store.setFileId(original_file.id.val)
         temporary_file = tempfile.NamedTemporaryFile(mode='rt+',
                                                      dir=str(self.dir))
-        
+
         size = original_file.size.val
-        if encoding != "utf-8": size_new = 0 # Needed to keep track of re-encoded file size if encoding is not utf-8 already
-        else: size_new = size # Else can be the same as the old data size
+        # Keep track of re-encoded file size if encoding is not utf-8 already,
+        # else can be the same as the size of the old data
+        if encoding != "utf-8":
+            size_new = 0
+        else:
+            size_new = size
 
         try:
             for i in range((old_div(size, self.BUFFER_SIZE)) + 1):
                 index = i * self.BUFFER_SIZE
                 data = self.raw_file_store.read(index, self.BUFFER_SIZE)
                 data_write = data.decode(encoding)
-                if encoding != "utf-8": size_new += len(data_write.encode("utf-8")) # Track total size
+                if encoding != "utf-8":
+                    size_new += len(data_write.encode("utf-8"))  # Track size
                 temporary_file.write(data_write)
         except UnicodeDecodeError as e:
             e.add_note("The original file data could not be decoded assuming unicode encoding. Please specify the correct encoding used for the file!")
@@ -185,7 +192,7 @@ class DownloadingOriginalFileProvider(object):
             temporary_file.close()
         temporary_file.seek(0)
         temporary_file.truncate(size_new)
-            
+
         return temporary_file
 
     def __delete__(self):
@@ -1285,6 +1292,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
     def populate(self, columns):
         self.update_table(columns)
 
+
 if __name__ == "__main__":
     try:
         options, args = getopt(sys.argv[1:], "s:p:u:m:k:t:id")
@@ -1350,8 +1358,8 @@ if __name__ == "__main__":
         if info:
             for i in range(n_measurements):
                 n_result_files = analysis_ctx.get_result_file_count(i)
-                print("Measurement %d has %d result files." % \
-                    (i, n_result_files))
+                print("Measurement %d has %d result files." %
+                      (i, n_result_files))
             sys.exit(0)
         if measurement is not None:
             measurement_ctx = analysis_ctx.get_measurement_ctx(measurement)
