@@ -186,8 +186,9 @@ class DownloadingOriginalFileProvider(object):
                     size_new += len(data_write.encode("utf-8"))  # Track size
                 temporary_file.write(data_write)
         except UnicodeDecodeError as e:
-            e.add_note("The original file data could not be decoded assuming unicode encoding. Please specify the correct encoding used for the file!")
-            raise
+            raise ValueError("The original file data could not be decoded "
+                             "assuming unicode encoding. Please specify "
+                             "the correct encoding used for the file!") from e
         finally:
             temporary_file.close()
         temporary_file.seek(0)
