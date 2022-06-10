@@ -4,3 +4,5 @@ var
 build
 dist/
 target/
+.DS_Store
+_build
