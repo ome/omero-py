@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Josh Moore, josh at glencoesoftware.com
+# Copyright (c) 2007-2016, Glencoe Software, Inc.
+# See LICENSE for details.
+#
+
 """
 Python driver for OMERO
 
@@ -9,17 +15,13 @@ utilities, including starting and stopping servers, running
 analyses, configuration, and more.
 
 Usable via the ./omero script provided with the distribution
-as well as from python via "import omero.cli; omero.cli.argv()"
+as well as from python via ``import omero.cli; omero.cli.argv()``.
 
-Arguments are taken from (in order of priority): the run method
-arguments, sys.argv, and finally from standard-in using the
-cmd.Cmd.cmdloop method.
-
-Josh Moore, josh at glencoesoftware.com
-Copyright (c) 2007-2016, Glencoe Software, Inc.
-See LICENSE for details.
-
+Arguments are taken from (in order of priority): the ``run`` method
+arguments, ``sys.argv``, and finally from standard-in using the
+``cmd.Cmd.cmdloop`` method.
 """
+
 from __future__ import division
 from __future__ import print_function
 
@@ -446,7 +448,8 @@ Examples (admin or group owner only):
 
 
 class Context(object):
-    """Simple context used for default logic. The CLI registry which registers
+    """
+    Simple context used for default logic. The CLI registry which registers
     the plugins installs itself as a fully functional Context.
 
     The Context class is designed to increase pluggability. Rather than

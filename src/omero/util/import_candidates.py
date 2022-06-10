@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+
 """
    Utility method for calling the equivalent of "omero import -f".
    Results are parsed when using as_dictionary.
-
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
 
 """
 
@@ -57,8 +60,10 @@ def as_stdout(path, readers="", extra_args=None):
 
 
 def as_dictionary(path, readers="", extra_args=None):
-    """Run as_stdout, parses the output and returns a dictionary of the form::
+    """
+    Run as_stdout, parses the output and returns a dictionary of the form:
 
+    ```
     {
     some_file_in_group :
     [
@@ -69,11 +74,13 @@ def as_dictionary(path, readers="", extra_args=None):
     ],
     some_file_in_second_group : ...
     }
-
+    ```
     you can pass more arguments to the `import` command through the
     extra_args argument in the form of a list.
 
+    ```
     to_import = as_dictionary("/my/dir/with_tifs", extra_args=["--depth", "6"])
+    ```
 
     will go through the directories with a depth level of 6 instead of
     the default 4.  Arguments of interest might be: `debugging`,

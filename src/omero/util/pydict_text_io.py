@@ -42,11 +42,11 @@ def load(fileobj, filetype=None, single=True, session=None):
     """
     Try and load a file in a format that is convertible to a Python dictionary
 
-    fileobj: Either a single json object string, file-path, or OriginalFile:ID
-    single: If True file should only contain a single document, otherwise a
+    :param fileobj: Either a single json object string, file-path, or OriginalFile:ID
+    :param single: If True file should only contain a single document, otherwise a
         list of documents will always be returned. Multiple documents are not
         supported for JSON strings.
-    session: If fileobj is an OriginalFile:ID a valid session is required
+    :param session: If fileobj is an OriginalFile:ID a valid session is required
     """
 
     if not isinstance(fileobj, basestring):
@@ -94,8 +94,8 @@ def dump(data, formattype):
     """
     Convert a python object to a string in the requested format
 
-    data: A python object (most likely a dictionary)
-    formattype: The output format
+    :param data: A python object (most likely a dictionary)
+    :param formattype: The output format
     """
 
     if formattype == 'yaml':

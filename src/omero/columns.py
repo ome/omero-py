@@ -583,7 +583,7 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 class ObjectFactory(Ice.ObjectFactory):
 
     def __init__(self, cls, f):
-        self.id = cls.ice_staticId()
+        self.id = cls.ice_staticId() #: :meta hide-value:
         self.f = f
 
     def create(self, string):
