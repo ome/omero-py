@@ -1,0 +1,34 @@
+# Builds the Sphinx documentation in the specified folder.
+# Default values are docs/ for the directory where the Sphinx
+# documentation is located and true to run linkcheck
+# To pass a new folder, set directory_path to the folder path
+# Pass the arguments you wish to run, default command is make clean html linkcheck
+
+---
+name: sphinx
+
+on: 
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env: 
+      directory_path:
+      sphinx_commands: clean html linkcheck # commands to run. Update accordingly
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - name: Sphinx install
+        run: pip install --upgrade sphinx
+      - name: Set directory
+        run:  |
+          VAR=${{ env.directory_path }}
+          echo "docs_dir="${VAR:-./docs} >> $GITHUB_ENV
+      - name: Build doc
+        run: |
+          cd $docs_dir
+          make ${{ env.sphinx_commands }}
