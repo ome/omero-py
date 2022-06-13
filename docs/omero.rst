@@ -14,7 +14,6 @@ Subpackages
    omero.model
    omero.plugins
    omero.romio
-   omero.sys
    omero.testlib
    omero.util
 
