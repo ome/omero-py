@@ -682,7 +682,7 @@ class Error(object):
             def _configure(self, parser):
                 self.add_error("NAME", 100, "some message: %s")
                 ...
-            def __call__(self, *args):
+            def __call__(self, \*args):
                 self.raise_error("NAME", "my text")
     """
 
