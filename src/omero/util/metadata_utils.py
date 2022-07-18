@@ -41,11 +41,16 @@ except ImportError as j2exc:
     JINJA2_MISSING = j2exc
 
 
-# Namespace for Bulk-Annotations configuration files
-NSBULKANNOTATIONSCONFIG = namespaces.NSBULKANNOTATIONS + "/config"
+try:
+    # Namespace for Bulk-Annotations configuration files
+    NSBULKANNOTATIONSCONFIG = namespaces.NSBULKANNOTATIONS + "/config"
+    # Namespace for raw input for a Bulk-Annotations table
+    NSBULKANNOTATIONSRAW = namespaces.NSBULKANNOTATIONS + "/raw"
+except Exception:
+    pass
 
-# Namespace for raw input for a Bulk-Annotations table
-NSBULKANNOTATIONSRAW = namespaces.NSBULKANNOTATIONS + "/raw"
+
+
 
 
 class GroupConfig(object):
@@ -233,8 +238,7 @@ class KeyValueListPassThrough(object):
         """
         Pass through a table row unchanged
         :param values: A table rows
-        :return: A row in the form
-                 [(k1, v1), (k2, v2), ...]
+        :return: A row in the form [(k1, v1), (k2, v2), ...]
         """
         assert len(rowvalues) == len(self.headers)
         return rowvalues
@@ -285,7 +289,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
         - gaps between positioned columns are filled with unpositioned
           columns in order of
           - Configured but unpositioned columns
-          - Unconfigured columns in order of headers (assuming the default
+          - Unconfigured columns in order of headers (assuming the default \
             config is for them to be included)
         - If there are gaps and no remaining columns to be included raise
           an exception
@@ -397,10 +401,10 @@ class KeyValueListTransformer(object):
         """
         Transform a table row
         :param rowvalues: A table row
-        :return: The transformed rows in the form [(k1, v1), (k2, v2), ...].
-                 v* will be a list of length:
-                 - 1 in most cases
-                 - 0 if `omitempty=True` and value was empty
+        :return: The transformed rows in the form [(k1, v1), (k2, v2), ...]. \
+                 v* will be a list of length: \
+                 - 1 in most cases \
+                 - 0 if `omitempty=True` and value was empty \
                  - 1+ if `split` option is enabled
         """
         assert len(rowvalues) == len(self.headers)
