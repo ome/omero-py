@@ -33,6 +33,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
+    "sphinx.ext.extlinks",
 ]
 
 master_doc = "index"
@@ -67,7 +68,9 @@ autodoc_mock_imports = ["omero", "omero_ext", "past", "future",
                         "omero_model_TermAnnotationI",
                         "omero_model_XmlAnnotationI",
                         "omero_model_MapAnnotationI",
-                        "omero_sys_ParametersI"]
+                        "omero_sys_ParametersI",
+                        "numpy", "yaml",
+                        "Image", "ImageDraw", "ImageFont"]
 
 # -- Options for HTML output -------------------------------------------------
 
