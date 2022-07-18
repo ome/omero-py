@@ -181,7 +181,7 @@ def fileread_gen(fin, fsize, bufsize):
 
 def getAnnotationLinkTableName(objecttype):
     """
-    Get the name of the *AnnotationLink table
+    Get the name of the AnnotationLink table
     for the given objecttype
     """
     objecttype = objecttype.lower()
