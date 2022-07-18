@@ -7186,7 +7186,7 @@ class ColorHolder (object):
         Set red, as int 0..255
 
         :param val: value of Red.
-        :type val:  Int
+        :type val:  int
         """
 
         self._color['red'] = max(min(255, int(val)), 0)
@@ -7206,7 +7206,7 @@ class ColorHolder (object):
         Set green, as int 0..255
 
         :param val: value of Green.
-        :type val:  Int
+        :type val:  int
         """
 
         self._color['green'] = max(min(255, int(val)), 0)
@@ -7226,7 +7226,7 @@ class ColorHolder (object):
         Set Blue, as int 0..255
 
         :param val: value of Blue.
-        :type val:  Int
+        :type val:  int
         """
 
         self._color['blue'] = max(min(255, int(val)), 0)
