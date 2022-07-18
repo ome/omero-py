@@ -1238,7 +1238,10 @@ class RMapI(omero.RMap):
 class ObjectFactory(Ice.ObjectFactory):
 
     def __init__(self, cls, f):
-        self.id = cls.ice_staticId()
+        try:
+            self.id = cls.ice_staticId()
+        except Exception as e:
+            pass
         self.f = f
 
     def create(self, string):
