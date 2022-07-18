@@ -1240,7 +1240,7 @@ class ObjectFactory(Ice.ObjectFactory):
     def __init__(self, cls, f):
         try:
             self.id = cls.ice_staticId()
-        except Exception as e:
+        except Exception:
             pass
         self.f = f
 

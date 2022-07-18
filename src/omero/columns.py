@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-::
-    /*
-     *   $Id$
-     *
-     *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
-     *   Use is subject to license terms supplied in LICENSE.txt
-     *
-     */
+    Copyright 2009 Glencoe Software, Inc. All rights reserved.
+    Use is subject to license terms supplied in LICENSE.txt
 """
 
 """
@@ -256,18 +250,16 @@ class LongColumnI(AbstractColumn, omero.grid.LongColumn):
 
 class StringColumnI(AbstractColumn, omero.grid.StringColumn):
     """
-    StringColumns are actually numpy dtype 'S':
-      "zero-terminated bytes (not recommended)"
+    StringColumns are actually numpy dtype 'S': "zero-terminated bytes (not recommended)"
     https://github.com/ome/omero-py/blob/v5.6.dev8/src/omero/columns.py#L269
     https://docs.scipy.org/doc/numpy-1.15.1/reference/arrays.dtypes.html#specifying-and-constructing-data-types
-
     In any case HDF5 doesn't seem to properly support unicode,
     and numexpr doesn't even pretend to support it:
-      https://github.com/PyTables/PyTables/issues/499
-      https://github.com/pydata/numexpr/issues/142
-      https://github.com/pydata/numexpr/issues/150
-      https://github.com/pydata/numexpr/issues/263
-      https://github.com/pydata/numexpr/blob/v2.7.0/numexpr/necompiler.py#L340-L341
+    - https://github.com/PyTables/PyTables/issues/499
+    - https://github.com/pydata/numexpr/issues/142
+    - https://github.com/pydata/numexpr/issues/150
+    - https://github.com/pydata/numexpr/issues/263
+    - https://github.com/pydata/numexpr/blob/v2.7.0/numexpr/necompiler.py#L340-L341
 
     > import numexpr
     > a = "£"
@@ -275,8 +267,7 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
     ValueError: unknown type str32
     > b = "£".encode()
     > numexpr.evaluate('b=="£"')
-    UnicodeEncodeError: 'ascii' codec can't encode character '\xa3'
-        in position 0: ordinal not in range(128)
+    UnicodeEncodeError: 'ascii' codec can't encode character '\xa3' in position 0: ordinal not in range(128)
 
     You should be able to store/load unicode data but you can't use
     unicode in a where condition
@@ -585,9 +576,9 @@ class ObjectFactory(Ice.ObjectFactory):
     def __init__(self, cls, f):
         try:
             self.id = cls.ice_staticId()
-        except Exception as e:
+        except Exception:
             pass
-        
+
         self.f = f
 
     def create(self, string):
