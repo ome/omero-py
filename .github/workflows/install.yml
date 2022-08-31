@@ -1,0 +1,34 @@
+name: Install
+on:
+  push:
+
+jobs:
+  install:
+    name: Miniconda
+    strategy:
+      # Keep running so we can see if other tests pass
+      fail-fast: false
+      matrix:
+        os: 
+          - windows-latest
+          - ubuntu-20.04
+          - macos-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: test
+          python-version: 3.8
+          auto-activate-base: false
+      - shell: bash -l {0}
+        run: |
+          conda info
+          conda list
+      - name: Install omero-py
+        shell: bash -l {0}
+        run: |
+            conda install -c conda-forge omero-py
+      - name: Connect to IDR
+        run: |
+            python connect.py
