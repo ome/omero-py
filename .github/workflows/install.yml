@@ -1,6 +1,7 @@
 name: Install
 on:
-  push:
+  schedule:
+    - cron: '* 0 * * *'
 
 jobs:
   install:
