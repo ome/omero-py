@@ -30,5 +30,7 @@ jobs:
         run: |
             conda install -c conda-forge omero-py
       - name: Connect to IDR
+        shell: bash -l {0}
         run: |
+            conda activate test
             python connect.py
