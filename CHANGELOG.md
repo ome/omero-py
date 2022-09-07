@@ -1,3 +1,16 @@
+# 5.12.0 (September 2022)
+
+## New features
+
+-   ParametersI now supports `addTime()` method [#327](https://github.com/ome/omero-py/pull/327)
+-   Pass `omero.db.properties` to reindex command [#329](https://github.com/ome/omero-py/pull/329)
+
+
+## Bug fixes
+
+-   Fix concurrency issues in pytest [#328](https://github.com/ome/omero-py/pull/328)
+-   Improve performance of channel renaming for Datasets [#331](https://github.com/ome/omero-py/pull/331)
+
 # 5.11.2 (May 2022)
 
 ## Bug fix
