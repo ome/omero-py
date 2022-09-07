@@ -3964,9 +3964,10 @@ class _BlitzGateway (object):
         if data_type == "Image":
             imageIds = [int(i) for i in ids]
         elif data_type == "Dataset":
-            images = self.getContainerService().getImages(
-                "Dataset", ids, None, self.SERVICE_OPTS)
-            imageIds = [i.getId().getValue() for i in images]
+            imageIds = []
+            for dataset_id in ids:
+                images = self.getObjects("Image", opts={'dataset': dataset_id})
+                imageIds.extend([i.id for i in images])
         elif data_type == "Plate":
             imageIds = []
             plates = self.getObjects("Plate", ids)
