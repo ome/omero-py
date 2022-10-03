@@ -1263,6 +1263,7 @@ class ImportTime(object):
         self.metrics['UPLOAD'] = upload_end - upload_start
         self.metrics['SET_ID'] = set_id_end - upload_end
         self.metrics['METADATA'] = metadata_end - set_id_end
+        self.metrics['PIXELDATA'] = pixeldata_end - metadata_end
 
         if overlays_start:
             if settings_start:
@@ -1273,9 +1274,6 @@ class ImportTime(object):
                 self.metrics['OVERLAY'] = thumbnails_end - pixeldata_end
 
         if settings_start:
-            # If there are no rendering settings, pyramids must be built first.
-            self.metrics['PIXELDATA'] = pixeldata_end - metadata_end
-
             if thumbnails_start:
                 self.metrics['RDEF'] = thumbnails_start - settings_start
                 self.metrics['THUMBNAIL'] = thumbnails_end - thumbnails_start
