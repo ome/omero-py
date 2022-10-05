@@ -1,3 +1,9 @@
+# 5.12.1 (October 2022)
+
+## Bug fix
+
+-   Always report pixeldata time in the output of `omero fs importtime` [#335](https://github.com/ome/omero-py/pull/335)
+
 # 5.12.0 (September 2022)
 
 ## New features
