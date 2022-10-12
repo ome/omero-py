@@ -58,6 +58,11 @@ from omero_version import ice_compatibility
 
 from omero.util._process_defaultxml import _process_xml
 
+try:
+    from omero_version import omero_version
+    VERSION = omero_version
+except ImportError:
+    VERSION = "Unknown"  # Usually during testing
 
 try:
     import pywintypes
@@ -1111,6 +1116,16 @@ present, the user will enter a console""")
         return ['<property name="%s" value="%s"/>' % kv
                 for kv in list(glacier2_icessl.items())]
 
+    def get_omero_server_version(self):
+        """Returns the value of omero.version stored in omero.properties"""
+        omero_props_file = old_div(self._get_etc_dir(), "omero.properties")
+        with open(omero_props_file, 'r') as f:
+            for line in f.readlines():
+                if line.startswith("omero.version"):
+                    idx = line.index("=")
+                    return line[idx + 1:].rstrip()
+        return "unknown"
+
     @with_config
     def rewrite(self, args, config, force=False):
         """
@@ -1299,6 +1314,12 @@ present, the user will enter a console""")
         iga = version(["icegridadmin", "--version"])
         version(["psql",         "--version"])
         version(["openssl",      "version"])
+
+        self.ctx.out("")
+        self._item("Component", "OMERO.py")
+        self.ctx.out(VERSION)
+        self._item("Component", "OMERO.server")
+        self.ctx.out(self.get_omero_server_version())
 
         def get_ports(input):
             router_lines = [line for line in input.split("\n")

@@ -1081,9 +1081,9 @@ class DiagnosticsControl(BaseControl):
 
         self.ctx.out("""
 %s
-OMERO Diagnostics (%s) %s
+OMERO Diagnostics (%s)
 %s
-        """ % ("="*80, control_name, VERSION, "="*80))
+        """ % ("="*80, control_name, "="*80))
 
     def _sz_str(self, sz):
         if sz < 1000:
