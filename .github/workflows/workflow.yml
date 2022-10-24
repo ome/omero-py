@@ -31,7 +31,7 @@ jobs:
         id: toxtarget
         run: |
           py=$(echo ${{ matrix.python-version }} | tr -d .)
-          echo "::set-output name=py::$py"
+          echo "py=$py" >> $GITHUB_OUTPUT
         shell: bash
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
