@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# 
+# Copyright 2013 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+
 """
-   conftest.py - py.test fixtures for gatewaytest
-
-   Copyright 2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
+py.test fixtures for gatewaytest
 """
 
 from omero.gateway.scripts.testdb_create import TestDBHelper, dbhelpers
