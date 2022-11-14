@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-   python helper plugin
 
-   Copyright 2016 University of Dundee. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
+#
+# Copyright 2016 University of Dundee. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+
+"""
+Python helper plugin 
 """
 
 import sys

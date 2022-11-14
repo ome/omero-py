@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# 
+# Copyright 2010 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+# 
+# Josh Moore <josh@glencoesoftware.com>
+
 """
-
-   Function for parsing OMERO log files.
-   The format expected is defined for Python in
-   omero.util.configure_logging.
-
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
-   :author: Josh Moore <josh@glencoesoftware.com>
-
+Function for parsing OMERO log files.
+The format expected is defined for Python in
+omero.util.configure_logging.
 """
 from __future__ import division
 from __future__ import print_function

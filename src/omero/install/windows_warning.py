@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-   windows helper plugin
 
-   Copyright 2009-2016 University of Dundee. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
+#
+# Copyright 2009-2016 University of Dundee. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+
+"""
+windows helper plugin
+
 """
 
 from functools import wraps
