@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-
-   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
-"""
+#
+#
+#   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
+#   Use is subject to license terms supplied in LICENSE.txt
+#
 
 # This file is an import-only file providing a mechanism for other files to
 # import a range of modules in a controlled way. It could be made to pass

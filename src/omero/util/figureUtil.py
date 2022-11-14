@@ -211,16 +211,16 @@ def getTimeLabels(queryService, pixelsId, tIndexes, sizeT,
     The list of label returned includes the timeUnits as the last string
     in the list, in case you didn't specify it.
 
-    @param queryService:        The Omero query service
-    @param pixelsId:            The ID of the pixels you want info for
-    @param tIndexes:            List of t-index to get the times for.
+    :param queryService:        The Omero query service
+    :param pixelsId:            The ID of the pixels you want info for
+    :param tIndexes:            List of t-index to get the times for.
                                 Assumed to be in t order.
-    @param sizeT:               The T dimension size of the pixels.
+    :param sizeT:               The T dimension size of the pixels.
                                 Used if no plane info
-    @param timeUnits:           Format choice, see formatTime(). String
-    @param showRoiDuration:     If true, times shown are from the start of
+    :param timeUnits:           Format choice, see formatTime(). String
+    :param showRoiDuration:     If true, times shown are from the start of
                                 the ROI frames, otherwise use movie timestamp.
-    @return:                    A list of strings, ordered same as tIndexes
+    :return:                    A list of strings, ordered same as tIndexes
     """
     secondsMap = getTimes(queryService, pixelsId, tIndexes)
 
@@ -251,12 +251,12 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
     """
     Adds a scalebar at the bottom right of an image, No text.
 
-    @param scalebar     length of scalebar in microns
-    @param xIndent      indent from the right of the image
-    @param yIndent      indent from the bottom of the image
-    @param image        the PIL image to add scalebar to
-    @param pixels       the pixels object
-    @param colour       colour of the overlay as r,g,b tuple
+    :param scalebar     length of scalebar in microns
+    :param xIndent      indent from the right of the image
+    :param yIndent      indent from the bottom of the image
+    :param image        the PIL image to add scalebar to
+    :param pixels       the pixels object
+    :param colour       colour of the overlay as r,g,b tuple
     """
     draw = ImageDraw.Draw(image)
     if pixels.getPhysicalSizeX() is None:

@@ -60,8 +60,8 @@ def getFont(fontsize):
     Returns a PIL ImageFont Sans-serif true-type font of the specified size
     or a pre-compiled font of fixed size if the ttf font is not found
 
-    @param fontsize:	The size of the font you want
-    @return: 	A PIL Font
+    :param fontsize:	The size of the font you want
+    :return: 	A PIL Font
     """
     warnings.warn(
         "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -78,10 +78,10 @@ def pasteImage(image, canvas, x, y):
     Pastes the image onto the canvas at the specified coordinates
     Image and canvas are instances of PIL 'Image'
 
-    @param image:		The PIL image to be pasted. Image
-    @param canvas:		The PIL image on which to paste. Image
-    @param x:			X coordinate (left) to paste
-    @param y: 			Y coordinate (top) to paste
+    :param image:		The PIL image to be pasted. Image
+    :param canvas:		The PIL image on which to paste. Image
+    :param x:			X coordinate (left) to paste
+    :param y: 			Y coordinate (top) to paste
     """
     warnings.warn(
         "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -97,10 +97,10 @@ def getThumbnail(thumbnailStore, pixelsId, length):
     Returns a thumbnail (as string) from the pixelsId,
     the longest side is 'length'
 
-    @param thumbnailStore: 	The Omero thumbnail store
-    @param pixelsId:		The ID of the pixels. long
-    @param length:			Length of longest side. int
-    @return:				The thumbnail as a String,
+    :param thumbnailStore: 	The Omero thumbnail store
+    :param pixelsId:		The ID of the pixels. long
+    :param length:			Length of longest side. int
+    :return:				The thumbnail as a String,
                             or None if not found (invalid image)
     """
     warnings.warn(
@@ -120,10 +120,10 @@ def getThumbnailSet(thumbnailStore, length, pixelIds):
     Returns map of thumbnails whose keys are the pixels id
     and the values are the image, the longest side is 'length'
 
-    @param thumbnailStore: 	The Omero thumbnail store
-    @param pixelIds:		The collection of pixels ID.
-    @param length:		    Length of longest side. int
-    @return:                See above
+    :param thumbnailStore: 	The Omero thumbnail store
+    :param pixelIds:		The collection of pixels ID.
+    :param length:		    Length of longest side. int
+    :return:                See above
     """
     warnings.warn(
         "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -144,21 +144,21 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
     Option to add a vertical label to the left of the canvas
     Creates a PIL 'Image' which is returned
 
-    @param thumbnailStore:  The omero thumbnail store.
-    @param length:			Length of longest thumbnail side. int
-    @param spacing:			The spacing between thumbnails and around the
+    :param thumbnailStore:  The omero thumbnail store.
+    :param length:			Length of longest thumbnail side. int
+    :param spacing:			The spacing between thumbnails and around the
                             edges. int
-    @param pixelIds:		List of pixel IDs. [long]
-    @param colCount:		The number of columns. int
-    @param bg:				Background colour as (r,g,b).
+    :param pixelIds:		List of pixel IDs. [long]
+    :param colCount:		The number of columns. int
+    :param bg:				Background colour as (r,g,b).
                             Default is white (255,255,255)
-    @param leftLabel: 		Optional string to display vertically to the left.
-    @param textColour:		The colour of the text as (r,g,b).
+    :param leftLabel: 		Optional string to display vertically to the left.
+    :param textColour:		The colour of the text as (r,g,b).
                             Default is black (0,0,0)
-    @param fontsize:		Size of the font.
+    :param fontsize:		Size of the font.
                             Default is calculated based on thumbnail length.
                             int
-    @return: 			    The PIL Image canvas.
+    :return: 			    The PIL Image canvas.
     """
     warnings.warn(
         "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -258,8 +258,8 @@ def checkRGBRange(value):
     If the value is not valid, return 255
     (better to see something than nothing!)
 
-    @param value:		The value to check.
-    @return:			An integer between 0 and 255
+    :param value:		The value to check.
+    :return:			An integer between 0 and 255
     """
     warnings.warn(
         "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -276,8 +276,8 @@ def RGBIntToRGBA(RGB):
     Returns a tuple of (r,g,b,a) from an integer colour
     r, g, b, a are 0-255.
 
-    @param RGB:		A colour as integer. Int
-    @return:		A tuple of (r,g,b,a)
+    :param RGB:		A colour as integer. Int
+    :return:		A tuple of (r,g,b,a)
     """
     warnings.warn(
         "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -295,8 +295,8 @@ def RGBIntToRGB(RGB):
     Returns a tuple of (r,g,b) from an integer colour
     r, g, b are 0-255.
 
-    @param RGB:		A colour as integer. Int
-    @return:		A tuple of (r,g,b)
+    :param RGB:		A colour as integer. Int
+    :return:		A tuple of (r,g,b)
     """
     warnings.warn(
         "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -310,10 +310,10 @@ def getZoomFactor(imageSize, maxW, maxH):
     so that its dimensions are less that maxW and maxH
     E.g. If the image must be half-sized, this method returns 2.0 (float)
 
-    @param imageSize: 		Size of the image as tuple (width, height)
-    @param maxW:			The max width after zooming
-    @param maxH:			The max height after zooming
-    @return:			    The factor by which to shrink the image to be
+    :param imageSize: 		Size of the image as tuple (width, height)
+    :param maxW:			The max width after zooming
+    :param maxH:			The max height after zooming
+    :return:			    The factor by which to shrink the image to be
                             within max width and height
     """
     warnings.warn(
@@ -329,10 +329,10 @@ def resizeImage(image, maxW, maxH):
     Resize the image so that it is as big as possible,
     within the dimensions maxW, maxH
 
-    @param image:		The PIL Image to zoom
-    @param maxW:		The max width of the zoomed image
-    @param maxH:		The max height of the zoomed image
-    @return:		The zoomed image. PIL Image.
+    :param image:		The PIL Image to zoom
+    :param maxW:		The max width of the zoomed image
+    :param maxH:		The max height of the zoomed image
+    :return:		The zoomed image. PIL Image.
     """
     warnings.warn(
         "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)

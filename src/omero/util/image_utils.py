@@ -46,8 +46,8 @@ def get_font(fontsize):
     Returns a PIL ImageFont Sans-serif true-type font of the specified size
     or a pre-compiled font of fixed size if the ttf font is not found
 
-    @param fontsize:	The size of the font you want
-    @return: 	A PIL Font
+    :param fontsize:	The size of the font you want
+    :return: 	A PIL Font
     """
 
     font_path = os.path.join(GATEWAYPATH, "pilfonts", "FreeSans.ttf")
@@ -63,10 +63,10 @@ def paste_image(image, canvas, x, y):
     Pastes the image onto the canvas at the specified coordinates
     Image and canvas are instances of PIL 'Image'
 
-    @param image:		The PIL image to be pasted. Image
-    @param canvas:		The PIL image on which to paste. Image
-    @param x:			X coordinate (left) to paste
-    @param y: 			Y coordinate (top) to paste
+    :param image:		The PIL image to be pasted. Image
+    :param canvas:		The PIL image on which to paste. Image
+    :param x:			X coordinate (left) to paste
+    :param y: 			Y coordinate (top) to paste
     """
 
     x_right = image.size[0] + x
@@ -85,21 +85,21 @@ def paint_thumbnail_grid(thumbnail_store, length, spacing, pixel_ids,
     Option to add a vertical label to the left of the canvas
     Creates a PIL 'Image' which is returned
 
-    @param thumbnail_store:  The omero thumbnail store.
-    @param length:			 Length of longest thumbnail side, int
-    @param spacing:			 The spacing between thumbnails and around the
+    :param thumbnail_store:  The omero thumbnail store.
+    :param length:			 Length of longest thumbnail side, int
+    :param spacing:			 The spacing between thumbnails and around the
                              edges. int
-    @param pixel_ids:		 List of pixel IDs. [long]
-    @param col_count:		 The number of columns. int
-    @param bg:				 Background colour as (r,g,b).
+    :param pixel_ids:		 List of pixel IDs. [long]
+    :param col_count:		 The number of columns. int
+    :param bg:				 Background colour as (r,g,b).
                              Default is white (255, 255, 255)
-    @param left_label: 		 Optional string to display vertically to the left.
-    @param text_color:		 The color of the text as (r,g,b).
+    :param left_label: 		 Optional string to display vertically to the left.
+    :param text_color:		 The color of the text as (r,g,b).
                              Default is black (0, 0, 0)
-    @param fontsize:		 Size of the font.
+    :param fontsize:		 Size of the font.
                              Default is calculated based on thumbnail length,
                              int
-    @return: 			    The PIL Image canvas.
+    :return: 			    The PIL Image canvas.
     """
     mode = "RGB"
     # work out how many rows and columns are needed for all the images
@@ -197,8 +197,8 @@ def int_to_rgba(rgba):
     Returns a tuple of (r,g,b,a) from an integer color
     r, g, b, a are 0-255.
 
-    @param rgba:		A color as integer. Int
-    @return:		A tuple of (r,g,b,a)
+    :param rgba:		A color as integer. Int
+    :return:		A tuple of (r,g,b,a)
     """
     a = check_rgb_range(rgba % 256)
     b = check_rgb_range(rgba / 256 % 256)
@@ -215,8 +215,8 @@ def check_rgb_range(value):
     If the value is not valid, return 255
     (better to see something than nothing!)
 
-    @param value:		The value to check.
-    @return:			An integer between 0 and 255
+    :param value:		The value to check.
+    :return:			An integer between 0 and 255
     """
     try:
         v = int(value)
@@ -232,10 +232,10 @@ def get_zoom_factor(image_size, max_width, max_height):
     so that its dimensions are less that max_width and max_height
     e.g. if the image must be half-sized, this method returns 2.0 (float)
 
-    @param image_size:  Size of the image as tuple (width, height)
-    @param max_width:   The max width after zooming
-    @param max_height:  The max height after zooming
-    @return: The factor by which to shrink the image to be
+    :param image_size:  Size of the image as tuple (width, height)
+    :param max_width:   The max width after zooming
+    :param max_height:  The max height after zooming
+    :return: The factor by which to shrink the image to be
              within max width and height
     """
     image_width, imageheight = image_size
@@ -249,10 +249,10 @@ def resize_image(image, max_width, max_height):
     Resize the image so that it is as big as possible,
     within the dimensions max_width, max_height
 
-    @param image: The PIL Image to zoom
-    @param max_width: The max width of the zoomed image
-    @param max_height: The max height of the zoomed image
-    @return: The zoomed image. PIL Image.
+    :param image: The PIL Image to zoom
+    :param max_width: The max width of the zoomed image
+    :param max_height: The max height of the zoomed image
+    :return: The zoomed image. PIL Image.
     """
     image_width, image_height = image.size
     if image_width == max_width and image_height == max_height:

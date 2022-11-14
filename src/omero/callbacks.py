@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-   Callbacks to be used with asynchronous services. The
-   ProcessCallbackI is also included in the omero.scripts
-   module for backwards compatibility.
 
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
+#
+#
+#   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+#   Use is subject to license terms supplied in LICENSE.txt
+#
+#
 
 """
+  Callbacks to be used with asynchronous services. The
+  ProcessCallbackI is also included in the omero.scripts
+  module for backwards compatibility.
+"""
+
 from __future__ import division
 
 from builtins import str
