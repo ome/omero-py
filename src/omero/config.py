@@ -4,13 +4,10 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
-"""
-::
-
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
-"""
+#
+# Copyright 2010 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
 
 """
 Module which parses an icegrid XML file for configuration settings.

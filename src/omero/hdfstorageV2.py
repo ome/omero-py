@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# OMERO HdfStorage Interface
+
+# 
 # Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+"""
+OMERO HdfStorage Interface
+"""
 from builtins import str
 from builtins import zip
 from builtins import range
