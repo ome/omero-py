@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+# 
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
 """
-   load, quit, version, help plugins
+load, quit, version, help plugins
 
-   Plugin read by omero.cli.Cli during initialization. The method(s)
-   defined here will be added to the Cli class for later use.
+Plugin read by omero.cli.Cli during initialization. The method(s)
+defined here will be added to the Cli class for later use.
 
-   The load plugin is used to read in files with omero cli commands
-   (omitting the omero). For example,
+The load plugin is used to read in files with omero cli commands
+(omitting the omero). For example,
 
-   ./omero load some/file.osh
+./omero load some/file.osh
 
-   The help, quit, and version plugins are self-explanatory.
-
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
+The help, quit, and version plugins are self-explanatory.
 """
 from __future__ import print_function
 

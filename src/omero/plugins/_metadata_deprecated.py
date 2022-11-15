@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-   Metadata plugin
 
-   Copyright 2015 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
+# 
+# Copyright 2015 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
 
 """
+Metadata plugin
+"""
+
 from __future__ import division
 
 from builtins import str
