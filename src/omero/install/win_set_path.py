@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# 
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+# Josh Moore <josh@glencoesoftware.com>
+
 """
-
-   Function for setting the working directory for an
-   Omero installation on Windows, since relative paths
-   are not supported.
-
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
-   :author: Josh Moore <josh@glencoesoftware.com>
-
+Function for setting the working directory for an
+Omero installation on Windows, since relative paths
+are not supported.
 """
 from __future__ import print_function
 
