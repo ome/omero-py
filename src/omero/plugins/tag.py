@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2013-2015 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+# Sam Hart <sam@glencoesoftware.com>
+
 """
-   Tag plugin for command-line tag manipulation
-
-   :author: Sam Hart <sam@glencoesoftware.com>
-
-   Copyright (C) 2013-2015 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
+Tag plugin for command-line tag manipulation
 """
 from __future__ import division
 

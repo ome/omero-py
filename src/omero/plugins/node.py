@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright 2008, 2016 Glencoe Software, Inc.  All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+# Josh Moore, josh at glencoesoftware.com
+
 """
- :author: Josh Moore, josh at glencoesoftware.com
+OMERO Grid node controller
 
- OMERO Grid node controller
-
- This is a python wrapper around icegridnode.
-
- Copyright 2008, 2016 Glencoe Software, Inc.  All Rights Reserved.
- Use is subject to license terms supplied in LICENSE.txt
-
+This is a python wrapper around icegridnode.
 """
 from __future__ import division
 from __future__ import print_function

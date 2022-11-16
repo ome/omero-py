@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+
 """
-   script plugin
+script plugin
 
-   Plugin read by omero.cli.Cli during initialization. The method(s)
-   defined here will be added to the Cli class for later use.
+Plugin read by omero.cli.Cli during initialization. The method(s)
+defined here will be added to the Cli class for later use.
 
-   The script plugin is used to run arbitrary blitz scripts which
-   take as their sole input Ice configuration arguments, including
-   --Ice.Config=file1,file2.
+The script plugin is used to run arbitrary blitz scripts which
+take as their sole input Ice configuration arguments, including
+--Ice.Config=file1,file2.
 
-   The first parameter, the script itself, should be natively executable
-   on a given platform. I.e. invokable by subprocess.call([file,...])
-
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
+The first parameter, the script itself, should be natively executable
+on a given platform i.e. invokable by subprocess.call([file,...])
 """
 from __future__ import print_function
 

@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright 2008-2016 Glencoe Software, Inc.  All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+# Josh Moore, josh at glencoesoftware.com
 """
- :author: Josh Moore, josh at glencoesoftware.com
+OMERO Grid admin controller.
 
- OMERO Grid admin controller
-
- This is a python wrapper around icegridregistry/icegridnode for master
- and various other tools needed for administration.
-
- Copyright 2008-2016 Glencoe Software, Inc.  All Rights Reserved.
- Use is subject to license terms supplied in LICENSE.txt
-
+This is a python wrapper around icegridregistry/icegridnode for master
+and various other tools needed for administration.
 """
 from __future__ import division
 from __future__ import print_function
