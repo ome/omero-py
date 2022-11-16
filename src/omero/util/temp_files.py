@@ -71,7 +71,7 @@ class TempFileManager(object):
                     break
             raise Exception(
                 "Failed to create temporary directory: %s" % self.userdir)
-        self.dir = old_div(self.userdir, self.pid())
+        self.dir = os.path.join(self.userdir, self.pid())
         """
         Directory under which all temporary files and folders will be created.
         An attempt to remove a path not in this directory will lead to an
