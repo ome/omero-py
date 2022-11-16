@@ -55,7 +55,7 @@ class TempFileManager(object):
         self.is_win32 = (sys.platform == "win32")
         self.prefix = prefix
 
-        self.userdir = old_div(self.tmpdir(), ("%s_%s" %
+        self.userdir = os.path.join(self.tmpdir(), ("%s_%s" %
                                         (self.prefix, self.username())))
         """
         User-accessible directory of the form $TMPDIR/omero_$USERNAME.
@@ -94,7 +94,7 @@ class TempFileManager(object):
             """
             try:
                 portalocker.lock(
-                    self.lock, portalocker.LOCK_EX | portalocker.LOCK_NB)
+                    self.lock, portalocker.LOCK_EX) # | portalocker.LOCK_NB
                 atexit.register(self.cleanup)
             except:
                 lock = self.lock
@@ -148,19 +148,19 @@ class TempFileManager(object):
         # Read temporary files directory from OMERO_TMPDIR envvar
         default_tmpdir = None
         if custom_tmpdir_deprecated:
-            default_tmpdir = path(custom_tmpdir_deprecated) / "omero" / "tmp"
+            default_tmpdir = os.path.join(custom_tmpdir_deprecated, "omero", "tmp")
         custom_tmpdir = os.environ.get('OMERO_TMPDIR', default_tmpdir)
 
         # List target base directories by order of precedence
         targets = []
         if custom_tmpdir:
-            targets.append(path(custom_tmpdir))
-        targets.append(old_div(get_omero_userdir(), "tmp"))
-        targets.append(path(tempfile.gettempdir()) / "omero" / "tmp")
-
+            targets.append(custom_tmpdir)
+        #targets.append(old_div(get_omero_userdir(), "tmp"))
+        targets.append(os.path.join(tempfile.gettempdir(), "omero", "tmp"))
         # Handles existing files named tmp
         # See https://trac.openmicroscopy.org/ome/ticket/2805
-        for target in targets:
+        for t in targets:
+            target = path(t)
             if target.exists() and not target.isdir():
                 self.logger.debug("%s exists and is not a directory" % target)
                 targets.remove(target)
@@ -180,7 +180,7 @@ class TempFileManager(object):
                         prefix=".lock_test", suffix=".tmp", dir=target)
                     locktest = open(name, "a+")
                     portalocker.lock(
-                        locktest, portalocker.LOCK_EX | portalocker.LOCK_NB)
+                        locktest, portalocker.LOCK_EX) # not working  | portalocker.LOCK_NB
                     locktest.close()
                     locktest = None
                     choice = target
@@ -201,6 +201,7 @@ class TempFileManager(object):
                             self.logger.debug("Failed os.remove(%s)", name)
 
             except Exception as e:
+                print(e)
                 if "Operation not permitted" in str(e) or \
                    "Operation not supported" in str(e):
 
@@ -241,9 +242,9 @@ class TempFileManager(object):
         If the given directory doesn't exist, creates it (with mode 0700)
         and returns True. Otherwise False.
         """
-        dir = path(dir)
-        if not dir.exists():
-            dir.makedirs(0o700)
+        if not os.path.exists(dir):
+            #dir.makedirs(0o700)
+            os.makedirs(dir, mode=0o700)
             return True
         return False
 
