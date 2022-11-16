@@ -31,7 +31,6 @@
 """
 ROIDrawingCanvas draws the shapes from the obejct visited.
 These map to the ROI types in omero.model.*
-"""
 
 Example code to draw 10 ellipses randomly on an image::
 
