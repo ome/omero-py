@@ -20,26 +20,21 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # ------------------------------------------------------------------------------
-
-###
-#
-# ROIUtils allows the mapping of omero.model.ROIDataTypesI to python types
-# and to create ROIDataTypesI from ROIUtil types.
-# These methods also implement the acceptVisitor method linking to
-# the ROIDrawingCanvas.
-#
-#
 # @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
 #   <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 # @author   Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 #   <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk
 #   </a>
-# @version 3.0
-# <small>
-# (<b>Internal version:</b> $Revision: $Date: $)
-# </small>
-# @since 3.0-Beta4
 #
+
+"""
+ROIUtils allows the mapping of omero.model.ROIDataTypesI to python types
+and to create ROIDataTypesI from ROIUtil types.
+
+These methods also implement the acceptVisitor method linking to
+the ROIDrawingCanvas.
+"""
+
 from __future__ import division
 from builtins import str
 from builtins import map
