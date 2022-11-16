@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# OMERO Grid Processor
 # Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
+
+"""
+OMERO Grid Processor
+"""
 
 from __future__ import division
 from builtins import str
