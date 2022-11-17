@@ -65,6 +65,7 @@ Usage
 
 - For OMERO python language bindings, see `OMERO.py`_.
 - For Command Line usage, see `OMERO.CLI`_.
+- For API documentation, see https://omero-py.readthedocs.io/en/stable/
 
 Contributing
 ------------
@@ -133,6 +134,16 @@ The CI pipeline will automatically deploy the tag onto PyPI. Once released,
 a Pull Request needs to be opened against
 `conda-omero-py <https://github.com/ome/conda-omero-py>`_ to update the 
 official `OMERO.py Conda package <https://anaconda.org/ome/omero-py>`_.
+
+Documentation
+-------------
+
+The API documentation is generated using Sphinx.
+To generate it:
+
+- Install `Sphinx <https://www.sphinx-doc.org/en/master/>`_.
+- Set the environment variable ``NO_TEMP_MANAGER`` to ``true``.
+- In the ``docs`` directory, run ``make clean html``.
 
 License
 -------
