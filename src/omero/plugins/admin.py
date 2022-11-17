@@ -1118,7 +1118,7 @@ present, the user will enter a console""")
 
     def get_omero_server_version(self):
         """Returns the value of omero.version stored in omero.properties"""
-        omero_props_file = old_div(self._get_etc_dir(), "omero.properties")
+        omero_props_file = os.path.join(self._get_etc_dir(), "omero.properties")
         with open(omero_props_file, 'r') as f:
             for line in f.readlines():
                 if line.startswith("omero.version"):
