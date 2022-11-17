@@ -80,13 +80,13 @@ class TempFileManager(object):
 
         # Now create the directory. If a later step throws an
         # exception, we should try to rollback this change.
-        if not self.dir.exists():
-            self.dir.makedirs()
+        if not path(self.dir).exists():
+            os.makedirs(self.dir)
         self.logger.debug("Using temp dir: %s" % self.dir)
 
         self.lock = None
         try:
-            self.lock = open(str(old_div(self.dir, ".lock")), "a+")
+            self.lock = open(str(os.path.join(self.dir, ".lock")), "a+")
             """
             .lock file under self.dir which is used to prevent other
             TempFileManager instances (also in other languages) from
@@ -312,9 +312,9 @@ class TempFileManager(object):
         Deletes self.dir
         """
         dir = self.gettempdir()
-        if dir.exists():
+        if path(dir).exists():
             self.logger.debug("Removing tree: %s", dir)
-            dir.rmtree(onerror=self.on_rmtree)
+            path(dir).rmtree(onerror=self.on_rmtree)
 
     def clean_userdir(self):
         """
