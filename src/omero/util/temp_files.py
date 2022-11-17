@@ -346,7 +346,10 @@ class TempFileManager(object):
         self.logger.error(
             "rmtree error: %s('%s') => %s", func.__name__, name, exc[1])
 
-manager = TempFileManager()
+no_tmp_manager = os.environ.get('NO_TEMP_MANAGER', None)
+if no_tmp_manager is None:
+    manager = TempFileManager()
+
 """
 Global TempFileManager instance for use by the current process and
 registered with the atexit module for cleaning up all created files on exit.
