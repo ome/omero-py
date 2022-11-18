@@ -346,8 +346,7 @@ class TempFileManager(object):
         self.logger.error(
             "rmtree error: %s('%s') => %s", func.__name__, name, exc[1])
 
-no_tmp_manager = os.environ.get('NO_TEMP_MANAGER', None)
-if no_tmp_manager is None:
+if "NO_TEMP_MANAGER" not in os.environ:
     manager = TempFileManager()
 
 """
