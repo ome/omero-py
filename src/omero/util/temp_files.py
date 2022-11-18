@@ -100,7 +100,7 @@ class TempFileManager(object):
                 lock = self.lock
                 self.lock = None
                 if lock:
-                    self.lock.close()
+                    lock.close()
                 raise
         finally:
             try:
