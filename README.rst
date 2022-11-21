@@ -65,7 +65,7 @@ Usage
 
 - For OMERO python language bindings, see `OMERO.py`_.
 - For Command Line usage, see `OMERO.CLI`_.
-- For API documentation, see https://omero-py.readthedocs.io/en/latest/
+- For API documentation, see https://omero-py.readthedocs.io/
 
 Contributing
 ------------
