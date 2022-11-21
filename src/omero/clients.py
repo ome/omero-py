@@ -229,18 +229,6 @@ class BaseClient(object):
         self._optSetProp(id, "Ice.Default.PreferSecure", "1")
         self._optSetProp(id, "Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
 
-        prop = "IceSSL.Ciphers"
-        try:
-            if sys.platform == "darwin":
-                self._optSetProp(id, prop, "(AES_256) (DH_anon.*AES)")
-            elif ssl.OPENSSL_VERSION_INFO >= (1, 1):
-                self._optSetProp(id, prop, "HIGH:ADH:@SECLEVEL=0")
-            else:
-                self._optSetProp(id, prop, "HIGH:ADH")
-        except Exception:
-            # OPENSSL_VERSION_INFO not available for 2.6, fall back to default
-            self._optSetProp(id, prop, "HIGH:ADH")
-
         self._optSetProp(id, "IceSSL.VerifyDepthMax", "6")
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
         self._optSetProp(id, "IceSSL.Protocols", "tls1_0,tls1_1,tls1_2")
