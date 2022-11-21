@@ -2,7 +2,7 @@
 
 ## New features
 
-- Remove Anonymous Diffie-Hellman default configuration [#336](https://github.com/ome/omero-py/pull/336)
+- Remove Anonymous Diffie-Hellman default configuration [#336](https://github.com/ome/omero-py/pull/336). This change will require to use of ``omero certificates`` to ensure that an OMERO server installation has, at minimum, a self-signed certificate.
 - Publish API doc [#330](https://github.com/ome/omero-py/pull/330)
 
 ## Bug fix
