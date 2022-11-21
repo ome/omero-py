@@ -58,7 +58,10 @@ the ``import`` and ``admin`` commands will be enabled::
     # otherwise, can choose any location.
     export OMERODIR=$(pwd)
 
-See: `OMERO`_ documentation for more details.
+Since version 5.13.0, the use of ``omero certificates`` is required to ensure that an OMERO server installation has, at minimum, a self-signed certificate.
+
+See: `OMERO`_ documentation for more details and 
+`OMERO server certificate management plugin <https://pypi.org/project/omero-certificates/>`_
 
 Usage
 -----
