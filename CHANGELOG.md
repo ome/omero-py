@@ -4,13 +4,15 @@
 
 - Remove Anonymous Diffie-Hellman default configuration [#336](https://github.com/ome/omero-py/pull/336)
 - Publish API doc [#330](https://github.com/ome/omero-py/pull/330)
-- Switch to new output command (GHA) [#340](https://github.com/ome/omero-py/pull/340)
 
 ## Bug fix
 
 - omero admin diagnostics: move OMERO.py version as part of the output [#339](https://github.com/ome/omero-py/pull/339)
 - Close correct locker [#346](https://github.com/ome/omero-py/pull/346)
 
+## Other updates
+
+- Switch to new output command (GHA) [#340](https://github.com/ome/omero-py/pull/340)
 
 # 5.12.1 (October 2022)
 
