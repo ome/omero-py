@@ -1,3 +1,20 @@
+# 5.13.0 (November 2022)
+
+## New features
+
+- Remove Anonymous Diffie-Hellman default configuration [#336](https://github.com/ome/omero-py/pull/336). This change will require to use of ``omero certificates`` to ensure that an OMERO server installation has, at minimum, a self-signed certificate.
+- Publish API doc [#330](https://github.com/ome/omero-py/pull/330)
+
+## Bug fix
+
+- omero admin diagnostics: move OMERO.py version as part of the output [#339](https://github.com/ome/omero-py/pull/339)
+- Close correct locker [#346](https://github.com/ome/omero-py/pull/346)
+- omero.clients: initialize connection retry reason out of the while loop [#353](https://github.com/ome/omero-py/pull/353)
+
+## Other updates
+
+- Switch to new output command (GHA) [#340](https://github.com/ome/omero-py/pull/340)
+
 # 5.12.1 (October 2022)
 
 ## Bug fix
@@ -105,17 +122,14 @@ and structure.
 # 5.9.2 (April 2021)
 
 ## New CLI option
-- Add `--retry [RETRIES]` to `omero login`
-  [#283](https://github.com/ome/omero-py/pull/283)
+- Add `--retry [RETRIES]` to `omero login` [#283](https://github.com/ome/omero-py/pull/283)
 
 # 5.9.1 (March 2021)
 
 ## Bug Fix
-- remove usage of deprecated method preventing usage on Python 3.9
-  [#282](https://github.com/ome/omero-py/pull/282)
+- remove usage of deprecated method preventing usage on Python 3.9 [#282](https://github.com/ome/omero-py/pull/282)
 - CLI: obj update strips newlines [#279](https://github.com/ome/omero-py/pull/279)
 - roi_utils: fix possible division by zero [#278](https://github.com/ome/omero-py/pull/278)
-
 
 ## Other updates
 - download provider uses NamedTemporaryFile [#274](https://github.com/ome/omero-py/pull/274)
@@ -130,8 +144,7 @@ and structure.
 
 ## Bug fix
 
-- CLI: fix `omero errors` command under Python 3
-  [#264](https://github.com/ome/omero-py/pull/264)
+- CLI: fix `omero errors` command under Python 3 [#264](https://github.com/ome/omero-py/pull/264)
 
 # 5.8.2 (October 2020)
 

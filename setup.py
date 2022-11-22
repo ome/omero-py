@@ -207,6 +207,7 @@ setup(
             'https://docs.openmicroscopy.org/omero/latest/developers/'
             'Python.html',
         'Bug tracker': 'https://github.com/ome/omero-py/issues',
+        'API': 'https://omero-py.readthedocs.io/',
     },
     package_dir={"": "target"},
     packages=packages,
