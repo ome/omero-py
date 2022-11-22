@@ -9,6 +9,7 @@
 
 - omero admin diagnostics: move OMERO.py version as part of the output [#339](https://github.com/ome/omero-py/pull/339)
 - Close correct locker [#346](https://github.com/ome/omero-py/pull/346)
+- omero.clients: initialize connection retry reason out of the while loop [#353](https://github.com/ome/omero-py/pull/353)
 
 ## Other updates
 
