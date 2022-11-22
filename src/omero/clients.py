@@ -627,8 +627,8 @@ class BaseClient(object):
             # Acquire router and get the proxy
             prx = None
             retries = 0
+            reason = None
             while retries < 3:
-                reason = None
                 if retries > 0:
                     self.__logger.warning(
                         "%s - createSession retry: %s" % (reason, retries))
