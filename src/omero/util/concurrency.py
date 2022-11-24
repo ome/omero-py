@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# OMERO Concurrency Utilities
+
 #
 # Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+"""
+OMERO Concurrency Utilities
+"""
 import atexit
 import logging
 import threading
