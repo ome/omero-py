@@ -4,7 +4,9 @@
 # Copyright 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
-# Version comparison functionality
+"""
+ Version comparison functionality
+"""
 
 from __future__ import print_function
 import re

@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# OMERO Decorators
+# 
 # Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+"""
+OMERO Decorators
+"""
 from builtins import object
 import time
 import logging
