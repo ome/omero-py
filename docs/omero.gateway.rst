@@ -23,5 +23,7 @@ Module contents
 
 .. automodule:: gateway
    :members:
+   :inherited-members:
+   :private-members:
    :undoc-members:
    :show-inheritance:
