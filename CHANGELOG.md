@@ -1,3 +1,9 @@
+# 5.13.1 (November 2022)
+
+## Other updates
+
+- API doc: Add inherited-members and private-members options to the gateway automodule configuration [#354](https://github.com/ome/omero-py/pull/354)
+
 # 5.13.0 (November 2022)
 
 ## New features
