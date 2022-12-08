@@ -38,7 +38,7 @@ To install ``omero-py`` using conda (preferred)::
 
 Alternatively install ``omero-py`` using venv::
 
-    python3.6 -m venv myenv
+    python3.8 -m venv myenv
     . myenv/bin/activate
     pip install omero-py
 
@@ -80,11 +80,11 @@ Developer installation
 
 OMERO.py currently depends on an externally built artifact which is automatically bundled in the PyPI package.
 
-For a development installation we recommend creating a virtualenv with the following setup (example assumes ``python3.6`` but you can create and activate the virtualenv using any compatible Python):
+For a development installation we recommend creating a virtualenv with the following setup (example assumes ``python3.8`` but you can create and activate the virtualenv using any compatible Python):
 
 To install using venv::
 
-    python3.6 -mvenv myenv
+    python3.8 -mvenv myenv
     . myenv/bin/activate
     git clone https://github.com/ome/omero-py
     cd omero-py
@@ -93,7 +93,7 @@ To install using venv::
 
 To install ``omero-py`` using conda (preferred)::
 
-    conda create -n myenv -c ome python=3.6 zeroc-ice36-python
+    conda create -n myenv -c ome python=3.8 zeroc-ice36-python
     conda activate myenv
     git clone https://github.com/ome/omero-py
     cd omero-py
