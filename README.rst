@@ -42,7 +42,7 @@ Alternatively install ``omero-py`` using venv::
     . myenv/bin/activate
     pip install omero-py
 
-You may need to replace ``python3.6`` with ``python`` or ``python3`` depending on your Python distribution.
+You may need to replace ``python3.8`` with ``python`` or ``python3`` depending on your Python distribution.
 
 Setting of the environment variable ``OMERODIR`` is required
 for some functionality.
@@ -93,7 +93,7 @@ To install using venv::
 
 To install ``omero-py`` using conda (preferred)::
 
-    conda create -n myenv -c ome python=3.8 zeroc-ice36-python
+    conda create -n myenv -c conda-forge python=3.8 zeroc-ice
     conda activate myenv
     git clone https://github.com/ome/omero-py
     cd omero-py
@@ -156,7 +156,7 @@ OMERO.py is released under the GPL v2.
 Copyright
 ---------
 
-2009-2022, The Open Microscopy Environment, Glencoe Software, Inc.
+2009-2023, The Open Microscopy Environment, Glencoe Software, Inc.
 
 .. _ZeroC IcePy 3.6: https://zeroc.com/downloads/ice/3.6
 .. _OMERO.py: https://docs.openmicroscopy.org/omero/5.6/developers/Python.html
