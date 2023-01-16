@@ -42,7 +42,7 @@ Alternatively install ``omero-py`` using venv::
     . myenv/bin/activate
     pip install omero-py
 
-You may need to replace ``python3.6`` with ``python`` or ``python3`` depending on your Python distribution.
+You may need to replace ``python3.8`` with ``python`` or ``python3`` depending on your Python distribution.
 
 Setting of the environment variable ``OMERODIR`` is required
 for some functionality.
