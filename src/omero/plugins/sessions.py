@@ -545,7 +545,11 @@ class SessionsControl(UserGroupControl):
                             break
                         except Exception as e:
                             elapsed = (time.time() - start)
-                            if not args.retry or (elapsed > args.retry):
+                            cannot_retry = (
+                                'retry' not in vars(args) or
+                                not args.retry or
+                                elapsed > args.retry)
+                            if cannot_retry:
                                 raise
                             else:
                                 retries += 1
