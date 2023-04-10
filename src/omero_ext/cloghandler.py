@@ -75,7 +75,7 @@ except ImportError:
 # clobbering that the builtin class allows.
 
 # sibling module than handles all the ugly platform-specific details of file locking
-from .portalocker import lock, unlock, LOCK_EX, LOCK_NB, LockException
+from portalocker import lock, unlock, LOCK_EX, LOCK_NB, LockException
 
 
 # Workaround for handleError() in Python 2.7+ where record is written to stderr

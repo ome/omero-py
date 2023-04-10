@@ -227,7 +227,8 @@ setup(
         'PyYAML',
         'zeroc-ice>=3.6.5,<3.7',
         'pywin32; platform_system=="Windows"',
-        'requests'
+        'requests',
+        'portalocker'
     ],
     tests_require=[
         'pytest',

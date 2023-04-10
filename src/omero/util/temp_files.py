@@ -21,7 +21,7 @@ import logging
 import tempfile
 
 from omero.util import get_omero_userdir, get_user
-from omero_ext import portalocker
+import portalocker
 from omero_ext.path import path
 
 # Activating logging at a static level

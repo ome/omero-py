@@ -28,7 +28,7 @@ from omero.config import ConfigXml
 from omero.util import edit_path, get_omero_userdir
 from omero.util.decorators import wraps
 from omero.util.upgrade_check import UpgradeCheck
-from omero_ext import portalocker
+import portalocker
 from omero_ext.argparse import SUPPRESS
 from omero_ext.path import path
 

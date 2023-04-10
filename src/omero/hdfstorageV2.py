@@ -32,7 +32,7 @@ from omero.columns import columns2definition
 from omero.rtypes import rfloat, rlong, rstring, unwrap
 from omero.util.decorators import locked
 from omero_ext.path import path
-from omero_ext import portalocker
+import portalocker
 from functools import wraps
 
 
