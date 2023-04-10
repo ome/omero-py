@@ -11,7 +11,10 @@ Python helper plugin
 
 import sys
 import platform
+import warnings
 
+warnings.warn(
+    "This module is deprecated as of OMERO.py 5.6.0", DeprecationWarning)
 
 PYTHON_WARNING = ("Python version %s is not "
                   "supported!" % platform.python_version())
