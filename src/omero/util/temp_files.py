@@ -241,8 +241,8 @@ class TempFileManager(object):
         If the given directory doesn't exist, creates it (with mode 0700)
         and returns True. Otherwise False.
         """
-        dir = path(dir)
-        if not dir.exists():
+        # dir = path(dir)
+        if not os.path.exists(dir):
             dir.makedirs(0o700)
             return True
         return False
