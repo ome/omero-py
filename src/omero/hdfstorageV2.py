@@ -137,7 +137,7 @@ class HdfList(object):
 
         if not read_only:
             try:
-                portalocker.lockno(
+                portalocker.lock(
                     fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
             except portalocker.LockException:
                 hdffile.close()
