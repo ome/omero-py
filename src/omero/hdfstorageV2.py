@@ -21,6 +21,7 @@ import logging
 import threading
 import traceback
 
+import os
 from os import W_OK
 
 import omero  # Do we need both??
@@ -134,13 +135,11 @@ class HdfList(object):
         mode = read_only and "r" or "a"
         hdffile = hdfstorage.openfile(mode)
         fileno = hdffile.fileno()
-
         if not read_only:
             try:
-                portalocker.lock(
-                    fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
+                portalocker.Lock(
+                    hdfpath, flags=(portalocker.LOCK_NB | portalocker.LOCK_EX))
             except portalocker.LockException:
-                hdffile.close()
                 raise omero.LockTimeout(
                     None, None,
                     "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
