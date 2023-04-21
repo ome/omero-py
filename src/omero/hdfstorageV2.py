@@ -21,7 +21,6 @@ import logging
 import threading
 import traceback
 
-import os
 from os import W_OK
 
 import omero  # Do we need both??
