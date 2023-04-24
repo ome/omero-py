@@ -139,6 +139,7 @@ class HdfList(object):
                 portalocker.Lock(
                     hdfpath, flags=(portalocker.LOCK_NB | portalocker.LOCK_EX))
             except portalocker.LockException:
+                hdffile.close()
                 raise omero.LockTimeout(
                     None, None,
                     "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
