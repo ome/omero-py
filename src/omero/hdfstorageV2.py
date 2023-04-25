@@ -136,8 +136,8 @@ class HdfList(object):
         fileno = hdffile.fileno()
         if not read_only:
             try:
-                portalocker.Lock(
-                    hdfpath, flags=(portalocker.LOCK_NB | portalocker.LOCK_EX))
+                portalocker.lock(
+                    hdffile, flags=(portalocker.LOCK_NB | portalocker.LOCK_EX))
             except portalocker.LockException:
                 hdffile.close()
                 raise omero.LockTimeout(
