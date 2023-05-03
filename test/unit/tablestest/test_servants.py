@@ -26,6 +26,10 @@ from library import TestCase
 from omero.columns import LongColumnI, DoubleColumnI, ObjectFactories
 from omero_ext.path import path
 
+import sys
+if sys.platform.startswith("win"):
+    pytest.skip("skipping tests on windows", allow_module_level=True)
+
 logging.basicConfig(level=logging.DEBUG)
 
 # Don't retry since we expect errors
