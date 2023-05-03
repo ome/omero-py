@@ -29,7 +29,10 @@ from library import TestCase
 from omero_ext.path import path
 
 import omero.hdfstorageV2 as storage_module
+import sys
 
+if sys.platform.startswith("win"):
+    pytest.skip("skipping tests on windows", allow_module_level=True)
 
 HdfList = storage_module.HdfList
 HdfStorage = storage_module.HdfStorage
