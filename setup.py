@@ -161,8 +161,9 @@ class DevTargetCommand(Command):
 
 
 if not os.path.exists('target'):
-    download_blitz_target()
-    copy_src_to_target()
+    if not "NO_ZIP_FILE" in os.environ:
+        download_blitz_target()
+        copy_src_to_target()
 
 
 packageless = glob.glob("target/*.py")
