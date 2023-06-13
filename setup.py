@@ -160,10 +160,9 @@ class DevTargetCommand(Command):
               "`pip install -e .`")
 
 
-if not os.path.exists('target'):
-    if not "NO_ZIP_FILE" in os.environ:
-        download_blitz_target()
-        copy_src_to_target()
+if not os.path.exists('target') and not "NO_ZIP_FILE" in os.environ:
+    download_blitz_target()
+    copy_src_to_target()
 
 
 packageless = glob.glob("target/*.py")
