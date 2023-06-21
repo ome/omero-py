@@ -12,7 +12,7 @@
 ## Other updates
 
 - Add Python 3.10 to the testing matrix [#357](https://github.com/ome/omero-py/pull/357)
-- Readme updates [#358](https://github.com/ome/omero-py/pull/358) [#363](https://github.com/ome/omero-py/pull/363) [#369](https://github.com/ome/omero-py/pull/369)
+- Readme updates [#358](https://github.com/ome/omero-py/pull/358), [#363](https://github.com/ome/omero-py/pull/363), [#369](https://github.com/ome/omero-py/pull/369)
 - Update GitHub workflow actions [#365](https://github.com/ome/omero-py/pull/365)
 
 # 5.13.1 (November 2022)
