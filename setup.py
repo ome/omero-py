@@ -225,7 +225,7 @@ setup(
         'numpy',
         'Pillow',
         'PyYAML',
-        'zeroc-ice>=3.6.4,<3.7',
+        'zeroc-ice>=3.6.5,<3.7',
         'pywin32; platform_system=="Windows"',
         'requests'
     ],
