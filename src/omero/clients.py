@@ -231,7 +231,6 @@ class BaseClient(object):
 
         self._optSetProp(id, "IceSSL.VerifyDepthMax", "6")
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
-        self._optSetProp(id, "IceSSL.Protocols", "tls1_0,tls1_1,tls1_2")
 
         # Setting block size
         self._optSetProp(
