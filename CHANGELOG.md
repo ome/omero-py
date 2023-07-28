@@ -1,3 +1,10 @@
+# 5.15.0 (July 2023)
+
+## Other updates
+
+- Use Image.LANCZOS alias rather than Image.ANTIALIAS [#376](https://github.com/ome/omero-py/pull/376)
+- Let Ice choose the default SSL protocols that are available [#377](https://github.com/ome/omero-py/pull/377)
+
 # 5.14.0 (June 2023)
 
 ## Bug fix
