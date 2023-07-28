@@ -9308,7 +9308,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             else:
                 size = (int(width * ratio), int(size))
             jpeg_data = Image.open(BytesIO(jpeg_data))
-            jpeg_data.thumbnail(size, Image.ANTIALIAS)
+            jpeg_data.thumbnail(size, Image.LANCZOS)
             ImageDraw.Draw(jpeg_data)
             f = BytesIO()
             jpeg_data.save(f, "JPEG")
