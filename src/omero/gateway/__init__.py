@@ -10354,21 +10354,22 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 if ns == a['ns']:
                     return a['value']
 
-    def getROICount(self, shapeType=None, filterByCurrentUser=False):
+    def getROIs(self, shapeType=None, filterByCurrentUser=False):
         """
-        Count number of ROIs associated to an image
+        Gets ROIs associated to an image
 
         :param shapeType: Filter by shape type ("Rectangle",...).
         :param filterByCurrentUser: Whether or not to filter the count by
                                     the currently logged in user.
-        :return: Number of ROIs found for the currently logged in user if
-                 filterByCurrentUser is True, otherwise the total number
+        :return: list of ROIs found for the currently logged in user if
+                 filterByCurrentUser is True, otherwise the total rois
                  found.
         """
 
         # Create ROI shape validator (return True if at least one shape is
         # found)
         def isValidType(shape):
+            valid=True
             if not shapeType:
                 return True
             elif isinstance(shapeType, list):
@@ -10385,6 +10386,25 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     return True
             return False
 
+        roiOptions = omero.api.RoiOptions()
+        if filterByCurrentUser:
+            roiOptions.userId = omero.rtypes.rlong(self._conn.getUserId())
+
+        result = self._conn.getRoiService().findByImage(self.id, roiOptions)
+        rois = [roi for roi in result.rois if isValidROI(roi)]
+        return rois
+
+    def getROICount(self, shapeType=None, filterByCurrentUser=False):
+        """
+        Count number of ROIs associated to an image
+
+        :param shapeType: Filter by shape type ("Rectangle",...).
+        :param filterByCurrentUser: Whether or not to filter the count by
+                                    the currently logged in user.
+        :return: Number of ROIs found for the currently logged in user if
+                 filterByCurrentUser is True, otherwise the total number
+                 found.
+        """
         # Optimisation for the most common use case of unfiltered ROI counts
         # for the current user.
         if shapeType is None:
@@ -10400,14 +10420,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             # Projection returns a two dimensional array of RType wrapped
             # return values so we want the value of row one, column one.
             return count[0][0].getValue()
-
-        roiOptions = omero.api.RoiOptions()
-        if filterByCurrentUser:
-            roiOptions.userId = omero.rtypes.rlong(self._conn.getUserId())
-
-        result = self._conn.getRoiService().findByImage(self.id, roiOptions)
-        count = sum(1 for roi in result.rois if isValidROI(roi))
-        return count
+        return len(self.getROIs(shapeType, filterByCurrentUser))
 
 ImageWrapper = _ImageWrapper
 
