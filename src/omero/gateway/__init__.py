@@ -10369,7 +10369,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         # Create ROI shape validator (return True if at least one shape is
         # found)
         def isValidType(shape):
-            valid=True
             if not shapeType:
                 return True
             elif isinstance(shapeType, list):
