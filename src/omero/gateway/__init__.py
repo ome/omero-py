@@ -10354,18 +10354,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 if ns == a['ns']:
                     return a['value']
 
-    def getROIs(self, shapeType=None, filterByCurrentUser=False):
-        """
-        Gets ROIs associated to an image
-
-        :param shapeType: Filter by shape type ("Rectangle",...).
-        :param filterByCurrentUser: Whether or not to filter the count by
-                                    the currently logged in user.
-        :return: list of ROIs found for the currently logged in user if
-                 filterByCurrentUser is True, otherwise the total rois
-                 found.
-        """
-
+    def _get_rois(self, shapeType=None, filterByCurrentUser=False):
         # Create ROI shape validator (return True if at least one shape is
         # found)
         def isValidType(shape):
@@ -10393,6 +10382,21 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         rois = [roi for roi in result.rois if isValidROI(roi)]
         return rois
 
+    def getROIs(self, shapeType=None, filterByCurrentUser=False):
+        """
+        Gets ROIs associated to an image
+
+        :param shapeType: Filter by shape type ("Rectangle",...).
+        :param filterByCurrentUser: Whether or not to filter the count by
+                                    the currently logged in user.
+        :return: list of ROIs found for the currently logged in user if
+                 filterByCurrentUser is True, otherwise the total rois
+                 found.
+        """
+        return [omero.gateway.RoiWrapper(self.conn, roi) for roi in 
+                self._get_rois(shapeType, filterByCurrentUser)]
+        
+
     def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
         Count number of ROIs associated to an image
@@ -10419,7 +10423,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             # Projection returns a two dimensional array of RType wrapped
             # return values so we want the value of row one, column one.
             return count[0][0].getValue()
-        return len(self.getROIs(shapeType, filterByCurrentUser))
+        return len(self._get_rois(shapeType, filterByCurrentUser))
 
 ImageWrapper = _ImageWrapper
 
