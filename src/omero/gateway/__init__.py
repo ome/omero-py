@@ -10393,7 +10393,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                  filterByCurrentUser is True, otherwise the total rois
                  found.
         """
-        return [RoiWrapper(self.conn, roi) for roi in 
+        return [RoiWrapper(self._conn, roi) for roi in 
                 self._get_rois(shapeType, filterByCurrentUser)]
         
 
