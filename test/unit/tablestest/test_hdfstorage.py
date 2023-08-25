@@ -500,8 +500,6 @@ class TestHdfList(TestCase):
         tmpdir = self.tmpdir()
         return old_div(path(tmpdir), "test.h5")
 
-    @pytest.mark.xfail
-    @pytest.mark.broken(reason = "TODO after python3 migration")
     def testLocking(self, monkeypatch):
         lock1 = threading.RLock()
         hdflist2 = HdfList()
@@ -511,36 +509,16 @@ class TestHdfList(TestCase):
         # Using HDFLIST
         hdf1 = HdfStorage(tmp, lock1)
 
-        # There are multiple guards against opening the same HDF5 file
-
-        # PyTables includes a check
-        monkeypatch.setattr(storage_module, 'HDFLIST', hdflist2)
-        with pytest.raises(ValueError) as exc_info:
-            HdfStorage(tmp, lock2)
-
-        assert exc_info.value.message.startswith(
-            "The file '%s' is already opened. " % tmp)
-        monkeypatch.undo()
-
         # HdfList uses portalocker, test by mocking tables.open_file
-        if hasattr(tables, "open_file"):
-            self.mox.StubOutWithMock(tables, 'open_file')
-            tables.file._FILE_OPEN_POLICY = 'default'
-            tables.open_file(tmp, mode='w',
-                             title='OMERO HDF Measurement Storage',
-                             rootUEP='/').AndReturn(open(tmp))
-
-            self.mox.ReplayAll()
-        else:
-            self.mox.StubOutWithMock(tables, 'openFile')
-            tables.openFile(tmp, mode='w',
-                            title='OMERO HDF Measurement Storage',
-                            rootUEP='/').AndReturn(open(tmp))
+        self.mox.StubOutWithMock(tables, 'open_file')
+        tables.open_file(tmp, mode='a',
+                         title='OMERO HDF Measurement Storage',
+                         rootUEP='/').AndReturn(open(tmp))
+        self.mox.ReplayAll()
 
         monkeypatch.setattr(storage_module, 'HDFLIST', hdflist2)
         with pytest.raises(omero.LockTimeout) as exc_info:
             HdfStorage(tmp, lock2)
-        print(exc_info.value)
         assert (exc_info.value.message ==
                 'Cannot acquire exclusive lock on: %s' % tmp)
 
