@@ -1,3 +1,13 @@
+# 5.16.0 (September 2023)
+
+## Other updates
+
+- Add requirements file for ReadTheDocs [#383](https://github.com/ome/omero-py/pull/383)
+- Add getROIs method [#380](https://github.com/ome/omero-py/pull/380)
+- Add variable for daily build [#372](https://github.com/ome/omero-py/pull/372)
+- Cap urllib3 to avoid openssl issue [#371](https://github.com/ome/omero-py/pull/371)
+- Replace internal portalocker by the upstream version [#370](https://github.com/ome/omero-py/pull/370)
+
 # 5.15.0 (July 2023)
 
 ## Other updates
