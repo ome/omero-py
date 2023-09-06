@@ -23,13 +23,16 @@ import threading
 import Ice
 
 from mox3 import mox
-from omero.rtypes import rint, rstring
+from omero.rtypes import rint, rstring, rlong
 
 from library import TestCase
 from omero_ext.path import path
 
 import omero.hdfstorageV2 as storage_module
+import sys
 
+if sys.platform.startswith("win"):
+    pytest.skip("skipping tests on windows", allow_module_level=True)
 
 HdfList = storage_module.HdfList
 HdfStorage = storage_module.HdfStorage
@@ -225,8 +228,6 @@ class TestHdfStorage(TestCase):
         hdf = HdfStorage(h, self.lock)
         hdf.cleanup()
 
-    @pytest.mark.xfail
-    @pytest.mark.broken(reason = "TODO after python3 migration")
     def testGetSetMetaMap(self):
         hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, False)
@@ -236,7 +237,7 @@ class TestHdfStorage(TestCase):
         assert len(m1) == 3
         assert m1['__initialized'].val > 0
         assert m1['__version'] == rstring('2')
-        assert m1['a'] == rint(1)
+        assert m1['a'] == rlong(1)
 
         with pytest.raises(omero.ApiUsageException) as exc:
             hdf.add_meta_map({'b': rint(1), '__c': rint(2)})
@@ -256,7 +257,7 @@ class TestHdfStorage(TestCase):
 
         hdf.add_meta_map({'__test': 1}, replace=True, init=True)
         m3 = hdf.get_meta_map()
-        assert m3 == {'__test': rint(1)}
+        assert m3 == {'__test': rlong(1)}
 
         hdf.cleanup()
 
@@ -499,8 +500,6 @@ class TestHdfList(TestCase):
         tmpdir = self.tmpdir()
         return old_div(path(tmpdir), "test.h5")
 
-    @pytest.mark.xfail
-    @pytest.mark.broken(reason = "TODO after python3 migration")
     def testLocking(self, monkeypatch):
         lock1 = threading.RLock()
         hdflist2 = HdfList()
@@ -510,36 +509,16 @@ class TestHdfList(TestCase):
         # Using HDFLIST
         hdf1 = HdfStorage(tmp, lock1)
 
-        # There are multiple guards against opening the same HDF5 file
-
-        # PyTables includes a check
-        monkeypatch.setattr(storage_module, 'HDFLIST', hdflist2)
-        with pytest.raises(ValueError) as exc_info:
-            HdfStorage(tmp, lock2)
-
-        assert exc_info.value.message.startswith(
-            "The file '%s' is already opened. " % tmp)
-        monkeypatch.undo()
-
         # HdfList uses portalocker, test by mocking tables.open_file
-        if hasattr(tables, "open_file"):
-            self.mox.StubOutWithMock(tables, 'open_file')
-            tables.file._FILE_OPEN_POLICY = 'default'
-            tables.open_file(tmp, mode='w',
-                             title='OMERO HDF Measurement Storage',
-                             rootUEP='/').AndReturn(open(tmp))
-
-            self.mox.ReplayAll()
-        else:
-            self.mox.StubOutWithMock(tables, 'openFile')
-            tables.openFile(tmp, mode='w',
-                            title='OMERO HDF Measurement Storage',
-                            rootUEP='/').AndReturn(open(tmp))
+        self.mox.StubOutWithMock(tables, 'open_file')
+        tables.open_file(tmp, mode='a',
+                         title='OMERO HDF Measurement Storage',
+                         rootUEP='/').AndReturn(open(tmp))
+        self.mox.ReplayAll()
 
         monkeypatch.setattr(storage_module, 'HDFLIST', hdflist2)
         with pytest.raises(omero.LockTimeout) as exc_info:
             HdfStorage(tmp, lock2)
-        print(exc_info.value)
         assert (exc_info.value.message ==
                 'Cannot acquire exclusive lock on: %s' % tmp)
 

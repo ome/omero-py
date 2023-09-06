@@ -50,7 +50,7 @@ from omero.plugins.prefs import \
     WriteableConfigControl, with_config
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
-from omero_ext import portalocker
+import portalocker
 from omero_ext.path import path
 from omero_ext.which import whichall
 from omero_ext.argparse import FileType

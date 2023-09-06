@@ -30,7 +30,7 @@ from xml.etree.ElementTree import (
     XML, Element, ElementTree, SubElement, Comment, tostring
 )
 import omero_ext.path as path
-from omero_ext import portalocker
+import portalocker
 import json
 
 

@@ -32,7 +32,7 @@ from omero.columns import columns2definition
 from omero.rtypes import rfloat, rlong, rstring, unwrap
 from omero.util.decorators import locked
 from omero_ext.path import path
-from omero_ext import portalocker
+import portalocker
 from functools import wraps
 
 
@@ -134,11 +134,10 @@ class HdfList(object):
         mode = read_only and "r" or "a"
         hdffile = hdfstorage.openfile(mode)
         fileno = hdffile.fileno()
-
         if not read_only:
             try:
-                portalocker.lockno(
-                    fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
+                portalocker.lock(
+                    hdffile, flags=(portalocker.LOCK_NB | portalocker.LOCK_EX))
             except portalocker.LockException:
                 hdffile.close()
                 raise omero.LockTimeout(

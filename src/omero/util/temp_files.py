@@ -21,7 +21,7 @@ import logging
 import tempfile
 
 from omero.util import get_omero_userdir, get_user
-from omero_ext import portalocker
+import portalocker
 from omero_ext.path import path
 
 # Activating logging at a static level
@@ -241,8 +241,8 @@ class TempFileManager(object):
         If the given directory doesn't exist, creates it (with mode 0700)
         and returns True. Otherwise False.
         """
-        dir = path(dir)
-        if not dir.exists():
+        # dir = path(dir)
+        if not os.path.exists(dir):
             dir.makedirs(0o700)
             return True
         return False

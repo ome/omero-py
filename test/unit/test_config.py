@@ -19,7 +19,7 @@ import json
 import errno
 import pytest
 from omero.config import ConfigXml, xml
-from omero_ext import portalocker
+import portalocker
 
 from xml.etree.ElementTree import XML, Element, SubElement, tostring
 
