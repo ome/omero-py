@@ -807,8 +807,8 @@ present, the user will enter a console""")
         DEPRECATED_TLS_MESSAGE = (
             "Your server is configured to allow a deprecated TLS protocol."
             "\n\nPlease refer to https://omero.readthedocs.io/en/stable/"
-            "sysadmins/server-upgrade.html for instructions on how to "
-            "upgrade the protocols.")
+            "sysadmins/server-upgrade.html#server-certificates for "
+            "instructions on how to upgrade your configuration.")
         try:
             ssl_protocols = config["omero.glacier2.IceSSL.Protocols"]
             if ("TLS1_0" in ssl_protocols or "TLS1_1" in ssl_protocols):
