@@ -25,8 +25,9 @@ from __future__ import division
 
 from builtins import map
 from past.utils import old_div
-from numpy import asarray, int32, math, zeros, hstack, vstack
+from numpy import asarray, int32, zeros, hstack, vstack
 import omero.util.script_utils as script_utils
+import math
 
 
 def get_line_data(pixels, x1, y1, x2, y2, line_w=2, the_z=0, the_c=0, the_t=0):
