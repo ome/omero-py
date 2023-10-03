@@ -800,6 +800,22 @@ present, the user will enter a console""")
                 "sysadmins/server-performance.html?highlight=poolsize\n"
                 "for more information.")
 
+        # Warn if deprecated TLS 1.0 and 1.1 protocols are allowed
+        # See https://datatracker.ietf.org/doc/html/rfc8996
+        # Both protocols are included in the default value of IceSSL.Protocols
+        # https://doc.zeroc.com/ice/3.6/property-reference/icessl#id-.IceSSL.*v3.6-IceSSL.Protocols
+        DEPRECATED_TLS_MESSAGE = (
+            "Your server is configured to allow a deprecated TLS protocol."
+            "\n\nPlease refer to https://omero.readthedocs.io/en/stable/"
+            "sysadmins/server-upgrade.html#server-certificates for "
+            "instructions on how to upgrade your configuration.")
+        try:
+            ssl_protocols = config["omero.glacier2.IceSSL.Protocols"]
+            if ("TLS1_0" in ssl_protocols or "TLS1_1" in ssl_protocols):
+                self.ctx.out("WARNING: " + DEPRECATED_TLS_MESSAGE)
+        except KeyError:
+            self.ctx.out("WARNING: " + DEPRECATED_TLS_MESSAGE)
+
         self._initDir()
         # Do a check to see if we've started before.
         self._regdata()
