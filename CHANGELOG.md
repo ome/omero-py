@@ -1,3 +1,9 @@
+# 5.16.1 (October 2023)
+
+## Other updates
+
+- omero admin start: add warning for deprecated TLS protocols [#382](https://github.com/ome/omero-py/pull/382)
+
 # 5.16.0 (September 2023)
 
 ## Other updates
