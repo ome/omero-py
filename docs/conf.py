@@ -58,7 +58,7 @@ source_suffix = ".rst"
 autodoc_mock_imports = ["omero", "omero_ext", "past", "future", 
                         "Ice", "IceImport", "Glacier2", "pytest",
                         "appdirs", "IcePy", "omero_version",
-                        "mox3", "IceGrid", "mx", "matplotlib",
+                        "IceGrid", "mx", "matplotlib",
                         "omero_model_FileAnnotationI", 
                         "omero_model_TimestampAnnotationI",
                         "omero_model_BooleanAnnotationI", 
