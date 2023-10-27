@@ -20,14 +20,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import pytest
-from omero.cli import ServiceManagerMixin
+from omero.cli import CLI, ServiceManagerMixin
 from omero.plugins.admin import AdminControl
 from omero.plugins.prefs import PrefsControl
 
-from mocks import MockCLI
 
-
-class MockServiceManagerMixin(MockCLI, ServiceManagerMixin):
+class MockServiceManagerMixin(CLI, ServiceManagerMixin):
     SERVICE_MANAGER_KEY = 'test_servicemanager_mixin'
 
     class MockCtx:
@@ -86,20 +84,21 @@ class TestAdminCommandsFailFast(object):
     @pytest.fixture(autouse=True)
     def setup_method(self, tmpdir, monkeypatch):
         # Other setup
-        self.cli = MockCLI()
+        self.cli = CLI()
         monkeypatch.setenv('OMERODIR', str(tmpdir))
         self.cli.dir = tmpdir
         self.cli.register("admin", AdminControl, "TEST")
         self.cli.register("config", PrefsControl, "TEST")
 
     @pytest.mark.parametrize("command", ["start", "stop", "restart"])
-    def testCheckServiceManagerEnv(self, command):
+    def testCheckServiceManagerEnv(self, command, mocker):
+        mock_err = mocker.patch.object(self.cli, "err")
         self.cli.invoke([
             "config", "set",
             "omero.server.servicemanager.checkenv",
             "TESTOMERO_ADMIN_SERVICEMANAGER_CHECKENV"],
             strict=True)
         self.cli.invoke(["admin", command, "--force-rewrite"], strict=False)
-        assert self.cli.getStderr()[-1] == (
+        mock_err.assert_called_with(
             "ERROR: OMERO is configured to run under a service manager which "
-            "should also set TESTOMERO_ADMIN_SERVICEMANAGER_CHECKENV")
+            "should also set TESTOMERO_ADMIN_SERVICEMANAGER_CHECKENV", True)
