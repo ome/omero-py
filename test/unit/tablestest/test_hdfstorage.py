@@ -29,6 +29,7 @@ from omero_ext.path import path
 
 import omero.hdfstorageV2 as storage_module
 import sys
+import warnings
 
 if sys.platform.startswith("win"):
     pytest.skip("skipping tests on windows", allow_module_level=True)
@@ -343,7 +344,11 @@ class TestHdfStorage(TestCase):
         hdf = HdfStorage(self.hdfpath(), self.lock)
         cols = [omero.columns.StringColumnI(
             name, "A column with non natural name", bytesize, None)]
-        hdf.initialize(cols)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            hdf.initialize(cols)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, tables.NaturalNameWarning)
         cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
         cols[0].values = ["foo", "bar"]
         hdf.append(cols)

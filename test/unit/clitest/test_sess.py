@@ -658,6 +658,7 @@ class TestSessions(object):
             connection, name=None, port=port[1], group=group)
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+        cli.STORE.clear(testhost, testuser)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', ALL_PORTS)
@@ -706,6 +707,7 @@ class TestSessions(object):
             connection, name=None, port=port[1], group=group[1])
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+        cli.STORE.clear(testhost, testuser)
 
     @pytest.mark.parametrize('port', ALL_PORTS)
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
