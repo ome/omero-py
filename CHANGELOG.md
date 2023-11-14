@@ -1,3 +1,12 @@
+# 5.17.0 (November 2023)
+
+## Other updates
+
+- Unit tests: clean up warnings [#386](https://github.com/ome/omero-py/pull/386)
+- Add support for Python 3.11 [#385](https://github.com/ome/omero-py/pull/385)
+- Use math module instead of numpy.math [#384](https://github.com/ome/omero-py/pull/384)
+
+
 # 5.16.1 (October 2023)
 
 ## Other updates
