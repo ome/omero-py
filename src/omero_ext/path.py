@@ -810,7 +810,7 @@ class path(str):
         """
         if encoding is None:
             # 8-bit
-            with self.open('U') as f:
+            with self.open('r') as f:
                 return f.read()
         else:
             # Unicode
@@ -934,7 +934,7 @@ class path(str):
         .. seealso:: :meth:`text`
         """
         if encoding is None and retain:
-            with self.open('U') as f:
+            with self.open('r') as f:
                 return f.readlines()
         else:
             return self.text(encoding, errors).splitlines(retain)

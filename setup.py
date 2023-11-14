@@ -233,7 +233,7 @@ setup(
     ],
     tests_require=[
         'pytest',
-        'mox3',
+        'pytest-mock',
     ],
     cmdclass={
         'devtarget': DevTargetCommand,

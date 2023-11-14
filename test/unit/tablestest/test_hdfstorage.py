@@ -22,7 +22,6 @@ import tables
 import threading
 import Ice
 
-from mox3 import mox
 from omero.rtypes import rint, rstring, rlong
 
 from library import TestCase
@@ -492,15 +491,11 @@ class TestHdfStorage(TestCase):
 
 class TestHdfList(TestCase):
 
-    def setup_method(self, method):
-        TestCase.setup_method(self, method)
-        self.mox = mox.Mox()
-
     def hdfpath(self):
         tmpdir = self.tmpdir()
         return old_div(path(tmpdir), "test.h5")
 
-    def testLocking(self, monkeypatch):
+    def testLocking(self, monkeypatch, mocker):
         lock1 = threading.RLock()
         hdflist2 = HdfList()
         lock2 = threading.RLock()
@@ -510,21 +505,18 @@ class TestHdfList(TestCase):
         hdf1 = HdfStorage(tmp, lock1)
 
         # HdfList uses portalocker, test by mocking tables.open_file
-        self.mox.StubOutWithMock(tables, 'open_file')
-        tables.open_file(tmp, mode='a',
-                         title='OMERO HDF Measurement Storage',
-                         rootUEP='/').AndReturn(open(tmp))
-        self.mox.ReplayAll()
-
+        mocker.patch('tables.open_file')
+        tables.open_file.return_value = open(tmp)
         monkeypatch.setattr(storage_module, 'HDFLIST', hdflist2)
         with pytest.raises(omero.LockTimeout) as exc_info:
             HdfStorage(tmp, lock2)
         assert (exc_info.value.message ==
                 'Cannot acquire exclusive lock on: %s' % tmp)
-
+        tables.open_file.assert_called_once_with(
+            tmp,
+            mode='a',
+            title='OMERO HDF Measurement Storage',
+            rootUEP='/')
         monkeypatch.undo()
 
         hdf1.cleanup()
-
-        self.mox.UnsetStubs()
-        self.mox.VerifyAll()
