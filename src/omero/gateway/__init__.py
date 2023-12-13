@@ -87,14 +87,14 @@ from omero.rtypes import rtime, rlist, rdouble, unwrap
 logger = logging.getLogger(__name__)
 THISPATH = os.path.dirname(os.path.abspath(__file__))
 OMERO_NUMPY_DTYPES = {
-    PixelsTypeint8: 'int8',
-    PixelsTypeuint8: 'uint8',
-    PixelsTypeint16: 'int16',
-    PixelsTypeuint16: 'uint16',
-    PixelsTypeint32: 'int32',
-    PixelsTypeuint32: 'uint32',
-    PixelsTypefloat: 'float32',
-    PixelsTypedouble: 'double'
+    PixelsTypeint8: numpy.int8,
+    PixelsTypeuint8: numpy.uint8,
+    PixelsTypeint16: numpy.int16,
+    PixelsTypeuint16: numpy.uint16,
+    PixelsTypeint32: numpy.int32,
+    PixelsTypeuint32: numpy.uint32,
+    PixelsTypefloat: numpy.float32,
+    PixelsTypedouble: numpy.float64,
 }
 
 try:
@@ -3802,7 +3802,7 @@ class _BlitzGateway (object):
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
                 if OMERO_NUMPY_DTYPES[newPtype] != firstPlane.dtype.name:
-                    convertToType = numpy.dtype(OMERO_NUMPY_DTYPES[newPtype])
+                    convertToType = OMERO_NUMPY_DTYPES[newPtype]
                 img._obj.setName(rstring(imageName))
                 img._obj.setSeries(rint(0))
                 updateService.saveObject(img._obj, self.SERVICE_OPTS)
@@ -7498,7 +7498,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
 
     def get_numpy_pixels_type(self):
         pixels_type = self.getPixelsType().value
-        return numpy.dtype(OMERO_NUMPY_DTYPES[pixels_type])
+        return OMERO_NUMPY_DTYPES[pixels_type]
 
     def getTiles(self, zctTileList):
         """
