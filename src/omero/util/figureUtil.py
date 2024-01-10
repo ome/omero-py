@@ -281,9 +281,9 @@ def getVerticalLabels(labels, font, textGap):
 
     maxWidth = 0
     height = 0
-    textHeight = font.getsize("testq")[1]
+    textHeight = font.getbbox("testq")[3]
     for label in labels:
-        maxWidth = max(maxWidth, font.getsize(label)[0])
+        maxWidth = max(maxWidth, font.getbbox(label)[2])
         if height > 0:
             height += textGap
         height += textHeight
@@ -292,7 +292,7 @@ def getVerticalLabels(labels, font, textGap):
     textdraw = ImageDraw.Draw(textCanvas)
     py = 0
     for label in labels:
-        indent = old_div((maxWidth - font.getsize(label)[0]), 2)
+        indent = old_div((maxWidth - font.getbbox(label)[2]), 2)
         textdraw.text((indent, py), label, font=font, fill=(0, 0, 0))
         py += textHeight + textGap
     return textCanvas.rotate(90)

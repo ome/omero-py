@@ -9478,7 +9478,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             p1 = 0
             p2 = 1
             while (p2 <= len(tokens) and
-                   font.getsize(' '.join(tokens[p1:p2]))[0] < width):
+                   font.getbbox(' '.join(tokens[p1:p2]))[2] < width):
                 p2 += 1
             rv.append(' '.join(tokens[p1:p2-1]))
             tokens = tokens[p2-1:]
@@ -9582,7 +9582,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 line = line.decode('utf8').encode('iso8859-1')
                 wwline = self._wordwrap(w, line, font)
                 for j, line in enumerate(wwline):
-                    tsize = font.getsize(line)
+                    tsize = font.getbbox(line)[2:]
                     draw = ImageDraw.Draw(slide)
                     if i == 0:
                         y = 10+j*tsize[1]
