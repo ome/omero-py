@@ -224,7 +224,7 @@ setup(
         'appdirs',
         'future',
         'numpy',
-        'Pillow',
+        'Pillow>=10.0.0',
         'PyYAML',
         'zeroc-ice>=3.6.5,<3.7',
         'pywin32; platform_system=="Windows"',
