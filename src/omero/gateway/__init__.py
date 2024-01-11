@@ -9478,7 +9478,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             p1 = 0
             p2 = 1
             while (p2 <= len(tokens) and
-                   font.getbbox(' '.join(tokens[p1:p2]))[2] < width):
+                   (font.getbbox(' '.join(tokens[p1:p2]))[2] - 
+                    font.getbbox(' '.join(tokens[p1:p2]))[0]) < width):
                 p2 += 1
             rv.append(' '.join(tokens[p1:p2-1]))
             tokens = tokens[p2-1:]
