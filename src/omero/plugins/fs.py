@@ -23,7 +23,6 @@
 fs plugin for querying repositories, filesets, and the like.
 """
 from __future__ import division
-from __future__ import print_function
 
 from past.builtins import cmp
 from builtins import zip

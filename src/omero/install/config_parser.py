@@ -23,7 +23,6 @@
 Parser for the omero.properties file to generate RST
 mark up.
 """
-from __future__ import print_function
 
 from future.utils import bytes_to_native_str
 from future.utils import isbytes

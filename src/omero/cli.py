@@ -23,7 +23,6 @@ arguments, ``sys.argv``, and finally from standard-in using the
 """
 
 from __future__ import division
-from __future__ import print_function
 
 from past.builtins import execfile
 from past.builtins import basestring

@@ -3,7 +3,6 @@
 """
 Reconcile and cleanse where necessary an OMERO data directory of orphaned data.
 """
-from __future__ import print_function
 
 #
 #  Copyright (c) 2009-2016 University of Dundee. All rights reserved.

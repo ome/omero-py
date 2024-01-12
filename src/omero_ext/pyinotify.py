@@ -29,7 +29,6 @@ pyinotify
 @contact: seb@dbzteam.org
 """
 from __future__ import division
-from __future__ import print_function
 
 from builtins import map
 from builtins import hex

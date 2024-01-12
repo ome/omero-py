@@ -5,7 +5,6 @@
 Performs various performance metrics and reports on OMERO.importer log files.
 """
 from __future__ import division
-from __future__ import print_function
 
 # Copyright (C) 2009 University of Dundee
 

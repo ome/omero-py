@@ -18,7 +18,6 @@ take as their sole input Ice configuration arguments, including
 The first parameter, the script itself, should be natively executable
 on a given platform i.e. invokable by subprocess.call([file,...])
 """
-from __future__ import print_function
 
 from builtins import str
 from builtins import object

@@ -12,7 +12,6 @@ This is a python wrapper around icegridregistry/icegridnode for master
 and various other tools needed for administration.
 """
 from __future__ import division
-from __future__ import print_function
 
 from builtins import str
 from future.utils import bytes_to_native_str

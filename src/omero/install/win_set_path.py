@@ -11,8 +11,6 @@ Function for setting the working directory for an
 Omero installation on Windows, since relative paths
 are not supported.
 """
-from __future__ import print_function
-
 
 from builtins import str
 import sys

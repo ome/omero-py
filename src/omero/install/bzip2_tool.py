@@ -10,8 +10,6 @@ Function for enabling/disabling the bzip2.dll which
 comes with PyTables.
 """
 
-from __future__ import print_function
-
 import os
 import sys
 
