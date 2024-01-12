@@ -23,7 +23,6 @@
 """
 Test of various things under omero.util
 """
-from __future__ import unicode_literals
 
 from builtins import str
 from builtins import range

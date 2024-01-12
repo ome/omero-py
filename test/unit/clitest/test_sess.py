@@ -8,7 +8,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import unicode_literals
 
 from builtins import str
 from builtins import object
