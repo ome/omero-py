@@ -20,7 +20,6 @@
 # SOFTWARE.
 #
 
-from __future__ import with_statement
 
 """
 path.py - An object representing a path to a file or directory.
