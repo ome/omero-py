@@ -3,7 +3,6 @@
 """
 Populate bulk metadata tables from delimited text files.
 """
-from __future__ import absolute_import
 
 #
 #  Copyright (C) 2011-2014 University of Dundee. All rights reserved.
