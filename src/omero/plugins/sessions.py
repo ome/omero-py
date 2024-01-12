@@ -24,7 +24,6 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 """
-from __future__ import division
 
 from builtins import str
 from past.utils import old_div

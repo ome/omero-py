@@ -23,7 +23,6 @@
    Library for integration tests
 
 """
-from __future__ import division
 
 from builtins import str
 from future.utils import native_str

@@ -35,7 +35,6 @@ These methods also implement the acceptVisitor method linking to
 the ROIDrawingCanvas.
 """
 
-from __future__ import division
 from builtins import str
 from builtins import map
 from builtins import range

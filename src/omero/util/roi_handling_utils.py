@@ -21,7 +21,6 @@
 """
 Utility methods for manipulating roi.
 """
-from __future__ import division
 
 from builtins import map
 from past.utils import old_div

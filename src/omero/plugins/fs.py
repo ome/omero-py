@@ -22,7 +22,6 @@
 """
 fs plugin for querying repositories, filesets, and the like.
 """
-from __future__ import division
 
 from past.builtins import cmp
 from builtins import zip

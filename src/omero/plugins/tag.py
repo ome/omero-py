@@ -9,7 +9,6 @@
 """
 Tag plugin for command-line tag manipulation
 """
-from __future__ import division
 
 from builtins import input
 from builtins import map

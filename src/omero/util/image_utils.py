@@ -21,7 +21,6 @@
 """
 Utility methods for dealing with scripts.
 """
-from __future__ import division
 
 from future import standard_library
 standard_library.install_aliases()

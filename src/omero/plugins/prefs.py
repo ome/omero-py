@@ -11,7 +11,6 @@ defined here will be added to the Cli class for later use.
 
 The pref plugin makes use of prefs.class from the common component.
 """
-from __future__ import division
 
 from builtins import zip
 from builtins import str

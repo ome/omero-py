@@ -8,7 +8,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import division
 
 from future import standard_library
 standard_library.install_aliases()

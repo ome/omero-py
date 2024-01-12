@@ -21,7 +21,6 @@
 """
 Utility methods for dealing with scripts.
 """
-from __future__ import division
 from future.utils import native_str
 
 from builtins import hex

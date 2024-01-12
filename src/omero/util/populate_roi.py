@@ -3,7 +3,6 @@
 """
 ...
 """
-from __future__ import division
 
 #
 #  Copyright (C) 2009 University of Dundee. All rights reserved.

@@ -28,7 +28,6 @@
 A collection of utility methods based on the Python Imaging Library (PIL)
 used for making figures.
 """
-from __future__ import division
 
 from future import standard_library
 standard_library.install_aliases()

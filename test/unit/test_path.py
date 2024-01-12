@@ -7,7 +7,6 @@ Test custom modifications to path.py.
 Copyright 2014 CRS4. All rights reserved.
 Use is subject to license terms supplied in LICENSE.txt.
 """
-from __future__ import division
 
 from builtins import object
 from past.utils import old_div

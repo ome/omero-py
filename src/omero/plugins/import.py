@@ -23,7 +23,6 @@
    Startup plugin for command-line importer.
 
 """
-from __future__ import division
 
 from builtins import str
 from past.utils import old_div

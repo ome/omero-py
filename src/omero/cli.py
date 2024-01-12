@@ -22,8 +22,6 @@ arguments, ``sys.argv``, and finally from standard-in using the
 ``cmd.Cmd.cmdloop`` method.
 """
 
-from __future__ import division
-
 from past.builtins import execfile
 from past.builtins import basestring
 from future.utils import bytes_to_native_str

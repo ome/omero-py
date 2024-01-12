@@ -9,7 +9,6 @@
 
 """
 from __future__ import unicode_literals
-from __future__ import division
 
 from builtins import str
 from builtins import object

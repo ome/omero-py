@@ -4,7 +4,6 @@
 """
 Performs various performance metrics and reports on OMERO.importer log files.
 """
-from __future__ import division
 
 # Copyright (C) 2009 University of Dundee
 

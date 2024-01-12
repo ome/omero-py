@@ -4,9 +4,6 @@
 # Copyright 2011 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 
-from __future__ import division
-
-
 from builtins import range
 from past.utils import old_div
 from builtins import object

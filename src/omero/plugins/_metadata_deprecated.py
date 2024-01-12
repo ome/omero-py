@@ -9,8 +9,6 @@
 Metadata plugin
 """
 
-from __future__ import division
-
 from builtins import str
 from future.utils import native_str
 from builtins import range

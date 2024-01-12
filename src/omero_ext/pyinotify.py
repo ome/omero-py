@@ -28,7 +28,6 @@ pyinotify
 @license: MIT License
 @contact: seb@dbzteam.org
 """
-from __future__ import division
 
 from builtins import map
 from builtins import hex

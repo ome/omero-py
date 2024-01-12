@@ -7,7 +7,6 @@
 """
 OMERO Support for temporary files and directories
 """
-from __future__ import division
 
 from builtins import input
 from builtins import str

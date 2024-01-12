@@ -11,7 +11,6 @@ OMERO Grid node controller
 
 This is a python wrapper around icegridnode.
 """
-from __future__ import division
 
 from builtins import str
 from past.utils import old_div

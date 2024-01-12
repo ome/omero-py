@@ -9,7 +9,6 @@
 OMERO Grid Processor
 """
 
-from __future__ import division
 from builtins import str
 from builtins import range
 from future.utils import native_str
