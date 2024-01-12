@@ -26,8 +26,6 @@
    defined here will be added to the Cli class for later use.
 """
 
-from future.utils import bytes_to_native_str
-from future.utils import isbytes
 from past.utils import old_div
 from omero.cli import BaseControl
 from omero.cli import CLI
@@ -171,8 +169,8 @@ class DatabaseControl(BaseControl):
 
     def _make_replace(self, root_pass, db_vers, db_patch):
         def fix(str_in):
-            if isbytes(str_in):
-                str_in = bytes_to_native_str(str_in)
+            if isinstance(str_in, bytes):
+                return str_in.decode("utf-8")
             return str_in
         def replace_method(str_in):
             str_out = str_in.replace("@ROOTPASS@", fix(root_pass))

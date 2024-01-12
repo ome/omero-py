@@ -13,8 +13,6 @@ and various other tools needed for administration.
 """
 
 from builtins import str
-from future.utils import bytes_to_native_str
-from future.utils import isbytes
 from past.utils import old_div
 from builtins import object
 import re
@@ -1291,10 +1289,11 @@ present, the user will enter a console""")
                 return False
 
             p.wait()
-            io = list(map(bytes_to_native_str, p.communicate()))
+            stdout_data = p.communicate()[0].decode("utf-8")
+            stderr_data = p.communicate()[1].decode("utf-8")
             try:
-                v = io[0].split()
-                v.extend(io[1].split())
+                v = stdout_data.split()
+                v.extend(stderr_data.split())
                 v = "".join(v)
                 m = re.match(r"^\D*(\d[.\d]+\d)\D?.*$", v)
                 v = "%-10s" % m.group(1)
@@ -1773,8 +1772,8 @@ present, the user will enter a console""")
 
         def _check(msg, vers):
             compat = ice_compatibility.split(".")
-            if isbytes(vers):
-                vers = bytes_to_native_str(vers)
+            if isinstance(vers, bytes):
+                vers = vers.decode("utf-8")
             vers = vers.split(".")
             if compat[0:2] != vers[0:2]:
                 self.ctx.die(164, "%s is not compatible with %s: %s"

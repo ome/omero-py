@@ -14,7 +14,7 @@ to PyTables types.
 from builtins import zip
 from builtins import range
 from builtins import object
-from future.utils import native, bytes_to_native_str, isbytes
+from future.utils import native
 import omero
 import Ice
 import IceImport
@@ -320,8 +320,8 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
     def fromrows(self, rows, field_only=False):
         AbstractColumn.fromrows(self, rows, field_only=field_only)
         for i, val in enumerate(self.values):
-            if isbytes(val):
-                self.values[i] = bytes_to_native_str(val)
+            if isinstance(val, bytes):
+                self.values[i] = val.decode("utf-8")
 
 
 class AbstractArrayColumn(AbstractColumn):

@@ -277,8 +277,8 @@ class TestModel(object):
 
     def testPassThroughNoneAndRTypes(self):
         """
-        To prevent having to check for isintance(int,...) or
-        isintance(RInt,...) all over the place, the static methods
+        To prevent having to check for isinstance(int,...) or
+        isinstance(RInt,...) all over the place, the static methods
         automatically check for acceptable
         types and simply pass them through. Similarly, the primitive types all
         check for None and return a null RType if necessary.

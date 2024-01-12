@@ -13,7 +13,7 @@ from builtins import str
 from builtins import zip
 from builtins import range
 from builtins import object
-from future.utils import native, bytes_to_native_str, isbytes
+from future.utils import native
 from past.builtins import basestring
 import time
 import numpy
@@ -318,8 +318,8 @@ class HdfStorage(object):
         except KeyError:
             k = 'version'
             v = self.__mea.attrs[k]
-            if isbytes(v):
-                v = bytes_to_native_str(v)
+            if isinstance(v, bytes):
+                v = v.decode("utf-8")
             if v == 'v1':
                 return '1'
 
@@ -430,12 +430,12 @@ class HdfStorage(object):
         cols = []
         for i in range(len(types)):
             t = types[i]
-            if isbytes(t):
-                t = bytes_to_native_str(t)
+            if isinstance(t, bytes):
+                t = t.decode("utf-8")
             n = names[i]
             d = descs[i]
-            if isbytes(d):
-                d = bytes_to_native_str(d)
+            if isinstance(d, bytes):
+                d = d.decode("utf-8")
             try:
                 col = ic.findObjectFactory(t).create(t)
                 col.name = n
@@ -462,8 +462,8 @@ class HdfStorage(object):
             elif isinstance(val, TABLES_METADATA_INT_TYPES):
                 val = rlong(val)
             elif isinstance(val, basestring):
-                if isbytes(val):
-                    val = bytes_to_native_str(val)
+                if isinstance(val, bytes):
+                    val = val.decode("utf-8")
                 val = rstring(val)
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))

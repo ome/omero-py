@@ -10,7 +10,6 @@
 from builtins import zip
 from builtins import range
 from builtins import object
-from future.utils import bytes_to_native_str
 from future.utils import native_str
 __save__ = __name__
 __name__ = 'omero'
@@ -142,7 +141,7 @@ class BaseClient(object):
             args = [arg.encode("utf-8") if isinstance(arg, str)
                     else arg for arg in args]
 
-        args = [bytes_to_native_str(x) for x in args]
+        args = [x.decode("utf-8") for x in args]
         # Under Python 2 this can still leave us with 'unicode'
         args = [native_str(x) for x in args]
 
@@ -963,14 +962,14 @@ class BaseClient(object):
                         filehandle.write(data)
                     except TypeError:
                         # for Python 3.5
-                        filehandle.write(bytes_to_native_str(data))
+                        filehandle.write(data.decode("utf-8"))
                     offset += block_size
                 data = prx.read(offset, size - offset)
                 try:
                     filehandle.write(data)
                 except TypeError:
                     # for Python 3.5
-                    filehandle.write(bytes_to_native_str(data))
+                    filehandle.write(data.decode("utf-8"))
             finally:
                 if filename:
                     filehandle.close()

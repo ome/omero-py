@@ -24,8 +24,6 @@ Parser for the omero.properties file to generate RST
 mark up.
 """
 
-from future.utils import bytes_to_native_str
-from future.utils import isbytes
 from past.builtins import cmp
 from builtins import str
 from builtins import object
@@ -252,8 +250,8 @@ class PropertyParser(object):
     def parse_lines(self, lines):
         """Parse the properties from the given configuration file lines"""
         for line in lines:
-            if isbytes(line):
-                line = bytes_to_native_str(line)
+            if isinstance(line, bytes):
+                line = line.decode("utf-8")
             if line.endswith("\n"):
                 line = line[:-1]
 
@@ -418,8 +416,8 @@ class PropertyParser(object):
                 properties += "%s\n" % underline(len(p.key))
                 for line in p.txt.split("\n"):
                     if line:
-                        if isbytes(line):
-                            line = bytes_to_native_str(line)
+                        if isinstance(line, bytes):
+                            line = line.decode("utf-8")
                         properties += "%s\n" % (line)
                     else:
                         properties += "\n"

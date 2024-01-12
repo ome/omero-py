@@ -24,8 +24,6 @@ arguments, ``sys.argv``, and finally from standard-in using the
 
 from past.builtins import execfile
 from past.builtins import basestring
-from future.utils import bytes_to_native_str
-from future.utils import isbytes
 from future.utils import native_str
 from builtins import zip
 from builtins import input
@@ -1515,8 +1513,8 @@ class CLI(cmd.Cmd, Context):
         lines = self.get_config_property_lines(path(self._cwd(None)))
         defaults = ""
         for line in lines:
-            if isbytes(line):
-                defaults += bytes_to_native_str(line)
+            if isinstance(line, bytes):
+                defaults += line.decode("utf-8")
             else:
                 defaults += line
             defaults += "\n"
@@ -1526,8 +1524,8 @@ class CLI(cmd.Cmd, Context):
 
     def parsePropertyFile(self, data, output):
         for line in output.splitlines():
-            if isbytes(line):
-                line = bytes_to_native_str(line)
+            if isinstance(line, bytes):
+                line = line.decode("utf-8")
             if line.startswith(
                     "Listening for transport dt_socket at address"):
                 self.dbg(
