@@ -21,7 +21,6 @@
 """
 Utility methods for dealing with scripts.
 """
-from future.utils import native_str
 
 from builtins import hex
 from builtins import str
@@ -673,7 +672,7 @@ def download_plane(raw_pixels_store, pixels, z, c, t):
     size_x = pixels.getSizeX().getValue()
     size_y = pixels.getSizeY().getValue()
     pixel_type = pixels.getPixelsType().getValue().getValue()
-    convert_type = '>' + native_str(size_x * size_y) + \
+    convert_type = '>' + str(size_x * size_y) + \
         pixelstypetopython.toPython(pixel_type)
     converted_plane = unpack(convert_type, raw_plane)
     numpy_type = pixelstypetopython.toNumpy(pixel_type)

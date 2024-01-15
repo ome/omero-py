@@ -15,7 +15,6 @@
 """
 
 from builtins import str
-from future.utils import native_str
 from past.utils import old_div
 import Ice
 import logging
@@ -69,7 +68,7 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
         self.adapter, self.category = \
             adapter_and_category(adapter_or_client, category)
 
-        self.id = Ice.Identity(native_str(uuid.uuid4()), self.category)
+        self.id = Ice.Identity(str(uuid.uuid4()), self.category)
         self.prx = self.adapter.add(self, self.id)  # OK ADAPTER USAGE
         self.prx = omero.grid.ProcessCallbackPrx.uncheckedCast(self.prx)
         process.registerCallback(self.prx)
@@ -144,7 +143,7 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         self.adapter, self.category = \
             adapter_and_category(adapter_or_client, category)
 
-        self.id = Ice.Identity(native_str(uuid.uuid4()), self.category)
+        self.id = Ice.Identity(str(uuid.uuid4()), self.category)
         self.prx = self.adapter.add(self, self.id)  # OK ADAPTER USAGE
         self.prx = omero.cmd.CmdCallbackPrx.uncheckedCast(self.prx)
         handle.addCallback(self.prx)

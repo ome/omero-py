@@ -10,7 +10,6 @@
 """
 from builtins import str
 from builtins import object
-from future.utils import native_str
 from past.builtins import long
 import sys
 import pytest
@@ -454,7 +453,7 @@ class TestModel(object):
         ctor2 = myLongFromString.__class__("5")
         assert ctor1.val == ctor2.val
 
-    nu = native_str("u")
+    nu = "u"
     bu = str("u")
     cn = '中國'
     cnu = u'中國'

@@ -24,7 +24,6 @@ arguments, ``sys.argv``, and finally from standard-in using the
 
 from past.builtins import execfile
 from past.builtins import basestring
-from future.utils import native_str
 from builtins import zip
 from builtins import input
 from builtins import map
@@ -894,7 +893,7 @@ class BaseControl(object):
         """
         intcfg = self.dir / "etc" / "internal.cfg"
         intcfg.abspath()
-        return native_str("--Ice.Config=%s" % intcfg)
+        return "--Ice.Config=%s" % intcfg
 
     def _properties(self, prefix=""):
         """
@@ -908,7 +907,7 @@ class BaseControl(object):
             self._props = Ice.createProperties()
             for cfg in self._cfglist():
                 try:
-                    self._props.load(native_str(cfg))
+                    self._props.load(str(cfg))
                 except Exception:
                     self.ctx.dbg("Complete error: %s" % traceback.format_exc())
                     self.ctx.die(3, "Could not find file: " + cfg +

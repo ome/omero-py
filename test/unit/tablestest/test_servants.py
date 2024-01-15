@@ -11,7 +11,6 @@
 
 from builtins import str
 from builtins import range
-from future.utils import native_str
 from past.utils import old_div
 from builtins import object
 import pytest
@@ -95,7 +94,7 @@ class mocked_internal_service_factory(object):
 
 class mocked_service_factory(object):
     def __init__(self):
-        self.db_uuid = native_str(uuid.uuid4())
+        self.db_uuid = str(uuid.uuid4())
         self.return_values = []
 
     def keepAlive(self, *args):
@@ -253,7 +252,7 @@ class TestTables(TestCase):
     def repodir(self, make=True):
         self.tmp = path(self.tmpdir())
         self.communicator.getProperties().setProperty("omero.repo.dir",
-                                                      native_str(self.tmp))
+                                                      str(self.tmp))
         repo = self.tmp / ".omero" / "repository"
         if make:
             repo.makedirs()

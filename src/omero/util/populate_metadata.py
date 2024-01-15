@@ -28,7 +28,6 @@ from builtins import chr
 from builtins import str
 from builtins import range
 from past.builtins import basestring
-from future.utils import native_str
 from builtins import object
 import logging
 import gzip
@@ -995,7 +994,7 @@ class ParsingContext(object):
         sr = sf.sharedResources()
         update_service = sf.getUpdateService()
         name = 'bulk_annotations'
-        table = sr.newTable(1, name, {'omero.group': native_str(group)})
+        table = sr.newTable(1, name, {'omero.group': str(group)})
         if table is None:
             raise MetadataError(
                 "Unable to create table: %s" % name)
@@ -1033,7 +1032,7 @@ class ParsingContext(object):
         link = self.create_annotation_link()
         link.parent = self.target_object
         link.child = file_annotation
-        update_service.saveObject(link, {'omero.group': native_str(group)})
+        update_service.saveObject(link, {'omero.group': str(group)})
 
 
 class _QueryContext(object):
@@ -1298,7 +1297,7 @@ class BulkToMapAnnotationContext(_QueryContext):
         group = str(self.target_object.details.group.id)
         update_service = sf.getUpdateService()
         arr = update_service.saveAndReturnArray(
-            links, {'omero.group': native_str(group)})
+            links, {'omero.group': str(group)})
         return arr
 
     def _save_annotation_and_links(self, links, ann, batch_size):
@@ -1323,7 +1322,7 @@ class BulkToMapAnnotationContext(_QueryContext):
             for link in batch:
                 link.setChild(annobj)
             update_service.saveArray(
-                batch, {'omero.group': native_str(group)})
+                batch, {'omero.group': str(group)})
             sz += len(batch)
         return sz
 

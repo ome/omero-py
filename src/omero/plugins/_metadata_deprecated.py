@@ -10,7 +10,6 @@ Metadata plugin
 """
 
 from builtins import str
-from future.utils import native_str
 from builtins import range
 from past.utils import old_div
 from builtins import object
@@ -642,7 +641,7 @@ class MetadataControl(BaseControl):
                 pixel.setPhysicalSizeZ(omero.model.LengthI(args.z, unit))
 
         groupId = pixels[0].getDetails().getGroup().getId().getValue()
-        ctx = {'omero.group': native_str(groupId)}
+        ctx = {'omero.group': str(groupId)}
         conn.getUpdateService().saveArray(pixels, ctx)
 
 

@@ -11,7 +11,6 @@ OMERO Grid Processor
 
 from builtins import str
 from builtins import range
-from future.utils import native_str
 from past.utils import old_div
 from builtins import object
 import os
@@ -59,13 +58,13 @@ class WithGroup(object):
 
     def __init__(self, service, group_id):
         self._service = service
-        self._group_id = native_str(group_id)
+        self._group_id = str(group_id)
 
     def _get_ctx(self, group=None):
         ctx = self._service.ice_getCommunicator()\
             .getImplicitContext().getContext()
         ctx = dict(ctx)
-        ctx["omero.group"] = native_str(group)
+        ctx["omero.group"] = str(group)
         return ctx
 
     def __getattr__(self, name):
