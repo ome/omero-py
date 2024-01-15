@@ -15,7 +15,6 @@
 """
 
 from builtins import str
-from past.utils import old_div
 import Ice
 import logging
 import threading
@@ -87,7 +86,7 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
             except Exception as e:
                 PROC_LOG.warn("Error calling poll: %s" % e)
 
-        self.event.wait(old_div(float(ms), 1000))
+        self.event.wait(ms / 1000)
         if self.event.isSet():
             return self.result
         return None
@@ -256,7 +255,7 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         if found:
             return self.getResponse()
         else:
-            waited = (old_div(ms, 1000.0)) * loops
+            waited = (ms / 1000.0) * loops
             raise omero.LockTimeout(
                 None, None, "Command unfinished after %s seconds" % waited,
                 5000, int(waited))
@@ -268,7 +267,7 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         which case it returns immediately with true. If false
         is returned, then the timeout was reached.
         """
-        self.event.wait(old_div(float(ms), 1000))
+        self.event.wait(ms / 1000)
         return self.event.isSet()
 
     #

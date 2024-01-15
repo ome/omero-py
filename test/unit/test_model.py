@@ -12,7 +12,6 @@
 
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from builtins import object
 import pytest
 import omero
@@ -357,7 +356,7 @@ class TestModel(object):
     def testCtorConversions(self):
         nm = LengthI(1.0, omero.model.enums.UnitsLength.NANOMETER)
         ang = LengthI(nm, omero.model.enums.UnitsLength.ANGSTROM)
-        assert nm.getValue() == old_div(ang.getValue(), 10)
+        assert nm.getValue() == ang.getValue() // 10
 
     def testLengthGetSymbol(self):
         um = LengthI(1.0, omero.model.enums.UnitsLength.MICROMETER)

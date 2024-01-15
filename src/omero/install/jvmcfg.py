@@ -25,7 +25,6 @@ Automatic configuration of memory settings for Java servers.
 
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from builtins import object
 from past.builtins import basestring
 from shlex import split
@@ -198,7 +197,7 @@ class Strategy(object):
         try:
             import psutil
             pymem = psutil.virtual_memory()
-            return (old_div(pymem.free,1000000), old_div(pymem.total,1000000))
+            return (pymem.free // 1000000, pymem.total // 1000000)
         except ImportError:
             LOGGER.debug("No psutil installed")
             return None
@@ -230,13 +229,13 @@ class Strategy(object):
             rv[parts[0]] = parts[1]
 
         try:
-            free = old_div(int(rv["Free"]), 1000000)
+            free = int(rv["Free"]) // 1000000
         except:
             LOGGER.warn("Failed to parse Free from %s", rv)
             free = 2000
 
         try:
-            total = old_div(int(rv["Total"]), 1000000)
+            total = int(rv["Total"]) // 1000000
         except:
             LOGGER.warn("Failed to parse Total from %s", rv)
             total = 4000
@@ -492,7 +491,7 @@ def usage_charts(path,
     from pylab import text
 
     points = 200
-    x = array([old_div(2 ** (old_div(x, points)), 1000)
+    x = array([2 ** (x // points // 1000)
                for x in range(min*points, max*points)])
     y_configs = (
         (Settings({}), 'A'),

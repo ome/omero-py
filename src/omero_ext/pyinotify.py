@@ -33,7 +33,6 @@ from builtins import map
 from builtins import hex
 from builtins import str
 from past.builtins import basestring
-from past.utils import old_div
 from builtins import object
 class PyinotifyError(Exception):
     """Indicates exceptions raised by a Pyinotify class."""
@@ -961,11 +960,11 @@ class Stats(ProcessEvent):
         if elapsed < 60:
             elapsed_str = str(elapsed) + 'sec'
         elif 60 <= elapsed < 3600:
-            elapsed_str = '%dmn%dsec' % (old_div(elapsed, 60), elapsed % 60)
+            elapsed_str = '%dmn%dsec' % (elapsed // 60, elapsed % 60)
         elif 3600 <= elapsed < 86400:
-            elapsed_str = '%dh%dmn' % (old_div(elapsed, 3600), old_div((elapsed % 3600), 60))
+            elapsed_str = '%dh%dmn' % (elapsed // 3600, (elapsed % 3600) // 60)
         elif elapsed >= 86400:
-            elapsed_str = '%dd%dh' % (old_div(elapsed, 86400), old_div((elapsed % 86400), 3600))
+            elapsed_str = '%dd%dh' % (elapsed // 86400, (elapsed % 86400) // 3600)
         stats['ElapsedTime'] = elapsed_str
 
         l = []
@@ -995,7 +994,7 @@ class Stats(ProcessEvent):
             return ''
 
         m = max(stats.values())
-        unity = old_div(float(scale), m)
+        unity = scale / m
         fmt = '%%-26s%%-%ds%%s' % (len(output_format.field_value('@' * scale))
                                    + 1)
         def func(x):

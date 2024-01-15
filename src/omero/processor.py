@@ -11,7 +11,6 @@ OMERO Grid Processor
 
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from builtins import object
 import os
 import time
@@ -184,10 +183,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 
     def make_files(self):
         self.dir = create_path("process", ".dir", folder=True)
-        self.script_path = old_div(self.dir, "script")
-        self.config_path = old_div(self.dir, "config")
-        self.stdout_path = old_div(self.dir, "out")
-        self.stderr_path = old_div(self.dir, "err")
+        self.script_path = self.dir / "script"
+        self.config_path = self.dir / "config"
+        self.stdout_path = self.dir / "out"
+        self.stderr_path = self.dir / "err"
 
     def make_config(self):
         """
@@ -703,7 +702,7 @@ class MATLABProcessI(ProcessI):
         in ordert to append a ".m"
         """
         ProcessI.make_files(self)
-        self.script_path = old_div(self.dir, "script.m")
+        self.script_path = self.dir / "script.m"
 
     def command(self):
         """

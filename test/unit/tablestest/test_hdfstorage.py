@@ -10,7 +10,6 @@
 """
 
 from builtins import str
-from past.utils import old_div
 from builtins import object
 import time
 import pytest
@@ -83,7 +82,7 @@ class TestHdfStorage(TestCase):
 
     def hdfpath(self):
         tmpdir = self.tmpdir()
-        return old_div(path(tmpdir), "test.h5")
+        return path(tmpdir) / "test.h5"
 
     def testInvalidFile(self):
         pytest.raises(
@@ -221,7 +220,7 @@ class TestHdfStorage(TestCase):
 
     def testHandlesExistingDirectory(self):
         t = path(self.tmpdir())
-        h = old_div(t, "test.h5")
+        h = t / "test.h5"
         assert t.exists()
         hdf = HdfStorage(h, self.lock)
         hdf.cleanup()
@@ -496,7 +495,7 @@ class TestHdfList(TestCase):
 
     def hdfpath(self):
         tmpdir = self.tmpdir()
-        return old_div(path(tmpdir), "test.h5")
+        return path(tmpdir) / "test.h5"
 
     def testLocking(self, monkeypatch, mocker):
         lock1 = threading.RLock()

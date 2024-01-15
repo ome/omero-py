@@ -23,7 +23,6 @@ Utility methods for manipulating roi.
 """
 
 from builtins import map
-from past.utils import old_div
 from numpy import asarray, int32, zeros, hstack, vstack
 import omero.util.script_utils as script_utils
 import math
@@ -55,8 +54,8 @@ def get_line_data(pixels, x1, y1, x2, y2, line_w=2, the_z=0, the_c=0, the_t=0):
 
     # How much extra Height do we need, top and bottom?
     extra_h = abs(math.sin(rads) * line_w)
-    bottom = int(max(y1, y2) + old_div(extra_h,2))
-    top = int(min(y1, y2) - old_div(extra_h,2))
+    bottom = int(max(y1, y2) + extra_h // 2)
+    top = int(min(y1, y2) - extra_h // 2)
 
     # How much extra width do we need, left and right?
     extra_w = abs(math.cos(rads) * line_w)
@@ -119,9 +118,9 @@ def get_line_data(pixels, x1, y1, x2, y2, line_w=2, the_z=0, the_c=0, the_t=0):
     # finally we need to crop to the length of the line
     length = int(math.sqrt(math.pow(line_x, 2) + math.pow(line_y, 2)))
     rot_w, rot_h = rotated.size
-    crop_x = old_div((rot_w - length),2)
+    crop_x = (rot_w - length) // 2
     crop_x2 = crop_x + length
-    crop_y = old_div((rot_h - line_w),2)
+    crop_y = (rot_h - line_w) // 2
     crop_y2 = crop_y + line_w
     cropped = rotated.crop((crop_x, crop_y, crop_x2, crop_y2))
     return asarray(cropped)

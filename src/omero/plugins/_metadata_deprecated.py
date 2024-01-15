@@ -11,7 +11,6 @@ Metadata plugin
 
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from builtins import object
 import logging
 import mimetypes
@@ -504,7 +503,7 @@ class MetadataControl(BaseControl):
                 ms = 0
             else:
                 ms = 5000
-                loops = int(old_div((wait * 1000), ms)) + 1
+                loops = int((wait * 1000) // ms) + 1
             ctx.write_to_omero(batch_size=args.batch, loops=loops, ms=ms)
 
     def rois(self, args):

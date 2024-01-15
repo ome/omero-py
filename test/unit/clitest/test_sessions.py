@@ -21,7 +21,6 @@
 
 from builtins import str
 from builtins import object
-from past.utils import old_div
 from omero.cli import CLI
 from omero.plugins.sessions import SessionsControl
 
@@ -96,7 +95,7 @@ class TestSessions(object):
         # args.session_dir sets the sessions dir
         args = Namespace()
         if session_args:
-            setattr(args, session_args, old_div(tmpdir, session_args))
+            setattr(args, session_args, tmpdir / session_args)
 
         if environment.get('OMERO_SESSION_DIR') or session_args:
             store = pytest.deprecated_call(self.cli.controls['sessions'].store, args)
@@ -105,7 +104,7 @@ class TestSessions(object):
 
         # By order of precedence
         if environment.get('OMERO_SESSIONDIR'):
-            sdir = old_div(path(tmpdir), environment.get('OMERO_SESSIONDIR'))
+            sdir = path(tmpdir) / environment.get('OMERO_SESSIONDIR')
         elif environment.get('OMERO_SESSION_DIR'):
             sdir = (path(tmpdir) / environment.get('OMERO_SESSION_DIR') /
                     'omero' / 'sessions')

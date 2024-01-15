@@ -16,7 +16,6 @@ standard_library.install_aliases()
 from builtins import str
 from builtins import zip
 from builtins import range
-from past.utils import old_div
 from builtins import object
 import json
 import os
@@ -399,14 +398,14 @@ def filesizeformat(bytes):
     if bytes < KB:
         value = "%(size)d B" % {'size': bytes}
     elif bytes < MB:
-        value = "%s KB" % filesize_number_format(old_div(bytes, KB))
+        value = "%s KB" % filesize_number_format(bytes // KB)
     elif bytes < GB:
-        value = "%s MB" % filesize_number_format(old_div(bytes, MB))
+        value = "%s MB" % filesize_number_format(bytes // MB)
     elif bytes < TB:
-        value = "%s GB" % filesize_number_format(old_div(bytes, GB))
+        value = "%s GB" % filesize_number_format(bytes // GB)
     elif bytes < PB:
-        value = "%s TB" % filesize_number_format(old_div(bytes, TB))
+        value = "%s TB" % filesize_number_format(bytes // TB)
     else:
-        value = "%s PB" % filesize_number_format(old_div(bytes, PB))
+        value = "%s PB" % filesize_number_format(bytes // PB)
 
     return value

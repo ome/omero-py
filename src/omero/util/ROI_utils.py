@@ -38,7 +38,6 @@ the ROIDrawingCanvas.
 from builtins import str
 from builtins import map
 from builtins import range
-from past.utils import old_div
 from builtins import object
 from omero.model.enums import UnitsLength
 from omero.model import LengthI
@@ -812,7 +811,7 @@ class PolygonData(ShapeData, ROIDrawingI):
         elements = []
         list = pointString.split(',')
         numTokens = len(list)
-        for tokenPair in range(0, old_div(numTokens, 2)):
+        for tokenPair in range(0, numTokens // 2):
             elements.append(
                 (int(list[tokenPair * 2]), int(list[tokenPair * 2 + 1])))
         return elements
@@ -900,7 +899,7 @@ class PolylineData(ShapeData, ROIDrawingI):
         elements = []
         list = pointString.split(',')
         numTokens = len(list)
-        for tokenPair in range(0, old_div(numTokens, 2)):
+        for tokenPair in range(0, numTokens // 2):
             elements.append(
                 (int(list[tokenPair * 2]), int(list[tokenPair * 2 + 1])))
         return elements

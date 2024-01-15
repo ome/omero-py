@@ -11,7 +11,6 @@ OMERO Support for temporary files and directories
 from builtins import input
 from builtins import str
 from builtins import object
-from past.utils import old_div
 import os
 import sys
 import atexit
@@ -53,8 +52,8 @@ class TempFileManager(object):
         self.is_win32 = (sys.platform == "win32")
         self.prefix = prefix
 
-        self.userdir = old_div(self.tmpdir(), ("%s_%s" %
-                                        (self.prefix, self.username())))
+        self.userdir = self.tmpdir() / ("%s_%s" %
+                                        (self.prefix, self.username()))
         """
         User-accessible directory of the form $TMPDIR/omero_$USERNAME.
         If the given directory is not writable, an attempt is made
@@ -69,7 +68,7 @@ class TempFileManager(object):
                     break
             raise Exception(
                 "Failed to create temporary directory: %s" % self.userdir)
-        self.dir = old_div(self.userdir, self.pid())
+        self.dir = self.userdir / self.pid()
         """
         Directory under which all temporary files and folders will be created.
         An attempt to remove a path not in this directory will lead to an
@@ -84,7 +83,7 @@ class TempFileManager(object):
 
         self.lock = None
         try:
-            self.lock = open(str(old_div(self.dir, ".lock")), "a+")
+            self.lock = open(str(self.dir / ".lock"), "a+")
             """
             .lock file under self.dir which is used to prevent other
             TempFileManager instances (also in other languages) from
@@ -153,7 +152,7 @@ class TempFileManager(object):
         targets = []
         if custom_tmpdir:
             targets.append(path(custom_tmpdir))
-        targets.append(old_div(get_omero_userdir(), "tmp"))
+        targets.append(get_omero_userdir() / "tmp")
         targets.append(path(tempfile.gettempdir()) / "omero" / "tmp")
 
         # Handles existing files named tmp
@@ -326,7 +325,7 @@ class TempFileManager(object):
             if str(dir) == str(self.dir):
                 self.logger.debug("Skipping self: %s", dir)
                 continue
-            lock = old_div(dir, ".lock")
+            lock = dir / ".lock"
             if lock.exists():  # 1962, on Windows this fails if lock is missing
                 f = open(str(lock), "r")
                 try:

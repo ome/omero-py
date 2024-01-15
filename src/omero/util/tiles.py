@@ -5,7 +5,6 @@
 # Use is subject to license terms supplied in LICENSE.txt
 
 from builtins import range
-from past.utils import old_div
 from builtins import object
 class TileLoopIteration(object):
     """
@@ -92,10 +91,10 @@ class TileLoop(object):
                     for z in range(0, sizeZ):
 
                         for tileOffsetY in range(
-                                0, (old_div((sizeY + tileHeight - 1), tileHeight))):
+                                0, ((sizeY + tileHeight - 1) // tileHeight)):
 
                             for tileOffsetX in range(
-                                    0, (old_div((sizeX + tileWidth - 1), tileWidth))):
+                                    0, ((sizeX + tileWidth - 1) // tileWidth)):
 
                                 x = tileOffsetX * tileWidth
                                 y = tileOffsetY * tileHeight

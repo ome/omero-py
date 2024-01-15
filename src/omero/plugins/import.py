@@ -25,7 +25,6 @@
 """
 
 from builtins import str
-from past.utils import old_div
 from past.builtins import basestring
 from builtins import object
 from io import BytesIO
@@ -516,11 +515,11 @@ class ImportControl(BaseControl):
             omero_java_dir, omero_java_txt = self._userdir_jars()
             client_dir = omero_java_dir
 
-        etc_dir = old_div(self.ctx.dir, "etc")
+        etc_dir = self.ctx.dir / "etc"
         if args.logback:
             xml_file = path(args.logback)
         else:
-            xml_file = old_div(etc_dir, "logback-cli.xml")
+            xml_file = etc_dir / "logback-cli.xml"
 
         classpath = []
         if client_dir and client_dir.exists():

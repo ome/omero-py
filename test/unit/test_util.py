@@ -26,7 +26,6 @@ Test of various things under omero.util
 
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from builtins import object
 import json
 import pytest
@@ -214,7 +213,7 @@ class TestTempFileManager(object):
             if environment[var]:
                 monkeypatch.setenv(
                     var,
-                    str(old_div(tmpdir, environment.get(var))))
+                    str(tmpdir / environment.get(var)))
             else:
                 monkeypatch.delenv(var, raising=False)
 
@@ -224,7 +223,7 @@ class TestTempFileManager(object):
             value = manager.tmpdir()
 
         if environment.get('OMERO_TMPDIR'):
-            tdir = old_div(tmpdir, environment.get('OMERO_TMPDIR'))
+            tdir = tmpdir / environment.get('OMERO_TMPDIR')
         elif environment.get('OMERO_TEMPDIR'):
             tdir = tmpdir / environment.get('OMERO_TEMPDIR') / "omero" / "tmp"
         elif environment.get('OMERO_USERDIR'):
@@ -238,7 +237,7 @@ class TestTempFileManager(object):
 
         monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
         monkeypatch.delenv('OMERO_USERDIR', raising=False)
-        tmpfile = old_div(tmpdir, 'omero')
+        tmpfile = tmpdir / 'omero'
         tmpfile.write('')
 
         value = pytest.deprecated_call(manager.tmpdir)
@@ -248,9 +247,9 @@ class TestTempFileManager(object):
 
         monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
         monkeypatch.delenv('OMERO_USERDIR', raising=False)
-        tempdir = old_div(tmpdir, 'omero')
+        tempdir = tmpdir / 'omero'
         tempdir.mkdir()
-        tmpfile = old_div(tempdir, 'tmp')
+        tmpfile = tempdir / 'tmp'
         tmpfile.write('')
 
         value = pytest.deprecated_call(manager.tmpdir)

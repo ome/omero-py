@@ -26,7 +26,6 @@
    defined here will be added to the Cli class for later use.
 """
 
-from past.utils import old_div
 from omero.cli import BaseControl
 from omero.cli import CLI
 
@@ -211,7 +210,7 @@ class DatabaseControl(BaseControl):
             script = "<filename here>"
         else:
             script = "%s__%s.sql" % (db_vers, db_patch)
-            location = old_div(path.getcwd(), script)
+            location = path.getcwd() / script
             try:
                 output = open(location, 'w', encoding='utf-8')
             except TypeError:
@@ -220,8 +219,8 @@ class DatabaseControl(BaseControl):
 
         try:
             dbprofile = self._db_profile()
-            header = old_div(sql_directory, ("%s-header.sql" % dbprofile))
-            footer = old_div(sql_directory, ("%s-footer.sql" % dbprofile))
+            header = sql_directory / ("%s-header.sql" % dbprofile)
+            footer = sql_directory / ("%s-footer.sql" % dbprofile)
             if header.exists():
                 # 73 multiple DB support. OMERO 4.3+
                 cfg = {
@@ -229,8 +228,8 @@ class DatabaseControl(BaseControl):
                     "DIR": sql_directory,
                     "SCRIPT": script}
                 self._copy(header, output, str, cfg)
-                self._copy(old_div(sql_directory,"schema.sql"), output, str)
-                self._copy(old_div(sql_directory,"views.sql"), output, str)
+                self._copy(sql_directory / "schema.sql", output, str)
+                self._copy(sql_directory / "views.sql", output, str)
                 self._copy(
                     footer, output,
                     self._make_replace(password_hash, db_vers, db_patch), cfg)
@@ -252,11 +251,11 @@ class DatabaseControl(BaseControl):
 
 BEGIN;
                 """ % (time.ctime(time.time()), sql_directory, script))
-                self._copy(old_div(sql_directory,"schema.sql"), output, str)
+                self._copy(sql_directory / "schema.sql", output, str)
                 self._copy(
-                    old_div(sql_directory,"data.sql"), output,
+                    sql_directory / "data.sql", output,
                     self._make_replace(password_hash, db_vers, db_patch))
-                self._copy(old_div(sql_directory,"views.sql"), output, str)
+                self._copy(sql_directory / "views.sql", output, str)
                 output.write("COMMIT;\n")
 
         finally:

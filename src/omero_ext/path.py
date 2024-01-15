@@ -46,7 +46,6 @@ from builtins import chr
 from builtins import map
 from builtins import str
 from past.builtins import basestring
-from past.utils import old_div
 from builtins import bytes
 from builtins import object
 
@@ -541,7 +540,7 @@ class path(str):
         if pattern is None:
             pattern = '*'
         return [
-            old_div(self, child)
+            self / child
             for child in map(self._always_unicode, names)
             if self._next_class(child).fnmatch(pattern)
         ]
@@ -739,7 +738,7 @@ class path(str):
         .. seealso:: :func:`glob.glob`
         """
         cls = self._next_class
-        return [cls(s) for s in glob.glob(old_div(self, pattern))]
+        return [cls(s) for s in glob.glob(self / pattern)]
 
     #
     # --- Reading or writing an entire file at once.
@@ -1374,7 +1373,7 @@ class path(str):
             if p.isabs():
                 return p
             else:
-                return (old_div(self.parent, p)).abspath()
+                return (self.parent / p).abspath()
 
     #
     # --- High-level functions from shutil

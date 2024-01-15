@@ -14,7 +14,6 @@ The pref plugin makes use of prefs.class from the common component.
 
 from builtins import zip
 from builtins import str
-from past.utils import old_div
 import sys
 import traceback
 import os
@@ -523,7 +522,7 @@ class PrefsControl(WriteableConfigControl):
     @with_rw_config
     def upgrade(self, args, config):
         self.ctx.out("Importing pre-4.2 preferences")
-        txt = getprefs(["get"], str(old_div(self.ctx.dir, "lib")))
+        txt = getprefs(["get"], str(self.ctx.dir / "lib"))
 
         # Handle all lines before updating config in case of error.
         new_config = dict(config)
@@ -600,7 +599,7 @@ re-run"""
         config[_key] = _new
 
     def old(self, args):
-        self.ctx.out(getprefs(args.target, str(old_div(self.ctx.dir, "lib"))))
+        self.ctx.out(getprefs(args.target, str(self.ctx.dir / "lib")))
 
 try:
     register("config", PrefsControl, HELP)

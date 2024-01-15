@@ -27,7 +27,6 @@
 from builtins import str
 from past.builtins import basestring
 from builtins import range
-from past.utils import old_div
 from builtins import object
 import os
 import platform
@@ -1298,8 +1297,8 @@ class AbstractRepoTest(ITest):
 
     def create_test_dir(self):
         folder = create_path(folder=True)
-        (old_div(folder, "a.fake")).touch()
-        (old_div(folder, "b.fake")).touch()
+        (folder / "a.fake").touch()
+        (folder / "b.fake").touch()
         return folder
 
     def create_fileset(self, folder):

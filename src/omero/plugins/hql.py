@@ -14,7 +14,6 @@
 
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from omero.cli import BaseControl, CLI
 import time
 import sys
@@ -196,7 +195,7 @@ To quit, enter 'q' or just enter.
         if isinstance(unwrapped, IObject):
             rv = "%s:%s" % (unwrapped.__class__.__name__, unwrapped.id.val)
         elif isinstance(object, RTimeI):
-            rv = time.ctime(old_div(unwrapped,1000.0))
+            rv = time.ctime(unwrapped / 1000.0)
         elif isinstance(object, Details):
             owner = None
             group = None

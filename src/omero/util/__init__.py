@@ -8,7 +8,6 @@
 #
 
 from builtins import str
-from past.utils import old_div
 from builtins import object
 from appdirs import user_data_dir, user_cache_dir
 import os
@@ -462,7 +461,7 @@ class Server(Ice.Application):
 
         try:
             self.logger.info("Waiting %s ms on startup" % ms)
-            self.stop_event.wait(old_div(ms, 1000))
+            self.stop_event.wait(ms // 1000)
         except:
             self.logger.debug(exc_info=1)
 
@@ -852,7 +851,7 @@ def get_omero_userdir():
     elif omero_userdir == "":
         return path.path(user_data_dir(*APPDIR_DEFAULTS))
     else:
-        return old_div(path.path(get_user_dir()), "omero")
+        return path.path(get_user_dir()) / "omero"
 
 
 def get_omero_user_cache_dir():

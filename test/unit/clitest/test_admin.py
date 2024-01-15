@@ -15,7 +15,6 @@ import warnings
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
-    from past.utils import old_div
 
 import os
 import re
@@ -33,7 +32,7 @@ from omero.plugins.prefs import PrefsControl
 from omero_ext.path import path
 from omero_version import ice_compatibility
 
-omeroDir = old_div(path(os.getcwd()), "build")
+omeroDir = path(os.getcwd()) / "build"
 
 GRID_FILES = ["templates.xml", "default.xml", "windefault.xml"]
 ETC_FILES = ["ice.config", "master.cfg", "internal.cfg"]
@@ -67,7 +66,7 @@ def tmpadmindir(tmpdir, monkeypatch):
     for f in glob(os.path.join(old_templates_dir, "*.cfg")):
         path(f).copy(path(templates_dir))
     for f in glob(os.path.join(old_templates_dir, "grid", "*.xml")):
-        path(f).copy(path(old_div(templates_dir, "grid")))
+        path(f).copy(path(templates_dir / "grid"))
     path(os.path.join(old_templates_dir, "ice.config")).copy(path(templates_dir))
     # The OMERODIR env-var is directly reference in other omero components so
     # we need to override it
@@ -365,7 +364,7 @@ def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, ws=4065, wss=4066,
 
     client_endpoints = 'client-endpoints="%s"' % ':'.join(client_endpoint_list)
     for key in ['default.xml', 'windefault.xml']:
-        s = path(old_div(topdir, "etc" / "grid" / key)).text()
+        s = path(topdir / "etc" / "grid" / key).text()
         assert routerport in s
         assert insecure_routerport in s
         assert client_endpoints in s

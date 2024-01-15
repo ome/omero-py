@@ -11,7 +11,6 @@
 
 from builtins import str
 from builtins import object
-from past.utils import old_div
 import logging
 logging.basicConfig(level=0)
 
@@ -62,7 +61,7 @@ class TestTemps(object):
 
     def testFolderWrite(self):
         p = self.testFolderSimple()
-        f = old_div(p, "file")
+        f = p / "file"
         f.write_text("hi")
         return p
 

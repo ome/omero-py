@@ -26,7 +26,6 @@
 
 from builtins import str
 from builtins import object
-from past.utils import old_div
 from omero.gateway import _BlitzGateway
 import pytest
 
@@ -36,7 +35,7 @@ class TestArgumentErrors(object):
     @classmethod
     @pytest.fixture(autouse=True)
     def setup_class(cls, tmpdir, monkeypatch):
-        ice_config = old_div(tmpdir, "ice.config")
+        ice_config = tmpdir / "ice.config"
         ice_config.write("omero.host=localhost\nomero.port=4064")
         monkeypatch.setenv("ICE_CONFIG", "%s" % ice_config)
         cls.g = _BlitzGateway()

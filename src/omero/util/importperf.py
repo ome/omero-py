@@ -23,7 +23,6 @@ Performs various performance metrics and reports on OMERO.importer log files.
 # 02110-1301, USA.
 
 from builtins import str
-from past.utils import old_div
 from builtins import object
 import re
 import sys
@@ -139,7 +138,7 @@ class ImporterLog(object):
         date_time = match.group('date_time')
         date_time, ms = date_time.split(',')
         date_time = DateTime.strptime(date_time, self.date_time_fmt)
-        ms = DateTimeDelta(0, 0, 0, old_div(int(ms), 1000.0))
+        ms = DateTimeDelta(0, 0, 0, int(ms) // 1000.0)
         date_time = date_time + ms
         if message.startswith('LOADING_IMAGE'):
             name = message[message.find(':') + 2:]

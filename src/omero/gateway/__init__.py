@@ -20,7 +20,6 @@ from builtins import map
 from builtins import str
 from builtins import range
 from past.builtins import basestring
-from past.utils import old_div
 from builtins import object
 import os
 
@@ -518,7 +517,7 @@ class BlitzObjectWrapper (object):
             if (self._obj.acquisitionDate.val is not None and
                     self._obj.acquisitionDate.val > 0):
                 t = self._obj.acquisitionDate.val
-                return datetime.fromtimestamp(old_div(t,1000))
+                return datetime.fromtimestamp(t / 1000)
         except:
             # object doesn't have acquisitionDate
             pass
@@ -1432,7 +1431,7 @@ class BlitzObjectWrapper (object):
         """
 
         if self._creationDate is not None:
-            return datetime.fromtimestamp(old_div(self._creationDate,1000))
+            return datetime.fromtimestamp(self._creationDate / 1000)
 
         try:
             if self._obj.details.creationEvent._time is not None:
@@ -1445,7 +1444,7 @@ class BlitzObjectWrapper (object):
             self._creationDate = self._conn.getQueryService().get(
                 "Event", self._obj.details.creationEvent.id.val,
                 self._conn.SERVICE_OPTS).time.val
-        return datetime.fromtimestamp(old_div(self._creationDate,1000))
+        return datetime.fromtimestamp(self._creationDate / 1000)
 
     def updateEventDate(self):
         """
@@ -1467,7 +1466,7 @@ class BlitzObjectWrapper (object):
             t = self._conn.getQueryService().get(
                 "Event", self._obj.details.updateEvent.id.val,
                 self._conn.SERVICE_OPTS).time.val
-        return datetime.fromtimestamp(old_div(t,1000))
+        return datetime.fromtimestamp(t / 1000)
 
     # setters are also provided
 
@@ -4712,7 +4711,7 @@ class _BlitzGateway (object):
                 t = c[i]
                 t = unwrap(t)
                 if t is not None:
-                    t = time.localtime(old_div(t, 1000))
+                    t = time.localtime(t / 1000)
                     t = time.strftime("%Y%m%d", t)
                     return t
             except:
@@ -5522,7 +5521,7 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
         :rtype:     :class:`datetime.datetime`
         """
 
-        return datetime.fromtimestamp(old_div(self._obj.timeValue.val, 1000.0))
+        return datetime.fromtimestamp(self._obj.timeValue.val / 1000.0)
 
     def setValue(self, val):
         """
@@ -6517,11 +6516,11 @@ ScreenWrapper = _ScreenWrapper
 def _letterGridLabel(i):
     """  Convert number to letter label. E.g. 0 -> 'A' and 100 -> 'CW'  """
     r = chr(ord('A') + i % 26)
-    i = old_div(i,26)
+    i = i // 26
     while i > 0:
         i -= 1
         r = chr(ord('A') + i % 26) + r
-        i = old_div(i,26)
+        i = i // 26
     return r
 
 
@@ -6789,8 +6788,8 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
         if name is None:
             if self.startTime is not None and self.endTime is not None:
                 name = "%s - %s" % (
-                    datetime.fromtimestamp(old_div(self.startTime,1000)),
-                    datetime.fromtimestamp(old_div(self.endTime,1000)))
+                    datetime.fromtimestamp(self.startTime / 1000),
+                    datetime.fromtimestamp(self.endTime / 1000))
             else:
                 name = "Run %i" % self.id
         return name
@@ -6809,12 +6808,12 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
     def getStartTime(self):
         """Get the StartTime as a datetime object or None if not set."""
         if self.startTime:
-            return datetime.fromtimestamp(old_div(self.startTime,1000))
+            return datetime.fromtimestamp(self.startTime / 1000)
 
     def getEndTime(self):
         """Get the EndTime as a datetime object or None if not set."""
         if self.endTime:
-            return datetime.fromtimestamp(old_div(self.endTime,1000))
+            return datetime.fromtimestamp(self.endTime / 1000)
 
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
 
@@ -8092,7 +8091,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         t = unwrap(self._obj.acquisitionDate)
         if t is not None and t > 0:
             try:
-                return datetime.fromtimestamp(old_div(t,1000))
+                return datetime.fromtimestamp(t / 1000)
             except ValueError:
                 return None
 
@@ -8541,7 +8540,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if len(size) == 1:
             w = self.getSizeX()
             h = self.getSizeY()
-            ratio = old_div(float(w), h)
+            ratio = w / h
             if ratio > 1:
                 h = h * size[0] / w
                 w = size[0]
@@ -8660,7 +8659,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
             pmax = 2 ** (8 * rp.getByteWidth())
             if rp.isSigned():
-                return (-(old_div(pmax, 2)), old_div(pmax, 2) - 1)
+                return (- pmax / 2, pmax / 2 - 1)
             else:
                 return (0, pmax-1)
         finally:
@@ -8783,7 +8782,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         rv = {}
         sizeXList = [level.sizeX for level in levels]
         for i, level in enumerate(sizeXList):
-            rv[i] = old_div(float(level),sizeXList[0])
+            rv[i] = level / sizeXList[0]
         return rv
 
     @assert_re()
@@ -9280,16 +9279,16 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             size_x = self.getSizeX()
             size_y = self.getSizeY()
             tile_width, tile_height = re.getTileSize()
-            tiles_wide = math.ceil(old_div(float(size_x), tile_width))
-            tiles_high = math.ceil(old_div(float(size_y), tile_height))
+            tiles_wide = math.ceil(size_x / tile_width)
+            tiles_high = math.ceil(size_y / tile_height)
             # Since the JPEG 2000 algorithm is iterative and rounds pixel
             # counts at each resolution level we're doing the resulting tile
             # size calculations in a loop. Also, since the image is physically
             # tiled the resulting size is a multiple of the tile size and not
             # the iterative quotient of a 2**(resolutionLevels - 1).
             for i in range(1, re.getResolutionLevels()):
-                tile_width = round(old_div(tile_width, 2.0))
-                tile_height = round(old_div(tile_height, 2.0))
+                tile_width = round(tile_width /  2.0)
+                tile_height = round(tile_height / 2.0)
             width = int(tiles_wide * tile_width)
             height = int(tiles_high * tile_height)
             jpeg_data = self.renderJpegRegion(
@@ -9299,7 +9298,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             # We've been asked to scale the image by its longest side so we'll
             # perform that operation until the server has the capability of
             # doing so.
-            ratio = old_div(float(size), max(width, height))
+            ratio = size / max(width, height)
             if width > height:
                 size = (int(size), int(height * ratio))
             else:
@@ -9567,10 +9566,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             args.append('Canvas_Colour=%s' % opts['minsize'][2])
 
         scalebars = (1, 1, 2, 2, 5, 5, 5, 5, 10, 10, 10, 10)
-        scalebar = scalebars[max(min(int(old_div(w, 256))-1, len(scalebars)), 1) - 1]
+        scalebar = scalebars[max(min(int(w // 256)-1, len(scalebars)), 1) - 1]
         args.append('Scalebar=%d' % scalebar)
         fsizes = (8, 8, 12, 18, 24, 32, 32, 40, 48, 56, 56, 64)
-        fsize = fsizes[max(min(int(old_div(w, 256))-1, len(fsizes)), 1) - 1]
+        fsize = fsizes[max(min(int(w // 256)-1, len(fsizes)), 1) - 1]
         font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize))
         slides = opts.get('slides', [])
         for slidepos in range(min(2, len(slides))):
@@ -9585,12 +9584,12 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     if i == 0:
                         y = 10+j*tsize[1]
                     elif i == 1:
-                        y = old_div(h, 2) - \
+                        y = h // 2 - \
                             ((len(wwline)-j)*tsize[1]) + \
-                            old_div((len(wwline)*tsize[1]),2)
+                            (len(wwline)*tsize[1]) // 2
                     else:
                         y = h - (len(wwline) - j)*tsize[1] - 10
-                    draw.text((old_div(w,2)-old_div(tsize[0],2), y), line, font=font)
+                    draw.text((w // 2 - tsize[0] // 2, y), line, font=font)
             fp = StringIO()
             slide.save(fp, "JPEG")
             fileSize = len(fp.getvalue())
@@ -9751,7 +9750,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         # Font sizes depends on image width
         w = self.getSizeX()
         if w >= 640:
-            fsize = (int(old_div((w-640),128))*8) + 24
+            fsize = (int((w-640) // 128)*8) + 24
             if fsize > 64:
                 fsize = 64
         elif w >= 512:

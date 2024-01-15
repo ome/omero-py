@@ -24,7 +24,6 @@ Utility methods for dealing with scripts.
 
 from future import standard_library
 standard_library.install_aliases()
-from past.utils import old_div
 try:
     from PIL import Image, ImageDraw, ImageFont  # see ticket:2597
 except ImportError:
@@ -104,7 +103,7 @@ def paint_thumbnail_grid(thumbnail_store, length, spacing, pixel_ids,
     # work out how many rows and columns are needed for all the images
     img_count = len(pixel_ids)
 
-    row_count = (old_div(img_count, col_count))
+    row_count = img_count // col_count
     # check that we have enough rows and cols...
     while (col_count * row_count) < img_count:
         row_count += 1
@@ -118,7 +117,7 @@ def paint_thumbnail_grid(thumbnail_store, length, spacing, pixel_ids,
         if left_label is not None and row_count == 0:
             row_count = 1
         if fontsize is None:
-            fontsize = old_div(length, 10) + 5
+            fontsize = length // 10 + 5
         font = get_font(fontsize)
         if left_label:
             box = font.getbbox(leftLabel)
@@ -151,7 +150,7 @@ def paint_thumbnail_grid(thumbnail_store, length, spacing, pixel_ids,
         draw = ImageDraw.Draw(text_canvas)
         box = font.getbbox(leftLabel)
         text_width = box[2] - box[0]
-        text_x = old_div((label_canvas_width - text_width), 2)
+        text_x = (label_canvas_width - text_width) // 2
         draw.text((text_x, spacing), left_label, font=font, fill=text_color)
         vertical_canvas = text_canvas.rotate(90)
         paste_image(vertical_canvas, canvas, 0, 0)
@@ -243,8 +242,8 @@ def get_zoom_factor(image_size, max_width, max_height):
              within max width and height
     """
     image_width, imageheight = image_size
-    zoom_width = old_div(float(image_width), float(max_width))
-    zoom_height = old_div(float(imageheight), float(max_height))
+    zoom_width = image_width / max_width
+    zoom_height = imageheight / max_height
     return max(zoom_width, zoom_height)
 
 
@@ -263,8 +262,8 @@ def resize_image(image, max_width, max_height):
         return image
     # find which axis requires the biggest zoom (smallest relative max
     # dimension)
-    zoom_width = old_div(float(image_width), float(max_width))
-    zoom_height = old_div(float(image_height), float(max_height))
+    zoom_width = image_width / max_width
+    zoom_height = image_height / max_height
     zoom = max(zoom_width, zoom_height)
     if zoom_width >= zoom_height:  # size is defined by width
         max_height = int(image_height // zoom)  # calculate the new height

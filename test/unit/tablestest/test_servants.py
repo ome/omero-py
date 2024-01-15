@@ -11,7 +11,6 @@
 
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from builtins import object
 import pytest
 import Ice
@@ -162,7 +161,7 @@ class mocked_query_service(object):
 
 class mock_internal_repo(object):
     def __init__(self, dir):
-        self.path = old_div(dir, "mock.h5")
+        self.path = dir / "mock.h5"
 
     def __call__(self, *args):
         return self
@@ -262,9 +261,9 @@ class TestTables(TestCase):
         if repo_uuid is None:
             repo_uuid = self.repouuid()
         f = self.repodir()
-        f = old_div(path(f), db_uuid)
+        f = path(f) / db_uuid
         f.makedirs()
-        f = old_div(f, "repo_uuid")
+        f = f / "repo_uuid"
         f.write_lines([repo_uuid])
 
     # Note: some of the following method were added as __init__ called

@@ -25,7 +25,6 @@ Utility methods for dealing with scripts.
 from builtins import hex
 from builtins import str
 from builtins import range
-from past.utils import old_div
 import logging
 import os
 import warnings
@@ -1564,7 +1563,7 @@ def convert_numpy_array(plane, min_max, type):
         val_range = max_val - min_val
         if (val_range == 0):
             val_range = 1
-        scaled = (plane - min_val) * (old_div(float(255), val_range))
+        scaled = (plane - min_val) * (255 / val_range)
         conv_array = zeros(plane.shape, dtype=type)
         try:
             conv_array += scaled

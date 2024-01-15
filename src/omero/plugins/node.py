@@ -13,7 +13,6 @@ This is a python wrapper around icegridnode.
 """
 
 from builtins import str
-from past.utils import old_div
 from omero.cli import BaseControl, CLI, NonZeroReturnCode
 from omero.util import tail_lines
 import os
@@ -72,7 +71,7 @@ class NodeControl(BaseControl):
         """
         props = self._properties()
         self.ctx.rv = nzrc.rv
-        myoutput = old_div(self.dir, path(props["Ice.StdErr"]))
+        myoutput = self.dir / path(props["Ice.StdErr"])
         if not myoutput.exists():
             pass
         else:

@@ -9,7 +9,6 @@ Use is subject to license terms supplied in LICENSE.txt.
 """
 
 from builtins import object
-from past.utils import old_div
 import omero_ext.path as path
 
 
@@ -17,8 +16,8 @@ class TestPath(object):
 
     def test_parpath(self):
         root = path.path('/')
-        a1, a2 = [old_div(root, _) for _ in ('a1', 'a2')]
-        b = old_div(a1, 'b')
+        a1, a2 = [root / _ for _ in ('a1', 'a2')]
+        b = a1 / 'b'
         for x, y in (root, a1), (root, a2), (a1, b):
             assert len(y.parpath(x)) == 1
             assert len(x.parpath(y)) == 0

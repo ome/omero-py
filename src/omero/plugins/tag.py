@@ -13,7 +13,6 @@ Tag plugin for command-line tag manipulation
 from builtins import input
 from builtins import map
 from builtins import str
-from past.utils import old_div
 from builtins import object
 import builtins
 import platform
@@ -731,7 +730,7 @@ JSON File Format:
             self.width, self.console_length = self.determine_console_size()
 
         if args.desc:
-            max_field_width = int((old_div((self.width - max_id_width), 2.0)) - 2)
+            max_field_width = int(((self.width - max_id_width) / 2.0) - 2)
         else:
             max_field_width = self.width - max_id_width - 2
 
