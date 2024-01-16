@@ -218,7 +218,7 @@ setup(
     entry_points={
         'console_scripts': ['omero=omero.main:main'],
     },
-    python_requires='>=3',
+    python_requires='>=3.8',
     install_requires=[
         'urllib3<2',
         'appdirs',
