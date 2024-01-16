@@ -24,7 +24,6 @@ Parser for the omero.properties file to generate RST
 mark up.
 """
 
-from past.builtins import cmp
 from builtins import str
 from builtins import object
 class Header(object):

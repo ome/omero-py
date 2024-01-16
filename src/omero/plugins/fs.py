@@ -23,7 +23,6 @@
 fs plugin for querying repositories, filesets, and the like.
 """
 
-from past.builtins import cmp
 from builtins import zip
 from builtins import str
 from builtins import map
@@ -611,16 +610,12 @@ class FsControl(CmdControl):
         """
 
         from omero.grid import ManagedRepositoryPrx as MRepo
-        from functools import cmp_to_key
-
-        def my_cmp(a, b):
-            return cmp(a[0].id.val, b[0].id.val)
 
         client = self.ctx.conn(args)
         shared = client.sf.sharedResources()
         repos = shared.repositories()
         repos = list(zip(repos.descriptions, repos.proxies))
-        repos.sort(key = cmp_to_key(my_cmp))
+        repos.sort(key=lambda repo: repo[0].id.val)
 
         tb = self._table(args)
         tb.cols(["Id", "UUID", "Type", "Path"])
@@ -831,7 +826,7 @@ class FsControl(CmdControl):
         shared = client.sf.sharedResources()
         repos = shared.repositories()
         repos = list(zip(repos.descriptions, repos.proxies))
-        repos.sort(lambda a, b: cmp(a[0].id.val, b[0].id.val))
+        repos.sort(key=lambda repo: repo[0].id.val)
 
         for idx, pair in enumerate(repos):
             if MRepo.checkedCast(pair[1]):
