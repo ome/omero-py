@@ -14,7 +14,6 @@ to PyTables types.
 from builtins import zip
 from builtins import range
 from builtins import object
-from future.utils import native
 import omero
 import Ice
 import IceImport

@@ -13,7 +13,6 @@ from builtins import str
 from builtins import zip
 from builtins import range
 from builtins import object
-from future.utils import native
 from past.builtins import basestring
 import time
 import numpy
@@ -240,7 +239,7 @@ class HdfStorage(object):
                             self.__hdf_path, mode))
                     mode = "r"
 
-            return tables.open_file(native(str(self.__hdf_path)), mode=mode,
+            return tables.open_file(str(self.__hdf_path), mode=mode,
                                     title="OMERO HDF Measurement Storage",
                                     rootUEP="/")
         except (tables.HDF5ExtError, IOError) as e:
