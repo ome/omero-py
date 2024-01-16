@@ -25,7 +25,6 @@
 """
 
 from builtins import str
-from past.builtins import basestring
 from builtins import range
 from builtins import object
 import os
@@ -632,7 +631,7 @@ class ITest(object):
             else:
                 group = admin.getGroup(group.id.val)
                 name = group.name.val
-        elif isinstance(group, basestring):
+        elif isinstance(group, str):
             name = group
             group = admin.lookupGroup(name)
         elif isinstance(group, Experimenter):
@@ -659,7 +658,7 @@ class ITest(object):
             else:
                 user = admin.getExperimenter(user.id.val)
                 name = user.omeName.val
-        elif isinstance(user, basestring):
+        elif isinstance(user, str):
             name = user
             user = admin.lookupExperimenter(name)
         elif isinstance(user, ExperimenterGroup):

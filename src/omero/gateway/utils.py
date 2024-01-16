@@ -24,7 +24,6 @@
 #
 
 from builtins import str
-from past.builtins import basestring
 from builtins import object
 import logging
 import json
@@ -173,7 +172,7 @@ class ServiceOptsDict(dict):
 
     def _testItem(self, item):
         if item is not None and not isinstance(item, bool) and \
-            (isinstance(item, basestring) or
+            (isinstance(item, str) or
              isinstance(item, int) or
              isinstance(item, long) or
              isinstance(item, float)):

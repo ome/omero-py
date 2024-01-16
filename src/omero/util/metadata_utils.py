@@ -27,7 +27,6 @@ data for clients.
 """
 
 from builtins import range
-from past.builtins import basestring
 from builtins import object
 from collections import deque, OrderedDict
 from omero.constants import namespaces
@@ -391,7 +390,7 @@ class KeyValueListTransformer(object):
 
         if cfg["omitempty"]:
             values = [v for v in values if v is not None and (
-                not isinstance(v, basestring) or v.strip())]
+                not isinstance(v, str) or v.strip())]
 
         if cfg["clientvalue"] is not None:
             values = [valuesub(v, cfg["clientvalue"]) for v in values]

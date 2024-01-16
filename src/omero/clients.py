@@ -31,8 +31,6 @@ import re
 import ssl
 import uuid
 
-from past.builtins import basestring
-
 IceImport.load("Glacier2_Router_ice")
 import Glacier2
 
@@ -173,7 +171,7 @@ class BaseClient(object):
         This allows for simplified usage without parameter
         names.
         """
-        types = [list, Ice.InitializationData, basestring, int, dict]
+        types = [list, Ice.InitializationData, str, int, dict]
         original = [args, id, host, port, pmap]
         repaired = [None, None, None, None, None]
 
@@ -847,7 +845,7 @@ class BaseClient(object):
 
         import os
         import types
-        if not filename or not isinstance(filename, basestring):
+        if not filename or not isinstance(filename, str):
             raise omero.ClientError("Non-null filename must be provided")
 
         if not os.path.exists(filename):

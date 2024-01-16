@@ -45,7 +45,6 @@ from builtins import zip
 from builtins import chr
 from builtins import map
 from builtins import str
-from past.builtins import basestring
 from builtins import bytes
 from builtins import object
 
@@ -73,13 +72,6 @@ try:
     import pwd
 except ImportError:
     pass
-
-################################
-# Monkey patchy python 3 support
-try:
-    basestring
-except NameError:
-    basestring = str
 
 try:
     str
@@ -230,7 +222,7 @@ class path(str):
             return NotImplemented
 
     def __radd__(self, other):
-        if not isinstance(other, basestring):
+        if not isinstance(other, str):
             return NotImplemented
         return self._next_class(other.__add__(self))
 

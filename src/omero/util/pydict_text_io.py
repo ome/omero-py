@@ -22,7 +22,6 @@ Read text-based dictionary file formats such as YAML and JSON
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-from past.builtins import basestring
 import os
 import json
 import re
@@ -48,7 +47,7 @@ def load(fileobj, filetype=None, single=True, session=None):
     :param session: If fileobj is an OriginalFile:ID a valid session is required
     """
 
-    if not isinstance(fileobj, basestring):
+    if not isinstance(fileobj, (str, bytes)):
         raise Exception(
             'Invalid type: fileobj must be a filename or json string')
 

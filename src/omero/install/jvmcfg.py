@@ -26,7 +26,6 @@ Automatic configuration of memory settings for Java servers.
 from builtins import str
 from builtins import range
 from builtins import object
-from past.builtins import basestring
 from shlex import split
 
 import logging
@@ -44,9 +43,9 @@ def strip_dict(map, prefix=("omero", "jvmcfg"), suffix=(), limit=1):
     of elements that are allowed in the new key after
     stripping prefix and suffix.
     """
-    if isinstance(prefix, basestring):
+    if isinstance(prefix, str):
         prefix = tuple(prefix.split("."))
-    if isinstance(suffix, basestring):
+    if isinstance(suffix, str):
         suffix = tuple(suffix.split("."))
     rv = dict()
     if not map:

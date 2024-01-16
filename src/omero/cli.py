@@ -22,7 +22,6 @@ arguments, ``sys.argv``, and finally from standard-in using the
 ``cmd.Cmd.cmdloop`` method.
 """
 
-from past.builtins import basestring
 from builtins import zip
 from builtins import input
 from builtins import map
@@ -511,9 +510,6 @@ class Context(object):
         Prints text to a given string, capturing any exceptions.
         """
         try:
-            if sys.version_info < (3, 0, 0):
-                if isinstance(text, basestring) and not isinstance(text, unicode):
-                    text = text.encode("utf-8")
             stream.write(text)
             if newline:
                 stream.write("\n")
@@ -1332,7 +1328,7 @@ class CLI(cmd.Cmd, Context):
         function returned by argparse.
         """
 
-        if isinstance(line, basestring):
+        if isinstance(line, str):
             if COMMENT.match(line):
                 return  # EARLY EXIT!
             args = shlex.split(line)

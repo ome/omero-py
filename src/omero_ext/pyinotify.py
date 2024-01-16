@@ -32,7 +32,6 @@ pyinotify
 from builtins import map
 from builtins import hex
 from builtins import str
-from past.builtins import basestring
 from builtins import object
 class PyinotifyError(Exception):
     """Indicates exceptions raised by a Pyinotify class."""
@@ -434,7 +433,7 @@ class _Event(object):
                 continue
             if attr == 'mask':
                 value = hex(getattr(self, attr))
-            elif isinstance(value, basestring) and not value:
+            elif isinstance(value, str) and not value:
                 value = "''"
             s += ' %s%s%s' % (output_format.field_name(attr),
                               output_format.punctuation('='),

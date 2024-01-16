@@ -25,7 +25,6 @@
 """
 
 from builtins import str
-from past.builtins import basestring
 from builtins import object
 from io import BytesIO
 import os
@@ -159,13 +158,13 @@ class CommandArguments(object):
         if len(key) == 1:
             arg_list.append("-"+key)
             if val != NO_ARG:
-                if isinstance(val, basestring):
+                if isinstance(val, str):
                     arg_list.append(val)
         else:
             key = key.replace("_", "-")
             if val == NO_ARG:
                 arg_list.append("--%s" % key)
-            elif isinstance(val, basestring):
+            elif isinstance(val, str):
                 arg_list.append(
                     "--%s=%s" % (key, val))
             else:

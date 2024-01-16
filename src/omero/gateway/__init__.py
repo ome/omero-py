@@ -19,7 +19,6 @@ from builtins import chr
 from builtins import map
 from builtins import str
 from builtins import range
-from past.builtins import basestring
 from builtins import object
 import os
 
@@ -344,7 +343,7 @@ class BlitzObjectWrapper (object):
             return None
         if units is not None:
             # If units is an attribute of the same Class as our obj...
-            if isinstance(units, basestring):
+            if isinstance(units, str):
                 unitClass = obj.getUnit().__class__
                 unitEnum = getattr(unitClass, str(units))
                 # ... we can convert units

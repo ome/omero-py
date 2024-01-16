@@ -26,7 +26,6 @@ based on omero.model.PermissionsI
 
 
 from builtins import str
-from past.builtins import basestring
 import Ice
 import IceImport
 IceImport.load("omero_model_Time_ice")
@@ -1190,7 +1189,7 @@ class TimeI(_omero_model.Time, UnitBase):
             target = None
         elif isinstance(unit, UnitsTime):
             target = unit
-        elif isinstance(unit, basestring):
+        elif isinstance(unit, str):
             target = getattr(UnitsTime, unit)
         else:
             raise Exception("Unknown unit: %s (%s)" % (

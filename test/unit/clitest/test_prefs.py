@@ -10,7 +10,6 @@
 """
 
 from builtins import str
-from past.builtins import basestring
 from builtins import object
 import pytest
 import sys
@@ -20,11 +19,6 @@ from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import PrefsControl, HELP
 from omero.util.temp_files import create_path
 
-
-try:
-    basestring
-except:
-    basestring = str
 
 @pytest.fixture
 def configxml(monkeypatch):
@@ -60,7 +54,7 @@ class TestPrefs(object):
                 e.strip() == err)
 
     def invoke(self, s):
-        if isinstance(s, basestring):
+        if isinstance(s, str):
             s = s.split()
         self.cli.invoke(self.args + s, strict=True)
 

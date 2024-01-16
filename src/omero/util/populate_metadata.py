@@ -27,7 +27,6 @@ from builtins import zip
 from builtins import chr
 from builtins import str
 from builtins import range
-from past.builtins import basestring
 from builtins import object
 import logging
 import gzip
@@ -873,7 +872,7 @@ class ParsingContext(object):
                 values.append(value)
                 try:
                     log.debug("Value's class: %s" % value.__class__)
-                    if isinstance(value, basestring):
+                    if isinstance(value, str):
                         column.size = max(column.size, len(value))
                 except TypeError:
                     log.error('Original value "%s" now "%s" of bad type!' % (
@@ -1102,7 +1101,7 @@ class _QueryContext(object):
             nids = 1
             single_id = ids
 
-        if isinstance(nss, basestring):
+        if isinstance(nss, str):
             params.addString("ns", nss)
         elif nss:
             params.map['nss'] = rlist(rstring(s) for s in nss)

@@ -13,7 +13,6 @@ from builtins import str
 from builtins import zip
 from builtins import range
 from builtins import object
-from past.builtins import basestring
 import time
 import numpy
 import logging
@@ -312,7 +311,7 @@ class HdfStorage(object):
         k = '__version'
         try:
             v = self.__mea.attrs[k]
-            if isinstance(v, basestring):
+            if isinstance(v, str):
                 return v
         except KeyError:
             k = 'version'
@@ -460,10 +459,10 @@ class HdfStorage(object):
                 val = rfloat(val)
             elif isinstance(val, TABLES_METADATA_INT_TYPES):
                 val = rlong(val)
-            elif isinstance(val, basestring):
-                if isinstance(val, bytes):
-                    val = val.decode("utf-8")
+            elif isinstance(val, str):
                 val = rstring(val)
+            elif isinstance(val, bytes):
+                val = rstring(val.decode("utf-8"))
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))
             metadata[key] = val

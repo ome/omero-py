@@ -80,7 +80,6 @@ from builtins import zip
 from builtins import map
 from builtins import str
 from builtins import range
-from past.builtins import basestring
 from builtins import object
 __version__ = '1.1'
 __all__ = [
@@ -108,11 +107,6 @@ try:
     _set = set
 except NameError:
     from sets import Set as _set
-
-try:
-    _basestring = basestring
-except NameError:
-    _basestring = str
 
 try:
     _sorted = sorted
@@ -1726,7 +1720,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 if not hasattr(namespace, action.dest):
                     if action.default is not SUPPRESS:
                         default = action.default
-                        if isinstance(action.default, _basestring):
+                        if isinstance(action.default, str):
                             default = self._get_value(action, default)
                         setattr(namespace, action.dest, default)
 
@@ -2200,7 +2194,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 value = action.const
             else:
                 value = action.default
-            if isinstance(value, _basestring):
+            if isinstance(value, str):
                 value = self._get_value(action, value)
                 self._check_value(action, value)
 
