@@ -22,7 +22,6 @@ arguments, ``sys.argv``, and finally from standard-in using the
 ``cmd.Cmd.cmdloop`` method.
 """
 
-from past.builtins import execfile
 from past.builtins import basestring
 from builtins import zip
 from builtins import input
@@ -1611,7 +1610,7 @@ class CLI(cmd.Cmd, Context):
         self.configure_plugins()
 
     def register_only(self, name, Control, help, epilog=None):
-        """ This method is added to the globals when execfile() is
+        """ This method is added to the globals when exec() is
         called on each plugin. A Control class should be
         passed to the register method which will be added to the CLI.
         """
@@ -1683,7 +1682,8 @@ class CLI(cmd.Cmd, Context):
                 print("Loading %s" % pathobj)
             try:
                 loc = {"register": self.register_only}
-                execfile(str(pathobj), loc)
+                with open(str(pathobj), "r") as f:
+                    exec(f.read(), loc)
             except KeyboardInterrupt:
                 raise
             except:
