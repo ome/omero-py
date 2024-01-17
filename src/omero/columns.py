@@ -285,10 +285,7 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         Check for strings longer than the initialised column width
         This will always return bytes
         """
-        if python_sys.version_info >= (3, 0, 0):
-            bytevalues = [v.encode() for v in self.values]
-        else:
-            bytevalues = self.values
+        bytevalues = [v.encode() for v in self.values]
         for bv in bytevalues:
             if len(bv) > self.size:
                 raise omero.ValidationException(

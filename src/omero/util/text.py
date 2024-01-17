@@ -74,21 +74,11 @@ class PlainStyle(Style):
         try:
             import csv
             import io
-            if sys.version_info >= (3, 0, 0):
-                output = io.StringIO()
-                def _encode(s):
-                    return s
-                def _decode(s):
-                    return s
-            else:
-                # Python 2.7 csv module does not support unicode!
-                # https://docs.python.org/2.7/library/csv.html#module-csv
-                # Need to treat as bytes and encode/decode
-                output = io.BytesIO()
-                def _encode(s):
-                    return s.encode('utf-8')
-                def _decode(s):
-                    return s.decode('utf-8')
+            output = io.StringIO()
+            def _encode(s):
+                return s
+            def _decode(s):
+                return s
             writer = csv.writer(output, lineterminator='')
             writer.writerow([_encode(s) for s in table.get_row(i)])
             return _decode(output.getvalue())
@@ -304,19 +294,11 @@ class ALIGN(object):
 class Column(list):
 
     def __init__(self, name, data, align=ALIGN.LEFT, style=SQLStyle()):
-        if sys.version_info >= (3, 0, 0):
-            def tostring(x):
-                if isinstance(x, bytes):
-                    return x.decode("utf-8", "surrogateescape")
-                else:
-                    return str(x)
-        else:
-            def tostring(x):
-                try:
-                    return str(x)
-                except UnicodeDecodeError:
-                    # Unicode characters are present
-                    return str(x.decode("utf-8", "ignore"))
+        def tostring(x):
+            if isinstance(x, bytes):
+                return x.decode("utf-8", "surrogateescape")
+            else:
+                return str(x)
 
         decoded = [tostring(d) for d in data]
         list.__init__(self, decoded)
@@ -344,33 +326,18 @@ class Table(object):
             if i is None:
                 yield x.format % x.name
             else:
-                if sys.version_info >= (3, 0, 0):
-                    if isinstance(x[i], bytes):
-                        yield x.format % bytes.decode(
-                            "utf-8", "surrogateescape")
-                    else:
-                        yield x.format % str(x[i])
+                if isinstance(x[i], bytes):
+                    yield x.format % bytes.decode(
+                        "utf-8", "surrogateescape")
                 else:
-                    try:
-                        yield x.format % x[i].decode("ascii")
-                    except UnicodeEncodeError:
-                        yield x.format % x[i]
-                    except UnicodeDecodeError:  # Unicode characters are present
-                        yield (x.format % x[i].decode("utf-8")).encode("utf-8")
-                    except AttributeError:  # Unicode characters are present
-                        yield x.format % x[i]
-                    else:
-                        yield x.format % x[i]
+                    yield x.format % str(x[i])
 
     def get_rows(self):
         for row in self.style.get_rows(self):
             yield row
 
     def __str__(self):
-        if sys.version_info >= (3, 0, 0):
-            return '\n'.join(self.get_rows())
-        else:
-            return ('\n'.join(self.get_rows())).encode("utf-8")
+        return '\n'.join(self.get_rows())
 
 
 def filesizeformat(bytes):

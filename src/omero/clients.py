@@ -35,11 +35,6 @@ IceImport.load("Glacier2_Router_ice")
 import Glacier2
 
 
-if sys.version_info >= (3, 0, 0):
-    # Keep str behavior on Python 2
-    from builtins import str
-
-
 class BaseClient(object):
     """
     Central client-side blitz entry point, and should be in sync with
@@ -139,8 +134,6 @@ class BaseClient(object):
                     else arg for arg in args]
 
         args = [x.decode("utf-8") for x in args]
-        # Under Python 2 this can still leave us with 'unicode'
-        args = [str(x) for x in args]
 
         # Equiv to multiple constructors. #######################
         if id is None:

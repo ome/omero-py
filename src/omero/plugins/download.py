@@ -44,18 +44,13 @@ Examples:
 
 class StdOutHandle():
     """
-    File handle for writing bytes to std.out in python 2 and python 3
+    File handle for writing bytes to std.out
     """
     # https://github.com/pexpect/pexpect/pull/31/files
     @staticmethod
     def write(b):
         # Handle stdout.write for bytes
-        try:
-            # Try writing bytes... python 2
-            return sys.stdout.write(b)
-        except TypeError:
-            # python 3: If String was expected, convert to String
-            return sys.stdout.write(b.decode('ascii', 'replace'))
+        return sys.stdout.write(b.decode('ascii', 'replace'))
 
 
 class DownloadControl(BaseControl):

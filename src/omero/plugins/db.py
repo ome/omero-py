@@ -40,10 +40,6 @@ import platform
 import sys
 import time
 
-if sys.version_info >= (3, 0, 0):
-    # Keep str behavior on Python 2
-    from builtins import str
-
 
 HELP = """Database tools for creating scripts, setting passwords, etc."""
 

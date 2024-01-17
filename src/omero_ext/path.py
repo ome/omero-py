@@ -83,13 +83,8 @@ try:
 except AttributeError:
     getcwdu = os.getcwd
 
-PY3 = sys.version_info[0] >= 3
-if PY3:
-    def u(x):
-        return x
-else:
-    def u(x):
-        return codecs.unicode_escape_decode(x)[0]
+def u(x):
+    return x
 
 o777 = 511
 o766 = 502
@@ -105,23 +100,6 @@ except ImportError:
     pass
 ##########################
 
-##############################################################
-# Support for surrogateescape
-
-
-def surrogate_escape(error):
-    """
-    Simulate the Python 3 surrogateescape handler, but for Python 2 only.
-    """
-    chars = error.object[error.start:error.end]
-    assert len(chars) == 1
-    val = ord(chars)
-    val += 0xdc00
-    return chr(val), error.end
-
-if not PY3:
-    codecs.register_error('surrogateescape', surrogate_escape)
-###############################################################
 
 __version__ = '5.2'
 __all__ = ['path', 'CaseInsensitivePattern']
@@ -205,9 +183,7 @@ class path(str):
         Ensure the path as retrieved from a Python API, such as os.listdir,
         is a proper Unicode string.
         """
-        if PY3 or isinstance(path, str):
-            return path
-        return path.decode(sys.getfilesystemencoding(), 'surrogateescape')
+        return path
 
     # --- Special Python methods.
 

@@ -30,18 +30,10 @@ from shutil import (
     rmtree,
 )
 
-try:
-    from urllib.request import urlopen
-except ImportError:
-    # Python 2
-    from urllib import urlopen
+from urllib.request import urlopen
 from zipfile import ZipFile
 
-try:
-    import configparser
-except ImportError:
-    # Python 2
-    import ConfigParser as configparser
+import configparser
 
 
 def get_blitz_location():

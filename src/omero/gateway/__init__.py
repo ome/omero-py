@@ -39,11 +39,7 @@ from datetime import datetime
 from io import StringIO
 from io import BytesIO
 
-try:
-    import configparser
-except ImportError:
-    # Python 2
-    import ConfigParser as configparser
+import configparser
 
 import omero
 import omero.clients
