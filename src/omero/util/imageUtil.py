@@ -177,10 +177,14 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
             fontsize = old_div(length, 10) + 5
         font = getFont(fontsize)
         if leftLabel:
-            textWidth, textHeight = font.getsize(leftLabel)
+            box = font.getbbox(leftLabel)
+            textWidth = box[2] - box[0]
+            textHeight = box[3] - box[1]
             leftSpace = spacing + textHeight + spacing
         if topLabel:
-            textWidth, textHeight = font.getsize(topLabel)
+            box = font.getbbox(topLabel)
+            textWidth = box[2] - box[0]
+            textHeight = box[3] - box[1]
             topSpace = spacing + textHeight + spacing
             minWidth = leftSpace + textWidth + spacing
 
@@ -200,7 +204,8 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
         labelSize = (labelCanvasWidth, labelCanvasHeight)
         textCanvas = Image.new(mode, labelSize, bg)
         draw = ImageDraw.Draw(textCanvas)
-        textWidth = font.getsize(leftLabel)[0]
+        box = font.getbbox(leftLabel)
+        textWidth = box[2] - box[0]
         textX = old_div((labelCanvasWidth - textWidth), 2)
         draw.text((textX, spacing), leftLabel, font=font, fill=textColour)
         verticalCanvas = textCanvas.rotate(90)

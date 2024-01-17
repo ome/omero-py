@@ -218,13 +218,13 @@ setup(
     entry_points={
         'console_scripts': ['omero=omero.main:main'],
     },
-    python_requires='>=3',
+    python_requires='>=3.8',
     install_requires=[
         'urllib3<2',
         'appdirs',
         'future',
         'numpy',
-        'Pillow',
+        'Pillow>=10.0.0',
         'PyYAML',
         'zeroc-ice>=3.6.5,<3.7',
         'pywin32; platform_system=="Windows"',
