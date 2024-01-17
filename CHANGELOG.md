@@ -1,3 +1,10 @@
+# 5.18.0 (January 2024)
+
+## Other updates
+
+- Set minimum version for Pillow (10.0.0) and Python (3.8) [#388](https://github.com/ome/omero-py/pull/388)
+
+
 # 5.17.0 (November 2023)
 
 ## Other updates
