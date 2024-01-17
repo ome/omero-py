@@ -10,11 +10,6 @@
 Tag plugin for command-line tag manipulation
 """
 
-from builtins import input
-from builtins import map
-from builtins import str
-from builtins import object
-import builtins
 import platform
 import subprocess
 import sys
@@ -517,7 +512,7 @@ JSON File Format:
         (the default). If we were creating a tagset, this could be "tag set".
         """
         if name is None:
-            name = builtins.input("Please enter a name for this %s: " % text)
+            name = input("Please enter a name for this %s: " % text)
 
         if name is not None and name != '':
             tag = TagAnnotationI()

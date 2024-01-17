@@ -9,9 +9,6 @@
 Library for gateway tests
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 from io import StringIO
 from io import BytesIO
 import omero

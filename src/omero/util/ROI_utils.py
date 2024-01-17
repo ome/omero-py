@@ -35,10 +35,6 @@ These methods also implement the acceptVisitor method linking to
 the ROIDrawingCanvas.
 """
 
-from builtins import str
-from builtins import map
-from builtins import range
-from builtins import object
 from omero.model.enums import UnitsLength
 from omero.model import LengthI
 from omero.model import EllipseI

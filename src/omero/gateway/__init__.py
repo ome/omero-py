@@ -12,11 +12,6 @@
 # jason@glencoesoftware.com.
 
 # Set up the python include paths
-from builtins import chr
-from builtins import map
-from builtins import str
-from builtins import range
-from builtins import object
 import os
 
 import warnings

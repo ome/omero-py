@@ -22,7 +22,6 @@
 Utility methods for manipulating roi.
 """
 
-from builtins import map
 from numpy import asarray, int32, zeros, hstack, vstack
 import omero.util.script_utils as script_utils
 import math

@@ -8,9 +8,6 @@
 OMERO Support for temporary files and directories
 """
 
-from builtins import input
-from builtins import str
-from builtins import object
 import os
 import sys
 import atexit

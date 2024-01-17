@@ -29,8 +29,6 @@ A collection of utility methods used by Figure scripts for producing
 publication type of figures.
 """
 
-from builtins import str
-from builtins import range
 try:
     from PIL import Image, ImageDraw  # see ticket:2597
 except ImportError:

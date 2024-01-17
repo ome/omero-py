@@ -12,7 +12,6 @@
    defined here will be added to the Cli class for later use.
 """
 
-from builtins import str
 import sys
 import omero
 import os

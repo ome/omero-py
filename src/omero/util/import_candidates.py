@@ -12,7 +12,6 @@
 
 """
 
-from builtins import str
 import omero
 
 from omero.util.temp_files import create_path, remove_path

@@ -13,7 +13,6 @@ The format expected is defined for Python in
 omero.util.configure_logging.
 """
 
-from builtins import object
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as lines

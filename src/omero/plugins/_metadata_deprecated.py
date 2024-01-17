@@ -9,9 +9,6 @@
 Metadata plugin
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import logging
 import mimetypes
 import os

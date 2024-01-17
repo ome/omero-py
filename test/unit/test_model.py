@@ -10,9 +10,6 @@
 
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import pytest
 import omero
 import omero.clients

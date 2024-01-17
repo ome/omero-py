@@ -16,7 +16,6 @@ This module is meant to be kept in sync with the abstract Java class
 omero.rtypes as well as the omero/rtypes.{h,cpp} files.
 """
 
-from builtins import str
 import omero
 import Ice
 import IceImport

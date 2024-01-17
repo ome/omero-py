@@ -12,7 +12,6 @@ OMERO Grid node controller
 This is a python wrapper around icegridnode.
 """
 
-from builtins import str
 from omero.cli import BaseControl, CLI, NonZeroReturnCode
 from omero.util import tail_lines
 import os

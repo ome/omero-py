@@ -7,8 +7,6 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-from builtins import str
-from builtins import object
 from appdirs import user_data_dir, user_cache_dir
 import os
 import sys

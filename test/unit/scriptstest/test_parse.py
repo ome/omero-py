@@ -9,8 +9,6 @@
 
 """
 
-from builtins import str
-from builtins import object
 import pytest
 
 from omero_ext.path import path

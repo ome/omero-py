@@ -22,8 +22,6 @@ Performs various performance metrics and reports on OMERO.importer log files.
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-from builtins import str
-from builtins import object
 import re
 import sys
 

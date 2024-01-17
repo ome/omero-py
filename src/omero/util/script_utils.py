@@ -22,9 +22,6 @@
 Utility methods for dealing with scripts.
 """
 
-from builtins import hex
-from builtins import str
-from builtins import range
 import logging
 import os
 import warnings

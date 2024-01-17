@@ -12,7 +12,6 @@ see ticket:800
 see ticket:2213 - Replacing Java Preferences API
 """
 
-from builtins import object, str
 import os
 import time
 import logging

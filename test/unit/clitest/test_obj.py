@@ -23,7 +23,6 @@
 Test of the omero/plugins/tx.py module
 """
 
-from builtins import object
 import pytest
 from omero.cli import CLI
 from omero.model import ProjectI

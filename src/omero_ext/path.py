@@ -41,13 +41,6 @@ Modified by the OME team as follows:
  * Added parpath (2009/09/21)
 """
 
-from builtins import zip
-from builtins import chr
-from builtins import map
-from builtins import str
-from builtins import bytes
-from builtins import object
-
 import sys
 import warnings
 import os

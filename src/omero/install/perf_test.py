@@ -6,9 +6,6 @@
 # Add: plotting
 #
 
-from builtins import str
-from builtins import range
-from builtins import object
 import re
 import os
 import sys

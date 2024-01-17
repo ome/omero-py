@@ -24,8 +24,6 @@
 
 """
 
-from builtins import str
-from builtins import object
 from io import BytesIO
 import os
 import csv

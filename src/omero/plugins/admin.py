@@ -12,8 +12,6 @@ This is a python wrapper around icegridregistry/icegridnode for master
 and various other tools needed for administration.
 """
 
-from builtins import str
-from builtins import object
 import re
 import os
 import sys

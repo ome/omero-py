@@ -26,8 +26,6 @@ Includes classes to help with basic data-munging (TODO), and for formatting
 data for clients.
 """
 
-from builtins import range
-from builtins import object
 from collections import deque, OrderedDict
 from omero.constants import namespaces
 import re

@@ -23,9 +23,6 @@
 #
 
 
-from builtins import str
-from builtins import range
-from builtins import object
 import tempfile
 import logging
 import time

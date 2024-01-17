@@ -23,8 +23,6 @@
 Conversion utilities for changing between units.
 """
 
-from builtins import str
-from builtins import object
 class Conversion(object):
     """
     Base-functor like object which can be used for preparing complex

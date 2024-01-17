@@ -23,7 +23,6 @@
 Test of metadata_utils classes
 """
 
-from builtins import object
 import pytest
 
 from omero.util.metadata_utils import (

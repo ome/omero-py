@@ -23,7 +23,6 @@
 Simple tests of various ROI utilities
 """
 
-from builtins import object
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from omero.util.roi_handling_utils import points_string_to_xy_list
 

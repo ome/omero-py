@@ -12,8 +12,6 @@
    defined here will be added to the Cli class for later use.
 """
 
-from builtins import str
-from builtins import range
 from omero.cli import BaseControl, CLI
 import time
 import sys

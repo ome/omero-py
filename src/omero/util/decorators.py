@@ -9,7 +9,6 @@
 """
 OMERO Decorators
 """
-from builtins import object
 import time
 import logging
 import traceback

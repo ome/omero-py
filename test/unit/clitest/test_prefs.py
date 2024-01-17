@@ -9,8 +9,6 @@
 
 """
 
-from builtins import str
-from builtins import object
 import pytest
 import sys
 from omero.cli import CLI, NonZeroReturnCode

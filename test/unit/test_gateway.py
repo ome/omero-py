@@ -24,7 +24,6 @@
 Test of various things under omero.gateway
 """
 
-from builtins import object
 import Ice
 import pytest
 import sys

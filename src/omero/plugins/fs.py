@@ -23,10 +23,6 @@
 fs plugin for querying repositories, filesets, and the like.
 """
 
-from builtins import zip
-from builtins import str
-from builtins import map
-from builtins import object
 import platform
 import sys
 

@@ -19,8 +19,6 @@
 # @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 # <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
 
-from builtins import range
-from builtins import object
 import math
 import numpy
 

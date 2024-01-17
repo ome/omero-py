@@ -22,12 +22,7 @@ arguments, ``sys.argv``, and finally from standard-in using the
 ``cmd.Cmd.cmdloop`` method.
 """
 
-from builtins import zip
-from builtins import input
-from builtins import map
-from builtins import str
-from builtins import range
-from builtins import object
+
 sys = __import__("sys")
 cmd = __import__("cmd")
 

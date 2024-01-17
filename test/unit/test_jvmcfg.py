@@ -23,8 +23,6 @@
 Test of the automatic JVM setting logic for OMERO startup.
 """
 
-from builtins import str
-from builtins import object
 import pytest
 import os
 

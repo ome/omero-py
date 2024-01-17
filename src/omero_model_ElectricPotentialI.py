@@ -25,7 +25,6 @@ based on omero.model.PermissionsI
 """
 
 
-from builtins import str
 import Ice
 import IceImport
 IceImport.load("omero_model_ElectricPotential_ice")

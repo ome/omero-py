@@ -11,10 +11,6 @@
 # The following classes (ALIGN, Column, Table) were originally from
 # http://code.activestate.com/recipes/577202-render-tables-for-text-interface/
 #
-from builtins import str
-from builtins import zip
-from builtins import range
-from builtins import object
 import json
 import os
 import sys

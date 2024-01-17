@@ -24,8 +24,6 @@
 
 """
 
-from builtins import str
-from builtins import object
 from omero.gateway import _BlitzGateway
 import pytest
 

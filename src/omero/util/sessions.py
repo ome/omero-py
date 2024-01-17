@@ -23,8 +23,6 @@
 Library for managing user sessions.
 """
 
-from builtins import str
-from builtins import object
 import omero.constants
 from omero.util import get_omero_userdir, make_logname
 from omero.rtypes import rlong

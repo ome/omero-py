@@ -7,9 +7,6 @@
 #
 #
 
-from builtins import zip
-from builtins import range
-from builtins import object
 __save__ = __name__
 __name__ = 'omero'
 try:

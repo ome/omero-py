@@ -9,7 +9,6 @@
 
 """
 
-from builtins import object
 import os
 from omero_ext.path import path
 from omero.cli import CLI, NonZeroReturnCode

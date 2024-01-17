@@ -24,9 +24,6 @@
 Test of various things under omero.util
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import json
 import pytest
 from omero_ext.path import path

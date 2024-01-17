@@ -9,8 +9,6 @@
 
 """
 
-from builtins import object
-
 import warnings
 
 with warnings.catch_warnings():

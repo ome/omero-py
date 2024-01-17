@@ -34,8 +34,6 @@ of where the match was found. For example:
     from HKLM\SOFTWARE\...\perl.exe
 """
 
-from builtins import map
-from builtins import range
 _cmdlnUsage = """
     Show the full path of commands.
 

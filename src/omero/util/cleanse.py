@@ -28,8 +28,6 @@ Reconcile and cleanse where necessary an OMERO data directory of orphaned data.
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 
-from builtins import range
-from builtins import object
 import omero.clients
 import omero
 import sys

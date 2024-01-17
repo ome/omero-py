@@ -8,8 +8,6 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
-from builtins import str
-from builtins import object
 import sys
 import pytest
 import omero

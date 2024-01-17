@@ -23,9 +23,6 @@
 Automatic configuration of memory settings for Java servers.
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 from shlex import split
 
 import logging

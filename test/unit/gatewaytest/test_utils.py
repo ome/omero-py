@@ -9,9 +9,6 @@
 
 """
 
-from builtins import str
-from builtins import hex
-from builtins import object
 from omero.gateway.utils import ServiceOptsDict
 from omero.gateway.utils import toBoolean
 from omero.gateway.utils import propertiesToDict

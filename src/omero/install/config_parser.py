@@ -24,8 +24,6 @@ Parser for the omero.properties file to generate RST
 mark up.
 """
 
-from builtins import str
-from builtins import object
 class Header(object):
     def __init__(self, name, reference=None, description=""):
         """Initialize new configuration property"""

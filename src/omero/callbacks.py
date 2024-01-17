@@ -14,7 +14,6 @@
   module for backwards compatibility.
 """
 
-from builtins import str
 import Ice
 import logging
 import threading

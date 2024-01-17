@@ -12,7 +12,6 @@ Omero installation on Windows, since relative paths
 are not supported.
 """
 
-from builtins import str
 import sys
 from omero_ext.path import path
 import fileinput

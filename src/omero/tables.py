@@ -8,8 +8,6 @@
 """
 OMERO Grid Processor
 """
-from builtins import str
-from builtins import range
 import Ice
 import time
 import traceback

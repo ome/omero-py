@@ -23,11 +23,6 @@ Populate bulk metadata tables from delimited text files.
 #
 
 
-from builtins import zip
-from builtins import chr
-from builtins import str
-from builtins import range
-from builtins import object
 import logging
 import gzip
 import sys

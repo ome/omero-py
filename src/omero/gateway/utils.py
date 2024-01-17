@@ -23,8 +23,6 @@
 # Version: 1.0
 #
 
-from builtins import str
-from builtins import object
 import logging
 import json
 

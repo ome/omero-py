@@ -8,7 +8,6 @@ Copyright 2014 CRS4. All rights reserved.
 Use is subject to license terms supplied in LICENSE.txt.
 """
 
-from builtins import object
 import omero_ext.path as path
 
 

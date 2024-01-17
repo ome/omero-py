@@ -11,9 +11,6 @@ type hierarchy which know how to convert themselves
 to PyTables types.
 """
 
-from builtins import zip
-from builtins import range
-from builtins import object
 import omero
 import Ice
 import IceImport

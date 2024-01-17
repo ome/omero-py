@@ -29,10 +29,6 @@ pyinotify
 @contact: seb@dbzteam.org
 """
 
-from builtins import map
-from builtins import hex
-from builtins import str
-from builtins import object
 class PyinotifyError(Exception):
     """Indicates exceptions raised by a Pyinotify class."""
     pass

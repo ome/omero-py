@@ -19,8 +19,6 @@ The first parameter, the script itself, should be natively executable
 on a given platform i.e. invokable by subprocess.call([file,...])
 """
 
-from builtins import str
-from builtins import object
 import re
 import os
 import sys

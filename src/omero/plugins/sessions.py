@@ -25,7 +25,6 @@
    defined here will be added to the Cli class for later use.
 """
 
-from builtins import str
 import datetime
 import os
 import sys
