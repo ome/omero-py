@@ -11,8 +11,6 @@
 # The following classes (ALIGN, Column, Table) were originally from
 # http://code.activestate.com/recipes/577202-render-tables-for-text-interface/
 #
-from future import standard_library
-standard_library.install_aliases()
 from builtins import str
 from builtins import zip
 from builtins import range

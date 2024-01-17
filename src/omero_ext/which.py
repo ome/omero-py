@@ -34,8 +34,6 @@ of where the match was found. For example:
     from HKLM\SOFTWARE\...\perl.exe
 """
 
-from future import standard_library
-standard_library.install_aliases()
 from builtins import map
 from builtins import range
 _cmdlnUsage = """

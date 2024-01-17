@@ -29,8 +29,6 @@ A collection of utility methods based on the Python Imaging Library (PIL)
 used for making figures.
 """
 
-from future import standard_library
-standard_library.install_aliases()
 try:
     from PIL import Image, ImageDraw, ImageFont  # see ticket:2597
 except ImportError:

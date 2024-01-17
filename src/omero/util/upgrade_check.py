@@ -5,7 +5,6 @@
 # Copyright 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 
-from future import standard_library
 from builtins import str
 from builtins import object
 from omero_version import omero_version
@@ -13,7 +12,6 @@ from omero_version import omero_version
 import platform
 import logging
 import requests
-standard_library.install_aliases()
 
 # Ensure we are using pyopenssl (ome/omero-py#240)
 try:

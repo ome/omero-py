@@ -12,8 +12,6 @@
 # jason@glencoesoftware.com.
 
 # Set up the python include paths
-from future import standard_library
-standard_library.install_aliases()
 from builtins import chr
 from builtins import map
 from builtins import str
