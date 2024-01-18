@@ -672,6 +672,8 @@ class ImportControl(BaseControl):
                         mode = "w"
                     else:
                         mode = "a"
+                    if command_args.depth:
+                        xargs.append("-Domero.import.depth=%s" % command_args.depth)
                     self.do_import(command_args, xargs, mode=mode)
                 if self.ctx.rv:
                     failed += 1
