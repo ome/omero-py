@@ -80,6 +80,11 @@ class SearchControl(HqlControl):
         HqlControl._configure(self, parser)
         parser.set_defaults(func=self.search)
 
+        self.add_error("BAD_OBJECT", 431, "Bad object: %s")
+        self.add_error("ADMIN_ONLY", 432, "Only admin can index object")
+        self.add_error("NO_RESULTS", 433, "No results found.")
+        self.add_error("USAGE", 434, "usage: %s")
+
     def date(self, user_string):
         try:
             t = time.strptime(user_string, "%Y-%m-%d")
@@ -96,7 +101,7 @@ class SearchControl(HqlControl):
 
         if args.index:
             if not self.ctx.get_event_context().isAdmin:
-                self.ctx.die(432, "Only admin can index object")
+                self.raise_error("ADMIN_ONLY")
 
             try:
                 parts = args.type.split(":")
@@ -109,7 +114,7 @@ class SearchControl(HqlControl):
                 obj.setId(omero.rtypes.rlong(id))
             except Exception as e:
                 self.ctx.dbg(e)
-                self.ctx.die(432, "Bad object: %s" % args.type)
+                self.raise_error("BAD_OBJECT", args.type)
 
             c.sf.getUpdateService().indexObject(obj)
 
@@ -144,7 +149,7 @@ class SearchControl(HqlControl):
                             search.byFullText(args.query)
 
                     if not search.hasNext(ctx):
-                        self.ctx.die(433, "No results found.")
+                        self.raise_error("NO_RESULTS")
 
                     self.ctx.set("search.results", [])
                     while search.hasNext(ctx):
@@ -157,7 +162,7 @@ class SearchControl(HqlControl):
                                      style=args.style,
                                      idsonly=args.ids_only)
                 except omero.ApiUsageException as aue:
-                    self.ctx.die(434, aue.message)
+                    self.raise_error("USAGE", aue.message)
 
             finally:
                 search.close()
