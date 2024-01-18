@@ -1524,7 +1524,7 @@ class _BlitzGateway (object):
     def __init__(self, username=None, passwd=None, client_obj=None, group=None,
                  clone=False, try_super=False, host=None, port=None,
                  extra_config=None, secure=False, anonymous=True,
-                 useragent=None, userip=None):
+                 useragent=None, userip=None, cache_services=True):
         """
         Create the connection wrapper.
         Does not attempt to connect at this stage
@@ -1555,6 +1555,9 @@ class _BlitzGateway (object):
         :param useragent:   Log which python clients use this connection.
                             E.g. 'OMERO.webadmin'
         :param userip:      Log client ip.
+        :param cache_services: False to create a new service connection for
+                               each request. Note: Make sure to close the
+                               service in that case.
         :type useragent:    String
         """
 
@@ -1606,6 +1609,7 @@ class _BlitzGateway (object):
 
         # The properties we are setting through the interface
         self.setIdentity(username, passwd, not clone)
+        self._cache_services = cache_services
 
     def __enter__(self):
         """
@@ -1671,6 +1675,12 @@ class _BlitzGateway (object):
                 logger.error("%s - %s\n%s" % (
                     prefix, service_string, stack_msg))
         return count
+
+    def cacheServices(self, cache_services):
+        """Use cached services (default). Set to False in order to
+        create a new service connection for each request. Note: In that
+        case make sure that the connection is closed again."""
+        self._cache_services = cache_services
 
     def createServiceOptsDict(self):
         serviceOpts = ServiceOptsDict(self.c.getImplicitContext().getContext())
@@ -2556,7 +2566,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['admin']
+        if self._cache_services:
+            return self._proxies['admin']
+        return ProxyObjectWrapper(self, 'getAdminService')
 
     def getQueryService(self):
         """
@@ -2564,7 +2576,9 @@ class _BlitzGateway (object):
 
         :return:    omero.gateway.ProxyObjectWrapper
         """
-        return self._proxies['query']
+        if self._cache_services:
+            return self._proxies['query']
+        return ProxyObjectWrapper(self, 'getQueryService')
 
     def getContainerService(self):
         """
@@ -2573,7 +2587,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['container']
+        if self._cache_services:
+            return self._proxies['container']
+        return ProxyObjectWrapper(self, 'getContainerService')
 
     def getPixelsService(self):
         """
@@ -2582,7 +2598,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['pixel']
+        if self._cache_services:
+            return self._proxies['pixel']
+        return ProxyObjectWrapper(self, 'getPixelsService')
 
     def getMetadataService(self):
         """
@@ -2591,7 +2609,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['metadata']
+        if self._cache_services:
+            return self._proxies['metadata']
+        return ProxyObjectWrapper(self, 'getMetadataService')
 
     def getRoiService(self):
         """
@@ -2600,7 +2620,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['roi']
+        if self._cache_services:
+            return self._proxies['roi']
+        return ProxyObjectWrapper(self, 'getRoiService')
 
     def getScriptService(self):
         """
@@ -2609,7 +2631,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['script']
+        if self._cache_services:
+            return self._proxies['script']
+        return ProxyObjectWrapper(self, 'getScriptService')
 
     def createRawFileStore(self):
         """
@@ -2619,7 +2643,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['rawfile']
+        if self._cache_services:
+            return self._proxies['rawfile']
+        return ProxyObjectWrapper(self, 'createRawFileStore')
 
     def getRepositoryInfoService(self):
         """
@@ -2628,7 +2654,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['repository']
+        if self._cache_services:
+            return self._proxies['repository']
+        return ProxyObjectWrapper(self, 'getRepositoryInfoService')
 
     def getShareService(self):
         """
@@ -2637,7 +2665,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['share']
+        if self._cache_services:
+            return self._proxies['share']
+        return ProxyObjectWrapper(self, 'getShareService')
 
     def getSharedResources(self):
         """
@@ -2646,7 +2676,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['sharedres']
+        if self._cache_services:
+            return self._proxies['sharedres']
+        return ProxyObjectWrapper(self, 'getSharedResources')
 
     def getTimelineService(self):
         """
@@ -2655,7 +2687,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['timeline']
+        if self._cache_services:
+            return self._proxies['timeline']
+        return ProxyObjectWrapper(self, 'getTimelineService')
 
     def getTypesService(self):
         """
@@ -2664,7 +2698,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['types']
+        if self._cache_services:
+            return self._proxies['types']
+        return ProxyObjectWrapper(self, 'getTypesService')
 
     def getConfigService(self):
         """
@@ -2673,7 +2709,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['config']
+        if self._cache_services:
+            return self._proxies['config']
+        return ProxyObjectWrapper(self, 'getConfigService')
 
     def createRenderingEngine(self):
         """
@@ -2685,7 +2723,10 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        rv = self._proxies['rendering']
+        if self._cache_services:
+            rv = self._proxies['rendering']
+        else:
+            rv = ProxyObjectWrapper(self, 'createRenderingEngine')
         if rv._tainted:
             rv = self._proxies['rendering'] = rv.clone()
         rv.taint()
@@ -2699,7 +2740,9 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
 
-        return self._proxies['rendsettings']
+        if self._cache_services:
+            return self._proxies['rendsettings']
+        return ProxyObjectWrapper(self, 'getRenderingSettingsService')
 
     def createRawPixelsStore(self):
         """
@@ -2708,8 +2751,9 @@ class _BlitzGateway (object):
 
         :return:    omero.gateway.ProxyObjectWrapper
         """
-
-        return self._proxies['rawpixels']
+        if self._cache_services:
+            return self._proxies['rawpixels']
+        return ProxyObjectWrapper(self, 'createRawPixelsStore')
 
     def createThumbnailStore(self):
         """
@@ -2719,8 +2763,9 @@ class _BlitzGateway (object):
         :rtype: omero.gateway.ProxyObjectWrapper
         :return: The proxy wrapper of the thumbnail store
         """
-
-        return self._proxies['thumbs']
+        if self._cache_services:
+            return self._proxies['thumbs']
+        return ProxyObjectWrapper(self, 'createThumbnailStore')
 
     def createSearchService(self):
         """
@@ -2729,7 +2774,9 @@ class _BlitzGateway (object):
 
         :return: omero.gateway.ProxyObjectWrapper
         """
-        return self._proxies['search']
+        if self._cache_services:
+            return self._proxies['search']
+        return ProxyObjectWrapper(self, 'createSearchService')
 
     def getUpdateService(self):
         """
@@ -2737,7 +2784,9 @@ class _BlitzGateway (object):
 
         :return:    omero.gateway.ProxyObjectWrapper
         """
-        return self._proxies['update']
+        if self._cache_services:
+            return self._proxies['update']
+        return ProxyObjectWrapper(self, 'getUpdateService')
 
     def getSessionService(self):
         """
@@ -2745,7 +2794,9 @@ class _BlitzGateway (object):
 
         :return:    omero.gateway.ProxyObjectWrapper
         """
-        return self._proxies['session']
+        if self._cache_services:
+            return self._proxies['session']
+        return ProxyObjectWrapper(self, 'getSessionService')
 
     def createExporter(self):
         """
@@ -8436,6 +8487,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :type _r:           Boolean
         :param rdefId:      Rendering def ID to use for rendering thumbnail
         :type rdefId:       Long
+        :param use_cached_ts: If true (default) use the cached ThumbnailStore,
+                              else create a new one.
         :return:            Thumbnail Store or None
         :rtype:             :class:`ProxyObjectWrapper`
         """
@@ -8443,6 +8496,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         pid = self.getPrimaryPixels().id
         if rdefId is None:
             rdefId = self._getRDef()
+
         tb = self._conn.createThumbnailStore()
 
         ctx = self._conn.SERVICE_OPTS.copy()
