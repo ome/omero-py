@@ -17,13 +17,8 @@ from setuptools import (
     find_packages,
 )
 
-try:
-    from StringIO import StringIO
-    from StringIO import StringIO as BytesIO
-except ImportError:
-    # Python 3
-    from io import StringIO
-    from io import BytesIO
+from io import StringIO
+from io import BytesIO
 
 from shutil import (
     copy,

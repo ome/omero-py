@@ -61,20 +61,10 @@ try:
 except ImportError:
     pass
 
-try:
-    import pwd
-except ImportError:
-    pass
+import pwd
+from functools import reduce
 
-try:
-    str
-except NameError:
-    str = str
-
-try:
-    getcwdu = os.getcwd
-except AttributeError:
-    getcwdu = os.getcwd
+getcwdu = os.getcwd
 
 def u(x):
     return x
@@ -83,15 +73,6 @@ o777 = 511
 o766 = 502
 o666 = 438
 o554 = 364
-################################
-
-##########################
-# Python 2.5 compatibility
-try:
-    from functools import reduce
-except ImportError:
-    pass
-##########################
 
 
 __version__ = '5.2'
