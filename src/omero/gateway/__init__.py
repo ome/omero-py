@@ -17,19 +17,6 @@ import os
 import warnings
 from collections import defaultdict
 
-try:
-    from types import IntType, LongType, UnicodeType, ListType
-    from types import BooleanType, TupleType, StringType, StringTypes
-except ImportError:
-    IntType = int
-    LongType = int
-    UnicodeType = str
-    ListType = list
-    BooleanType = bool
-    TupleType = tuple
-    StringType = str
-    StringTypes = str
-
 from datetime import datetime
 from io import StringIO
 from io import BytesIO
@@ -85,11 +72,9 @@ except:  # pragma: nocover
 def omero_type(val):
     """
     Converts rtypes from static factory methods:
-     - StringType to rstring
-     - UnicodeType to rstring
-     - BooleanType to rbool
-     - IntType to rint
-     - LongType to rlong
+     - str to rstring
+     - bool to rbool
+     - int to rint
 
     else return the argument itself
 
@@ -98,16 +83,12 @@ def omero_type(val):
     :return:    matched RType or value
     """
 
-    if isinstance(val, StringType):
+    if isinstance(val, str):
         return rstring(val)
-    elif isinstance(val, UnicodeType):
-        return rstring(val.encode('utf-8'))
-    elif isinstance(val, BooleanType):
+    elif isinstance(val, bool):
         return rbool(val)
-    elif isinstance(val, IntType):
+    elif isinstance(val, int):
         return rint(val)
-    elif isinstance(val, LongType):
-        return rlong(val)
     else:
         return val
 
@@ -380,7 +361,7 @@ class BlitzObjectWrapper (object):
         if self.CHILD_WRAPPER_CLASS is None:  # pragma: no cover
             raise NotImplementedError(
                 '%s has no child wrapper defined' % self.__class__)
-        if isinstance(self.CHILD_WRAPPER_CLASS, StringTypes):
+        if isinstance(self.CHILD_WRAPPER_CLASS, str):
             # resolve class
             if hasattr(omero.gateway, self.CHILD_WRAPPER_CLASS):
                 self.__class__.CHILD_WRAPPER_CLASS \
@@ -402,10 +383,10 @@ class BlitzObjectWrapper (object):
         if self.PARENT_WRAPPER_CLASS is None:  # pragma: no cover
             raise NotImplementedError
         pwc = self.PARENT_WRAPPER_CLASS
-        if not isinstance(pwc, ListType):
+        if not isinstance(pwc, list):
             pwc = [pwc, ]
         for i in range(len(pwc)):
-            if isinstance(pwc[i], StringTypes):
+            if isinstance(pwc[i], str):
                 # resolve class
                 g = globals()
                 if not pwc[i] in g:  # pragma: no cover
@@ -754,7 +735,7 @@ class BlitzObjectWrapper (object):
         if ns is not None:
             query += " and a.ns=:ns"
             if val is not None:
-                if isinstance(val, StringTypes):
+                if isinstance(val, str):
                     params.map["val"] = omero_type(val)
                     query += " and a.textValue=:val"
         query += " order by c.child.name"
@@ -1222,7 +1203,7 @@ class BlitzObjectWrapper (object):
                     v = v._value
                 if wrapper is not None and v is not None:
                     if wrapper == '':
-                        if isinstance(v, ListType):
+                        if isinstance(v, list):
                             v = [x.simpleMarshal() for x in v]
                         else:
                             v = v.simpleMarshal()
@@ -1299,7 +1280,7 @@ class BlitzObjectWrapper (object):
                 def wrap():
                     rv = getattr(self._obj, attrName)
                     if hasattr(rv, 'val'):
-                        if isinstance(rv.val, StringType):
+                        if isinstance(rv.val, str):
                             if isinstance(rv.val, str):
                                 return rv.val
                             else:
@@ -1324,7 +1305,7 @@ class BlitzObjectWrapper (object):
                 # since it's not an rtype to unwrap.
                 if not hasattr(rv, "_unit"):
                     rv = rv.val
-                    if isinstance(rv, StringType):
+                    if isinstance(rv, str):
                         try:
                             rv = rv.decode('utf8')
                         except:
@@ -2439,7 +2420,7 @@ class _BlitzGateway (object):
         """
         if gid is None:
             gid = self.getEventContext().groupId
-        if not isinstance(gid, LongType) or not isinstance(gid, IntType):
+        if not isinstance(gid, int):
             gid = int(gid)
         if gid in self.getEventContext().leaderOfGroups:
             return True
@@ -3322,7 +3303,7 @@ class _BlitzGateway (object):
         :return:            (query, params, wrapper)
         """
 
-        if isinstance(obj_type, StringTypes):
+        if isinstance(obj_type, str):
             wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
             if wrapper is None:
                 raise KeyError(
@@ -3392,7 +3373,7 @@ class _BlitzGateway (object):
                 clauses.append('obj.%s=:%s' % (k, k))
                 if k == 'id':
                     rv = rlong(v)
-                elif isinstance(v, IntType):
+                elif isinstance(v, int):
                     # lookup rint vv rlong from class
                     if wrapper.OMERO_CLASS is not None:
                         klass = getattr(omero.model,
@@ -8572,7 +8553,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             tb = self._prepareTB(rdefId=rdefId)
             if tb is None:
                 return None
-            if isinstance(size, IntType):
+            if isinstance(size, int):
                 size = (size,)
             if z is not None or t is not None:
                 if z is None:
@@ -8989,7 +8970,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             channels = [x._idx for x in [x for x in self.getChannels() if x.isActive()]]
         if range is None:
             range = axis == 'h' and self.getSizeY() or self.getSizeX()
-        if not isinstance(channels, (TupleType, ListType)):
+        if not isinstance(channels, (tuple, list)):
             channels = (channels,)
         chw = [(x.getWindowMin(), x.getWindowMax()) for x in self.getChannels()]
         rv = []

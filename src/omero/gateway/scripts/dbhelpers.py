@@ -10,11 +10,6 @@ import os
 import subprocess
 import urllib.request, urllib.error, urllib.parse
 
-try:
-    from types import StringTypes
-except ImportError:
-    StringTypes = str
-
 from omero_ext.path import path
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
@@ -131,7 +126,7 @@ class UserEntry (object):
         nothing will be checked.
         """
         if groupperms is not None:
-            if isinstance(group, StringTypes):
+            if isinstance(group, str):
                 a = client.getAdminService()
                 g = a.lookupGroup(group)
             else:
@@ -152,7 +147,7 @@ class UserEntry (object):
         """
         a = client.getAdminService()
         try:
-            if isinstance(group, StringTypes):
+            if isinstance(group, str):
                 g = a.lookupGroup(group)
             else:
                 g = group
@@ -290,7 +285,7 @@ class ProjectEntry (ObjectEntry):
         p.setName(omero.gateway.omero_type(self.name))
         p.setDescription(omero.gateway.omero_type(self.name))
         if self.create_group:
-            if isinstance(self.create_group, StringTypes):
+            if isinstance(self.create_group, str):
                 groupname = self.create_group
             else:
                 raise ValueError('group must be string')
@@ -320,7 +315,7 @@ class DatasetEntry (ObjectEntry):
 
     def get(self, client, forceproj=None):
         if forceproj is None:
-            if isinstance(self.project, StringTypes):
+            if isinstance(self.project, str):
                 project = PROJECTS[self.project].get(client)
             elif isinstance(self.project, ProjectEntry):
                 project = self.project.get(client)
@@ -335,7 +330,7 @@ class DatasetEntry (ObjectEntry):
         return None
 
     def create(self):
-        if isinstance(self.project, StringTypes):
+        if isinstance(self.project, str):
             project = PROJECTS[self.project]
             user = USERS[project.owner]
             client = user.login()
@@ -388,7 +383,7 @@ class ImageEntry (ObjectEntry):
         return None
 
     def create(self):
-        if isinstance(self.dataset, StringTypes):
+        if isinstance(self.dataset, str):
             dataset = DATASETS[self.dataset]
             project = PROJECTS[dataset.project]
             client = USERS[project.owner].login()
