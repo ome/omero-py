@@ -4280,16 +4280,21 @@ class _BlitzGateway (object):
             params.page(offset, limit)
 
         # Query
-        query = f"""
-            select distinct obj.id from {obj_type}AnnotationLink oal
+        query = """
+            select distinct obj.id from %sAnnotationLink oal
             join oal.parent obj 
             join oal.child ann 
             join ann.mapValue mv
-            where mv.name in {keys_str}
-            and mv.value in {vals_str}
+            where mv.name in %s
+            and mv.value in %s
+        """ % (wrapper().OMERO_CLASS, keys_str, vals_str)
+        # filter by namespace
+        if ns is not None:
+            query += "and ann.ns = " + ns
+        query += """
             group by obj.id 
-            having count(*) = {key_vals_count}
-        """
+            having count(*) = %s
+        """ % key_vals_count
 
         # Return objects
         result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
