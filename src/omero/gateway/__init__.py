@@ -4290,7 +4290,7 @@ class _BlitzGateway (object):
         """ % (wrapper().OMERO_CLASS, keys_str, vals_str)
         # filter by namespace
         if ns is not None:
-            query += "and ann.ns = " + ns
+            query += "and ann.ns = '" + ns + "'"
         query += """
             group by obj.id 
             having count(*) >= %s
