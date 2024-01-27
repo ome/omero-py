@@ -4244,7 +4244,59 @@ class _BlitzGateway (object):
         if len(ids) == 0:
             return []
         return self.getObjects(obj_type, ids)
+    
+    def getObjectsByMapAnnotationsList(self, obj_type=None, key_vals=[], ns=None, opts={}):
+        """
+        Retrieve objects linked to Map Annotations, filter by list of key and value dicts.
 
+        :param obj_type:    'Dataset', 'Image' etc.
+        :param key_vals:    Filters by a list of dicts that contain 'key' and 'value'
+        :return:            Generator yielding Objects
+        :rtype:             :class:`BlitzObjectWrapper` generator
+        """
+        wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
+        if not wrapper:
+            raise AttributeError("Don't know how to handle '%s'" % obj_type)
+        
+        params = omero.sys.ParametersI()
+        # Total length of key/val pairs to match
+        # stores in a set to avoid duplicates
+        key_vals_count = len(key_vals)
+        keys = set()
+        vals = set()
+        for kv in key_vals:
+            keys.add(kv['key'])
+            vals.add(kv['value'])
+
+        # Formatting for query list string
+        keys_str = str(keys).replace('{', '(').replace('}', ')')
+        vals_str = str(vals).replace('{', '(').replace('}', ')')
+        
+        # Opts to Params
+        # Parse opts dict to build params
+        limit = opts.get('limit', 500)
+        offset = opts.get('offset', 0)
+        if offset is not None and limit is not None:
+            params.page(offset, limit)
+
+        # Query
+        query = f"""
+            select distinct obj.id from {obj_type}AnnotationLink oal
+            join oal.parent obj 
+            join oal.child ann 
+            join ann.mapValue mv
+            where mv.name in {keys_str}
+            and mv.value in {vals_str}
+            group by obj.id 
+            having count(*) = {key_vals_count}
+        """
+
+        # Return objects
+        result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
+        ids = [row[0].val for row in result]
+        if len(ids) == 0:
+            return []
+        return self.getObjects(obj_type, ids)
 
     ################
     # Enumerations #
