@@ -4293,7 +4293,7 @@ class _BlitzGateway (object):
             query += "and ann.ns = " + ns
         query += """
             group by obj.id 
-            having count(*) = %s
+            having count(*) >= %s
         """ % key_vals_count
 
         # Return objects
