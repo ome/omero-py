@@ -10474,10 +10474,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             {self.getSizeZ()},
             {self.getSizeY()},
             {self.getSizeX()})"""
-        physical_dims = f"""(
-            {self.getPixelSizeZ()},
-            {self.getPixelSizeY()},
-            {self.getPixelSizeX()})"""
+        physical_dims = """({:.3f}, {:.3f}, {:.3f})""".format(
+            self.getPixelSizeZ(),
+            self.getPixelSizeY(),
+            self.getPixelSizeX())
         physical_units = f"""(
             {self.getPixelSizeZ(units=True).getUnit()},
             {self.getPixelSizeY(units=True).getUnit()},
