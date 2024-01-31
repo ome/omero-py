@@ -1711,7 +1711,7 @@ present, the user will enter a console""")
                 self.ctx.err(jstack[1])
 
         if unknown_services:
-                self.ctx.die(f"{unknown_services} unknown service(s)")
+                self.ctx.die(14, f"{unknown_services} unknown service(s)")
 
     def getdirsize(self, directory, strict=True):
         """
