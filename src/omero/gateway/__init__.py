@@ -10451,18 +10451,21 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         </head>
         """
 
+        def obj_html(obj, otype):
+            return f"""<tr>
+                    <td><b>{otype}</b></td>
+                    <td class=text-right>{obj.id if obj else ""}</td>
+                    <td class=text-right>{obj.name if obj else ""}</td>
+                    </tr>
+                """
+
         # create a sub-table for image information
         table_imageinfo = f"""
-        <table>\n
-            <tr>\n
-                <td><b>Image name: </b></td> <td class=text-right>{self.getName()}</td>\n
-            </tr>\n
-            <tr>\n
-                <td><b>Image ID: </b></td>  <td class=text-right>{self.getId()}</td>\n
-            </tr>\n
-            <tr>\n
-                <td><b>Project ID: </b></td>   <td class=text-right>{self.getProject().getId()}</td>\n
-            </tr>\n
+        <table>
+            <tr><th></th><th>ID</th><th>Name</th></tr>
+            {obj_html(self, 'Image')}
+            {obj_html(self.getParent(), 'Dataset')}
+            {obj_html(self.getProject(), 'Project')}
         </table>
         """
 
