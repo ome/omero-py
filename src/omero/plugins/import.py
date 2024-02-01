@@ -571,7 +571,7 @@ class ImportControl(BaseControl):
             return None, omero_java_txt
 
     def download_omero_java(self, version_or_uri):
-        if re.match("^\w+://", version_or_uri):
+        if re.match(r"^\w+://", version_or_uri):
             omero_java_zip = version_or_uri
         else:
             omero_java_zip = OMERO_JAVA_ZIP.format(version=version_or_uri)
