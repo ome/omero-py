@@ -22,12 +22,7 @@
 Utility methods for dealing with scripts.
 """
 
-try:
-    from PIL import Image, ImageDraw, ImageFont  # see ticket:2597
-except ImportError:
-    import Image
-    import ImageDraw
-    import ImageFont  # see ticket:2597
+from PIL import Image, ImageDraw, ImageFont
 
 import os.path
 import omero.gateway

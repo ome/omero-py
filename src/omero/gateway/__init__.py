@@ -56,17 +56,7 @@ from omero.rtypes import rtime, rlist, rdouble, unwrap
 logger = logging.getLogger(__name__)
 THISPATH = os.path.dirname(os.path.abspath(__file__))
 
-try:
-    from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
-except:  # pragma: nocover
-    try:
-        # see ticket:2597
-        import Image
-        import ImageDraw
-        import ImageFont
-    except:
-        logger.error(
-            'No Pillow installed, line plots and split channel will fail!')
+from PIL import Image, ImageDraw, ImageFont
 
 
 def omero_type(val):

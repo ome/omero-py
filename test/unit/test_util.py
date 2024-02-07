@@ -36,10 +36,7 @@ from omero.util import (
     get_omero_userdir, get_omero_user_cache_dir, get_user_dir)
 from omero_version import omero_version
 import omero.util.image_utils as image_utils
-try:
-    from PIL import Image
-except ImportError:
-    import Image
+from PIL import Image
 import numpy
 
 

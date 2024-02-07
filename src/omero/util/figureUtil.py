@@ -29,11 +29,7 @@ A collection of utility methods used by Figure scripts for producing
 publication type of figures.
 """
 
-try:
-    from PIL import Image, ImageDraw  # see ticket:2597
-except ImportError:
-    import Image
-    import ImageDraw
+from PIL import Image, ImageDraw
 
 WHITE = (255, 255, 255)
 

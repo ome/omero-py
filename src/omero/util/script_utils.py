@@ -43,13 +43,7 @@ except:
     import sha
     hash_sha1 = sha.new
 
-try:
-    from PIL import Image  # see ticket:2597
-except:  # pragma: nocover
-    try:
-        import Image  # see ticket:2597
-    except:
-        logging.error('No Pillow installed')
+from PIL import Image
 
 # r,g,b,a colours for use in scripts.
 COLOURS = {
@@ -918,10 +912,7 @@ def split_image(client, imageId, dir,
     raw_pixels_store = session.createRawPixelsStore()
     pixels_service = session.getPixelsService()
 
-    try:
-        from PIL import Image   # see ticket:2597
-    except:
-        import Image        # see ticket:2597
+    from PIL import Image
 
     query_string = "select p from Pixels p join fetch p.image " \
                    "as i join fetch p.pixelsType where i.id='%s'" % imageId
