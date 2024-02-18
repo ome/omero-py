@@ -55,7 +55,7 @@ from omero.util.metadata_utils import (
 from omero.util import pydict_text_io
 from omero import client
 
-from .populate_roi import ThreadPool
+from omero.util.populate_roi import ThreadPool
 
 
 log = logging.getLogger("omero.util.populate_metadata")
