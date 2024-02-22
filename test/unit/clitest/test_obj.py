@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-Test of the omero/plugins/tx.py module
+Test of the omero/plugins/obj.py module
 """
 
 from builtins import object
