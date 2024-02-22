@@ -4,9 +4,9 @@
 
 This release adds preliminary support for running OMERO.py on Python 3.12 environments.
 
-The `future` dependency should be considered as deprecated and will be removed in the
-next minor release of OMERO.py. Downstream projects who are relying on this
-dependency should declare them explicitly in their configuration file.
+The `future` dependency should be considered deprecated and will be removed in the
+next minor release of OMERO.py. Downstream projects which are relying on this
+dependency should declare it explicitly in their configuration file.
 
 # 5.18.0 (January 2024)
 
