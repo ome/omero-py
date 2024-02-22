@@ -5,8 +5,6 @@
 # how-can-i-repeat-each-test-multiple-times-in-a-py-test-run
 #
 
-from builtins import range
-from builtins import object
 import os
 import pytest
 

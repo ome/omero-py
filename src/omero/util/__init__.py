@@ -7,11 +7,6 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-from __future__ import division
-from builtins import str
-from future.utils import native_str
-from past.utils import old_div
-from builtins import object
 from appdirs import user_data_dir, user_cache_dir
 import os
 import sys
@@ -98,13 +93,13 @@ def configure_server_logging(props):
     log_timed = props.getPropertyWithDefault(
         "omero.logging.timedlog", "False")[0] in ('T', 't')
     log_num = int(
-        props.getPropertyWithDefault("omero.logging.lognum", native_str(LOGNUM)))
+        props.getPropertyWithDefault("omero.logging.lognum", str(LOGNUM)))
     log_size = int(
-        props.getPropertyWithDefault("omero.logging.logsize", native_str(LOGSIZE)))
+        props.getPropertyWithDefault("omero.logging.logsize", str(LOGSIZE)))
     log_num = int(
-        props.getPropertyWithDefault("omero.logging.lognum", native_str(LOGNUM)))
+        props.getPropertyWithDefault("omero.logging.lognum", str(LOGNUM)))
     log_level = int(
-        props.getPropertyWithDefault("omero.logging.level", native_str(LOGLEVEL)))
+        props.getPropertyWithDefault("omero.logging.level", str(LOGLEVEL)))
     configure_logging(log_dir, log_name, loglevel=log_level,
                       maxBytes=log_size, backupCount=log_num,
                       time_rollover=log_timed)
@@ -206,7 +201,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6,
         implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
     else:
         if not implicit_ctx.containsKey(omero.constants.CLIENTUUID):
-            client_uuid = native_str(uuid.uuid4())
+            client_uuid = str(uuid.uuid4())
             implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
 
     while tryCount < retries:
@@ -292,7 +287,7 @@ def load_dotted_class(dotted_class):
     try:
         parts = dotted_class.split(".")
         pkg = ".".join(parts[0:-2])
-        mod = native_str(parts[-2])
+        mod = str(parts[-2])
         kls = parts[-1]
         got = __import__(pkg, fromlist=[mod])
         got = getattr(got, mod)
@@ -464,7 +459,7 @@ class Server(Ice.Application):
 
         try:
             self.logger.info("Waiting %s ms on startup" % ms)
-            self.stop_event.wait(old_div(ms, 1000))
+            self.stop_event.wait(ms // 1000)
         except:
             self.logger.debug(exc_info=1)
 
@@ -854,7 +849,7 @@ def get_omero_userdir():
     elif omero_userdir == "":
         return path.path(user_data_dir(*APPDIR_DEFAULTS))
     else:
-        return old_div(path.path(get_user_dir()), "omero")
+        return path.path(get_user_dir()) / "omero"
 
 
 def get_omero_user_cache_dir():

@@ -15,13 +15,8 @@ import threading
 import omero.util
 import logging.handlers
 
-try:
-    from threading import _Event
-    from threading import _Timer
-except ImportError:
-    # Python3
-    from threading import Event as _Event
-    from threading import Timer as _Timer
+from threading import Event as _Event
+from threading import Timer as _Timer
 
 
 def get_event(name="Unknown"):

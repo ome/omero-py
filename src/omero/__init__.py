@@ -120,14 +120,3 @@ def proxy_to_instance(proxy_string, default=None):
         raise ClientError(("Invalid proxy string: %s. "
                           "Correct format is Class:ID") % proxy_string)
     return kls(proxy_string)
-
-#
-# Workaround for warning messages produced in
-# code-generated Ice files.
-#
-if _sys.version_info[:2] == (2, 6):
-    import warnings
-    warnings.filterwarnings(
-        action='ignore',
-        message='BaseException.message has been deprecated as of Python 2.6',
-        category=DeprecationWarning)

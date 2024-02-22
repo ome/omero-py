@@ -28,16 +28,8 @@
 A collection of utility methods used by Figure scripts for producing
 publication type of figures.
 """
-from __future__ import division
 
-from builtins import str
-from builtins import range
-from past.utils import old_div
-try:
-    from PIL import Image, ImageDraw  # see ticket:2597
-except ImportError:
-    import Image
-    import ImageDraw
+from PIL import Image, ImageDraw
 
 WHITE = (255, 255, 255)
 
@@ -166,27 +158,27 @@ def formatTime(seconds, timeUnits):
     elif timeUnits == "SECS":
         label = "%d" % int(round(seconds))
     elif timeUnits == "MINS":
-        mins = old_div(float(seconds), float(60))
+        mins = seconds / 60
         label = "%d" % int(round(mins))
     elif timeUnits == "HOURS":
-        hrs = old_div(float(seconds), float(3600))
+        hrs = seconds / 3600
         label = "%d" % int(round(hrs))
     elif timeUnits == "MINS_SECS":
-        mins = old_div(seconds, 60)
+        mins = seconds // 60
         secs = round(seconds % 60)
         label = "%d:%02d" % (mins, secs)
     elif timeUnits == "HOURS_MINS":
-        hrs = old_div(seconds, 3600)
-        mins = round(old_div((seconds % 3600), 60))
+        hrs = seconds // 3600
+        mins = round((seconds % 3600) // 60)
         label = "%d:%02d" % (hrs, mins)
     elif timeUnits == "HOURS_MINS_SECS":
-        hrs = old_div(seconds, 3600)
-        mins = old_div((seconds % 3600), 60)
+        hrs = seconds // 3600
+        mins = (seconds % 3600) // 60
         secs = round(seconds % (3600 * 60))
         label = "%d:%02d:%02d" % (hrs, mins, secs)
     elif timeUnits == "HOURS_MINS_SECS_MILLIS":
-        hrs = old_div(seconds, 3600)
-        mins = old_div((seconds % 3600), 60)
+        hrs = seconds // 3600
+        mins = (seconds % 3600) // 60
         secs = (seconds % (3600 * 60))
         label = "%d:%02d:%05.2f" % (hrs, mins, secs)
     else:
@@ -297,7 +289,7 @@ def getVerticalLabels(labels, font, textGap):
     for label in labels:
         box = font.getbbox(label)
         width = box[2] - box[0]
-        indent = old_div((maxWidth - width), 2)
+        indent = (maxWidth - width) // 2
         textdraw.text((indent, py), label, font=font, fill=(0, 0, 0))
         py += textHeight + textGap
     return textCanvas.rotate(90)

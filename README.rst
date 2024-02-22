@@ -19,7 +19,7 @@ Dependencies
 Direct dependencies of OMERO.py are:
 
 - `ZeroC IcePy 3.6`_
-- future
+- future (deprecated)
 - numpy
 - Pillow >= 10.0.0
 

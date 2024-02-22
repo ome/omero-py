@@ -20,8 +20,6 @@
 # SOFTWARE.
 #
 
-from __future__ import division
-from __future__ import with_statement
 
 """
 path.py - An object representing a path to a file or directory.
@@ -43,15 +41,6 @@ Modified by the OME team as follows:
  * Added parpath (2009/09/21)
 """
 
-from builtins import zip
-from builtins import chr
-from builtins import map
-from builtins import str
-from past.builtins import basestring
-from past.utils import old_div
-from builtins import bytes
-from builtins import object
-
 import sys
 import warnings
 import os
@@ -72,67 +61,19 @@ try:
 except ImportError:
     pass
 
-try:
-    import pwd
-except ImportError:
-    pass
+import pwd
+from functools import reduce
 
-################################
-# Monkey patchy python 3 support
-try:
-    basestring
-except NameError:
-    basestring = str
+getcwdu = os.getcwd
 
-try:
-    str
-except NameError:
-    str = str
-
-try:
-    getcwdu = os.getcwd
-except AttributeError:
-    getcwdu = os.getcwd
-
-PY3 = sys.version_info[0] >= 3
-if PY3:
-    def u(x):
-        return x
-else:
-    def u(x):
-        return codecs.unicode_escape_decode(x)[0]
+def u(x):
+    return x
 
 o777 = 511
 o766 = 502
 o666 = 438
 o554 = 364
-################################
 
-##########################
-# Python 2.5 compatibility
-try:
-    from functools import reduce
-except ImportError:
-    pass
-##########################
-
-##############################################################
-# Support for surrogateescape
-
-
-def surrogate_escape(error):
-    """
-    Simulate the Python 3 surrogateescape handler, but for Python 2 only.
-    """
-    chars = error.object[error.start:error.end]
-    assert len(chars) == 1
-    val = ord(chars)
-    val += 0xdc00
-    return chr(val), error.end
-
-if not PY3:
-    codecs.register_error('surrogateescape', surrogate_escape)
-###############################################################
 
 __version__ = '5.2'
 __all__ = ['path', 'CaseInsensitivePattern']
@@ -216,9 +157,7 @@ class path(str):
         Ensure the path as retrieved from a Python API, such as os.listdir,
         is a proper Unicode string.
         """
-        if PY3 or isinstance(path, str):
-            return path
-        return path.decode(sys.getfilesystemencoding(), 'surrogateescape')
+        return path
 
     # --- Special Python methods.
 
@@ -233,7 +172,7 @@ class path(str):
             return NotImplemented
 
     def __radd__(self, other):
-        if not isinstance(other, basestring):
+        if not isinstance(other, str):
             return NotImplemented
         return self._next_class(other.__add__(self))
 
@@ -543,7 +482,7 @@ class path(str):
         if pattern is None:
             pattern = '*'
         return [
-            old_div(self, child)
+            self / child
             for child in map(self._always_unicode, names)
             if self._next_class(child).fnmatch(pattern)
         ]
@@ -741,7 +680,7 @@ class path(str):
         .. seealso:: :func:`glob.glob`
         """
         cls = self._next_class
-        return [cls(s) for s in glob.glob(old_div(self, pattern))]
+        return [cls(s) for s in glob.glob(self / pattern)]
 
     #
     # --- Reading or writing an entire file at once.
@@ -1376,7 +1315,7 @@ class path(str):
             if p.isabs():
                 return p
             else:
-                return (old_div(self.parent, p)).abspath()
+                return (self.parent / p).abspath()
 
     #
     # --- High-level functions from shutil

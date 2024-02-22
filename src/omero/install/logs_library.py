@@ -12,11 +12,7 @@ Function for parsing OMERO log files.
 The format expected is defined for Python in
 omero.util.configure_logging.
 """
-from __future__ import division
-from __future__ import print_function
 
-from builtins import object
-from past.utils import old_div
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as lines
@@ -38,7 +34,7 @@ def parse_time(value):
     """
     parts = value.split(",")
     value = parts[0]
-    millis = old_div(float(parts[1]), 1000.0)
+    millis = parts[1] / 1000.0
     t = mktime(strptime(value, "%Y-%m-%d %H:%M:%S"))
     t = float(t)
     t += millis

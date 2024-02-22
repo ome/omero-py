@@ -8,13 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import division
 
-from builtins import str
-from builtins import range
-from future.utils import native_str
-from past.utils import old_div
-from builtins import object
 import pytest
 import Ice
 import omero
@@ -96,7 +90,7 @@ class mocked_internal_service_factory(object):
 
 class mocked_service_factory(object):
     def __init__(self):
-        self.db_uuid = native_str(uuid.uuid4())
+        self.db_uuid = str(uuid.uuid4())
         self.return_values = []
 
     def keepAlive(self, *args):
@@ -164,7 +158,7 @@ class mocked_query_service(object):
 
 class mock_internal_repo(object):
     def __init__(self, dir):
-        self.path = old_div(dir, "mock.h5")
+        self.path = dir / "mock.h5"
 
     def __call__(self, *args):
         return self
@@ -254,7 +248,7 @@ class TestTables(TestCase):
     def repodir(self, make=True):
         self.tmp = path(self.tmpdir())
         self.communicator.getProperties().setProperty("omero.repo.dir",
-                                                      native_str(self.tmp))
+                                                      str(self.tmp))
         repo = self.tmp / ".omero" / "repository"
         if make:
             repo.makedirs()
@@ -264,9 +258,9 @@ class TestTables(TestCase):
         if repo_uuid is None:
             repo_uuid = self.repouuid()
         f = self.repodir()
-        f = old_div(path(f), db_uuid)
+        f = path(f) / db_uuid
         f.makedirs()
-        f = old_div(f, "repo_uuid")
+        f = f / "repo_uuid"
         f.write_lines([repo_uuid])
 
     # Note: some of the following method were added as __init__ called

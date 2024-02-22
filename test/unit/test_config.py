@@ -8,11 +8,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
-from __future__ import division
 
-from builtins import str
-from builtins import object
-from past.utils import old_div
 import os
 import sys
 import json
@@ -347,14 +343,14 @@ class TestConfig(object):
     def testCannotCreate(self, tmp_path):
         d = tmp_path
         d.chmod(0o555)
-        filename = str(old_div(d, "config.xml"))
+        filename = str(d / "config.xml")
         with pytest.raises(IOError) as excinfo:
             ConfigXml(filename).close()
         assert excinfo.value.errno == errno.EACCES
 
     def testCannotCreateLock(self, tmp_path):
         d = tmp_path
-        filename = str(old_div(d, "config.xml"))
+        filename = str(d / "config.xml")
         lock_filename = "%s.lock" % filename
         with open(lock_filename, "w") as fo:
             fo.write("dummy\n")

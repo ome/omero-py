@@ -10,7 +10,6 @@
 
 """
 
-from builtins import object
 from omero.rtypes import rlong, rint, rbool, rstring, rtime
 from omero_sys_ParametersI import ParametersI
 

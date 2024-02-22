@@ -23,10 +23,6 @@
 # Version: 1.0
 #
 
-from builtins import str
-from future.utils import native_str
-from past.builtins import basestring
-from builtins import object
 import logging
 import json
 
@@ -88,7 +84,7 @@ class ServiceOptsDict(dict):
     def __setitem__(self, key, item):
         """Set key to value as string."""
         if self._testItem(item):
-            super(ServiceOptsDict, self).__setitem__(key, native_str(item))
+            super(ServiceOptsDict, self).__setitem__(key, str(item))
             logger.debug("Setting %r to %r" % (key, item))
         else:
             raise AttributeError(
@@ -174,7 +170,7 @@ class ServiceOptsDict(dict):
 
     def _testItem(self, item):
         if item is not None and not isinstance(item, bool) and \
-            (isinstance(item, basestring) or
+            (isinstance(item, str) or
              isinstance(item, int) or
              isinstance(item, long) or
              isinstance(item, float)):

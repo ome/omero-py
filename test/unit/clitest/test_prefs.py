@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
-
 """
    Test of the scripts plugin
 
@@ -11,9 +9,6 @@ from __future__ import unicode_literals
 
 """
 
-from builtins import str
-from past.builtins import basestring
-from builtins import object
 import pytest
 import sys
 from omero.cli import CLI, NonZeroReturnCode
@@ -22,11 +17,6 @@ from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import PrefsControl, HELP
 from omero.util.temp_files import create_path
 
-
-try:
-    basestring
-except:
-    basestring = str
 
 @pytest.fixture
 def configxml(monkeypatch):
@@ -62,7 +52,7 @@ class TestPrefs(object):
                 e.strip() == err)
 
     def invoke(self, s):
-        if isinstance(s, basestring):
+        if isinstance(s, str):
             s = s.split()
         self.cli.invoke(self.args + s, strict=True)
 

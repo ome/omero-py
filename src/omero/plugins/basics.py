@@ -17,9 +17,7 @@ The load plugin is used to read in files with omero cli commands
 
 The help, quit, and version plugins are self-explanatory.
 """
-from __future__ import print_function
 
-from past.builtins import cmp
 from glob import glob
 import sys
 

@@ -3,7 +3,6 @@
 """
 ...
 """
-from __future__ import print_function
 
 #
 #  Copyright (C) 2009 University of Dundee. All rights reserved.
@@ -24,8 +23,6 @@ from __future__ import print_function
 #
 
 
-from builtins import range
-from builtins import object
 import unittest
 import os
 

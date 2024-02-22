@@ -9,7 +9,6 @@
    Group administration plugin
 """
 
-from builtins import str
 import sys
 
 from omero.cli import UserGroupControl, CLI, ExceptionHandler, admin_only

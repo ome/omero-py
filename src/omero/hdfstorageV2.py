@@ -9,12 +9,7 @@
 """
 OMERO HdfStorage Interface
 """
-from builtins import str
-from builtins import zip
-from builtins import range
-from builtins import object
-from future.utils import native, bytes_to_native_str, isbytes
-from past.builtins import basestring
+
 import time
 import numpy
 import logging
@@ -40,14 +35,7 @@ sys = __import__("sys")  # Python sys
 tables = __import__("tables")  # Pytables
 
 
-try:
-    # long only exists on Python 2
-    # Recent versions of PyTables may have treated Python 2 int and long
-    # identically anyway so treat the same
-    TABLES_METADATA_INT_TYPES = (int, numpy.int64, long)
-except NameError:
-    TABLES_METADATA_INT_TYPES = (int, numpy.int64)
-
+TABLES_METADATA_INT_TYPES = (int, numpy.int64)
 VERSION = '2'
 
 
@@ -240,7 +228,7 @@ class HdfStorage(object):
                             self.__hdf_path, mode))
                     mode = "r"
 
-            return tables.open_file(native(str(self.__hdf_path)), mode=mode,
+            return tables.open_file(str(self.__hdf_path), mode=mode,
                                     title="OMERO HDF Measurement Storage",
                                     rootUEP="/")
         except (tables.HDF5ExtError, IOError) as e:
@@ -313,13 +301,13 @@ class HdfStorage(object):
         k = '__version'
         try:
             v = self.__mea.attrs[k]
-            if isinstance(v, basestring):
+            if isinstance(v, str):
                 return v
         except KeyError:
             k = 'version'
             v = self.__mea.attrs[k]
-            if isbytes(v):
-                v = bytes_to_native_str(v)
+            if isinstance(v, bytes):
+                v = v.decode("utf-8")
             if v == 'v1':
                 return '1'
 
@@ -430,12 +418,12 @@ class HdfStorage(object):
         cols = []
         for i in range(len(types)):
             t = types[i]
-            if isbytes(t):
-                t = bytes_to_native_str(t)
+            if isinstance(t, bytes):
+                t = t.decode("utf-8")
             n = names[i]
             d = descs[i]
-            if isbytes(d):
-                d = bytes_to_native_str(d)
+            if isinstance(d, bytes):
+                d = d.decode("utf-8")
             try:
                 col = ic.findObjectFactory(t).create(t)
                 col.name = n
@@ -461,10 +449,10 @@ class HdfStorage(object):
                 val = rfloat(val)
             elif isinstance(val, TABLES_METADATA_INT_TYPES):
                 val = rlong(val)
-            elif isinstance(val, basestring):
-                if isbytes(val):
-                    val = bytes_to_native_str(val)
+            elif isinstance(val, str):
                 val = rstring(val)
+            elif isinstance(val, bytes):
+                val = rstring(val.decode("utf-8"))
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))
             metadata[key] = val

@@ -11,10 +11,7 @@ Function for setting the working directory for an
 Omero installation on Windows, since relative paths
 are not supported.
 """
-from __future__ import print_function
 
-
-from builtins import str
 import sys
 from omero_ext.path import path
 import fileinput
@@ -23,7 +20,7 @@ dummy = object()
 
 
 def win_set_path(new_name=dummy, old_name=r"c:\omero_dist", dir=path(".")):
-    """
+    r"""
     Parses the Windows cfg and xml files and
     replaces the default "c:\omero_dist" with the
     given value.
@@ -80,7 +77,7 @@ if __name__ == "__main__":
         print("Failed to set path: ", e)
         sys.exit(1)
 
-    print("""Usage: %s [oldname] newname
+    print(r"""Usage: %s [oldname] newname
 
 Replaces the [oldname] entries in the Windows configuration files
 with [newname]. By default, [oldname] is set to "c:\omero_dist"

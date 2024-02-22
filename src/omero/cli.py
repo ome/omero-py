@@ -22,21 +22,7 @@ arguments, ``sys.argv``, and finally from standard-in using the
 ``cmd.Cmd.cmdloop`` method.
 """
 
-from __future__ import division
-from __future__ import print_function
 
-from past.builtins import execfile
-from past.builtins import basestring
-from future.utils import bytes_to_native_str
-from future.utils import isbytes
-from future.utils import native_str
-from builtins import zip
-from builtins import input
-from builtins import map
-from builtins import str
-from builtins import range
-from past.utils import old_div
-from builtins import object
 sys = __import__("sys")
 cmd = __import__("cmd")
 
@@ -519,9 +505,6 @@ class Context(object):
         Prints text to a given string, capturing any exceptions.
         """
         try:
-            if sys.version_info < (3, 0, 0):
-                if isinstance(text, basestring) and not isinstance(text, unicode):
-                    text = text.encode("utf-8")
             stream.write(text)
             if newline:
                 stream.write("\n")
@@ -682,7 +665,7 @@ class Error(object):
             def _configure(self, parser):
                 self.add_error("NAME", 100, "some message: %s")
                 ...
-            def __call__(self, \*args):
+            def __call__(self, *args):
                 self.raise_error("NAME", "my text")
     """
 
@@ -809,7 +792,7 @@ class BaseControl(object):
             nodepath = self._properties()[property]
 
             if RELFILE.match(nodepath):
-                nodedata = old_div(self.dir, path(nodepath))
+                nodedata = self.dir / path(nodepath)
             else:
                 nodedata = path(nodepath)
 
@@ -830,7 +813,7 @@ class BaseControl(object):
         """
         props = self._properties()
         self._nodedata()
-        logdata = old_div(self.dir, path(props["Ice.StdOut"]).dirname())
+        logdata = self.dir / path(props["Ice.StdOut"]).dirname()
         if not logdata.exists():
             self.ctx.out("Initializing %s" % logdata)
             logdata.makedirs()
@@ -862,7 +845,7 @@ class BaseControl(object):
         Returns a path of the form _nodedata() / (_node() + ".pid"),
         i.e. a file named NODENAME.pid in the node's data directory.
         """
-        pidfile = old_div(self._nodedata(), (self._node() + ".pid"))
+        pidfile = self._nodedata() / (self._node() + ".pid")
         return pidfile
 
     def _cfglist(self):
@@ -872,13 +855,13 @@ class BaseControl(object):
         followed by a file named NODENAME.cfg under the etc/
         directory, following by PLATFORM.cfg if it exists.
         """
-        cfgs = old_div(self.dir, "etc")
-        internal = old_div(cfgs, "internal.cfg")
-        owncfg = old_div(cfgs, self._node()) + ".cfg"
+        cfgs = self.dir / "etc"
+        internal = cfgs / "internal.cfg"
+        owncfg = cfgs / self._node() + ".cfg"
         results = [internal, owncfg]
         # Look for <platform>.cfg
         p_s = platform.system()
-        p_c = old_div(cfgs, p_s) + ".cfg"
+        p_c = cfgs / p_s + ".cfg"
         if p_c.exists():
             results.append(p_c)
         return results
@@ -899,7 +882,7 @@ class BaseControl(object):
         """
         intcfg = self.dir / "etc" / "internal.cfg"
         intcfg.abspath()
-        return native_str("--Ice.Config=%s" % intcfg)
+        return "--Ice.Config=%s" % intcfg
 
     def _properties(self, prefix=""):
         """
@@ -913,7 +896,7 @@ class BaseControl(object):
             self._props = Ice.createProperties()
             for cfg in self._cfglist():
                 try:
-                    self._props.load(native_str(cfg))
+                    self._props.load(str(cfg))
                 except Exception:
                     self.ctx.dbg("Complete error: %s" % traceback.format_exc())
                     self.ctx.die(3, "Could not find file: " + cfg +
@@ -1209,7 +1192,7 @@ class CLI(cmd.Cmd, Context):
         self._stack = []     #: List of commands being processed
         self._client = None  #: Single client for all activities
         #: Paths to be loaded; initially official plugins
-        self._plugin_paths = [old_div(OMEROCLI, "plugins")]
+        self._plugin_paths = [OMEROCLI / "plugins"]
         self._pluginsLoaded = CLI.PluginsLoaded()
 
     def assertRC(self):
@@ -1340,7 +1323,7 @@ class CLI(cmd.Cmd, Context):
         function returned by argparse.
         """
 
-        if isinstance(line, basestring):
+        if isinstance(line, str):
             if COMMENT.match(line):
                 return  # EARLY EXIT!
             args = shlex.split(line)
@@ -1392,7 +1375,7 @@ class CLI(cmd.Cmd, Context):
             elif "p" in debug_opts or "profile" in debug_opts:
                 from hotshot import stats, Profile
                 from omero.util import get_omero_userdir
-                profile_file = old_div(get_omero_userdir(), "hotshot_edi_stats")
+                profile_file = get_omero_userdir() / "hotshot_edi_stats"
                 prof = Profile(profile_file)
                 prof.runcall(lambda: args.func(args))
                 prof.close()
@@ -1491,7 +1474,7 @@ class CLI(cmd.Cmd, Context):
         jar_root = root_path / 'lib' / 'server'
         for component in OMERO_COMPONENTS:
             from zipfile import ZipFile, is_zipfile, BadZipfile
-            jar_name = old_div(jar_root, 'omero-{}.jar'.format(component))
+            jar_name = jar_root / 'omero-{}.jar'.format(component)
             if is_zipfile(jar_name):
                 config_name = 'omero-{}.properties'.format(component)
                 try:
@@ -1518,8 +1501,8 @@ class CLI(cmd.Cmd, Context):
         lines = self.get_config_property_lines(path(self._cwd(None)))
         defaults = ""
         for line in lines:
-            if isbytes(line):
-                defaults += bytes_to_native_str(line)
+            if isinstance(line, bytes):
+                defaults += line.decode("utf-8")
             else:
                 defaults += line
             defaults += "\n"
@@ -1529,8 +1512,8 @@ class CLI(cmd.Cmd, Context):
 
     def parsePropertyFile(self, data, output):
         for line in output.splitlines():
-            if isbytes(line):
-                line = bytes_to_native_str(line)
+            if isinstance(line, bytes):
+                line = line.decode("utf-8")
             if line.startswith(
                     "Listening for transport dt_socket at address"):
                 self.dbg(
@@ -1554,7 +1537,7 @@ class CLI(cmd.Cmd, Context):
 
         from omero.plugins.prefs import getprefs
         try:
-            output = getprefs(["get"], str(old_div(path(self._cwd(None)), "lib")))
+            output = getprefs(["get"], str(path(self._cwd(None)) / "lib"))
         except OSError as err:
             self.err("Error getting preferences")
             self.dbg(err)
@@ -1618,7 +1601,7 @@ class CLI(cmd.Cmd, Context):
         self.configure_plugins()
 
     def register_only(self, name, Control, help, epilog=None):
-        """ This method is added to the globals when execfile() is
+        """ This method is added to the globals when exec() is
         called on each plugin. A Control class should be
         passed to the register method which will be added to the CLI.
         """
@@ -1690,7 +1673,8 @@ class CLI(cmd.Cmd, Context):
                 print("Loading %s" % pathobj)
             try:
                 loc = {"register": self.register_only}
-                execfile(str(pathobj), loc)
+                with open(str(pathobj), "r") as f:
+                    exec(f.read(), loc)
             except KeyboardInterrupt:
                 raise
             except:
@@ -1956,7 +1940,7 @@ class CmdControl(BaseControl):
             self.ctx.out("Steps: %s" % status.steps)
             if status.stopTime > 0 and status.startTime > 0:
                 elapse = status.stopTime - status.startTime
-                self.ctx.out("Elapsed time: %s secs." % (old_div(elapse,1000.0)))
+                self.ctx.out("Elapsed time: %s secs." % (elapse / 1000.0))
             else:
                 self.ctx.out("Unfinished.")
             self.ctx.out("Flags: %s" % status.flags)
@@ -1987,7 +1971,7 @@ class CmdControl(BaseControl):
             self.ctx.out("Exiting immediately")
         elif wait > 0:
             ms = wait * 1000
-            ms = old_div(ms, loops)
+            ms = ms // loops
             self.ctx.out("Waiting %s loops of %s ms" % (ms, loops))
             cb.loop(loops, ms)
         else:

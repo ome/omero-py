@@ -21,13 +21,7 @@
 """
 Utility methods for dealing with scripts.
 """
-from __future__ import division
-from future.utils import native_str
 
-from builtins import hex
-from builtins import str
-from builtins import range
-from past.utils import old_div
 import logging
 import os
 import warnings
@@ -49,13 +43,7 @@ except:
     import sha
     hash_sha1 = sha.new
 
-try:
-    from PIL import Image  # see ticket:2597
-except:  # pragma: nocover
-    try:
-        import Image  # see ticket:2597
-    except:
-        logging.error('No Pillow installed')
+from PIL import Image
 
 # r,g,b,a colours for use in scripts.
 COLOURS = {
@@ -674,7 +662,7 @@ def download_plane(raw_pixels_store, pixels, z, c, t):
     size_x = pixels.getSizeX().getValue()
     size_y = pixels.getSizeY().getValue()
     pixel_type = pixels.getPixelsType().getValue().getValue()
-    convert_type = '>' + native_str(size_x * size_y) + \
+    convert_type = '>' + str(size_x * size_y) + \
         pixelstypetopython.toPython(pixel_type)
     converted_plane = unpack(convert_type, raw_plane)
     numpy_type = pixelstypetopython.toNumpy(pixel_type)
@@ -924,10 +912,7 @@ def split_image(client, imageId, dir,
     raw_pixels_store = session.createRawPixelsStore()
     pixels_service = session.getPixelsService()
 
-    try:
-        from PIL import Image   # see ticket:2597
-    except:
-        import Image        # see ticket:2597
+    from PIL import Image
 
     query_string = "select p from Pixels p join fetch p.image " \
                    "as i join fetch p.pixelsType where i.id='%s'" % imageId
@@ -1566,7 +1551,7 @@ def convert_numpy_array(plane, min_max, type):
         val_range = max_val - min_val
         if (val_range == 0):
             val_range = 1
-        scaled = (plane - min_val) * (old_div(float(255), val_range))
+        scaled = (plane - min_val) * (255 / val_range)
         conv_array = zeros(plane.shape, dtype=type)
         try:
             conv_array += scaled

@@ -6,7 +6,6 @@
 
    Use is subject to license terms supplied in LICENSE.txt
 """
-from __future__ import print_function
 
 import glob
 import sys
@@ -18,31 +17,18 @@ from setuptools import (
     find_packages,
 )
 
-try:
-    from StringIO import StringIO
-    from StringIO import StringIO as BytesIO
-except ImportError:
-    # Python 3
-    from io import StringIO
-    from io import BytesIO
+from io import StringIO
+from io import BytesIO
 
 from shutil import (
     copy,
     rmtree,
 )
 
-try:
-    from urllib.request import urlopen
-except ImportError:
-    # Python 2
-    from urllib import urlopen
+from urllib.request import urlopen
 from zipfile import ZipFile
 
-try:
-    import configparser
-except ImportError:
-    # Python 2
-    import ConfigParser as configparser
+import configparser
 
 
 def get_blitz_location():

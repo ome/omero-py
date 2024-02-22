@@ -18,10 +18,7 @@ take as their sole input Ice configuration arguments, including
 The first parameter, the script itself, should be natively executable
 on a given platform i.e. invokable by subprocess.call([file,...])
 """
-from __future__ import print_function
 
-from builtins import str
-from builtins import object
 import re
 import os
 import sys
@@ -288,10 +285,7 @@ class ScriptControl(BaseControl):
         from omero.util.temp_files import create_path
         t = create_path("Demo_Script", ".py")
 
-        try:
-            from hashlib import sha1 as sha_new
-        except ImportError:
-            from sha import new as sha_new
+        from hashlib import sha1 as sha_new
 
         digest = sha_new()
         digest.update(DEMO_SCRIPT.encode('utf-8'))

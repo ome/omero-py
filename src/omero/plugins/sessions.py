@@ -24,10 +24,7 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 """
-from __future__ import division
 
-from builtins import str
-from past.utils import old_div
 import datetime
 import os
 import sys
@@ -310,8 +307,8 @@ class SessionsControl(UserGroupControl):
         sess = svc.createSessionWithTimeout(p, (int(args.timeout)
                                                 * 1000))
         sessId = sess.getUuid().val
-        tti = old_div(sess.getTimeToIdle().val, 1000)
-        ttl = old_div(sess.getTimeToLive().val, 1000)
+        tti = sess.getTimeToIdle().val / 1000
+        ttl = sess.getTimeToLive().val / 1000
 
         msg = "Session created for user %s" % username
         if groupname:
@@ -727,7 +724,7 @@ class SessionsControl(UserGroupControl):
 
         if args.seconds is None:
             # Query only
-            secs = old_div(unwrap(obj.timeToIdle),1000.0)
+            secs = unwrap(obj.timeToIdle) / 1000.0
             self.ctx.out(secs)
             return secs
 
@@ -768,7 +765,7 @@ class SessionsControl(UserGroupControl):
                             grp = a_s.getEventContext().groupName
                             s_s = rv[0].sf.getSessionService()
                             started = s_s.getSession(uuid).started.val
-                            started = time.ctime(old_div(started, 1000.0))
+                            started = time.ctime(started / 1000.0)
                         finally:
                             if rv:
                                 rv[0].closeSession()
@@ -845,7 +842,7 @@ class SessionsControl(UserGroupControl):
                 for k, v in sorted(data.items()):
                     try:
                         if k.endswith("Time"):
-                            t = old_div(v, 1000.0)
+                            t = v / 1000.0
                             t = time.localtime(t)
                             v = time.strftime('%Y-%m-%d %H:%M:%S', t)
                     except:
@@ -854,7 +851,7 @@ class SessionsControl(UserGroupControl):
                 results["name"].append(ec.userName)
                 results["group"].append(ec.groupName)
                 if s is not None:
-                    t = old_div(s.started.val, 1000.0)
+                    t = s.started.val / 1000.0
                     t = time.localtime(t)
                     t = time.strftime("%Y-%m-%d %H:%M:%S", t)
                     if uuid == ec.sessionUuid:

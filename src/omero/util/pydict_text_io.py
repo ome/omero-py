@@ -22,12 +22,10 @@ Read text-based dictionary file formats such as YAML and JSON
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-from past.builtins import basestring
 import os
 import json
 import re
 from omero.rtypes import unwrap
-from future.utils import bytes_to_native_str
 import yaml
 
 
@@ -49,7 +47,7 @@ def load(fileobj, filetype=None, single=True, session=None):
     :param session: If fileobj is an OriginalFile:ID a valid session is required
     """
 
-    if not isinstance(fileobj, basestring):
+    if not isinstance(fileobj, (str, bytes)):
         raise Exception(
             'Invalid type: fileobj must be a filename or json string')
 
@@ -84,7 +82,7 @@ def load(fileobj, filetype=None, single=True, session=None):
             data = json.loads(rawdata)
         except TypeError:
             # for Python 3.5
-            data = json.loads(bytes_to_native_str(rawdata))
+            data = json.loads(rawdata.decode("utf-8"))
         if single:
             return data
         return [data]

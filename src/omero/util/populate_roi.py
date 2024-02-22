@@ -3,8 +3,6 @@
 """
 ...
 """
-from __future__ import division
-from __future__ import print_function
 
 #
 #  Copyright (C) 2009 University of Dundee. All rights reserved.
@@ -25,12 +23,6 @@ from __future__ import print_function
 #
 
 
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import range
-from past.utils import old_div
-from builtins import object
 import tempfile
 import logging
 import time
@@ -168,7 +160,7 @@ class DownloadingOriginalFileProvider(object):
         temporary_file = tempfile.NamedTemporaryFile(mode='rt+',
                                                      dir=str(self.dir))
         size = original_file.size.val
-        for i in range((old_div(size, self.BUFFER_SIZE)) + 1):
+        for i in range((size // self.BUFFER_SIZE) + 1):
             index = i * self.BUFFER_SIZE
             data = self.raw_file_store.read(index, self.BUFFER_SIZE)
             temporary_file.write(data.decode("utf-8"))
@@ -216,7 +208,7 @@ class AbstractPlateAnalysisCtx(object):
     def colrow_from_wellnumber(self, width, wellnumber):
         x = wellnumber - 1
         col = x % width
-        row = old_div(x, width)
+        row = x // width
         return (col, row)
 
     def image_from_wellnumber(self, wellnumber):

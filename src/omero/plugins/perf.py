@@ -12,7 +12,6 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 """
-from __future__ import print_function
 
 import sys
 from omero.cli import BaseControl, CLI

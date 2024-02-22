@@ -8,11 +8,6 @@
 """
 OMERO Grid Processor
 """
-from __future__ import division
-from builtins import str
-from builtins import range
-from future.utils import native_str
-from past.utils import old_div
 import Ice
 import time
 import traceback
@@ -162,7 +157,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             gid = unwrap(self.file_obj.details.group.id)
             client_uuid = self.factory.ice_getIdentity().category[8:]
             ctx = {
-                "omero.group": native_str(gid),
+                "omero.group": str(gid),
                 omero.constants.CLIENTUUID: client_uuid}
             try:
                 # Size to reset the server object to (must be checked after
@@ -426,7 +421,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         wait = float(self.communicator.getProperties().getPropertyWithDefault(
             "omero.repo.wait", "1"))
-        per_loop = old_div(wait, retries)
+        per_loop = wait / retries
 
         exc = None
         for x in range(retries):
@@ -475,7 +470,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         """
         cfg = self.ctx.getSession().getConfigService()
         self.db_uuid = cfg.getDatabaseUuid()
-        self.instance = old_div(self.repo_cfg, self.db_uuid)
+        self.instance = self.repo_cfg / self.db_uuid
 
     def _get_repo(self):
         """
@@ -484,7 +479,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         create a proxy for the InternalRepository attached to that.
         """
 
-        uuidfile = old_div(self.instance, "repo_uuid")
+        uuidfile = self.instance / "repo_uuid"
         if not uuidfile.exists():
             msg = "%s doesn't exist" % uuidfile
             raise IOError(msg)

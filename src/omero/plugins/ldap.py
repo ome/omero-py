@@ -10,7 +10,6 @@
    User administration plugin (LDAP extension)
 """
 
-from builtins import str
 import sys
 
 from omero.cli import CLI, ExceptionHandler, admin_only, UserGroupControl

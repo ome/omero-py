@@ -9,7 +9,6 @@
    Startup plugin for command-line exporter
 """
 
-from builtins import str
 import os
 import sys
 
