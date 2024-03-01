@@ -2097,8 +2097,6 @@ class _BlitzGateway (object):
                     self.c.__del__()
                     self.c = None
             except omero.ClientError: # no session available
-                self.c.__del__()
-                self.c = None
                 pass
 
         if self.host is not None:
