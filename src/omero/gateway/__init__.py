@@ -1537,6 +1537,12 @@ class _BlitzGateway (object):
         self._sessionUuid = None
         self._session_cb = None
         self._session = None
+        if self.c is not None:
+            try:
+                self._sessionUuid = self.c.getSessionId()
+                self._session = self.c.getSession()
+            except omero.ClientError: # no session available
+                pass
         self._lastGroupId = None
         self._anonymous = anonymous
         self._defaultOmeroGroup = None
