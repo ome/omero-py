@@ -1525,7 +1525,11 @@ class _BlitzGateway (object):
         self.ice_config = [os.path.abspath(str(x)) for x in [_f for _f in self.ice_config if _f]]
 
         self.host = host
+        if self.c is not None:
+            self.host = self.c.getProperty("omero.host")
         self.port = port
+        if self.c is not None:
+            self.port = self.c.getProperty("omero.port")
         self.secure = secure
         self.useragent = useragent
         self.userip = userip
