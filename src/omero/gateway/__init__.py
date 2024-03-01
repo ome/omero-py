@@ -2092,8 +2092,14 @@ class _BlitzGateway (object):
         logger.debug(self.ice_config)
 
         if self.c is not None:
-            self.c.__del__()
-            self.c = None
+            try:
+                if self.c.getSessionId() !=  self._sessionUuid:
+                    self.c.__del__()
+                    self.c = None
+            except omero.ClientError: # no session available
+                self.c.__del__()
+                self.c = None
+                pass
 
         if self.host is not None:
             if self.port is not None:
