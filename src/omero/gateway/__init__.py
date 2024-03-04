@@ -1529,14 +1529,14 @@ class _BlitzGateway (object):
             hc = self.c.getProperty("omero.host")
             if self.host is None:
                 self.host = hc
-            else if hc != self.host
+            elif hc != self.host:
                 raise Exception("hosts %s and %s do not match" % (hc, self.host))
         self.port = port
         if self.c is not None:
             pc = self.c.getProperty("omero.port")
             if self.port is None:
                 self.port = pc
-            else if pc != self.port
+            elif pc != self.port:
                 raise Exception("ports %s and %s do not match" % (pc, self.port))
         self.secure = secure
         self.useragent = useragent
