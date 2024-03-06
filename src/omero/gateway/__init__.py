@@ -1539,6 +1539,8 @@ class _BlitzGateway (object):
             elif pc != self.port:
                 raise Exception("ports %s and %s do not match" % (pc, self.port))
         self.secure = secure
+        if self.c is not None:
+            self.secure = self.c.isSecure()
         self.useragent = useragent
         self.userip = userip
 
