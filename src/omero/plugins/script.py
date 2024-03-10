@@ -285,9 +285,9 @@ class ScriptControl(BaseControl):
         from omero.util.temp_files import create_path
         t = create_path("Demo_Script", ".py")
 
-        from hashlib import sha1 as sha_new
+        from hashlib import sha1
 
-        digest = sha_new()
+        digest = sha1()
         digest.update(DEMO_SCRIPT.encode('utf-8'))
         sha1 = digest.hexdigest()
 
