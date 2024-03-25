@@ -61,7 +61,11 @@ try:
 except ImportError:
     pass
 
-import pwd
+try:
+    import pwd
+except ImportError:
+    pass
+
 from functools import reduce
 
 getcwdu = os.getcwd
