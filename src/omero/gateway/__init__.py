@@ -1550,7 +1550,6 @@ class _BlitzGateway (object):
         if self.c is not None:
             try:
                 self._sessionUuid = self.c.getSessionId()
-                self._session = self.c.getSession()
             except omero.ClientError: # no session available
                 pass
         self._lastGroupId = None
