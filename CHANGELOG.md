@@ -1,3 +1,7 @@
+# 5.19.1 (March 2024)
+
+- Fix Windows regression in omero_ext.path [#402](https://github.com/ome/omero-py/pull/402)
+
 # 5.19.0 (February 2024)
 
 - Removal of python-future compatibility code [#390](https://github.com/ome/omero-py/pull/390)
