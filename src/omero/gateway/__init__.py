@@ -10380,6 +10380,110 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             return count[0][0].getValue()
         return len(self._get_rois(shapeType, filterByCurrentUser))
 
+    def _repr_html_(self):
+        import base64
+
+        html_style_header = """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Image Details</title>
+            <style>
+                img {
+                    min-width: 250px; /* Set the minimum width for all images */
+                    min-height: 250px; /* Set the minimum height for all images */
+                }
+                .align-top {
+                vertical-align: top;
+                }
+                .text-right {
+                text-align: right;
+                }
+            </style>
+        </head>
+        """
+
+        def obj_html(obj, otype):
+            return f"""<tr>
+                    <td><b>{otype}</b></td>
+                    <td class=text-right>{obj.id if obj else ""}</td>
+                    <td class=text-right>{obj.name if obj else ""}</td>
+                    </tr>
+                """
+
+        # create a sub-table for image information
+        table_imageinfo = f"""
+        <table>
+            <tr><th></th><th>ID</th><th>Name</th></tr>
+            {obj_html(self, 'Image')}
+            {obj_html(self.getParent(), 'Dataset')}
+            {obj_html(self.getProject(), 'Project')}
+        </table>
+        """
+
+        # get entries for thumbnail and dimensions
+        encoded_image = base64.b64encode(self.getThumbnail()).decode('utf-8')
+        dimensions = f"""(
+            {self.getSizeT()},
+            {self.getSizeC()},
+            {self.getSizeZ()},
+            {self.getSizeY()},
+            {self.getSizeX()})"""
+        physical_dims = """({:.3f}, {:.3f}, {:.3f})""".format(
+            self.getPixelSizeZ(),
+            self.getPixelSizeY(),
+            self.getPixelSizeX())
+        physical_units = f"""(
+            {self.getPixelSizeZ(units=True).getUnit()},
+            {self.getPixelSizeY(units=True).getUnit()},
+            {self.getPixelSizeX(units=True).getUnit()})"""
+
+        table_dimensions = f"""
+        <table>\n
+            <tr>\n
+                <td><b>Dimensions (TCZYX): </b></td> <td class=text-right>{dimensions}</td>\n
+            </tr>\n
+            <tr>\n
+                <td><b>Voxel/Pixel dimensions (ZYX): </b></td> <td class=text-right>{physical_dims}</td>\n
+            </tr>\n
+            <tr>\n
+                <td><b>Physical units: </b></td> <td class=text-right>{physical_units}</td>\n
+            </tr>\n
+            <tr>\n
+                <td><b>Channel Names: </b></td> <td class=text-right>{self.getChannelLabels()}</td>\n
+            </tr>\n
+        </table>
+        """
+
+        table_assembly = f"""
+        <table>
+        <tr>
+            <td><div class="thumbnail">
+                <img src="data:image/jpeg;base64,{encoded_image}" alt="Thumbnail">
+            </div></td>
+            <td class="align-top"><h2>Image information </h2>
+            {table_imageinfo}
+            </td>
+        </tr>
+        </table>
+        <table>
+            <tr>
+                <td>{table_dimensions}</td>
+            </tr>
+        </table>
+        """
+
+        return '\n'.join([
+            html_style_header,
+            '<body>',
+            table_assembly,
+            '</body>',
+            '</html>'
+        ])
+
+
 ImageWrapper = _ImageWrapper
 
 # INSTRUMENT AND ACQUISITION #
