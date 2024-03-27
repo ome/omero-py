@@ -1955,6 +1955,7 @@ class _BlitzGateway (object):
                 oldC = None
                 self.c = None
                 self._session = None
+                self._sessionUuid = None
 
         self._proxies = NoProxies()
         logger.info("closed connection (uuid=%s)" % str(self._sessionUuid))
