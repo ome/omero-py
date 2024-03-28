@@ -7546,10 +7546,7 @@ class _FilesetWrapper (BlitzObjectWrapper):
                             NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
-        query = "select obj from Fileset obj "\
-            "left outer join fetch obj.images as image "\
-            "left outer join fetch obj.usedFiles as usedFile " \
-            "join fetch usedFile.originalFile"
+        query = "select obj from Fileset obj"
         return query, [], omero.sys.ParametersI()
 
     def _loadImages(self):
