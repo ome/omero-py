@@ -7535,20 +7535,6 @@ class _FilesetWrapper (BlitzObjectWrapper):
 
     OMERO_CLASS = 'Fileset'
 
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("Fileset").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = "select obj from Fileset obj"
-        return query, [], omero.sys.ParametersI()
-
     def _loadImages(self):
         """ Load the Images linked to this Fileset """
         params = omero.sys.ParametersI()
