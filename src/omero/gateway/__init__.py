@@ -2103,9 +2103,8 @@ class _BlitzGateway (object):
 
         if self.c is not None:
             try:
-                if self.c.getSessionId() !=  self._sessionUuid:
-                    self.c.__del__()
-                    self.c = None
+                self.c.__del__()
+                self.c = None
             except omero.ClientError: # no session available
                 pass
 
@@ -2149,6 +2148,16 @@ class _BlitzGateway (object):
             logger.debug("Ooops. no self._c")
             return False
         try:
+            if self.c is not None:
+                try:
+                    sid = self.c.getSessionId()
+                    # we have a session already from the client
+                    if sUuid is None or sid == sUuid:
+                        logger.debug('connected via client')
+                        return True
+                except omero.ClientError: # no session available
+                    pass
+
             if self._sessionUuid is None and sUuid:
                 self._sessionUuid = sUuid
             if self._sessionUuid is not None:
