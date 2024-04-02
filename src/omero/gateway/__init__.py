@@ -1955,7 +1955,7 @@ class _BlitzGateway (object):
                 oldC = None
                 self.c = None
                 self._session = None
-                self._sessionUuid = None
+                #self._sessionUuid = None
 
         self._proxies = NoProxies()
         logger.info("closed connection (uuid=%s)" % str(self._sessionUuid))
@@ -2049,7 +2049,7 @@ class _BlitzGateway (object):
         Returns 'True' if the underlying omero.clients.BaseClient is connected
         using SSL
         """
-        return hasattr(self.c, 'isSecure') and self.c.isSecure() or self.secure
+        return self.secure
 
     def _getSessionId(self):
         return self.c.getSessionId()
