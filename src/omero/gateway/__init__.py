@@ -1539,8 +1539,6 @@ class _BlitzGateway (object):
             elif pc != self.port:
                 raise Exception("ports %s and %s do not match" % (pc, self.port))
         self.secure = secure
-        if self.c is not None:
-            self.secure = self.c.isSecure()
         self.useragent = useragent
         self.userip = userip
 
@@ -2049,7 +2047,7 @@ class _BlitzGateway (object):
         Returns 'True' if the underlying omero.clients.BaseClient is connected
         using SSL
         """
-        return self.secure
+        return  hasattr(self.c, 'isSecure') and self.c.isSecure() or self.secure
 
     def _getSessionId(self):
         return self.c.getSessionId()
