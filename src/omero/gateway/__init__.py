@@ -1477,7 +1477,7 @@ class _BlitzGateway (object):
 
     def __init__(self, username=None, passwd=None, client_obj=None, group=None,
                  clone=False, try_super=False, host=None, port=None,
-                 extra_config=None, secure=False, anonymous=True,
+                 extra_config=None, secure=None, anonymous=True,
                  useragent=None, userip=None):
         """
         Create the connection wrapper.
@@ -1538,6 +1538,18 @@ class _BlitzGateway (object):
                 self.port = pc
             elif pc != self.port:
                 raise Exception("ports %s and %s do not match" % (pc, self.port))
+        if self.c is None:
+            if secure is None:
+                secure = False
+        else:
+            cs = self.c.isSecure()
+            if secure is None:
+                secure = cs
+            else:
+                # Check that the values match
+                if secure != cs:
+                    raise Exception("Secure flag %s and %s do not match" % (secure, cs))
+
         self.secure = secure
         self.useragent = useragent
         self.userip = userip
@@ -2047,7 +2059,7 @@ class _BlitzGateway (object):
         Returns 'True' if the underlying omero.clients.BaseClient is connected
         using SSL
         """
-        return  hasattr(self.c, 'isSecure') and self.c.isSecure() or False
+        return  self.secure
 
     def _getSessionId(self):
         return self.c.getSessionId()
