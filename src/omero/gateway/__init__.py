@@ -2047,7 +2047,7 @@ class _BlitzGateway (object):
         Returns 'True' if the underlying omero.clients.BaseClient is connected
         using SSL
         """
-        return  hasattr(self.c, 'isSecure') and self.c.isSecure() or self.secure
+        return  hasattr(self.c, 'isSecure') and self.c.isSecure() or False
 
     def _getSessionId(self):
         return self.c.getSessionId()
