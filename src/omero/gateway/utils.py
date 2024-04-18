@@ -225,6 +225,17 @@ def propertiesToDict(m, prefix=None):
 def image_to_html(image):
     import base64
 
+    try:
+        pixsizeX = '{:.3f}'.format(image.getPixelSizeX())
+        pixsizeY = '{:.3f}'.format(image.getPixelSizeY())
+        pixsizeZ = '{:.3f}'.format(image.getPixelSizeZ())
+        UnitX = image.getPixelSizeX().getUnit()
+        UnitY = image.getPixelSizeY().getUnit()
+        UnitZ = image.getPixelSizeZ().getUnit()
+    except:
+        pixsizeX, pixsizeY, pixsizeZ = 'na', 'na', 'na'
+        UnitX, UnitY, UnitZ = 'na', 'na', 'na'
+
     html_style_header = """
     <!DOCTYPE html>
     <html lang="en">
@@ -273,14 +284,8 @@ def image_to_html(image):
         {image.getSizeZ()},
         {image.getSizeY()},
         {image.getSizeX()})"""
-    physical_dims = """({:.3f}, {:.3f}, {:.3f})""".format(
-        image.getPixelSizeZ(),
-        image.getPixelSizeY(),
-        image.getPixelSizeX())
-    physical_units = f"""(
-        {image.getPixelSizeZ(units=True).getUnit()},
-        {image.getPixelSizeY(units=True).getUnit()},
-        {image.getPixelSizeX(units=True).getUnit()})"""
+    physical_dims = f"""({pixsizeZ}, {pixsizeY}, {pixsizeX})""".format()
+    physical_units = f"""({UnitZ}, {UnitY}, {UnitX})"""
 
     table_dimensions = f"""
     <table>\n
