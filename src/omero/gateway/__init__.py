@@ -7546,32 +7546,41 @@ class _FilesetWrapper (BlitzObjectWrapper):
 
     OMERO_CLASS = 'Fileset'
 
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("Fileset").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = "select obj from Fileset obj "\
-            "left outer join fetch obj.images as image "\
-            "left outer join fetch obj.usedFiles as usedFile " \
-            "join fetch usedFile.originalFile"
-        return query, [], omero.sys.ParametersI()
+    def _loadImages(self):
+        """ Load the Images linked to this Fileset """
+        params = omero.sys.ParametersI()
+        params.addId(self.getId())
+        query_svc = self._conn.getQueryService()
+        query = "select image from Image as image where image.fileset.id=:id"
+        self._obj._imagesSeq = query_svc.findAllByQuery(query, params,
+                                                        self._conn.SERVICE_OPTS)
+        self._obj._imagesLoaded = True
 
     def copyImages(self):
         """ Returns a list of :class:`ImageWrapper` linked to this Fileset """
+        if not self._obj._imagesLoaded:
+            self._loadImages()
+
         return [ImageWrapper(self._conn, i) for i in self._obj.copyImages()]
+
+    def _loadUsedFiles(self):
+        """ Load the UsedFiles linked to this Fileset """
+        params = omero.sys.ParametersI()
+        params.addId(self.getId())
+        query_svc = self._conn.getQueryService()
+        query = "select fse from FilesetEntry as fse join fetch fse.originalFile where fse.fileset.id=:id"
+        self._obj._usedFilesSeq = query_svc.findAllByQuery(query, params,
+                                                           self._conn.SERVICE_OPTS)
+        self._obj._usedFilesLoaded = True
 
     def listFiles(self):
         """
         Returns a list of :class:`OriginalFileWrapper` linked to this Fileset
         via Fileset Entries
         """
+        if not self._obj._usedFilesLoaded:
+            self._loadUsedFiles()
+
         return [OriginalFileWrapper(self._conn, f.originalFile)
                 for f in self._obj.copyUsedFiles()]
 
