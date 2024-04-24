@@ -96,7 +96,8 @@ class UserEntry (object):
         if groupname is None:
             groupname = self.groupname
         client = omero.gateway.BlitzGateway(
-            self.name, self.passwd, group=groupname, try_super=self.admin)
+            username=self.name, passwd=self.passwd,
+            group=groupname, try_super=self.admin)
         if not client.connect():
             print("Can not connect")
             return None

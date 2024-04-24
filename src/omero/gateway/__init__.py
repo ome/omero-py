@@ -1484,7 +1484,7 @@ class _BlitzGateway (object):
 
     def __init__(self, username=None, passwd=None, client_obj=None, group=None,
                  clone=False, try_super=False, host=None, port=None,
-                 extra_config=None, secure=False, anonymous=True,
+                 extra_config=None, secure=None, anonymous=True,
                  useragent=None, userip=None):
         """
         Create the connection wrapper.
@@ -1532,7 +1532,31 @@ class _BlitzGateway (object):
         self.ice_config = [os.path.abspath(str(x)) for x in [_f for _f in self.ice_config if _f]]
 
         self.host = host
+        if self.c is not None:
+            hc = self.c.getProperty("omero.host")
+            if self.host is None:
+                self.host = hc
+            elif hc != self.host:
+                raise Exception("hosts %s and %s do not match" % (hc, self.host))
         self.port = port
+        if self.c is not None:
+            pc = self.c.getProperty("omero.port")
+            if self.port is None:
+                self.port = pc
+            elif pc != self.port:
+                raise Exception("ports %s and %s do not match" % (pc, self.port))
+        if self.c is None:
+            if secure is None:
+                secure = False
+        else:
+            cs = self.c.isSecure()
+            if secure is None:
+                secure = cs
+            else:
+                # Check that the values match
+                if secure != cs:
+                    raise Exception("Secure flag %s and %s do not match" % (secure, cs))
+
         self.secure = secure
         self.useragent = useragent
         self.userip = userip
@@ -1540,6 +1564,11 @@ class _BlitzGateway (object):
         self._sessionUuid = None
         self._session_cb = None
         self._session = None
+        if self.c is not None:
+            try:
+                self._sessionUuid = self.c.getSessionId()
+            except omero.ClientError: # no session available
+                pass
         self._lastGroupId = None
         self._anonymous = anonymous
         self._defaultOmeroGroup = None
@@ -1943,6 +1972,7 @@ class _BlitzGateway (object):
                 oldC = None
                 self.c = None
                 self._session = None
+                self._sessionUuid = None
 
         self._proxies = NoProxies()
         logger.info("closed connection (uuid=%s)" % str(self._sessionUuid))
@@ -2036,7 +2066,7 @@ class _BlitzGateway (object):
         Returns 'True' if the underlying omero.clients.BaseClient is connected
         using SSL
         """
-        return hasattr(self.c, 'isSecure') and self.c.isSecure() or False
+        return  self.secure
 
     def _getSessionId(self):
         return self.c.getSessionId()
@@ -2089,8 +2119,11 @@ class _BlitzGateway (object):
         logger.debug(self.ice_config)
 
         if self.c is not None:
-            self.c.__del__()
-            self.c = None
+            try:
+                self.c.__del__()
+                self.c = None
+            except omero.ClientError: # no session available
+                pass
 
         if self.host is not None:
             if self.port is not None:
@@ -2132,6 +2165,15 @@ class _BlitzGateway (object):
             logger.debug("Ooops. no self._c")
             return False
         try:
+            try:
+                sid = self.c.getSessionId()
+                # we have a session already from the client
+                if sUuid is None or sid == sUuid:
+                    logger.debug('connected via client')
+                    return True
+            except omero.ClientError: # no session available
+                pass
+
             if self._sessionUuid is None and sUuid:
                 self._sessionUuid = sUuid
             if self._sessionUuid is not None:
