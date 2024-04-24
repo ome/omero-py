@@ -156,7 +156,7 @@ OMERO.py is released under the GPL v2.
 Copyright
 ---------
 
-2009-2023, The Open Microscopy Environment, Glencoe Software, Inc.
+2009-2024, The Open Microscopy Environment, Glencoe Software, Inc.
 
 .. _ZeroC IcePy 3.6: https://zeroc.com/downloads/ice/3.6
 .. _OMERO.py: https://docs.openmicroscopy.org/omero/5.6/developers/Python.html
