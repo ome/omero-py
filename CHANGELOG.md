@@ -1,3 +1,11 @@
+# 5.19.2 (April 2024)
+
+- Add _repr_html_ method for _ImageWrapper [#394](https://github.com/ome/omero-py/pull/394)
+- Make getGridSize() handle plates with no Wells [#398](https://github.com/ome/omero-py/pull/398)
+- Improve handling of SessionID and client in BlitzGateway [#400](https://github.com/ome/omero-py/pull/400)
+- FilesetWrapper lazy loads Images and UsedFiles [#405](https://github.com/ome/omero-py/pull/405)
+- Update release steps [#406](https://github.com/ome/omero-py/pull/406)
+
 # 5.19.1 (March 2024)
 
 - Fix Windows regression in omero_ext.path [#402](https://github.com/ome/omero-py/pull/402)
