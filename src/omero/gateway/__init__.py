@@ -29,7 +29,7 @@ from omero.util.decorators import timeit
 from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead, Chown2
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
-from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
+from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean, image_to_html
 from omero.model.enums import PixelsTypeint8, PixelsTypeuint8, PixelsTypeint16
 from omero.model.enums import PixelsTypeuint16, PixelsTypeint32
 from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
@@ -244,6 +244,13 @@ class BlitzObjectWrapper (object):
                     self._obj.__class__.__name__, self._oid,
                     self._conn.SERVICE_OPTS)
         self.__prepare__(**kwargs)
+
+    def _repr_html_(self):
+        """
+        Returns an HTML representation of the object. This is used by the
+        IPython notebook to display the object in a cell.
+        """
+        return image_to_html(self)
 
     def __eq__(self, a):
         """
