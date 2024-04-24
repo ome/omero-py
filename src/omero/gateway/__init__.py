@@ -6599,6 +6599,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         Iterates all wells on plate to retrieve grid size as {'rows': rSize,
         'columns':cSize} dict.
+        If the Plate has no Wells, it will return {'rows': 0, 'columns': 0}
 
         :rtype:     dict of {'rows': rSize, 'columns':cSize}
         """
@@ -6610,7 +6611,10 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     "where plate.id = :id"
             res = q.projection(query, params, self._conn.SERVICE_OPTS)
             (row, col) = res[0]
-            self._gridSize = {'rows': row.val+1, 'columns': col.val+1}
+            if row is None or col is None:
+                self._gridSize = {'rows': 0, 'columns': 0}
+            else:
+                self._gridSize = {'rows': row.val+1, 'columns': col.val+1}
         return self._gridSize
 
     def getWellGrid(self, index=0):
