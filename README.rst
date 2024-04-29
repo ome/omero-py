@@ -33,12 +33,12 @@ to install it first, see `miniconda`_ for more details.
 
 To install ``omero-py`` using conda (preferred)::
 
-    conda create -n myenv -c conda-forge python=3.8 omero-py
+    conda create -n myenv python=3.9 conda-forge::zeroc-ice==3.6.5 omero-py
     conda activate myenv
 
 Alternatively install ``omero-py`` using venv::
 
-    python3.8 -m venv myenv
+    python3.9 -m venv myenv
     . myenv/bin/activate
     pip install omero-py
 
@@ -84,7 +84,7 @@ For a development installation we recommend creating a virtualenv with the follo
 
 To install using venv::
 
-    python3.8 -mvenv myenv
+    python3.9 -mvenv myenv
     . myenv/bin/activate
     git clone https://github.com/ome/omero-py
     cd omero-py
@@ -93,7 +93,7 @@ To install using venv::
 
 To install ``omero-py`` using conda (preferred)::
 
-    conda create -n myenv -c ome python=3.8 zeroc-ice36-python
+    conda create -n myenv python=3.9 conda-forge::zeroc-ice==3.6.5
     conda activate myenv
     git clone https://github.com/ome/omero-py
     cd omero-py
