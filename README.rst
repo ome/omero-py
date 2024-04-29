@@ -19,7 +19,6 @@ Dependencies
 Direct dependencies of OMERO.py are:
 
 - `ZeroC IcePy 3.6`_
-- future (deprecated)
 - numpy
 - Pillow >= 10.0.0
 
@@ -38,11 +37,11 @@ To install ``omero-py`` using conda (preferred)::
 
 Alternatively install ``omero-py`` using venv::
 
-    python3.9 -m venv myenv
+    python3 -m venv myenv
     . myenv/bin/activate
     pip install omero-py
 
-You may need to replace ``python3.8`` with ``python`` or ``python3`` depending on your Python distribution.
+You may need to replace ``python3`` with ``python`` depending on your Python distribution.
 
 Setting of the environment variable ``OMERODIR`` is required
 for some functionality.
@@ -80,14 +79,15 @@ Developer installation
 
 OMERO.py currently depends on an externally built artifact which is automatically bundled in the PyPI package.
 
-For a development installation we recommend creating a virtualenv with the following setup (example assumes ``python3.8`` but you can create and activate the virtualenv using any compatible Python):
+For a development installation we recommend creating a virtualenv with the following setup (example assumes ``python3.9`` but you can create and activate the virtualenv using any compatible Python):
 
 To install using venv::
 
-    python3.9 -mvenv myenv
+    python3 -mvenv myenv
     . myenv/bin/activate
     git clone https://github.com/ome/omero-py
     cd omero-py
+    # Install zeroc Ice Python corresponding to your operation system see tox.ini for example
     python setup.py devtarget
     pip install -e .
 
