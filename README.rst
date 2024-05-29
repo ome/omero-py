@@ -26,22 +26,15 @@ Installation
 ------------
 
 We recommend installing omero-py in a Python virtual environment.
-You can create one using either ``venv`` or ``conda`` (preferred).
-If you opt for `Conda`_, you will need
-to install it first, see `miniconda`_ for more details.
+You can create one using for example ``venv``, ``conda`` or ``mamba``.
 
-To install ``omero-py`` using conda (preferred)::
+Before installing ``omero-py``, we recommend to install the `ZeroC IcePy 3.6`_ Python bindings.
+Our commercial partner `Glencoe Software <https://www.glencoesoftware.com/blog/2023/12/08/ice-binaries-for-omero.html>`_ has produced several Python wheels to install the Ice-Python bindings depending on the desired Python version and the operating system. Please visit `OMERO.py`_ for a list of supported platforms and Python versions.
 
-    conda create -n myenv python=3.9 conda-forge::zeroc-ice==3.6.5 omero-py
-    conda activate myenv
 
-Alternatively install ``omero-py`` using venv::
+When the wheel is installed, activate the virtual environment and install ``omero-py`` from `PyPI <https://pypi.org/>`_::
 
-    python3 -m venv myenv
-    . myenv/bin/activate
-    pip install omero-py
-
-You may need to replace ``python3`` with ``python`` depending on your Python distribution.
+  $ pip install -U omero-py
 
 Setting of the environment variable ``OMERODIR`` is required
 for some functionality.
@@ -65,7 +58,6 @@ See: `OMERO`_ documentation for more details and
 Usage
 -----
 
-- For OMERO python language bindings, see `OMERO.py`_.
 - For Command Line usage, see `OMERO.CLI`_.
 - For API documentation, see https://omero-py.readthedocs.io/
 
@@ -79,29 +71,17 @@ Developer installation
 
 OMERO.py currently depends on an externally built artifact which is automatically bundled in the PyPI package.
 
-For a development installation we recommend creating a virtualenv with the following setup (example assumes ``python3.9`` but you can create and activate the virtualenv using any compatible Python):
+For a development installation, we recommend to create a virtual environment with the Ice-Python binding matching your Python version and your operating system, see `OMERO.py`_.
 
-To install using venv::
+Activate the virtual environment and clone this repository::
 
-    python3 -mvenv myenv
-    . myenv/bin/activate
-    git clone https://github.com/ome/omero-py
-    cd omero-py
-    # Install zeroc Ice Python corresponding to your operation system see tox.ini for example
-    python setup.py devtarget
-    pip install -e .
-
-To install ``omero-py`` using conda (preferred)::
-
-    conda create -n myenv python=3.9 conda-forge::zeroc-ice==3.6.5
-    conda activate myenv
-    git clone https://github.com/ome/omero-py
-    cd omero-py
-    python setup.py devtarget
-    pip install -e .
+    $ git clone https://github.com/ome/omero-py
+    $ cd omero-py
+    $ python setup.py devtarget
+    $ pip install -e .
 
 
-This will install omero-py into your virtualenv as an editable package, so any edits to ``src`` files should be reflected in your installation.
+This will install ``omero-py`` into your virtualenv as an editable package, so any edits to ``src`` files should be reflected in your installation.
 Note that if you add or remove files you must rerun the last two steps.
 
 Running tests
@@ -134,7 +114,7 @@ specifying ``major``, ``minor`` or ``patch`` depending on whether the developmen
 Remember to ``git push`` all commits and tags.s essential.
 
 The CI pipeline will automatically deploy the tag onto PyPI. Once released,
-a Pull Request needs to be opened against
+a Pull Request will be automatically  opened against
 `conda-omero-py <https://github.com/ome/conda-omero-py>`_ to update the 
 official `OMERO.py Conda package <https://anaconda.org/ome/omero-py>`_.
 
