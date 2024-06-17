@@ -1,3 +1,7 @@
+# 5.19.3 (June 2024)
+
+- Cap numpy to 1.x [#414](https://github.com/ome/omero-py/pull/414)
+
 # 5.19.2 (April 2024)
 
 - Add _repr_html_ method for _ImageWrapper [#394](https://github.com/ome/omero-py/pull/394)
