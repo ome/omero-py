@@ -209,7 +209,7 @@ setup(
         'urllib3<2',
         'appdirs',
         'future',
-        'numpy',
+        'numpy<2',
         'Pillow>=10.0.0',
         'PyYAML',
         'zeroc-ice>=3.6.5,<3.7',
