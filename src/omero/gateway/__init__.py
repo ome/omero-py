@@ -1970,9 +1970,9 @@ class _BlitzGateway (object):
             finally:
                 oldC.__del__()
                 oldC = None
-                self.c = None
                 self._session = None
                 self._sessionUuid = None
+                self._resetOmeroClient()
 
         self._proxies = NoProxies()
         logger.info("closed connection (uuid=%s)" % str(self._sessionUuid))
