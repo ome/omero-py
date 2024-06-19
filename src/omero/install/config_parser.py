@@ -44,6 +44,7 @@ GRID_HEADER = Header("Grid", reference="grid")
 ICE_HEADER = Header("Ice", reference="ice")
 LDAP_HEADER = Header("LDAP", reference="ldap")
 JVM_HEADER = Header("JVM", reference="jvm")
+LOGGING_HEADER = Header("Logging", reference="log")
 MISC_HEADER = Header("Misc", reference="misc")
 PERFORMANCE_HEADER = Header("Performance", reference="performance")
 SCRIPTS_HEADER = Header("Scripts", reference="scripts")
@@ -59,6 +60,7 @@ HEADER_MAPPING = {
     "omero.managed": FS_HEADER,
     "omero.ldap": LDAP_HEADER,
     "omero.jvmcfg": JVM_HEADER,
+    "omero.logging": LOGGING_HEADER,
     "omero.sessions": PERFORMANCE_HEADER,
     "omero.threads": PERFORMANCE_HEADER,
     "omero.throttling": PERFORMANCE_HEADER,
