@@ -550,13 +550,21 @@ class HdfStorage(object):
             aue.serverExceptionClass = str(err.__class__.__name__)
             raise aue
 
-    def _as_data(self, cols, rowNumbers):
+    def _as_data(self, cols, rowNumbers, current):
         """
         Constructs a omero.grid.Data object for returning to the client.
         """
+        include_row_numbers = True
+        try:
+            include_row_numbers = current.ctx.get(
+                "omero.tables.include_row_numbers", "true"
+            ).lower() == "true"
+        except Exception:
+            pass
         data = omero.grid.Data()
         data.columns = cols
-        data.rowNumbers = rowNumbers
+        if include_row_numbers:
+            data.rowNumbers = rowNumbers
         # Convert to millis since epoch
         data.lastModification = int(self._stamp * 1000)
         return data
@@ -568,7 +576,7 @@ class HdfStorage(object):
         cols = self.cols(None, current)
         for col in cols:
             col.readCoordinates(self.__mea, rowNumbers)
-        return self._as_data(cols, rowNumbers)
+        return self._as_data(cols, rowNumbers, current)
 
     @stamped
     def read(self, stamp, colNumbers, start, stop, current):
@@ -586,7 +594,7 @@ class HdfStorage(object):
         elif start is None and stop is None:
             rowNumbers = list(range(self.__length()))
 
-        return self._as_data(cols, rowNumbers)
+        return self._as_data(cols, rowNumbers, current)
 
     @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):
@@ -604,7 +612,7 @@ class HdfStorage(object):
             col = cols[i]
             col.readCoordinates(self.__mea, rowNumbers)
             rv.append(col)
-        return self._as_data(rv, rowNumbers)
+        return self._as_data(rv, rowNumbers, current)
 
     #
     # Lifecycle methods
