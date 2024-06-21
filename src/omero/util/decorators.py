@@ -71,6 +71,8 @@ def remoted(func):
             rv = func(*args, **kwargs)
             if log.isEnabledFor(logging.DEBUG):
                 log.debug(__RESULT, rv)
+            else:
+                log.info(__RESULT, type(rv))
             return rv
         except Exception as e:
             log.info(__EXCEPT, e)
