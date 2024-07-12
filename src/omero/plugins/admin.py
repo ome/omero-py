@@ -1198,7 +1198,9 @@ present, the user will enter a console""")
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
             '@omero.master.host@': config.get('omero.master.host', config.get(
-                'Ice.Default.Host', '127.0.0.1'))
+                'Ice.Default.Host', '127.0.0.1')),
+            "@omero.tables.module@": config.get(
+                "omero.tables.module", "runTables")
             }
 
         client_transports = config.get('omero.client.icetransports', 'ssl,tcp')

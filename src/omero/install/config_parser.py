@@ -48,6 +48,7 @@ MISC_HEADER = Header("Misc", reference="misc")
 PERFORMANCE_HEADER = Header("Performance", reference="performance")
 SCRIPTS_HEADER = Header("Scripts", reference="scripts")
 SECURITY_HEADER = Header("Security", reference="security")
+TABLES_HEADER = Header("Tables", reference="tables")
 
 HEADER_MAPPING = {
     "omero.data": FS_HEADER,
@@ -66,6 +67,7 @@ HEADER_MAPPING = {
     "omero.process": SCRIPTS_HEADER,
     "omero.scripts": SCRIPTS_HEADER,
     "omero.security": SECURITY_HEADER,
+    "omero.tables": TABLES_HEADER,
     "omero.resetpassword": SECURITY_HEADER,
     "omero.upgrades": MISC_HEADER,
     "Ice": ICE_HEADER,
