@@ -1,3 +1,10 @@
+# 5.19.4 (July 2024)
+
+- Parse omero.logging properties under new Logging heading [#416](https://github.com/ome/omero-py/pull/416)
+- Switch result logging to DEBUG level [#417](https://github.com/ome/omero-py/pull/417)
+- Allow a caller to ignore row numbers [#418](https://github.com/ome/omero-py/pull/418)
+- admin rewrite: make OMERO.tables module configurable [#419](https://github.com/ome/omero-py/pull/419)
+
 # 5.19.3 (June 2024)
 
 - Cap numpy to 1.x [#414](https://github.com/ome/omero-py/pull/414)
