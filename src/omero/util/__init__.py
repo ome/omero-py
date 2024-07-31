@@ -674,7 +674,7 @@ class Resources(object):
 
                 ctx.logger.info("Halted")
 
-        self.thread = Task()
+        self.thread = Task(daemon=True)
         self.thread.ctx = self
         self.thread.start()
 
