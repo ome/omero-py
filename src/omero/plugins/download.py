@@ -90,6 +90,7 @@ class DownloadControl(BaseControl):
     def download_fileset(self, conn, fileset, dir_path):
         self.ctx.out(f"Fileset: {fileset.id}")
         template_prefix = fileset.getTemplatePrefix()
+        dir_path = os.path.join(dir_path, f"Fileset_{fileset.id}")
         for orig_file in fileset.listFiles():
             file_path = orig_file.path.replace(template_prefix, "")
             target_dir = os.path.join(dir_path, file_path)

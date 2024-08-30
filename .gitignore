@@ -5,4 +5,5 @@ build
 dist/
 target/
 .DS_Store
+.idea
 _build
