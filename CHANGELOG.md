@@ -1,3 +1,7 @@
+# 5.19.5 (September 2024)
+
+- Prevent hang on exit while omero.client keepalive is active [#424](https://github.com/ome/omero-py/pull/424)
+
 # 5.19.4 (July 2024)
 
 - Parse omero.logging properties under new Logging heading [#416](https://github.com/ome/omero-py/pull/416)
