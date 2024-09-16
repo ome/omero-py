@@ -666,15 +666,9 @@ class Resources(object):
                         ctx.stop_event.wait(ctx.sleeptime)
                     except ValueError:
                         pass
-
-                if isinstance(ctx.stop_event,
-                              omero.util.concurrency.AtExitEvent):
-                    if ctx.stop_event.atexit:
-                        return  # Skipping log. See #3260
-
                 ctx.logger.info("Halted")
 
-        self.thread = Task()
+        self.thread = Task(daemon=True)
         self.thread.ctx = self
         self.thread.start()
 
