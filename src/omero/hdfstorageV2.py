@@ -587,13 +587,8 @@ class HdfStorage(object):
 
         for col in cols:
             col.read(self.__mea, start, stop)
-        if start is not None and stop is not None:
-            rowNumbers = list(range(start, stop))
-        elif start is not None and stop is None:
-            rowNumbers =  list(range(start, self.__length()))
-        elif start is None and stop is None:
-            rowNumbers = list(range(self.__length()))
-
+        allRows = list(range(self.__length()))
+        rowNumbers = allRows[start:stop]
         return self._as_data(cols, rowNumbers, current)
 
     @stamped
