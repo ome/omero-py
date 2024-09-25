@@ -526,6 +526,7 @@ class HdfStorage(object):
     @modifies
     def update(self, stamp, data):
         self.__initcheck()
+        self.__sizecheck(None, data.rowNumbers)
         if data:
             for i, rn in enumerate(data.rowNumbers):
                 for col in data.columns:
