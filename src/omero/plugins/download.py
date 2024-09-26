@@ -87,10 +87,11 @@ class DownloadControl(BaseControl):
             # only expect single file
             self.download_file(client, orig_file, target_file)
 
-    def download_fileset(self, conn, fileset, dir_path):
+    def download_fileset(self, conn, fileset, dir_path, insert_fileset_folder=False):
         self.ctx.out(f"Fileset: {fileset.id}")
         template_prefix = fileset.getTemplatePrefix()
-        dir_path = os.path.join(dir_path, f"Fileset_{fileset.id}")
+        if insert_fileset_folder:
+            dir_path = os.path.join(dir_path, f"Fileset_{fileset.id}")
         for orig_file in fileset.listFiles():
             file_path = orig_file.path.replace(template_prefix, "")
             target_dir = os.path.join(dir_path, file_path)
