@@ -61,6 +61,8 @@ class DownloadControl(BaseControl):
             "OriginalFile is assumed if <object>: is omitted.")
         parser.add_argument(
             "filename", help="Local filename (or path for Fileset) to be saved to. '-' for stdout")
+        parser.add_argument(
+            "insert_fileset_folder", help="Adding 'Fileset_xxxx' folder in the download path", default="False")
         parser.set_defaults(func=self.__call__)
         parser.add_login_arguments()
 
@@ -72,15 +74,20 @@ class DownloadControl(BaseControl):
         conn = BlitzGateway(client_obj=client)
         conn.SERVICE_OPTS.setOmeroGroup(-1)
 
+        if args.insert_fileset_folder.lower() == "true":
+            insert_fileset_folder = True
+        else:
+            insert_fileset_folder = False
+
         if dtype == "Fileset":
             fileset = self.get_object(conn, dtype, obj.id.val)
-            self.download_fileset(conn, fileset, args.filename)
+            self.download_fileset(conn, fileset, args.filename, insert_fileset_folder)
         elif dtype == "Image":
             image = self.get_object(conn, dtype, obj.id.val)
             fileset = image.getFileset()
             if fileset is None:
                 self.ctx.die(602, 'Input image has no associated Fileset')
-            self.download_fileset(conn, fileset, args.filename)
+            self.download_fileset(conn, fileset, args.filename, insert_fileset_folder)
         else:
             orig_file = self.get_file(client.sf, dtype, obj.id.val)
             target_file = str(args.filename)
