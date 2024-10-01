@@ -15,9 +15,7 @@
 import sys
 import omero
 import os
-import re
 from omero.cli import BaseControl, CLI, ProxyStringType
-from omero.rtypes import unwrap
 from omero.gateway import BlitzGateway
 
 HELP = """Download a File, Image or Fileset with a specified ID to a target file
