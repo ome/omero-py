@@ -60,7 +60,7 @@ class DownloadControl(BaseControl):
         parser.add_argument(
             "filename", help="Local filename (or path for Fileset) to be saved to. '-' for stdout")
         parser.add_argument(
-            "insert_fileset_folder", help="Adding 'Fileset_xxxx' folder in the download path", default="False")
+            "--insert_fileset_folder", action="store_true", help="Adding 'Fileset_xxxx' folder in the download path")
         parser.set_defaults(func=self.__call__)
         parser.add_login_arguments()
 
@@ -72,7 +72,7 @@ class DownloadControl(BaseControl):
         conn = BlitzGateway(client_obj=client)
         conn.SERVICE_OPTS.setOmeroGroup(-1)
 
-        if args.insert_fileset_folder.lower() == "true":
+        if args.insert_fileset_folder:
             insert_fileset_folder = True
         else:
             insert_fileset_folder = False
