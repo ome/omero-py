@@ -1357,7 +1357,7 @@ class CLI(cmd.Cmd, Context):
             self.isdebug = 0
             debug_opts.remove("0")
 
-        for x in range(1, 9):
+        for x in range(1, 10):
             if str(x) in debug_opts:
                 self.isdebug = x
                 debug_opts.remove(str(x))
