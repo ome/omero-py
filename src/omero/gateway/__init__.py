@@ -1916,42 +1916,6 @@ class _BlitzGateway (object):
             logger.debug("... error not reconnecting")
             return False
 
-    def seppuku(self, softclose=False):  # pragma: no cover
-        """
-        Terminates connection with killSession(). If softclose is False, the
-        session is really terminated disregarding its connection refcount.
-        If softclose is True then the connection refcount is decremented by 1.
-
-        :param softclose:   Boolean
-
-        ** Deprecated ** Use :meth:`close`.
-        Our apologies for any offense caused by this previous method name.
-        """
-        warnings.warn("Deprecated. Use close()",
-                      DeprecationWarning)
-        self._connected = False
-        oldC = self.c
-        if oldC is not None:
-            try:
-                if softclose:
-                    try:
-                        r = oldC.sf.getSessionService().getReferenceCount(
-                            self._sessionUuid)
-                        oldC.closeSession()
-                        if r < 2:
-                            self._session_cb and self._session_cb.close(self)
-                    except Ice.OperationNotExistException:
-                        oldC.closeSession()
-                else:
-                    self._closeSession()
-            finally:
-                oldC.__del__()
-                oldC = None
-                self.c = None
-
-        self._proxies = NoProxies()
-        logger.info("closed connection (uuid=%s)" % str(self._sessionUuid))
-
     def close(self, hard=True):  # pragma: no cover
         """
         Terminates connection with killSession(), where the session is
