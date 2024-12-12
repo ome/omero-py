@@ -22,8 +22,8 @@ jobs:
           - ubuntu-22.04
           - windows-2019
         include:
-          - python-version: '3.9'
-            os: macos-12
+          - python-version: '3.10'
+            os: macos-14
     runs-on: ${{ matrix.os }}
     steps:
       - name: Get tox target
