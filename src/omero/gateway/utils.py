@@ -225,9 +225,9 @@ def image_to_html(image):
         pixsizeX = '{:.3f}'.format(image.getPixelSizeX())
         pixsizeY = '{:.3f}'.format(image.getPixelSizeY())
         pixsizeZ = '{:.3f}'.format(image.getPixelSizeZ())
-        UnitX = image.getPixelSizeX().getUnit()
-        UnitY = image.getPixelSizeY().getUnit()
-        UnitZ = image.getPixelSizeZ().getUnit()
+        UnitX = image.getPixelSizeX(units=True).getUnit()
+        UnitY = image.getPixelSizeY(units=True).getUnit()
+        UnitZ = image.getPixelSizeZ(units=True).getUnit()
     except:
         pixsizeX, pixsizeY, pixsizeZ = 'na', 'na', 'na'
         UnitX, UnitY, UnitZ = 'na', 'na', 'na'
