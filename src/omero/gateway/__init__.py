@@ -245,13 +245,6 @@ class BlitzObjectWrapper (object):
                     self._conn.SERVICE_OPTS)
         self.__prepare__(**kwargs)
 
-    def _repr_html_(self):
-        """
-        Returns an HTML representation of the object. This is used by the
-        IPython notebook to display the object in a cell.
-        """
-        return image_to_html(self)
-
     def __eq__(self, a):
         """
         Returns true if the object is of the same type and has same id and name
@@ -8135,6 +8128,13 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 ctx.setOmeroGroup(-1)
             i = self._obj.instrument = meta_serv.loadInstrument(i.id.val, ctx)
         return InstrumentWrapper(self._conn, i)
+
+    def _repr_html_(self):
+        """
+        Returns an HTML representation of the object. This is used by the
+        IPython notebook to display the object in a cell.
+        """
+        return image_to_html(self)
 
     def _loadPixels(self):
         """
