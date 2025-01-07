@@ -5,7 +5,7 @@
 - CLI: fix debugging level 9 [#439](https://github.com/ome/omero-py/pull/439)
 - Upgrade to macOS 14 Actions runner image [#440](https://github.com/ome/omero-py/pull/440)
 - Remove Python 3.8 from the testing matrix [#434](https://github.com/ome/omero-py/pull/434)
-- omero.HdfStorage.update: add size check on data.rowNumbers [#431](https://github.com/ome/omero-py/pull/431)
+- Add size check on data.rowNumbers in omero.HdfStorage.update  [#431](https://github.com/ome/omero-py/pull/431)
 
 # 5.19.5 (September 2024)
 
