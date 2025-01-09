@@ -1,3 +1,15 @@
+# 5.19.6 (January 2025)
+
+- Fix image_to_html pixel unit,
+  thanks to [Tom Boissonnet](https://github.com/Tom-TBT) [#441](https://github.com/ome/omero-py/pull/441)
+- Move repr_html to _ImageWrapper,
+  thanks to [Johannes Soltwedel](https://github.com/jo-mueller) [#429](https://github.com/ome/omero-py/pull/429)
+- CLI: fix debugging level 9,
+  thanks to [Torsten Stöter](https://github.com/tstoeter) [#439](https://github.com/ome/omero-py/pull/439)
+- Upgrade to macOS 14 Actions runner image [#440](https://github.com/ome/omero-py/pull/440)
+- Remove Python 3.8 from the testing matrix [#434](https://github.com/ome/omero-py/pull/434)
+- Add size check on data.rowNumbers in omero.HdfStorage.update  [#431](https://github.com/ome/omero-py/pull/431)
+
 # 5.19.5 (September 2024)
 
 - Prevent hang on exit while omero.client keepalive is active [#424](https://github.com/ome/omero-py/pull/424)
