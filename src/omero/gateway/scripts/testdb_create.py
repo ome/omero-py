@@ -34,29 +34,26 @@ dbhelpers.DATASETS = {
     'testds3': dbhelpers.DatasetEntry('weblitz_test_priv_dataset3', 'testpr2'),
 }
 
+TESTIMG = (
+    'testimg&pixelType=int16&sizeX=512&sizeY=512&sizeZ=35&sizeC=2'
+    '&physicalSizeX=0.10639449954032898'
+    '&physicalSizeY=0.10639449954032898'
+    '&physicalSizeZ=0.10639449954032898'
+    '&exposureTime=0.33500000834465027.fake')
+TINYIMG = 'tiny&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6.fake'
 dbhelpers.IMAGES = {
     'testimg1': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image',
-        'testimg&pixelType=int16&sizeX=512&sizeY=512&sizeZ=35&sizeC=2.fake',
-        'testds1'),
+        'weblitz_test_priv_image', TESTIMG, 'testds1'),
     'testimg2': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image2',
-        'testimg&pixelType=int16&sizeX=512&sizeY=512&sizeZ=35&sizeC=2.fake',
-        'testds1'),
+        'weblitz_test_priv_image2', TESTIMG, 'testds1'),
     'tinyimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny',
-        'tiny&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6.fake',
-        'testds1'),
+        'weblitz_test_priv_image_tiny', TINYIMG, 'testds1'),
     'badimg': dbhelpers.ImageEntry(
         'weblitz_test_priv_image_bad', False, 'testds1'),
     'tinyimg2': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny2',
-        'tiny&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeC=1&sizeT=6.fake',
-        'testds2'),
+        'weblitz_test_priv_image_tiny2', TINYIMG, 'testds2'),
     'tinyimg3': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny3',
-        'tiny&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeC=1&sizeT=6.fake',
-        'testds3'),
+        'weblitz_test_priv_image_tiny3', TINYIMG, 'testds3'),
     'bigimg': dbhelpers.ImageEntry(
         'weblitz_test_priv_image_big',
         'bigimg&pixelType=uint8&sizeX=8192&sizeY=8192&resolutions=4.fake',
