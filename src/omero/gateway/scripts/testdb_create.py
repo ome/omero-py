@@ -35,12 +35,25 @@ dbhelpers.DATASETS = {
 }
 
 TESTIMG = (
-    'testimg&pixelType=int16&sizeX=512&sizeY=512&sizeZ=35&sizeC=2'
+    'testimg&pixelType=int16'
+    '&sizeX=512&sizeY=512&sizeZ=35&sizeC=2'
     '&physicalSizeX=0.10639449954032898'
     '&physicalSizeY=0.10639449954032898'
     '&physicalSizeZ=0.10639449954032898'
-    '&exposureTime=0.33500000834465027.fake')
-TINYIMG = 'tiny&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6.fake'
+    '&exposureTime=0.33500000834465027'
+    '&excitation_0=360.0'
+    '&emission_0=457.0'
+    '&excitation_1=490.0'
+    '&emission_1=528.0'
+    '&withInstrument=true.fake')
+TINYIMG = (
+    'tinyimg&pixelType=int16'
+    '&sizeX=20&sizeY=20&sizeZ=5&sizeT=6'
+    '&excitation_0=360.0'
+    '&emission_0=457.0'
+    '&excitation_1=490.0'
+    '&emission_1=528.0'
+    '&withInstrument=true.fake')
 dbhelpers.IMAGES = {
     'testimg1': dbhelpers.ImageEntry(
         'weblitz_test_priv_image', TESTIMG, 'testds1'),
