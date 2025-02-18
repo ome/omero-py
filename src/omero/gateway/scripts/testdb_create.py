@@ -53,6 +53,8 @@ TINYIMG = (
     '&excitation_1=490.0'
     '&emission_1=528.0'
     '&withInstrument=true.fake')
+BIGIMG = 'bigimg&pixelType=uint8&sizeX=8192&sizeY=8192&resolutions=4.fake'
+FLOATIMG = '32bitfloat&pixelType=float&sizeX=8192&sizeY=8192.fake'
 dbhelpers.IMAGES = {
     'testimg1': dbhelpers.ImageEntry(
         'weblitz_test_priv_image', TESTIMG, 'testds1'),
@@ -67,12 +69,9 @@ dbhelpers.IMAGES = {
     'tinyimg3': dbhelpers.ImageEntry(
         'weblitz_test_priv_image_tiny3', TINYIMG, 'testds3'),
     'bigimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_big',
-        'bigimg&pixelType=uint8&sizeX=8192&sizeY=8192&resolutions=4.fake',
-        'testds3'),
+        'weblitz_test_priv_image_big', BIGIMG, 'testds3'),
     '32float': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_32float',
-        '32bitfloat&pixelType=float&sizeX=8192&sizeY=8192.fake', 'testds3'),
+        'weblitz_test_priv_image_32float', FLOATIMG, 'testds3'),
 }
 
 
