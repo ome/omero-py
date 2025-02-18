@@ -9,7 +9,6 @@
 Library for gateway tests
 """
 
-from io import StringIO
 from io import BytesIO
 import omero
 from omero.rtypes import rstring
