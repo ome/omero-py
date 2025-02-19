@@ -2,18 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import sys
-sys.path.append('.')
 
 import omero.gateway
 import omero.model
 import os
 import subprocess
-import urllib.request, urllib.error, urllib.parse
 
-from omero_ext.path import path
+sys.path.append('.')
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
-TESTIMG_URL = 'https://downloads.openmicroscopy.org/images/gateway_tests/'
 DEFAULT_GROUP_PERMS = 'rwr---'
 
 if not omero.gateway.BlitzGateway.ICE_CONFIG:
@@ -411,16 +408,7 @@ class ImageEntry (ObjectEntry):
                 # If it's a .fake file, simply create it
                 os.close(os.open(fpath, os.O_CREAT | os.O_EXCL))
             else:
-                # First try to download the image
-                try:
-                    # print "Trying to get test image from " + TESTIMG_URL +
-                    # self.filename
-                    sys.stderr.write('<')
-                    fin = urllib.request.urlopen(TESTIMG_URL + self.filename)
-                    with open(fpath, 'wb') as fout:
-                        fout.write(fin.read())
-                except urllib.error.HTTPError:
-                    raise IOError('No such file %s' % fpath)
+                 raise IOError('No such file %s' % fpath)
         host = dataset._conn.c.ic.getProperties().getProperty(
             'omero.host') or 'localhost'
         port = dataset._conn.c.ic.getProperties().getProperty(
