@@ -1,0 +1,3042 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2016-06" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2016-06 http://www.openmicroscopy.org/Schemas/OME/2016-06/ome.xsd">
+   <Instrument ID="Instrument:0">
+      <Objective Correction="PlanApo" ID="Objective:12003" Immersion="Oil" LensNA="1.4" Manufacturer="Nikon" Model="93110" NominalMagnification="100.0" WorkingDistance="0.13" WorkingDistanceUnit="mm"/>
+   </Instrument>
+   <Image ID="Image:0" Name="tinyTest.d3d.dv">
+      <Description>X:(88 107) Y:(169 188) Z:(9 13 1) T:(2 7 1)</Description>
+      <InstrumentRef ID="Instrument:0"/>
+      <ObjectiveSettings ID="Objective:12003"/>
+      <Pixels BigEndian="false" DimensionOrder="XYZTC" ID="Pixels:0" Interleaved="false" PhysicalSizeX="0.10010942816734314" PhysicalSizeXUnit="µm" PhysicalSizeY="0.10010942816734314" PhysicalSizeYUnit="µm" PhysicalSizeZ="0.5" PhysicalSizeZUnit="µm" SignificantBits="16" SizeC="1" SizeT="6" SizeX="20" SizeY="20" SizeZ="5" Type="int16">
+         <Channel EmissionWavelength="500.0" EmissionWavelengthUnit="nm" ExcitationWavelength="490.0" ExcitationWavelengthUnit="nm" ID="Channel:0:0" NDFilter="0.5" SamplesPerPixel="1">
+            <LightPath/>
+         </Channel>
+         <MetadataOnly/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="0" TheZ="0"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="0" TheZ="1"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="0" TheZ="2"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="0" TheZ="3"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="0" TheZ="4"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="1" TheZ="0"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="1" TheZ="1"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="1" TheZ="2"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="1" TheZ="3"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="1" TheZ="4"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="2" TheZ="0"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="2" TheZ="1"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="2" TheZ="2"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="2" TheZ="3"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="2" TheZ="4"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="3" TheZ="0"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="3" TheZ="1"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="3" TheZ="2"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="3" TheZ="3"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="3" TheZ="4"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="4" TheZ="0"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="4" TheZ="1"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="4" TheZ="2"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="4" TheZ="3"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="4" TheZ="4"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="5" TheZ="0"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="5" TheZ="1"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="5" TheZ="2"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="5" TheZ="3"/>
+         <Plane DeltaT="0.0" DeltaTUnit="s" ExposureTime="0.10000000149011612" ExposureTimeUnit="s" PositionX="-3048.63" PositionXUnit="reference frame" PositionY="-1571.65" PositionYUnit="reference frame" PositionZ="-2.0" PositionZUnit="reference frame" TheC="0" TheT="5" TheZ="4"/>
+      </Pixels>
+   </Image>
+   <StructuredAnnotations>
+      <XMLAnnotation ID="Annotation:0" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T1:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:1" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T3:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:2" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T4:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:3" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T4:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:4" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Pixel sampling size (X)</Key>
+               <Value>1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:5" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T1:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:6" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T0:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:7" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 11 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:8" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T3:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:9" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T4:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:10" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Valid titles</Key>
+               <Value>2</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:11" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T5:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:12" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T1:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:13" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T5:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:14" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T5:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:15" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T5:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:16" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T5:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:17" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T4:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:18" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T4:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:19" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T0:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:20" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T1:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:21" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T4:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:22" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>ImageWidth</Key>
+               <Value>20</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:23" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T2:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:24" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T4:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:25" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Image sequence</Key>
+               <Value>ZTWP</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:26" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 12 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:27" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T4:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:28" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T3:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:29" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T5:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:30" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T5:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:31" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>X origin (in um)</Key>
+               <Value>4.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:32" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T4:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:33" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Section axis sequence</Key>
+               <Value>3</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:34" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T5:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:35" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T1:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:36" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T1:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:37" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T3:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:38" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T1:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:39" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T5:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:40" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T0:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:41" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T3:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:42" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T1:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:43" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T5:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:44" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T4:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:45" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T4:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:46" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T5:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:47" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T2:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:48" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 12 (in nm)</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:49" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T3:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:50" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 1 mean intensity</Key>
+               <Value>140.98724</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:51" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 9 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:52" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T4:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:53" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T1:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:54" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T0:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:55" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T3:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:56" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T2:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:57" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T2:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:58" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T1:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:59" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T2:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:60" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T2:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:61" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T5:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:62" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T5:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:63" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T4:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:64" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 3 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:65" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T1:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:66" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T5:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:67" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 4 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:68" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Title</Key>
+               <Value>[X:(88 107) Y:(169 188) Z:(9 13 1) T:(2 7 1), X:(1 20) Y:(1 20) Z:(1 5 1) T:(1 6 1)]</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:69" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T4:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:70" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T4:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:71" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T3:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:72" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T0:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:73" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T5:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:74" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Number of wavelengths</Key>
+               <Value>1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:75" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T0:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:76" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 3 (in nm)</Key>
+               <Value>400</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:77" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T2:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:78" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T3:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:79" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T3:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:80" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 5 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:81" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T1:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:82" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T4:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:83" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T3:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:84" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>NumberOfImages</Key>
+               <Value>30</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:85" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T5:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:86" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T0:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:87" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T0:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:88" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T4:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:89" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T4:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:90" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T0:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:91" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T5:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:92" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T5:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:93" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T4:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:94" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T1:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:95" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T1:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:96" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T0:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:97" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Y element length (in um)</Key>
+               <Value>0.10010943</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:98" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T2:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:99" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T0:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:100" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T5:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:101" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T3:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:102" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T3:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:103" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T5:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:104" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T4:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:105" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T0:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:106" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Image Type</Key>
+               <Value>normal</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:107" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T2:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:108" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T5:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:109" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T2:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:110" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T0:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:111" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T1:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:112" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 8 (in nm)</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:113" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T0:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:114" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T0:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:115" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T3:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:116" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T0:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:117" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T0:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:118" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T5:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:119" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T2:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:120" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T2:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:121" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 6 (in nm)</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:122" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T2:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:123" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Z origin (in um)</Key>
+               <Value>16.818384</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:124" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T0:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:125" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T1:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:126" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T1:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:127" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T3:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:128" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T4:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:129" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T5:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:130" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T1:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:131" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T0:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:132" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 10 (in nm)</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:133" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T4:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:134" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T3:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:135" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T3:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:136" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T0:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:137" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 10 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:138" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T0:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:139" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T2:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:140" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T4:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:141" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T4:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:142" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T5:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:143" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T3:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:144" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T1:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:145" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T0:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:146" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T2:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:147" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T2:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:148" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T1:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:149" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T5:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:150" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T2:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:151" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T0:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:152" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T4:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:153" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 11 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:154" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T0:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:155" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T3:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:156" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 12 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:157" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 6 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:158" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>X axis tilt angle</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:159" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 1 (in nm)</Key>
+               <Value>500</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:160" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T0:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:161" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T0:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:162" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T2:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:163" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>X axis angle</Key>
+               <Value>90.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:164" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T5:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:165" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T5:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:166" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T0:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:167" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T5:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:168" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T1:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:169" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T1:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:170" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T4:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:171" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T4:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:172" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T1:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:173" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T1:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:174" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 7 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:175" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 1 max. intensity</Key>
+               <Value>651.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:176" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T1:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:177" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 8 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:178" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T4:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:179" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T4:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:180" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Z axis tilt angle</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:181" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T0:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:182" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T2:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:183" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T0:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:184" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T2:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:185" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T1:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:186" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T1:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:187" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T2:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:188" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T2:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:189" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 2 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:190" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 9 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:191" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 3 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:192" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T1:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:193" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T3:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:194" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T1:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:195" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T5:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:196" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T2:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:197" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T2:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:198" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Number of timepoints</Key>
+               <Value>6</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:199" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T4:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:200" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T0:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:201" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T5:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:202" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T5:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:203" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T0:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:204" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T4:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:205" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 4 (in nm)</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:206" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T3:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:207" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T1:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:208" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Y axis tilt angle</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:209" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T0:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:210" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T2:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:211" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 4 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:212" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T2:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:213" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T3:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:214" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T2:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:215" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T5:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:216" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T1:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:217" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T0:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:218" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T4:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:219" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Space group number</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:220" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T1:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:221" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T0:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:222" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T1:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:223" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T4:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:224" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T1:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:225" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T0:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:226" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T3:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:227" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T1:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:228" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T1:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:229" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T2:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:230" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T5:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:231" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T2:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:232" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T4:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:233" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T2:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:234" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Number of Sub-resolution sets</Key>
+               <Value>1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:235" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Z axis reduction quotient</Key>
+               <Value>1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:236" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T1:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:237" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T4:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:238" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Z element length (in um)</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:239" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T2:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:240" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T0:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:241" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T5:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:242" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T3:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:243" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T0:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:244" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T3:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:245" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T2:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:246" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T5:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:247" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T5:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:248" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T3:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:249" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 9 (in nm)</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:250" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T1:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:251" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T3:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:252" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T0:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:253" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T1:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:254" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T3:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:255" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T2:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:256" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T3:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:257" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T3:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:258" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T1:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:259" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Y origin (in um)</Key>
+               <Value>8.70952</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:260" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Y axis angle</Key>
+               <Value>90.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:261" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T5:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:262" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T1:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:263" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T2:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:264" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T2:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:265" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T2:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:266" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T2:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:267" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T0:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:268" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T4:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:269" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 11 (in nm)</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:270" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T4:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:271" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T3:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:272" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T3:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:273" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T1:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:274" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T4:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:275" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T3:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:276" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T4:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:277" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T3:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:278" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T2:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:279" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Row axis sequence</Key>
+               <Value>2</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:280" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T3:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:281" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T5:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:282" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T0:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:283" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T2:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:284" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>ImageHeight</Key>
+               <Value>20</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:285" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T2:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:286" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T2:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:287" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T3:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:288" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T4:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:289" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 10 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:290" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T3:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:291" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T4:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:292" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 5 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:293" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T0:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:294" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T3:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:295" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T0:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:296" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 2 (in nm)</Key>
+               <Value>500</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:297" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T5:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:298" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T4:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:299" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T3:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:300" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T1:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:301" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T4:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:302" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T3:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:303" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T3:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:304" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T0:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:305" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T5:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:306" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T0:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:307" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T0:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:308" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T1:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:309" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T0:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:310" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Column axis sequence</Key>
+               <Value>1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:311" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T2:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:312" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 6 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:313" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T5:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:314" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Sub-image starting point (Z)</Key>
+               <Value>8</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:315" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 7 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:316" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T3:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:317" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T5:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:318" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T4:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:319" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T4:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:320" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T4:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:321" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Number of panels</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:322" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T1:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:323" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T5:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:324" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>X element length (in um)</Key>
+               <Value>0.10010943</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:325" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Lens ID Number</Key>
+               <Value>12003</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:326" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T0:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:327" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T1:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:328" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T2:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:329" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T3:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:330" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T5:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:331" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>PixelType</Key>
+               <Value>16 bit signed integer</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:332" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T1:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:333" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 1 min. intensity</Key>
+               <Value>88.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:334" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T2:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:335" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T2:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:336" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T5:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:337" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 8 min. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:338" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T2:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:339" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Pixel sampling size (Z)</Key>
+               <Value>1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:340" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 2 max. intensity</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:341" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T1:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:342" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Sub-image starting point (Y)</Key>
+               <Value>168</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:343" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T5:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:344" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T1:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:345" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T0:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:346" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T2:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:347" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T4:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:348" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T4:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:349" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 7 (in nm)</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:350" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Number of focal planes</Key>
+               <Value>5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:351" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T4:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:352" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T5:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:353" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T2:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:354" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T0:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:355" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T5:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:356" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T3:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:357" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Wavelength 5 (in nm)</Key>
+               <Value>0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:358" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T2:maxInten</Key>
+               <Value>197.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:359" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z2 W0 T3:photosensorReading</Key>
+               <Value>160427.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:360" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Pixel sampling size (Y)</Key>
+               <Value>1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:361" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T3:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:362" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T3:ndFilter</Key>
+               <Value>0.5</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:363" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Z axis angle</Key>
+               <Value>90.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:364" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>Sub-image starting point (X)</Key>
+               <Value>87</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:365" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T5:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:366" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T0:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:367" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z4 W0 T3:energyConvFactor</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:368" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T5:exWavelen</Key>
+               <Value>490.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:369" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T3:expTime</Key>
+               <Value>0.1</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:370" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z0 W0 T3:timeStampSeconds</Key>
+               <Value>0.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:371" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T1:minInten</Key>
+               <Value>55.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:372" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z3 W0 T4:emWavelen</Key>
+               <Value>528.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+      <XMLAnnotation ID="Annotation:373" Namespace="openmicroscopy.org/OriginalMetadata">
+         <Value>
+            <OriginalMetadata>
+               <Key>tinyTest.d3d.dv Extended header Z1 W0 T2:intenScaling</Key>
+               <Value>1.0</Value>
+            </OriginalMetadata>
+         </Value>
+      </XMLAnnotation>
+   </StructuredAnnotations>
+</OME>
+
