@@ -328,6 +328,7 @@ class BlitzObjectWrapper (object):
         """
         query = ("select obj from %s obj "
                  "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.externalInfo "
                  "join fetch obj.details.creationEvent" % cls.OMERO_CLASS)
 
         params = omero.sys.ParametersI()
