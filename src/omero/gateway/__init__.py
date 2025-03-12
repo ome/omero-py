@@ -495,6 +495,7 @@ class BlitzObjectWrapper (object):
             ctx.setOmeroGroup(self.getDetails().getGroup().getId())
         self._obj = self._conn.getUpdateService().saveAndReturnObject(
             self._obj, ctx)
+        self._oid = self._obj.id.val
 
     def saveAs(self, details):
         """
