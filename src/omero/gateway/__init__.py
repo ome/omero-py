@@ -328,6 +328,7 @@ class BlitzObjectWrapper (object):
         """
         query = ("select obj from %s obj "
                  "join fetch obj.details.owner as owner "
+                 "left outer join fetch obj.details.externalInfo "
                  "join fetch obj.details.creationEvent" % cls.OMERO_CLASS)
 
         params = omero.sys.ParametersI()
@@ -1332,6 +1333,26 @@ class BlitzObjectWrapper (object):
                 return self._obj.getName()
         else:
             return None
+
+    def getExternalInfo(self):
+        """
+        Gets the object's details.externalInfo
+
+        :return: omero.model.ExternalInfo object
+        """
+        extinfo = self.getDetails()._externalInfo
+        if extinfo is not None and not extinfo._loaded:
+            params = omero.sys.ParametersI()
+            params.addId(extinfo.id)
+            query = """
+                select e from ExternalInfo as e
+                where e.id = :id
+            """
+            queryService = self._conn.getQueryService()
+            extinfo = queryService.findByQuery(query, params, {"omero.group": "-1"})
+            # cache the result
+            self._obj._details._externalInfo = extinfo
+        return extinfo
 
     def getDescription(self):
         """
