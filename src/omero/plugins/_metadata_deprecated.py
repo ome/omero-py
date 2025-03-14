@@ -9,13 +9,6 @@
 Metadata plugin
 """
 
-from __future__ import division
-
-from builtins import str
-from future.utils import native_str
-from builtins import range
-from past.utils import old_div
-from builtins import object
 import logging
 import mimetypes
 import os
@@ -507,7 +500,7 @@ class MetadataControl(BaseControl):
                 ms = 0
             else:
                 ms = 5000
-                loops = int(old_div((wait * 1000), ms)) + 1
+                loops = int((wait * 1000) // ms) + 1
             ctx.write_to_omero(batch_size=args.batch, loops=loops, ms=ms)
 
     def rois(self, args):
@@ -644,7 +637,7 @@ class MetadataControl(BaseControl):
                 pixel.setPhysicalSizeZ(omero.model.LengthI(args.z, unit))
 
         groupId = pixels[0].getDetails().getGroup().getId().getValue()
-        ctx = {'omero.group': native_str(groupId)}
+        ctx = {'omero.group': str(groupId)}
         conn.getUpdateService().saveArray(pixels, ctx)
 
 

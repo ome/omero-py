@@ -23,9 +23,6 @@
 Utilities for manipulating map-annotations used as metadata
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import logging
 from omero.model import NamedValue
 from omero.rtypes import rstring, unwrap

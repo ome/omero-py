@@ -4,8 +4,6 @@
 """
 Performs various performance metrics and reports on OMERO.importer log files.
 """
-from __future__ import division
-from __future__ import print_function
 
 # Copyright (C) 2009 University of Dundee
 
@@ -24,9 +22,6 @@ from __future__ import print_function
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-from builtins import str
-from past.utils import old_div
-from builtins import object
 import re
 import sys
 
@@ -108,8 +103,8 @@ class ImporterLog(object):
     # Regular expression for matching log4j log lines
     log_regex = re.compile(
         r'^(?P<date_time>\S+\s+\S+)\s+(?P<ms_elapsed>\d+)\s+'
-        '(?P<thread>\[.*?\])\s+(?P<level>\S+)\s+(?P<class>\S+)\s+-\s+'
-        '(?P<message>.*)$')
+        r'(?P<thread>\[.*?\])\s+(?P<level>\S+)\s+(?P<class>\S+)\s+-\s+'
+        r'(?P<message>.*)$')
 
     # Regular expression for matching possible OMERO.importer status messages
     status_regex = re.compile(r'^[A-Z_]*')
@@ -141,7 +136,7 @@ class ImporterLog(object):
         date_time = match.group('date_time')
         date_time, ms = date_time.split(',')
         date_time = DateTime.strptime(date_time, self.date_time_fmt)
-        ms = DateTimeDelta(0, 0, 0, old_div(int(ms), 1000.0))
+        ms = DateTimeDelta(0, 0, 0, int(ms) // 1000.0)
         date_time = date_time + ms
         if message.startswith('LOADING_IMAGE'):
             name = message[message.find(':') + 2:]

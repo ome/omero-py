@@ -3,8 +3,6 @@
 """
 Populate bulk metadata tables from delimited text files.
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
 #
 #  Copyright (C) 2011-2014 University of Dundee. All rights reserved.
@@ -25,13 +23,6 @@ from __future__ import absolute_import
 #
 
 
-from builtins import zip
-from builtins import chr
-from builtins import str
-from builtins import range
-from past.builtins import basestring
-from future.utils import native_str
-from builtins import object
 import logging
 import gzip
 import sys
@@ -64,7 +55,7 @@ from omero.util.metadata_utils import (
 from omero.util import pydict_text_io
 from omero import client
 
-from .populate_roi import ThreadPool
+from omero.util.populate_roi import ThreadPool
 
 
 log = logging.getLogger("omero.util.populate_metadata")
@@ -833,7 +824,7 @@ class ParsingContext(object):
                                 % rows[header_index])
         if self.column_types is None and first_row_is_types:
             self.column_types = HeaderResolver.get_column_types(rows[0])
-        log.debug('Column types: %r' % self.column_types)
+            log.debug('Column types: %r' % self.column_types)
         self.header_resolver = HeaderResolver(
             self.target_object, rows[header_index],
             column_types=self.column_types)
@@ -876,7 +867,7 @@ class ParsingContext(object):
                 values.append(value)
                 try:
                     log.debug("Value's class: %s" % value.__class__)
-                    if isinstance(value, basestring):
+                    if isinstance(value, str):
                         column.size = max(column.size, len(value))
                 except TypeError:
                     log.error('Original value "%s" now "%s" of bad type!' % (
@@ -997,7 +988,7 @@ class ParsingContext(object):
         sr = sf.sharedResources()
         update_service = sf.getUpdateService()
         name = 'bulk_annotations'
-        table = sr.newTable(1, name, {'omero.group': native_str(group)})
+        table = sr.newTable(1, name, {'omero.group': str(group)})
         if table is None:
             raise MetadataError(
                 "Unable to create table: %s" % name)
@@ -1035,7 +1026,7 @@ class ParsingContext(object):
         link = self.create_annotation_link()
         link.parent = self.target_object
         link.child = file_annotation
-        update_service.saveObject(link, {'omero.group': native_str(group)})
+        update_service.saveObject(link, {'omero.group': str(group)})
 
 
 class _QueryContext(object):
@@ -1105,7 +1096,7 @@ class _QueryContext(object):
             nids = 1
             single_id = ids
 
-        if isinstance(nss, basestring):
+        if isinstance(nss, str):
             params.addString("ns", nss)
         elif nss:
             params.map['nss'] = rlist(rstring(s) for s in nss)
@@ -1300,7 +1291,7 @@ class BulkToMapAnnotationContext(_QueryContext):
         group = str(self.target_object.details.group.id)
         update_service = sf.getUpdateService()
         arr = update_service.saveAndReturnArray(
-            links, {'omero.group': native_str(group)})
+            links, {'omero.group': str(group)})
         return arr
 
     def _save_annotation_and_links(self, links, ann, batch_size):
@@ -1325,7 +1316,7 @@ class BulkToMapAnnotationContext(_QueryContext):
             for link in batch:
                 link.setChild(annobj)
             update_service.saveArray(
-                batch, {'omero.group': native_str(group)})
+                batch, {'omero.group': str(group)})
             sz += len(batch)
         return sz
 

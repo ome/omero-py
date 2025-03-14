@@ -23,15 +23,7 @@
    Library for integration tests
 
 """
-from __future__ import division
-from __future__ import print_function
 
-from builtins import str
-from future.utils import native_str
-from past.builtins import basestring
-from builtins import range
-from past.utils import old_div
-from builtins import object
 import os
 import platform
 import locale
@@ -636,7 +628,7 @@ class ITest(object):
             else:
                 group = admin.getGroup(group.id.val)
                 name = group.name.val
-        elif isinstance(group, basestring):
+        elif isinstance(group, str):
             name = group
             group = admin.lookupGroup(name)
         elif isinstance(group, Experimenter):
@@ -663,7 +655,7 @@ class ITest(object):
             else:
                 user = admin.getExperimenter(user.id.val)
                 name = user.omeName.val
-        elif isinstance(user, basestring):
+        elif isinstance(user, str):
             name = user
             user = admin.lookupExperimenter(name)
         elif isinstance(user, ExperimenterGroup):
@@ -818,7 +810,7 @@ class ITest(object):
 
         sf = client.sf
         if omero_group is not None:
-            prx = sf.submit(request, {'omero.group': native_str(omero_group)})
+            prx = sf.submit(request, {'omero.group': str(omero_group)})
         else:
             prx = sf.submit(request)
 
@@ -1301,8 +1293,8 @@ class AbstractRepoTest(ITest):
 
     def create_test_dir(self):
         folder = create_path(folder=True)
-        (old_div(folder, "a.fake")).touch()
-        (old_div(folder, "b.fake")).touch()
+        (folder / "a.fake").touch()
+        (folder / "b.fake").touch()
         return folder
 
     def create_fileset(self, folder):

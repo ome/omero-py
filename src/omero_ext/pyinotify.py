@@ -28,15 +28,7 @@ pyinotify
 @license: MIT License
 @contact: seb@dbzteam.org
 """
-from __future__ import division
-from __future__ import print_function
 
-from builtins import map
-from builtins import hex
-from builtins import str
-from past.builtins import basestring
-from past.utils import old_div
-from builtins import object
 class PyinotifyError(Exception):
     """Indicates exceptions raised by a Pyinotify class."""
     pass
@@ -68,8 +60,6 @@ class UnsupportedLibcVersionError(PyinotifyError):
 
 # Check Python version
 import sys
-if sys.version < '2.4':
-    raise UnsupportedPythonVersionError(sys.version)
 
 
 # Import directives
@@ -93,10 +83,7 @@ import ctypes.util
 import asyncore
 import glob
 
-try:
-    from functools import reduce
-except ImportError:
-    pass  # Will fail on Python 2.4 which has reduce() builtin anyway.
+from functools import reduce
 
 __author__ = "seb@dbzteam.org (Sebastien Martini)"
 
@@ -125,15 +112,11 @@ def load_libc():
     except (OSError, IOError):
         pass  # Will attemp to load it with None anyway.
 
-    if sys.version_info[0] >= 2 and sys.version_info[1] >= 6:
-        LIBC = ctypes.CDLL(libc, use_errno=True)
-        def _strerrno():
-            code = ctypes.get_errno()
-            return ' Errno=%s (%s)' % (os.strerror(code), errno.errorcode[code])
-        strerrno = _strerrno
-    else:
-        LIBC = ctypes.CDLL(libc)
-        strerrno = lambda : ''
+    LIBC = ctypes.CDLL(libc, use_errno=True)
+    def _strerrno():
+        code = ctypes.get_errno()
+        return ' Errno=%s (%s)' % (os.strerror(code), errno.errorcode[code])
+    strerrno = _strerrno
 
     # Check that libc has needed functions inside.
     if (not hasattr(LIBC, 'inotify_init') or
@@ -163,14 +146,8 @@ class PyinotifyLogger(logging.Logger):
 class UnicodeLogRecord(logging.LogRecord):
     def __init__(self, name, level, pathname, lineno,
                  msg, args, exc_info, func=None):
-        py_version = sys.version_info
-        # func argument was added in Python 2.5, just ignore it otherwise.
-        if py_version[0] >= 2 and py_version[1] >= 5:
-            logging.LogRecord.__init__(self, name, level, pathname, lineno,
-                                       msg, args, exc_info, func)
-        else:
-            logging.LogRecord.__init__(self, name, level, pathname, lineno,
-                                       msg, args, exc_info)
+        logging.LogRecord.__init__(self, name, level, pathname, lineno,
+                                   msg, args, exc_info, func)
 
     def getMessage(self):
         msg = self.msg
@@ -437,7 +414,7 @@ class _Event(object):
                 continue
             if attr == 'mask':
                 value = hex(getattr(self, attr))
-            elif isinstance(value, basestring) and not value:
+            elif isinstance(value, str) and not value:
                 value = "''"
             s += ' %s%s%s' % (output_format.field_name(attr),
                               output_format.punctuation('='),
@@ -963,11 +940,11 @@ class Stats(ProcessEvent):
         if elapsed < 60:
             elapsed_str = str(elapsed) + 'sec'
         elif 60 <= elapsed < 3600:
-            elapsed_str = '%dmn%dsec' % (old_div(elapsed, 60), elapsed % 60)
+            elapsed_str = '%dmn%dsec' % (elapsed // 60, elapsed % 60)
         elif 3600 <= elapsed < 86400:
-            elapsed_str = '%dh%dmn' % (old_div(elapsed, 3600), old_div((elapsed % 3600), 60))
+            elapsed_str = '%dh%dmn' % (elapsed // 3600, (elapsed % 3600) // 60)
         elif elapsed >= 86400:
-            elapsed_str = '%dd%dh' % (old_div(elapsed, 86400), old_div((elapsed % 86400), 3600))
+            elapsed_str = '%dd%dh' % (elapsed // 86400, (elapsed % 86400) // 3600)
         stats['ElapsedTime'] = elapsed_str
 
         l = []
@@ -997,7 +974,7 @@ class Stats(ProcessEvent):
             return ''
 
         m = max(stats.values())
-        unity = old_div(float(scale), m)
+        unity = scale / m
         fmt = '%%-26s%%-%ds%%s' % (len(output_format.field_value('@' * scale))
                                    + 1)
         def func(x):

@@ -22,15 +22,7 @@
 """
 fs plugin for querying repositories, filesets, and the like.
 """
-from __future__ import division
-from __future__ import print_function
 
-from past.builtins import cmp
-from builtins import zip
-from builtins import str
-from builtins import map
-from builtins import object
-from past.utils import old_div
 import platform
 import sys
 
@@ -614,16 +606,12 @@ class FsControl(CmdControl):
         """
 
         from omero.grid import ManagedRepositoryPrx as MRepo
-        from functools import cmp_to_key
-
-        def my_cmp(a, b):
-            return cmp(a[0].id.val, b[0].id.val)
 
         client = self.ctx.conn(args)
         shared = client.sf.sharedResources()
         repos = shared.repositories()
         repos = list(zip(repos.descriptions, repos.proxies))
-        repos.sort(key = cmp_to_key(my_cmp))
+        repos.sort(key=lambda repo: repo[0].id.val)
 
         tb = self._table(args)
         tb.cols(["Id", "UUID", "Type", "Path"])
@@ -834,7 +822,7 @@ class FsControl(CmdControl):
         shared = client.sf.sharedResources()
         repos = shared.repositories()
         repos = list(zip(repos.descriptions, repos.proxies))
-        repos.sort(lambda a, b: cmp(a[0].id.val, b[0].id.val))
+        repos.sort(key=lambda repo: repo[0].id.val)
 
         for idx, pair in enumerate(repos):
             if MRepo.checkedCast(pair[1]):
@@ -925,7 +913,7 @@ class FsControl(CmdControl):
         oneK = 1024.0
         powers = {'K': 1, 'M': 2, 'G': 3, 'T': 4, 'P': 5}
         if units in list(powers.keys()):
-            return round(old_div(size,oneK**powers[units]), 1)
+            return round(size / oneK**powers[units], 1)
         else:
             raise ValueError("Unrecognized units: ", units)
 
@@ -1390,46 +1378,46 @@ class ImportTime(object):
         metrics_keys = set(self.metrics)
 
         if set(['UPLOAD', 'UPLOAD_C']) <= metrics_keys:
-            time = old_div(self.metrics['UPLOAD'], 1000.0)
+            time = self.metrics['UPLOAD'] / 1000.0
             count = self.metrics['UPLOAD_C']
             plural = "s" if count > 1 else ""
             print(("   upload time of {0:6.2f}s for "
                    "{1} file{2} ({3:.3f}s/file)")
-                  .format(time, count, plural, old_div(time,count)))
+                  .format(time, count, plural, time / count))
 
-        time = old_div(self.metrics['SET_ID'], 1000.0)
+        time = self.metrics['SET_ID'] / 1000.0
         print("    setId time of {0:6.2f}s".format(time))
 
-        time = old_div(self.metrics['METADATA'], 1000.0)
+        time = self.metrics['METADATA'] / 1000.0
         print(" metadata time of {0:6.2f}s".format(time))
 
         if set(['PIXELDATA', 'PIXELDATA_C']) <= metrics_keys:
-            time = old_div(self.metrics['PIXELDATA'], 1000.0)
+            time = self.metrics['PIXELDATA'] / 1000.0
             count = self.metrics['PIXELDATA_C']
             plural = "s" if count > 1 else ""
             print(("   pixels time of {0:6.2f}s for "
                    "{1} plane{2} ({3:.3f}s/plane)")
-                  .format(time, count, plural, old_div(time,count)))
+                  .format(time, count, plural, time / count))
 
         if 'OVERLAY' in metrics_keys:
-            time = old_div(self.metrics['OVERLAY'], 1000.0)
+            time = self.metrics['OVERLAY'] / 1000.0
             print(" overlays time of {0:6.2f}s".format(time))
 
         if set(['RDEF', 'RDEF_C']) <= metrics_keys:
-            time = old_div(self.metrics['RDEF'], 1000.0)
+            time = self.metrics['RDEF'] / 1000.0
             count = self.metrics['RDEF_C']
             plural = "s" if count > 1 else ""
             print(("    rdefs time of {0:6.2f}s for "
                    "{1} rendering setting{2} ({3:.3f}s/rdef)")
-                  .format(time, count, plural, old_div(time,count)))
+                  .format(time, count, plural, time / count))
 
         if set(['THUMBNAIL', 'THUMBNAIL_C']) <= metrics_keys:
-            time = old_div(self.metrics['THUMBNAIL'], 1000.0)
+            time = self.metrics['THUMBNAIL'] / 1000.0
             count = self.metrics['THUMBNAIL_C']
             plural = "s" if count > 1 else ""
             print(("thumbnail time of {0:6.2f}s for "
                    "{1} thumbnail{2} ({3:.3f}s/thumbnail)")
-                  .format(time, count, plural, old_div(time,count)))
+                  .format(time, count, plural, time / count))
 
     def print_summary(self):
         """

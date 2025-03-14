@@ -19,7 +19,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from builtins import object
 from omero.cli import CLI
 from omero.plugins.ldap import LdapControl
 import pytest

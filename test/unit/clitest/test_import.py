@@ -8,15 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import division
-from __future__ import print_function
 
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import range
-from builtins import object
-from past.utils import old_div
 import os
 import pytest
 import sys
@@ -84,10 +76,10 @@ class TestImport(object):
             self.args += ["--logback", logback]
 
     def mkdir(self, parent, name, with_ds_store=False):
-        child = old_div(parent, name)
+        child = parent / name
         child.mkdir()
         if with_ds_store:
-            ds_store = old_div(child, ".DS_STORE")
+            ds_store = child / ".DS_STORE"
             ds_store.write("")
         return child
 
@@ -108,8 +100,8 @@ class TestImport(object):
                         run_dir, "WellA00%s" % str(iwell),
                         with_ds_store=with_ds_store)
                     for ifield in range(nfields):
-                        fieldfile = (old_div(well_dir, ("Field00%s.fake" %
-                                                 str(ifield))))
+                        fieldfile = (well_dir / ("Field00%s.fake" %
+                                                 str(ifield)))
                         fieldfile.write('')
                         fieldfiles.append(fieldfile)
         return fieldfiles
@@ -121,12 +113,12 @@ class TestImport(object):
         tiffiles = []
         for angle in range(1, nangles + 1):
             for timepoint in range(1, ntimepoints + 1):
-                tiffile = (old_div(spim_dir, ("spim_TL%s_Angle%s.fake" %
-                                       (str(timepoint), str(angle)))))
+                tiffile = (spim_dir / ("spim_TL%s_Angle%s.fake" %
+                                       (str(timepoint), str(angle))))
                 tiffile.write('')
                 print(str(tiffile))
                 tiffiles.append(tiffile)
-        patternfile = old_div(spim_dir, "spim.pattern")
+        patternfile = spim_dir / "spim.pattern"
         patternfile.write("spim_TL<1-%s>_Angle<1-%s>.fake"
                           % (str(ntimepoints), str(nangles)))
         assert len(tiffiles) == nangles * ntimepoints
@@ -176,9 +168,9 @@ class TestImport(object):
 
         dir1 = tmpdir.join("a")
         dir1.mkdir()
-        dir2 = old_div(dir1, "b")
+        dir2 = dir1 / "b"
         dir2.mkdir()
-        fakefile = old_div(dir2, "test.fake")
+        fakefile = dir2 / "test.fake"
         fakefile.write('')
 
         self.add_client_dir()
@@ -304,7 +296,7 @@ class TestImport(object):
             c.setSessionId(sessionid)
             return c
         monkeypatch.setattr(self.cli, 'conn', new_client)
-        ice_config = old_div(tmpdir, 'ice.config')
+        ice_config = tmpdir / 'ice.config'
         ice_config.write('omero.host=%s\nomero.port=%g' % (
             hostname, (port or 4064)))
         monkeypatch.setenv("ICE_CONFIG", "%s" % ice_config)
@@ -381,7 +373,7 @@ class TestImport(object):
 
     def testBulkNoPaths(self):
         t = path(__file__) / "bulk_import" / "test_simple"
-        b = old_div(t, "bulk.yml")
+        b = t / "bulk.yml"
         self.add_client_dir()
         self.args += ["-f", "---bulk=%s" % b, "dne.fake"]
         with pytest.raises(NonZeroReturnCode):
@@ -389,7 +381,7 @@ class TestImport(object):
 
     def testBulkSimple(self):
         t = path(__file__).parent / "bulk_import" / "test_simple"
-        b = old_div(t, "bulk.yml")
+        b = t / "bulk.yml"
 
         self.add_client_dir()
         self.args += ["-f", "---bulk=%s" % b]
@@ -397,7 +389,7 @@ class TestImport(object):
 
     def testBulkInclude(self):
         t = path(__file__).parent / "bulk_import" / "test_include" / "inner"
-        b = old_div(t, "bulk.yml")
+        b = t / "bulk.yml"
 
         self.add_client_dir()
         self.args += ["-f", "---bulk=%s" % b]
@@ -407,7 +399,7 @@ class TestImport(object):
         # Metadata provided in the yml file will be applied
         # to the args
         t = path(__file__).parent / "bulk_import" / "test_name"
-        b = old_div(t, "bulk.yml")
+        b = t / "bulk.yml"
 
         class MockImportControl(ImportControl):
             def do_import(self, command_args, xargs, mode):
@@ -422,7 +414,7 @@ class TestImport(object):
         # Metadata provided about the individual columns in
         # the tsv will be used.
         t = path(__file__).parent / "bulk_import" / "test_cols"
-        b = old_div(t, "bulk.yml")
+        b = t / "bulk.yml"
 
         class MockImportControl(ImportControl):
             def do_import(self, command_args, xargs, mode):
@@ -438,7 +430,7 @@ class TestImport(object):
 
     def testBulkBad(self):
         t = path(__file__).parent / "bulk_import" / "test_bad"
-        b = old_div(t, "bulk.yml")
+        b = t / "bulk.yml"
 
         self.add_client_dir()
         self.args += ["-f", "---bulk=%s" % b]
@@ -447,7 +439,7 @@ class TestImport(object):
 
     def testBulkDry(self, capfd):
         t = path(__file__).parent / "bulk_import" / "test_dryrun"
-        b = old_div(t, "bulk.yml")
+        b = t / "bulk.yml"
 
         self.add_client_dir()
         self.args += ["-f", "---bulk=%s" % b]
@@ -458,7 +450,7 @@ class TestImport(object):
     def testBulkJavaArgs(self):
         """Test Java arguments"""
         t = path(__file__).parent / "bulk_import" / "test_javaargs"
-        b = old_div(t, "bulk.yml")
+        b = t / "bulk.yml"
 
         class MockImportControl(ImportControl):
             def do_import(self, command_args, xargs, mode):
@@ -511,13 +503,13 @@ class TestImport(object):
     def testImportCandidatesDepth(self, tmpdir):
         dir1 = tmpdir.join("a")
         dir1.mkdir()
-        dir2 = old_div(dir1, "b")
+        dir2 = dir1 / "b"
         dir2.mkdir()
-        dir3 = old_div(dir2, "c")
+        dir3 = dir2 / "c"
         dir3.mkdir()
-        fakefile = old_div(dir2, "test.fake")
+        fakefile = dir2 / "test.fake"
         fakefile.write("")
-        fakefile2 = old_div(dir3, "test2.fake")
+        fakefile2 = dir3 / "test2.fake"
         fakefile2.write("")
         candidates = import_candidates.as_dictionary(
             str(tmpdir), extra_args=["--debug", "WARN", "--depth", "3"]

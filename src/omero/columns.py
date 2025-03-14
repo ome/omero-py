@@ -11,10 +11,6 @@ type hierarchy which know how to convert themselves
 to PyTables types.
 """
 
-from builtins import zip
-from builtins import range
-from builtins import object
-from future.utils import native, bytes_to_native_str, isbytes
 import omero
 import Ice
 import IceImport
@@ -286,10 +282,7 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         Check for strings longer than the initialised column width
         This will always return bytes
         """
-        if python_sys.version_info >= (3, 0, 0):
-            bytevalues = [v.encode() for v in self.values]
-        else:
-            bytevalues = self.values
+        bytevalues = [v.encode() for v in self.values]
         for bv in bytevalues:
             if len(bv) > self.size:
                 raise omero.ValidationException(
@@ -320,8 +313,8 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
     def fromrows(self, rows, field_only=False):
         AbstractColumn.fromrows(self, rows, field_only=field_only)
         for i, val in enumerate(self.values):
-            if isbytes(val):
-                self.values[i] = bytes_to_native_str(val)
+            if isinstance(val, bytes):
+                self.values[i] = val.decode("utf-8")
 
 
 class AbstractArrayColumn(AbstractColumn):

@@ -55,7 +55,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 source_suffix = ".rst"
 
 # Build docs without external dependencies
-autodoc_mock_imports = ["omero", "omero_ext", "past", "future", 
+autodoc_mock_imports = ["omero", "omero_ext",
                         "Ice", "IceImport", "Glacier2", "pytest",
                         "appdirs", "IcePy", "omero_version",
                         "IceGrid", "mx", "matplotlib",

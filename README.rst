@@ -19,31 +19,22 @@ Dependencies
 Direct dependencies of OMERO.py are:
 
 - `ZeroC IcePy 3.6`_
-- future
 - numpy
-- Pillow
+- Pillow >= 10.0.0
 
 Installation
 ------------
 
 We recommend installing omero-py in a Python virtual environment.
-You can create one using either ``venv`` or ``conda`` (preferred).
-If you opt for `Conda`_, you will need
-to install it first, see `miniconda`_ for more details.
+You can create one using for example ``venv``, ``conda`` or ``mamba``.
 
-To install ``omero-py`` using conda (preferred)::
+Before installing ``omero-py``, we recommend to install the `ZeroC IcePy 3.6`_ Python bindings.
+Our commercial partner `Glencoe Software <https://www.glencoesoftware.com/blog/2023/12/08/ice-binaries-for-omero.html>`_ has produced several Python wheels to install the Ice-Python bindings depending on the desired Python version and the operating system. Please visit `OMERO.py`_ for a list of supported platforms and Python versions.
 
-    conda create -n myenv -c ome python=3.8 zeroc-ice36-python
-    conda activate myenv
-    conda install -c conda-forge omero-py
 
-Alternatively install ``omero-py`` using venv::
+When the wheel is installed, activate the virtual environment and install ``omero-py`` from `PyPI <https://pypi.org/>`_::
 
-    python3.8 -m venv myenv
-    . myenv/bin/activate
-    pip install omero-py
-
-You may need to replace ``python3.8`` with ``python`` or ``python3`` depending on your Python distribution.
+  $ pip install -U omero-py
 
 Setting of the environment variable ``OMERODIR`` is required
 for some functionality.
@@ -67,7 +58,6 @@ See: `OMERO`_ documentation for more details and
 Usage
 -----
 
-- For OMERO python language bindings, see `OMERO.py`_.
 - For Command Line usage, see `OMERO.CLI`_.
 - For API documentation, see https://omero-py.readthedocs.io/
 
@@ -81,28 +71,17 @@ Developer installation
 
 OMERO.py currently depends on an externally built artifact which is automatically bundled in the PyPI package.
 
-For a development installation we recommend creating a virtualenv with the following setup (example assumes ``python3.8`` but you can create and activate the virtualenv using any compatible Python):
+For a development installation, we recommend to create a virtual environment with the Ice-Python binding matching your Python version and your operating system, see `OMERO.py`_.
 
-To install using venv::
+Activate the virtual environment and clone this repository::
 
-    python3.8 -mvenv myenv
-    . myenv/bin/activate
-    git clone https://github.com/ome/omero-py
-    cd omero-py
-    python setup.py devtarget
-    pip install -e .
-
-To install ``omero-py`` using conda (preferred)::
-
-    conda create -n myenv -c ome python=3.8 zeroc-ice36-python
-    conda activate myenv
-    git clone https://github.com/ome/omero-py
-    cd omero-py
-    python setup.py devtarget
-    pip install -e .
+    $ git clone https://github.com/ome/omero-py
+    $ cd omero-py
+    $ python setup.py devtarget
+    $ pip install -e .
 
 
-This will install omero-py into your virtualenv as an editable package, so any edits to ``src`` files should be reflected in your installation.
+This will install ``omero-py`` into your virtualenv as an editable package, so any edits to ``src`` files should be reflected in your installation.
 Note that if you add or remove files you must rerun the last two steps.
 
 Running tests
@@ -135,7 +114,7 @@ specifying ``major``, ``minor`` or ``patch`` depending on whether the developmen
 Remember to ``git push`` all commits and tags.s essential.
 
 The CI pipeline will automatically deploy the tag onto PyPI. Once released,
-a Pull Request needs to be opened against
+a Pull Request will be automatically  opened against
 `conda-omero-py <https://github.com/ome/conda-omero-py>`_ to update the 
 official `OMERO.py Conda package <https://anaconda.org/ome/omero-py>`_.
 
@@ -157,12 +136,10 @@ OMERO.py is released under the GPL v2.
 Copyright
 ---------
 
-2009-2023, The Open Microscopy Environment, Glencoe Software, Inc.
+2009-2024, The Open Microscopy Environment, Glencoe Software, Inc.
 
 .. _ZeroC IcePy 3.6: https://zeroc.com/downloads/ice/3.6
-.. _OMERO.py: https://docs.openmicroscopy.org/omero/5.6/developers/Python.html
-.. _OMERO.CLI: https://docs.openmicroscopy.org/omero/5.6/users/cli/index.html
-.. _OMERO: https://docs.openmicroscopy.org/omero/5.6/index.html
-.. _Running and writing tests: https://docs.openmicroscopy.org/latest/omero/developers/testing.html
-.. _Conda: https://docs.conda.io/en/latest/
-.. _miniconda: https://docs.conda.io/en/latest/miniconda.html
+.. _OMERO.py: https://omero.readthedocs.io/en/stable/developers/Python.html
+.. _OMERO.CLI: https://omero.readthedocs.io/en/stable/users/cli/index.html
+.. _OMERO: https://omero.readthedocs.io/en/stable/index.html
+.. _Running and writing tests: https://omero.readthedocs.io/en/stable/developers/testing.html

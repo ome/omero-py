@@ -28,17 +28,8 @@
 A collection of utility methods based on the Python Imaging Library (PIL)
 used for making figures.
 """
-from __future__ import division
 
-from future import standard_library
-standard_library.install_aliases()
-from past.utils import old_div
-try:
-    from PIL import Image, ImageDraw, ImageFont  # see ticket:2597
-except ImportError:
-    import Image
-    import ImageDraw
-    import ImageFont  # see ticket:2597
+from PIL import Image, ImageDraw, ImageFont
 
 import os.path
 import omero.gateway
@@ -160,7 +151,7 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
     # work out how many rows and columns are needed for all the images
     imgCount = len(pixelIds)
 
-    rowCount = (old_div(imgCount, colCount))
+    rowCount = imgCount // colCount
     # check that we have enough rows and cols...
     while (colCount * rowCount) < imgCount:
         rowCount += 1
@@ -174,13 +165,17 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
         if leftLabel is not None and rowCount == 0:
             rowCount = 1
         if fontsize is None:
-            fontsize = old_div(length, 10) + 5
+            fontsize = length // 10 + 5
         font = getFont(fontsize)
         if leftLabel:
-            textWidth, textHeight = font.getsize(leftLabel)
+            box = font.getbbox(leftLabel)
+            textWidth = box[2] - box[0]
+            textHeight = box[3] - box[1]
             leftSpace = spacing + textHeight + spacing
         if topLabel:
-            textWidth, textHeight = font.getsize(topLabel)
+            box = font.getbbox(topLabel)
+            textWidth = box[2] - box[0]
+            textHeight = box[3] - box[1]
             topSpace = spacing + textHeight + spacing
             minWidth = leftSpace + textWidth + spacing
 
@@ -200,8 +195,9 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
         labelSize = (labelCanvasWidth, labelCanvasHeight)
         textCanvas = Image.new(mode, labelSize, bg)
         draw = ImageDraw.Draw(textCanvas)
-        textWidth = font.getsize(leftLabel)[0]
-        textX = old_div((labelCanvasWidth - textWidth), 2)
+        box = font.getbbox(leftLabel)
+        textWidth = box[2] - box[0]
+        textX = (labelCanvasWidth - textWidth) // 2
         draw.text((textX, spacing), leftLabel, font=font, fill=textColour)
         verticalCanvas = textCanvas.rotate(90)
         pasteImage(verticalCanvas, canvas, 0, 0)
@@ -313,8 +309,8 @@ def getZoomFactor(imageSize, maxW, maxH):
     warnings.warn(
         "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     imageW, imageH = imageSize
-    zoomW = old_div(float(imageW), float(maxW))
-    zoomH = old_div(float(imageH), float(maxH))
+    zoomW = imageW / maxW
+    zoomH = imageH / maxH
     return max(zoomW, zoomH)
 
 
@@ -335,8 +331,8 @@ def resizeImage(image, maxW, maxH):
         return image
     # find which axis requires the biggest zoom (smallest relative max
     # dimension)
-    zoomW = old_div(float(imageW), float(maxW))
-    zoomH = old_div(float(imageH), float(maxH))
+    zoomW = imageW / maxW
+    zoomH = imageH / maxH
     zoom = max(zoomW, zoomH)
     if zoomW >= zoomH:  # size is defined by width
         maxH = int(imageH // zoom)  # calculate the new height

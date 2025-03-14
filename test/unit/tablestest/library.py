@@ -10,7 +10,6 @@
 """
 
 
-from builtins import object
 from omero.util.temp_files import create_path
 
 

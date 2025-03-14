@@ -1,3 +1,59 @@
+# 5.19.6 (January 2025)
+
+- Fix image_to_html pixel unit,
+  thanks to [Tom Boissonnet](https://github.com/Tom-TBT) [#441](https://github.com/ome/omero-py/pull/441)
+- Move repr_html to _ImageWrapper,
+  thanks to [Johannes Soltwedel](https://github.com/jo-mueller) [#429](https://github.com/ome/omero-py/pull/429)
+- CLI: fix debugging level 9,
+  thanks to [Torsten Stöter](https://github.com/tstoeter) [#439](https://github.com/ome/omero-py/pull/439)
+- Upgrade to macOS 14 Actions runner image [#440](https://github.com/ome/omero-py/pull/440)
+- Remove Python 3.8 from the testing matrix [#434](https://github.com/ome/omero-py/pull/434)
+- Add size check on data.rowNumbers in omero.HdfStorage.update  [#431](https://github.com/ome/omero-py/pull/431)
+
+# 5.19.5 (September 2024)
+
+- Prevent hang on exit while omero.client keepalive is active [#424](https://github.com/ome/omero-py/pull/424)
+
+# 5.19.4 (July 2024)
+
+- Parse omero.logging properties under new Logging heading [#416](https://github.com/ome/omero-py/pull/416)
+- Switch result logging to DEBUG level [#417](https://github.com/ome/omero-py/pull/417)
+- Allow a caller to ignore row numbers [#418](https://github.com/ome/omero-py/pull/418)
+- admin rewrite: make OMERO.tables module configurable [#419](https://github.com/ome/omero-py/pull/419)
+
+# 5.19.3 (June 2024)
+
+- Cap numpy to 1.x [#414](https://github.com/ome/omero-py/pull/414)
+
+# 5.19.2 (April 2024)
+
+- Add _repr_html_ method for _ImageWrapper [#394](https://github.com/ome/omero-py/pull/394)
+- Make getGridSize() handle plates with no Wells [#398](https://github.com/ome/omero-py/pull/398)
+- Improve handling of SessionID and client in BlitzGateway [#400](https://github.com/ome/omero-py/pull/400)
+- FilesetWrapper lazy loads Images and UsedFiles [#405](https://github.com/ome/omero-py/pull/405)
+- Update release steps [#406](https://github.com/ome/omero-py/pull/406)
+
+# 5.19.1 (March 2024)
+
+- Fix Windows regression in omero_ext.path [#402](https://github.com/ome/omero-py/pull/402)
+
+# 5.19.0 (February 2024)
+
+- Removal of python-future compatibility code [#390](https://github.com/ome/omero-py/pull/390)
+
+This release adds preliminary support for running OMERO.py on Python 3.12 environments.
+
+The `future` dependency should be considered deprecated and will be removed in the
+next minor release of OMERO.py. Downstream projects which are relying on this
+dependency should declare it explicitly in their configuration file.
+
+# 5.18.0 (January 2024)
+
+## Other updates
+
+- Set minimum version for Pillow (10.0.0) and Python (3.8) [#388](https://github.com/ome/omero-py/pull/388)
+
+
 # 5.17.0 (November 2023)
 
 ## Other updates

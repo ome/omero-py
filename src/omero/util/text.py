@@ -11,15 +11,6 @@
 # The following classes (ALIGN, Column, Table) were originally from
 # http://code.activestate.com/recipes/577202-render-tables-for-text-interface/
 #
-from __future__ import unicode_literals
-from __future__ import division
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import zip
-from builtins import range
-from past.utils import old_div
-from builtins import object
 import json
 import os
 import sys
@@ -79,21 +70,11 @@ class PlainStyle(Style):
         try:
             import csv
             import io
-            if sys.version_info >= (3, 0, 0):
-                output = io.StringIO()
-                def _encode(s):
-                    return s
-                def _decode(s):
-                    return s
-            else:
-                # Python 2.7 csv module does not support unicode!
-                # https://docs.python.org/2.7/library/csv.html#module-csv
-                # Need to treat as bytes and encode/decode
-                output = io.BytesIO()
-                def _encode(s):
-                    return s.encode('utf-8')
-                def _decode(s):
-                    return s.decode('utf-8')
+            output = io.StringIO()
+            def _encode(s):
+                return s
+            def _decode(s):
+                return s
             writer = csv.writer(output, lineterminator='')
             writer.writerow([_encode(s) for s in table.get_row(i)])
             return _decode(output.getvalue())
@@ -309,19 +290,11 @@ class ALIGN(object):
 class Column(list):
 
     def __init__(self, name, data, align=ALIGN.LEFT, style=SQLStyle()):
-        if sys.version_info >= (3, 0, 0):
-            def tostring(x):
-                if isinstance(x, bytes):
-                    return x.decode("utf-8", "surrogateescape")
-                else:
-                    return str(x)
-        else:
-            def tostring(x):
-                try:
-                    return str(x)
-                except UnicodeDecodeError:
-                    # Unicode characters are present
-                    return str(x.decode("utf-8", "ignore"))
+        def tostring(x):
+            if isinstance(x, bytes):
+                return x.decode("utf-8", "surrogateescape")
+            else:
+                return str(x)
 
         decoded = [tostring(d) for d in data]
         list.__init__(self, decoded)
@@ -349,33 +322,18 @@ class Table(object):
             if i is None:
                 yield x.format % x.name
             else:
-                if sys.version_info >= (3, 0, 0):
-                    if isinstance(x[i], bytes):
-                        yield x.format % bytes.decode(
-                            "utf-8", "surrogateescape")
-                    else:
-                        yield x.format % str(x[i])
+                if isinstance(x[i], bytes):
+                    yield x.format % bytes.decode(
+                        "utf-8", "surrogateescape")
                 else:
-                    try:
-                        yield x.format % x[i].decode("ascii")
-                    except UnicodeEncodeError:
-                        yield x.format % x[i]
-                    except UnicodeDecodeError:  # Unicode characters are present
-                        yield (x.format % x[i].decode("utf-8")).encode("utf-8")
-                    except AttributeError:  # Unicode characters are present
-                        yield x.format % x[i]
-                    else:
-                        yield x.format % x[i]
+                    yield x.format % str(x[i])
 
     def get_rows(self):
         for row in self.style.get_rows(self):
             yield row
 
     def __str__(self):
-        if sys.version_info >= (3, 0, 0):
-            return '\n'.join(self.get_rows())
-        else:
-            return ('\n'.join(self.get_rows())).encode("utf-8")
+        return '\n'.join(self.get_rows())
 
 
 def filesizeformat(bytes):
@@ -401,14 +359,14 @@ def filesizeformat(bytes):
     if bytes < KB:
         value = "%(size)d B" % {'size': bytes}
     elif bytes < MB:
-        value = "%s KB" % filesize_number_format(old_div(bytes, KB))
+        value = "%s KB" % filesize_number_format(bytes // KB)
     elif bytes < GB:
-        value = "%s MB" % filesize_number_format(old_div(bytes, MB))
+        value = "%s MB" % filesize_number_format(bytes // MB)
     elif bytes < TB:
-        value = "%s GB" % filesize_number_format(old_div(bytes, GB))
+        value = "%s GB" % filesize_number_format(bytes // GB)
     elif bytes < PB:
-        value = "%s TB" % filesize_number_format(old_div(bytes, TB))
+        value = "%s TB" % filesize_number_format(bytes // TB)
     else:
-        value = "%s PB" % filesize_number_format(old_div(bytes, PB))
+        value = "%s PB" % filesize_number_format(bytes // PB)
 
     return value

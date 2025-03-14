@@ -25,8 +25,6 @@ based on omero.model.PermissionsI
 """
 
 
-from builtins import str
-from past.builtins import basestring
 import Ice
 import IceImport
 IceImport.load("omero_model_Length_ice")
@@ -2080,7 +2078,7 @@ class LengthI(_omero_model.Length, UnitBase):
             target = None
         elif isinstance(unit, UnitsLength):
             target = unit
-        elif isinstance(unit, basestring):
+        elif isinstance(unit, str):
             target = getattr(UnitsLength, unit)
         else:
             raise Exception("Unknown unit: %s (%s)" % (

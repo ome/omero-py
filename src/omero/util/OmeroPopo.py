@@ -19,12 +19,6 @@
 # @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 # <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
 
-from __future__ import division
-from __future__ import print_function
-
-from builtins import range
-from past.utils import old_div
-from builtins import object
 import math
 import numpy
 
@@ -805,7 +799,7 @@ class EllipseData(ShapeData):
         o = (majr[1] - majl[1])
         a = (majr[0] - majl[0])
         h = math.sqrt(o * o + a * a)
-        majorAxisAngle = math.asin(old_div(o, h))
+        majorAxisAngle = math.asin(o / h)
         boundingBoxMinX = min(lt[0], rt[0], lb[0], rb[0])
         boundingBoxMaxX = max(lt[0], rt[0], lb[0], rb[0])
         boundingBoxMinY = min(lt[1], rt[1], lb[1], rb[1])
@@ -827,8 +821,8 @@ class EllipseData(ShapeData):
                     math.sin(majorAxisAngle)
                 newY = -dx * math.sin(majorAxisAngle) + \
                     dy * math.cos(majorAxisAngle)
-                val = old_div((newX * newX), (radiusx * radiusx)) + \
-                    old_div((newY * newY), (radiusy * radiusy))
+                val = (newX * newX) / (radiusx * radiusx) + \
+                    (newY * newY) / (radiusy * radiusy)
                 if(val <= 1):
                     points[(int(dx + cx), int(dy + cy))] = 1
         return points
@@ -1013,7 +1007,7 @@ class PolygonData(ShapeData):
     # @return See above.
     def toCoords(self, ptsList):
         coords = []
-        for index in range(old_div(len(ptsList), 2)):
+        for index in range(len(ptsList) // 2):
             coords.append(
                 (int(ptsList[index * 2]), int(ptsList[index * 2 + 1])))
         return coords
@@ -1043,7 +1037,7 @@ class PolygonData(ShapeData):
         angle = 0.0
         polypoints = self.getPoints()
         polygon = []
-        for index in range(0, old_div(len(polypoints), 2)):
+        for index in range(0, len(polypoints) // 2):
             polygon.append(
                 (int(polypoints[index * 2]), int(polypoints[index * 2 + 1])))
 
@@ -1345,7 +1339,7 @@ class RectData(ShapeData):
         o = (majr[1] - majl[1])
         a = (majr[0] - majl[0])
         h = math.sqrt(o * o + a * a)
-        angle = math.asin(old_div(o, h))
+        angle = math.asin(o / h)
         boundingBoxMinX = min(lt[0], rt[0], lb[0], rb[0])
         boundingBoxMaxX = max(lt[0], rt[0], lb[0], rb[0])
         boundingBoxMinY = min(lt[1], rt[1], lb[1], rb[1])

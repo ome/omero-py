@@ -8,10 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import print_function
 
-from builtins import str
-from builtins import object
 import pytest
 
 from omero_ext.path import path
