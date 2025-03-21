@@ -12,6 +12,7 @@
 # jason@glencoesoftware.com.
 
 # Set up the python include paths
+import numpy
 import os
 
 import warnings
@@ -55,6 +56,16 @@ from omero.rtypes import rtime, rlist, rdouble, unwrap
 
 logger = logging.getLogger(__name__)
 THISPATH = os.path.dirname(os.path.abspath(__file__))
+OMERO_NUMPY_DTYPES = {
+    PixelsTypeint8: numpy.int8,
+    PixelsTypeuint8: numpy.uint8,
+    PixelsTypeint16: numpy.int16,
+    PixelsTypeuint16: numpy.uint16,
+    PixelsTypeint32: numpy.int32,
+    PixelsTypeuint32: numpy.uint32,
+    PixelsTypefloat: numpy.float32,
+    PixelsTypedouble: numpy.float64,
+}
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -3773,8 +3784,6 @@ class _BlitzGateway (object):
         containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
-        import numpy
-
         def createImage(firstPlane, channelList):
             """ Create our new Image once we have the first plane in hand """
             convertToType = None
@@ -3789,16 +3798,8 @@ class _BlitzGateway (object):
                 # of our new image
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {PixelsTypeint8: 'int8',
-                                PixelsTypeuint8: 'uint8',
-                                PixelsTypeint16: 'int16',
-                                PixelsTypeuint16: 'uint16',
-                                PixelsTypeint32: 'int32',
-                                PixelsTypeuint32: 'uint32',
-                                PixelsTypefloat: 'float32',
-                                PixelsTypedouble: 'double'}
-                if omeroToNumpy[newPtype] != firstPlane.dtype.name:
-                    convertToType = getattr(numpy, omeroToNumpy[newPtype])
+                if OMERO_NUMPY_DTYPES[newPtype] != firstPlane.dtype.name:
+                    convertToType = OMERO_NUMPY_DTYPES[newPtype]
                 img._obj.setName(rstring(imageName))
                 img._obj.setSeries(rint(0))
                 updateService.saveObject(img._obj, self.SERVICE_OPTS)
@@ -7496,6 +7497,10 @@ class _PixelsWrapper (BlitzObjectWrapper):
         planeList = list(self.getPlanes([(theZ, theC, theT)]))
         return planeList[0]
 
+    def get_numpy_pixels_type(self):
+        pixels_type = self.getPixelsType().value
+        return OMERO_NUMPY_DTYPES[pixels_type]
+
     def getTiles(self, zctTileList):
         """
         Returns generator of numpy 2D planes from this set of pixels for a
@@ -7505,22 +7510,21 @@ class _PixelsWrapper (BlitzObjectWrapper):
         :param zctrList:     A list of indexes: [(z,c,t, region), ]
         """
 
-        import numpy
         from struct import unpack
 
-        pixelTypes = {PixelsTypeint8: ['b', numpy.int8],
-                      PixelsTypeuint8: ['B', numpy.uint8],
-                      PixelsTypeint16: ['h', numpy.int16],
-                      PixelsTypeuint16: ['H', numpy.uint16],
-                      PixelsTypeint32: ['i', numpy.int32],
-                      PixelsTypeuint32: ['I', numpy.uint32],
-                      PixelsTypefloat: ['f', numpy.float32],
-                      PixelsTypedouble: ['d', numpy.float64]}
+        pixelTypes = {PixelsTypeint8: 'b',
+                      PixelsTypeuint8: 'B',
+                      PixelsTypeint16: 'h',
+                      PixelsTypeuint16: 'H',
+                      PixelsTypeint32: 'i',
+                      PixelsTypeuint32: 'I',
+                      PixelsTypefloat: 'f',
+                      PixelsTypedouble: 'd'}
         rawPixelsStore = None
         sizeX = self.sizeX
         sizeY = self.sizeY
         pixelType = self.getPixelsType().value
-        numpyType = pixelTypes[pixelType][1]
+        numpyType = self.get_numpy_pixels_type()
         exc = None
         try:
             rawPixelsStore = self._prepareRawPixelsStore()
@@ -7538,7 +7542,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
                     planeX = width
                 # +str(sizeX*sizeY)+pythonTypes[pixelType]
                 convertType = '>%d%s' % (
-                    (planeY*planeX), pixelTypes[pixelType][0])
+                    (planeY*planeX), pixelTypes[pixelType])
                 if isinstance(rawPlane, bytes):
                     convertedPlane = unpack(convertType, rawPlane)
                 else:
