@@ -33,7 +33,7 @@ import configparser
 
 def get_blitz_location():
 
-    config_blitz_version = "5.5.5"
+    config_blitz_version = "5.8.1"
 
     # simplified strings
     defaultsect = configparser.DEFAULTSECT
