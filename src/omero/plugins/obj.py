@@ -278,6 +278,49 @@ class NonFieldTxAction(TxAction):
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 
+class ExtInfoSetTxAction(NonFieldTxAction):
+
+    def on_go(self, ctx, args):
+        # ['ext-info-set', 'Project:302', 'lsid', 'entityType', 'entityId']
+        argc = len(self.tx_cmd.arg_list)
+        if argc not in [3, 4, 5]:
+            ctx.die(345,
+                    "usage: ext-info-set OBJ lsid [entityType] [entityId]")
+        lsid = self.tx_cmd.arg_list[2]
+
+        # lookup externalInfo for default values (NB: it is immutable)
+        extinfo = None
+        details = self.obj.getDetails()
+        if details and details._externalInfo:
+            extinfo = self.query.get("ExternalInfo",
+                details._externalInfo._id.val, {"omero.group": "-1"})
+
+        entity_id = 3
+        if argc == 5:
+            entity_id = int(self.tx_cmd.arg_list[4])
+        elif extinfo is not None:
+            entity_id = extinfo.entityId.val
+
+        if argc > 3:
+            entity_type = self.tx_cmd.arg_list[3]
+        elif extinfo is not None:
+            entity_type = extinfo.entityType.val
+        else:
+            ctx.die(346, "usage: ext-info-set OBJ lsid entityType [entityId]"
+                    " No existing entityType found")
+
+        from omero.model import ExternalInfoI
+        from omero.rtypes import rstring, rlong
+
+        extinfo = ExternalInfoI()
+        setattr(extinfo, "lsid", rstring(lsid))
+        setattr(extinfo, "entityId", rlong(entity_id))
+        setattr(extinfo, "entityType", rstring(entity_type))
+        self.obj.details.externalInfo = extinfo
+
+        self.save_and_return(ctx)
+
+
 class MapSetTxAction(NonFieldTxAction):
 
     def on_go(self, ctx, args):
@@ -526,6 +569,8 @@ Examples:
     $ omero obj list-get MapAnnotation:456 mapValue 0
     (foo,bar)
 
+    $ omero obj ext-info-set Image:12 myLsid myEntityType
+
 Bash examples:
 
     $ project=$(omero obj new Project name='my Project')
@@ -546,7 +591,8 @@ Bash examples:
             "command", nargs="?",
             choices=("new", "update", "null",
                      "map-get", "map-set",
-                     "get", "list-get"),
+                     "get", "list-get",
+                     "ext-info-set"),
             help="operation to be performed")
         parser.add_argument(
             "Class", nargs="?",
@@ -603,6 +649,8 @@ Bash examples:
             return MapSetTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "map-get":
             return MapGetTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "ext-info-set":
+            return ExtInfoSetTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "null":
             return NullTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "get":
