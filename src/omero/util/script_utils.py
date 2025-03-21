@@ -36,12 +36,7 @@ from omero.model.enums import PixelsTypeint8, PixelsTypeuint8
 from omero.model.enums import PixelsTypefloat
 import omero.util.pixelstypetopython as pixelstypetopython
 
-try:
-    import hashlib
-    hash_sha1 = hashlib.sha1
-except:
-    import sha
-    hash_sha1 = sha.new
+from hashlib import sha1
 
 from PIL import Image
 
@@ -183,7 +178,7 @@ def calc_sha1(filename):
     """
 
     with open(filename, 'rb') as file_handle:
-        h = hash_sha1()
+        h = sha1()
         h.update(file_handle.read())
         hash = h.hexdigest()
     return hash
@@ -198,7 +193,7 @@ def calcSha1FromData(data):
     :param data The data array.
     :return The Hash
     """
-    h = hash_sha1()
+    h = sha1()
     h.update(data)
     hash = h.hexdigest()
     return hash
