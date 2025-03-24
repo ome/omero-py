@@ -7937,7 +7937,7 @@ class assert_re (object):
         :param ignoreExceptions: A set of exceptions thrown during the
         preparation of the rendering engine for which the decorator should
         ignore and allow the execution of the decorated function or method.
-        Defaults to 'None'.
+        Defaults to empty tuple.
         :type ignoreExceptions: Set
         """
         self.onPrepareFailureReturnNone = onPrepareFailureReturnNone
