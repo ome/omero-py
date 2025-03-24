@@ -7925,7 +7925,7 @@ class assert_re (object):
     call. Is configurable by various options.
     """
 
-    def __init__(self, onPrepareFailureReturnNone=True, ignoreExceptions=None):
+    def __init__(self, onPrepareFailureReturnNone=True, ignoreExceptions=()):
         """
         Initialises the decorator.
 
