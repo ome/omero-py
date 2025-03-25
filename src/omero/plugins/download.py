@@ -71,11 +71,7 @@ class DownloadControl(BaseControl):
         dtype = obj.__class__.__name__[:-1]
         conn = BlitzGateway(client_obj=client)
         conn.SERVICE_OPTS.setOmeroGroup(-1)
-
-        if args.insert_fileset_folder:
-            insert_fileset_folder = True
-        else:
-            insert_fileset_folder = False
+        insert_fileset_folder = args.insert_fileset_folder
 
         if dtype == "Fileset":
             fileset = self.get_object(conn, dtype, obj.id.val)
