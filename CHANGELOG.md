@@ -1,3 +1,15 @@
+# 5.19.7 (March 2025)
+
+- Fix image_to_html pixel unit,
+  thanks to [Tom Boissonnet](https://github.com/Tom-TBT) [#441](https://github.com/ome/omero-py/pull/441)
+- Remove all usage of sha library in favor of hashlib [#454](https://github.com/ome/omero-py/pull/454)
+- Bump code generated omero-blitz-python dependency to version 5.8.1 [#455](https://github.com/ome/omero-py/pull/455)
+- Change ignoreExceptions default to empty tuple,
+  thanks to [Jeremy Muhlich](https://github.com/jmuhlich) [#447](https://github.com/ome/omero-py/pull/444)
+- omero.gateway: fix Dataset AttributeError,
+  thanks to [Michael Milton](https://github.com/multimeric) [#452](https://github.com/ome/omero-py/pull/452)
+- omero.util.populate_metadata: only log column types from HeaderResolver [#444](https://github.com/ome/omero-py/pull/444)
+
 # 5.19.6 (January 2025)
 
 - Fix image_to_html pixel unit,
