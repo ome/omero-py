@@ -809,8 +809,8 @@ class BaseClient(object):
         """
         Calculates the local sha1 for a file.
         """
-        from hashlib import sha1 as sha_new
-        digest = sha_new()
+        from hashlib import sha1
+        digest = sha1()
         file = open(filename, 'rb')
         try:
             while True:

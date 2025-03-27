@@ -4047,14 +4047,9 @@ class _BlitzGateway (object):
             originalFile.mimetype = rstring(mimetype)
         originalFile.setSize(rlong(fileSize))
         # set sha1
-        try:
-            import hashlib
-            hash_sha1 = hashlib.sha1
-        except:
-            import sha
-            hash_sha1 = sha.new
+        from hashlib import sha1
         fo.seek(0)
-        h = hash_sha1()
+        h = sha1()
         h.update(fo.read())
         shaHast = h.hexdigest()
         originalFile.setHash(rstring(shaHast))
