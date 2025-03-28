@@ -15,9 +15,7 @@
 import sys
 import omero
 import os
-import re
 from omero.cli import BaseControl, CLI, ProxyStringType
-from omero.rtypes import unwrap
 from omero.gateway import BlitzGateway
 
 HELP = """Download a File, Image or Fileset with a specified ID to a target file
@@ -61,6 +59,8 @@ class DownloadControl(BaseControl):
             "OriginalFile is assumed if <object>: is omitted.")
         parser.add_argument(
             "filename", help="Local filename (or path for Fileset) to be saved to. '-' for stdout")
+        parser.add_argument(
+            "--insert_fileset_folder", action="store_true", help="Adding 'Fileset_xxxx' folder in the download path")
         parser.set_defaults(func=self.__call__)
         parser.add_login_arguments()
 
@@ -71,25 +71,28 @@ class DownloadControl(BaseControl):
         dtype = obj.__class__.__name__[:-1]
         conn = BlitzGateway(client_obj=client)
         conn.SERVICE_OPTS.setOmeroGroup(-1)
+        insert_fileset_folder = args.insert_fileset_folder
 
         if dtype == "Fileset":
             fileset = self.get_object(conn, dtype, obj.id.val)
-            self.download_fileset(conn, fileset, args.filename)
+            self.download_fileset(conn, fileset, args.filename, insert_fileset_folder)
         elif dtype == "Image":
             image = self.get_object(conn, dtype, obj.id.val)
             fileset = image.getFileset()
             if fileset is None:
                 self.ctx.die(602, 'Input image has no associated Fileset')
-            self.download_fileset(conn, fileset, args.filename)
+            self.download_fileset(conn, fileset, args.filename, insert_fileset_folder)
         else:
             orig_file = self.get_file(client.sf, dtype, obj.id.val)
             target_file = str(args.filename)
             # only expect single file
             self.download_file(client, orig_file, target_file)
 
-    def download_fileset(self, conn, fileset, dir_path):
+    def download_fileset(self, conn, fileset, dir_path, insert_fileset_folder=False):
         self.ctx.out(f"Fileset: {fileset.id}")
         template_prefix = fileset.getTemplatePrefix()
+        if insert_fileset_folder:
+            dir_path = os.path.join(dir_path, f"Fileset_{fileset.id}")
         for orig_file in fileset.listFiles():
             file_path = orig_file.path.replace(template_prefix, "")
             target_dir = os.path.join(dir_path, file_path)
