@@ -1,25 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+# 
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
 """
-   load, quit, version, help plugins
+load, quit, version, help plugins
 
-   Plugin read by omero.cli.Cli during initialization. The method(s)
-   defined here will be added to the Cli class for later use.
+Plugin read by omero.cli.Cli during initialization. The method(s)
+defined here will be added to the Cli class for later use.
 
-   The load plugin is used to read in files with omero cli commands
-   (omitting the omero). For example,
+The load plugin is used to read in files with omero cli commands
+(omitting the omero). For example,
 
-   ./omero load some/file.osh
+./omero load some/file.osh
 
-   The help, quit, and version plugins are self-explanatory.
-
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
+The help, quit, and version plugins are self-explanatory.
 """
-from __future__ import print_function
 
-from past.builtins import cmp
 from glob import glob
 import sys
 
@@ -52,7 +50,7 @@ class VersionControl(BaseControl):
         for line in self.ctx.get_config_property_lines(OMERODIR):
             line = str(line).strip()
             if line.startswith("omero.version="):
-                server_version = line[len("omero.verison="):]
+                server_version = line[len("omero.version="):]
         if server_version:
             self.ctx.err("OMERO.server version:")
             self.ctx.err(server_version)
@@ -169,7 +167,7 @@ Other help topics:
 
 For additional information, see:
 https://docs.openmicroscopy.org/latest/omero/users/cli/index.html
-Report bugs to <ome-users@lists.openmicroscopy.org.uk>
+Report bugs at https://forum.image.sc/tag/omero-cli
 """
 
 

@@ -23,13 +23,7 @@
 Parser for the omero.properties file to generate RST
 mark up.
 """
-from __future__ import print_function
 
-from future.utils import bytes_to_native_str
-from future.utils import isbytes
-from past.builtins import cmp
-from builtins import str
-from builtins import object
 class Header(object):
     def __init__(self, name, reference=None, description=""):
         """Initialize new configuration property"""
@@ -50,10 +44,12 @@ GRID_HEADER = Header("Grid", reference="grid")
 ICE_HEADER = Header("Ice", reference="ice")
 LDAP_HEADER = Header("LDAP", reference="ldap")
 JVM_HEADER = Header("JVM", reference="jvm")
+LOGGING_HEADER = Header("Logging", reference="log")
 MISC_HEADER = Header("Misc", reference="misc")
 PERFORMANCE_HEADER = Header("Performance", reference="performance")
 SCRIPTS_HEADER = Header("Scripts", reference="scripts")
 SECURITY_HEADER = Header("Security", reference="security")
+TABLES_HEADER = Header("Tables", reference="tables")
 
 HEADER_MAPPING = {
     "omero.data": FS_HEADER,
@@ -65,6 +61,7 @@ HEADER_MAPPING = {
     "omero.managed": FS_HEADER,
     "omero.ldap": LDAP_HEADER,
     "omero.jvmcfg": JVM_HEADER,
+    "omero.logging": LOGGING_HEADER,
     "omero.sessions": PERFORMANCE_HEADER,
     "omero.threads": PERFORMANCE_HEADER,
     "omero.throttling": PERFORMANCE_HEADER,
@@ -72,6 +69,7 @@ HEADER_MAPPING = {
     "omero.process": SCRIPTS_HEADER,
     "omero.scripts": SCRIPTS_HEADER,
     "omero.security": SECURITY_HEADER,
+    "omero.tables": TABLES_HEADER,
     "omero.resetpassword": SECURITY_HEADER,
     "omero.upgrades": MISC_HEADER,
     "Ice": ICE_HEADER,
@@ -169,7 +167,7 @@ HEADER = \
 
 %(properties)s"""
 
-BLACK_LIST = ("##", "versions", "omero.upgrades")
+EXCLUDE_LIST = ("##", "versions", "omero.upgrades", "omero.version")
 
 STOP = "### END"
 
@@ -177,6 +175,7 @@ import os
 import argparse
 import fileinput
 import logging
+import warnings
 
 from collections import defaultdict
 
@@ -252,15 +251,15 @@ class PropertyParser(object):
     def parse_lines(self, lines):
         """Parse the properties from the given configuration file lines"""
         for line in lines:
-            if isbytes(line):
-                line = bytes_to_native_str(line)
+            if isinstance(line, bytes):
+                line = line.decode("utf-8")
             if line.endswith("\n"):
                 line = line[:-1]
 
             if line.startswith(STOP):
                 self.cleanup()
                 break
-            if self.black_list(line):
+            if self.is_excluded(line):
                 self.cleanup()
                 continue
             elif not line.strip():
@@ -278,7 +277,13 @@ class PropertyParser(object):
         return self.properties
 
     def black_list(self, line):
-        for x in BLACK_LIST:
+        warnings.warn(
+            "This method is deprecated. Use is_excluded instead",
+            DeprecationWarning)
+        return self.is_excluded(line)
+
+    def is_excluded(self, line):
+        for x in EXCLUDE_LIST:
             if line.startswith(x):
                 return True
 
@@ -412,8 +417,8 @@ class PropertyParser(object):
                 properties += "%s\n" % underline(len(p.key))
                 for line in p.txt.split("\n"):
                     if line:
-                        if isbytes(line):
-                            line = bytes_to_native_str(line)
+                        if isinstance(line, bytes):
+                            line = line.decode("utf-8")
                         properties += "%s\n" % (line)
                     else:
                         properties += "\n"

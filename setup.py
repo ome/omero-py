@@ -6,7 +6,6 @@
 
    Use is subject to license terms supplied in LICENSE.txt
 """
-from __future__ import print_function
 
 import glob
 import sys
@@ -18,36 +17,23 @@ from setuptools import (
     find_packages,
 )
 
-try:
-    from StringIO import StringIO
-    from StringIO import StringIO as BytesIO
-except ImportError:
-    # Python 3
-    from io import StringIO
-    from io import BytesIO
+from io import StringIO
+from io import BytesIO
 
 from shutil import (
     copy,
     rmtree,
 )
 
-try:
-    from urllib.request import urlopen
-except ImportError:
-    # Python 2
-    from urllib import urlopen
+from urllib.request import urlopen
 from zipfile import ZipFile
 
-try:
-    import configparser
-except ImportError:
-    # Python 2
-    import ConfigParser as configparser
+import configparser
 
 
 def get_blitz_location():
 
-    config_blitz_version = "5.5.5"
+    config_blitz_version = "5.8.1"
 
     # simplified strings
     defaultsect = configparser.DEFAULTSECT
@@ -55,7 +41,9 @@ def get_blitz_location():
     url_key = "versions.omero-blitz-url"
 
     # detect if in Jenkins or not
-    if "JENKINS_URL" in os.environ:
+    if "ZIP_FILE" in os.environ:
+        config_blitz_url = os.environ.get("ZIP_FILE")
+    elif "JENKINS_URL" in os.environ:
         config_blitz_url = os.environ.get("JENKINS_URL")
         config_blitz_url += "job/OMERO-build-build/lastSuccessfulBuild/"
         config_blitz_url += "artifact/omero-blitz/build/distributions/"
@@ -82,17 +70,20 @@ def get_blitz_location():
 
     # replace VERSION in the final url and return
     config_blitz_url = config_blitz_url.replace(
-        "VERSION", config_blitz_version)
+            "VERSION", config_blitz_version)
     return config_blitz_url
 
 
 def download_blitz_target():
     loc = get_blitz_location()
-    print("Downloading %s ..." % loc, file=sys.stderr)
-    resp = urlopen(loc)
-    content = resp.read()
-    content = BytesIO(content)
-    zipfile = ZipFile(content)
+    if "ZIP_FILE" in os.environ:
+        zipfile = ZipFile(loc)
+    else: 
+        print("Downloading %s ..." % loc, file=sys.stderr)
+        resp = urlopen(loc)
+        content = resp.read()
+        content = BytesIO(content)
+        zipfile = ZipFile(content)
     zipfile.extractall("target")
 
 
@@ -155,7 +146,7 @@ class DevTargetCommand(Command):
               "`pip install -e .`")
 
 
-if not os.path.exists('target'):
+if not os.path.exists('target') and not "NO_ZIP_FILE" in os.environ:
     download_blitz_target()
     copy_src_to_target()
 
@@ -202,6 +193,7 @@ setup(
             'https://docs.openmicroscopy.org/omero/latest/developers/'
             'Python.html',
         'Bug tracker': 'https://github.com/ome/omero-py/issues',
+        'API': 'https://omero-py.readthedocs.io/',
     },
     package_dir={"": "target"},
     packages=packages,
@@ -212,20 +204,22 @@ setup(
     entry_points={
         'console_scripts': ['omero=omero.main:main'],
     },
-    python_requires='>=3',
+    python_requires='>=3.8',
     install_requires=[
+        'urllib3<2',
         'appdirs',
         'future',
-        'numpy',
-        'Pillow',
+        'numpy<2',
+        'Pillow>=10.0.0',
         'PyYAML',
-        'zeroc-ice>=3.6.4,<3.7',
+        'zeroc-ice>=3.6.5,<3.7',
         'pywin32; platform_system=="Windows"',
-        'requests'
+        'requests',
+        'portalocker'
     ],
     tests_require=[
         'pytest',
-        'mox3',
+        'pytest-mock',
     ],
     cmdclass={
         'devtarget': DevTargetCommand,

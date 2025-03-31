@@ -3,7 +3,6 @@
 """
 Reconcile and cleanse where necessary an OMERO data directory of orphaned data.
 """
-from __future__ import print_function
 
 #
 #  Copyright (c) 2009-2016 University of Dundee. All rights reserved.
@@ -29,8 +28,6 @@ from __future__ import print_function
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 
-from builtins import range
-from builtins import object
 import omero.clients
 import omero
 import sys
@@ -74,7 +71,7 @@ Options:
 Examples:
   %s --dry-run -u root /OMERO
 
-Report bugs to OME Users <ome-users@lists.openmicroscopy.org.uk>""" % \
+Report bugs at https://forum.image.sc/""" % \
         (error, cmd, cmd))
     sys.exit(2)
 
@@ -165,20 +162,20 @@ class Cleanser(object):
             if object_id.val not in existing_ids:
                 if object_id.val == -1:
                     if self.dry_run:
-                        print("   \_ %s (ignored/keep)" % path)
+                        print(r"   \_ %s (ignored/keep)" % path)
                 else:
                     size = os.stat(path)[ST_SIZE]
                     self.cleansed.append(path)
                     self.bytes_cleansed = size
                     if self.dry_run:
-                        print("   \_ %s (remove)" % path)
+                        print(r"   \_ %s (remove)" % path)
                     else:
                         try:
                             os.unlink(path)
                         except OSError as e:
                             print(e)
             elif self.dry_run:
-                print("   \_ %s (keep)" % path)
+                print(r"   \_ %s (keep)" % path)
         self.deferred_paths = list()
 
     def finalize(self):
@@ -263,7 +260,7 @@ def delete_empty_dirs(repo, root, client, dry_run):
 
     if dry_run:
         for directory in to_delete:
-            print("   \_ %s%s (remove)" % (root, directory))
+            print(r"   \_ %s%s (remove)" % (root, directory))
     elif to_delete:
         # probably less than a screenful
         batch_size = 20

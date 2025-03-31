@@ -23,10 +23,6 @@
 # Version: 1.0
 #
 
-from builtins import str
-from future.utils import native_str
-from past.builtins import basestring
-from builtins import object
 import logging
 import json
 
@@ -88,7 +84,7 @@ class ServiceOptsDict(dict):
     def __setitem__(self, key, item):
         """Set key to value as string."""
         if self._testItem(item):
-            super(ServiceOptsDict, self).__setitem__(key, native_str(item))
+            super(ServiceOptsDict, self).__setitem__(key, str(item))
             logger.debug("Setting %r to %r" % (key, item))
         else:
             raise AttributeError(
@@ -174,7 +170,7 @@ class ServiceOptsDict(dict):
 
     def _testItem(self, item):
         if item is not None and not isinstance(item, bool) and \
-            (isinstance(item, basestring) or
+            (isinstance(item, str) or
              isinstance(item, int) or
              isinstance(item, long) or
              isinstance(item, float)):
@@ -221,3 +217,111 @@ def propertiesToDict(m, prefix=None):
         except:
             d[items[-1]] = value
     return nested_dict
+
+def image_to_html(image):
+    import base64
+
+    try:
+        pixsizeX = '{:.3f}'.format(image.getPixelSizeX())
+        pixsizeY = '{:.3f}'.format(image.getPixelSizeY())
+        pixsizeZ = '{:.3f}'.format(image.getPixelSizeZ())
+        UnitX = image.getPixelSizeX(units=True).getUnit()
+        UnitY = image.getPixelSizeY(units=True).getUnit()
+        UnitZ = image.getPixelSizeZ(units=True).getUnit()
+    except:
+        pixsizeX, pixsizeY, pixsizeZ = 'na', 'na', 'na'
+        UnitX, UnitY, UnitZ = 'na', 'na', 'na'
+
+    html_style_header = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Image Details</title>
+        <style>
+            img {
+                min-width: 250px; /* Set the minimum width for all images */
+                min-height: 250px; /* Set the minimum height for all images */
+            }
+            .align-top {
+            vertical-align: top;
+            }
+            .text-right {
+            text-align: right;
+            }
+        </style>
+    </head>
+    """
+
+    def obj_html(obj, otype):
+        return f"""<tr>
+                <td><b>{otype}</b></td>
+                <td class=text-right>{obj.id if obj else ""}</td>
+                <td class=text-right>{obj.name if obj else ""}</td>
+                </tr>
+            """
+
+    # create a sub-table for image information
+    table_imageinfo = f"""
+    <table>
+        <tr><th></th><th>ID</th><th>Name</th></tr>
+        {obj_html(image, 'Image')}
+        {obj_html(image.getParent(), 'Dataset')}
+        {obj_html(image.getProject(), 'Project')}
+    </table>
+    """
+
+    # get entries for thumbnail and dimensions
+    encoded_image = base64.b64encode(image.getThumbnail()).decode('utf-8')
+    dimensions = f"""(
+        {image.getSizeT()},
+        {image.getSizeC()},
+        {image.getSizeZ()},
+        {image.getSizeY()},
+        {image.getSizeX()})"""
+    physical_dims = f"""({pixsizeZ}, {pixsizeY}, {pixsizeX})""".format()
+    physical_units = f"""({UnitZ}, {UnitY}, {UnitX})"""
+
+    table_dimensions = f"""
+    <table>\n
+        <tr>\n
+            <td><b>Dimensions (TCZYX): </b></td> <td class=text-right>{dimensions}</td>\n
+        </tr>\n
+        <tr>\n
+            <td><b>Voxel/Pixel dimensions (ZYX): </b></td> <td class=text-right>{physical_dims}</td>\n
+        </tr>\n
+        <tr>\n
+            <td><b>Physical units: </b></td> <td class=text-right>{physical_units}</td>\n
+        </tr>\n
+        <tr>\n
+            <td><b>Channel Names: </b></td> <td class=text-right>{image.getChannelLabels()}</td>\n
+        </tr>\n
+    </table>
+    """
+
+    table_assembly = f"""
+    <table>
+    <tr>
+        <td><div class="thumbnail">
+            <img src="data:image/jpeg;base64,{encoded_image}" alt="Thumbnail">
+        </div></td>
+        <td class="align-top"><h2>Image information </h2>
+        {table_imageinfo}
+        </td>
+    </tr>
+    </table>
+    <table>
+        <tr>
+            <td>{table_dimensions}</td>
+        </tr>
+    </table>
+    """
+
+    return '\n'.join([
+        html_style_header,
+        '<body>',
+        table_assembly,
+        '</body>',
+        '</html>'
+    ])

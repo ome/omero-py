@@ -22,24 +22,13 @@
 """
 Library for managing user sessions.
 """
-from __future__ import division
-from __future__ import print_function
 
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
-from past.utils import old_div
 import omero.constants
 from omero.util import get_omero_userdir, make_logname
 from omero.rtypes import rlong
 from omero_ext.path import path
 
-try:
-    from urllib.parse import quote, unquote
-except ImportError:
-    # Python2
-    from urllib.parse import quote, unquote
+from urllib.parse import quote, unquote
 
 import logging
 
@@ -80,7 +69,7 @@ class SessionsStore(object):
         """
         self.logger = logging.getLogger(make_logname(self))
         if dir is None:
-            self.dir = old_div(get_omero_userdir(), "sessions")
+            self.dir = get_omero_userdir() / "sessions"
         else:
             self.dir = path(dir)
         if not self.dir.exists():
@@ -125,7 +114,7 @@ class SessionsStore(object):
         if not dhn.exists():
             dhn.makedirs()
 
-        (old_div(dhn, id)).write_lines(lines)
+        (dhn / id).write_lines(lines)
 
     def conflicts(self, host, name, id, new_props, ignore_nulls=False,
                   check_group=True):
@@ -168,7 +157,7 @@ class SessionsStore(object):
             return
         d = self.dir / _escape_host(host) / name
         if d.exists():
-            f = old_div(d, uuid)
+            f = d / uuid
             if f.exists():
                 f.remove()
                 self.logger.debug("Removed %s" % f)
@@ -183,7 +172,7 @@ class SessionsStore(object):
         """
         d = self.dir
         for x in (_escape_host(host), name, uuid):
-            d = old_div(d, x)
+            d = d / x
             if not d.exists():
                 return False
         return True
@@ -273,11 +262,11 @@ class SessionsStore(object):
         name since keys should be UUIDs. A None may be
         returned.
         """
-        s = old_div(self.dir, server)
+        s = self.dir / server
         if not s.exists():
             return None
         else:
-            n = [x.basename() for x in s.dirs() if (old_div(x, uuid)).exists()]
+            n = [x.basename() for x in s.dirs() if (x / uuid).exists()]
             if not n:
                 return None
             elif len(n) == 1:
@@ -449,25 +438,25 @@ class SessionsStore(object):
 
     def host_file(self):
         """ Returns the path-object which stores the last active host """
-        return old_div(self.dir, "._LASTHOST_")
+        return self.dir / "._LASTHOST_"
 
     def port_file(self):
         """ Returns the path-object which stores the last active port """
-        return old_div(self.dir, "._LASTPORT_")
+        return self.dir / "._LASTPORT_"
 
     def user_file(self, host):
         """ Returns the path-object which stores the last active user """
-        d = old_div(self.dir, _escape_host(host))
+        d = self.dir / _escape_host(host)
         if not d.exists():
             d.makedirs()
-        return old_div(d, "._LASTUSER_")
+        return d / "._LASTUSER_"
 
     def sess_file(self, host, user):
         """ Returns the path-object which stores the last active session """
         d = self.dir / _escape_host(host) / user
         if not d.exists():
             d.makedirs()
-        return old_div(d, "._LASTSESS_")
+        return d / "._LASTSESS_"
 
     def non_dot(self, d):
         """

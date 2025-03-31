@@ -23,19 +23,13 @@
 Test of the omero/plugins/tx.py module
 """
 
-from builtins import object
 import pytest
-from omero.api import IQueryPrx
-from omero.api import IUpdatePrx
-from omero.api import ServiceFactoryPrx
 from omero.cli import CLI
-from omero.clients import BaseClient
 from omero.model import ProjectI
 from omero.plugins.obj import NewObjectTxAction
 from omero.plugins.obj import TxCmd
 from omero.plugins.obj import ObjControl
 from omero.plugins.obj import TxState
-from mox3 import mox
 
 
 class MockCLI(CLI):
@@ -55,35 +49,32 @@ class MockCLI(CLI):
 
 class TxBase(object):
 
-    def setup_method(self, method):
-        self.mox = mox.Mox()
-        self.client = self.mox.CreateMock(BaseClient)
-        self.sf = self.mox.CreateMock(ServiceFactoryPrx)
-        self.query = self.mox.CreateMock(IQueryPrx)
-        self.update = self.mox.CreateMock(IUpdatePrx)
+    def init(self, mocker):
+        self.client = mocker.patch('omero.clients.BaseClient', autospec=True)
+        self.sf = mocker.patch('omero.api.ServiceFactoryPrx', autospec=True)
+        self.query = mocker.patch('omero.api.IQueryPrx', autospec=True)
+        self.update = mocker.patch('omero.api.IUpdatePrx', autospec=True)
         self.client.sf = self.sf
         self.cli = MockCLI()
         self.cli.set_client(self.client)
         self.cli.set("tx.state", TxState(self.cli))
-
-    def teardown_method(self, method):
-        self.mox.UnsetStubs()
-        self.mox.VerifyAll()
+        self.cli.register("obj", ObjControl, "TEST")
+        self.args = ["obj"]
 
     def queries(self, obj):
-        self.sf.getQueryService().AndReturn(self.query)
-        self.query.get(mox.IgnoreArg(), mox.IgnoreArg(), mox.IgnoreArg()).AndReturn(obj)
+        self.sf.getQueryService.return_value = self.query
+        self.query.get.return_value = obj
 
     def saves(self, obj):
-        self.sf.getUpdateService().AndReturn(self.update)
-        self.update.saveAndReturnObject(mox.IgnoreArg()).AndReturn(obj)
+        self.sf.getUpdateService.return_value = self.update
+        self.update.saveAndReturnObject.return_value = obj
 
 
 class TestNewObjectTxAction(TxBase):
 
-    def test_unknown_class(self):
+    def test_unknown_class(self, mocker):
+        self.init(mocker)
         self.saves(ProjectI(1, False))
-        self.mox.ReplayAll()
         state = TxState(self.cli)
         cmd = TxCmd(state, arg_list=["new", "Project", "name=foo"])
         action = NewObjectTxAction(state, cmd)
@@ -92,30 +83,29 @@ class TestNewObjectTxAction(TxBase):
 
 class TestObjControl(TxBase):
 
-    def setup_method(self, method):
-        super(TestObjControl, self).setup_method(method)
-        self.cli.register("obj", ObjControl, "TEST")
-        self.args = ["obj"]
-
-    def test_simple_new_usage(self):
+    def test_simple_new_usage(self, mocker):
+        self.init(mocker)
         self.saves(ProjectI(1, False))
-        self.mox.ReplayAll()
         self.cli.invoke("obj new Project name=foo", strict=True)
         assert self.cli._out == ["Project:1"]
 
-    def test_simple_update_usage(self):
+    def test_simple_update_usage(self, mocker):
+        self.init(mocker)
         self.queries(ProjectI(1, True))
         self.saves(ProjectI(1, False))
-        self.mox.ReplayAll()
         self.cli.invoke(("obj update Project:1 name=bar "
                         "description=loooong"), strict=True)
         assert self.cli._out == ["Project:1"]
 
-    def testHelp(self):
+    def testHelp(self, mocker):
+        self.init(mocker)
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('subcommand', ObjControl().get_subcommands())
-    def testSubcommandHelp(self, subcommand):
+    @pytest.mark.parametrize('subcommand', ("new", "update", "null",
+                     "map-get", "map-set",
+                     "get", "list-get"))
+    def testSubcommandHelp(self, subcommand, mocker):
+        self.init(mocker)
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)

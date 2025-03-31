@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# OMERO Decorators
+# 
 # Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-from builtins import object
+"""
+OMERO Decorators
+"""
 import time
 import logging
 import traceback
@@ -67,7 +69,10 @@ def remoted(func):
             self = args[0]
             log.info(" Meth: %s.%s", self.__class__.__name__, func.__name__)
             rv = func(*args, **kwargs)
-            log.info(__RESULT, rv)
+            if log.isEnabledFor(logging.DEBUG):
+                log.debug(__RESULT, rv)
+            else:
+                log.info(__RESULT, type(rv))
             return rv
         except Exception as e:
             log.info(__EXCEPT, e)

@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-/*
- *   $Id$
- *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
- *
- */
-"""
+
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
 
 import Ice
 import omero
@@ -357,6 +352,10 @@ class ParametersI(omero.sys.Parameters):
 
     def addString(self, name, stringValue):
         self.add(name, rstring(stringValue))
+        return self
+
+    def addTime(self, name, TimeValue):
+        self.add(name, rtime(TimeValue))
         return self
 
 _omero_sys.ParametersI = ParametersI

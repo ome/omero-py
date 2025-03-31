@@ -22,12 +22,7 @@
 """
 Conversion utilities for changing between units.
 """
-from __future__ import division
 
-
-from builtins import str
-from past.utils import old_div
-from builtins import object
 class Conversion(object):
     """
     Base-functor like object which can be used for preparing complex
@@ -136,7 +131,7 @@ class Rat(Conversion):
     def __call__(self, original):
         n = self.unwrap(self.n, original)
         d = self.unwrap(self.d, original)
-        return old_div(float(n), d)
+        return n / d
 
     def __str__(self):
         return "(%s / %s)" % (self.n, self.d)

@@ -1,15 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-::
-    /*
-     *   $Id$
-     *
-     *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
-     *   Use is subject to license terms supplied in LICENSE.txt
-     *
-     */
-"""
+#
+#    Copyright 2009 Glencoe Software, Inc. All rights reserved.
+#    Use is subject to license terms supplied in LICENSE.txt
+#
 
 """
 Concrete implementations of the omero.grid.Column
@@ -17,10 +11,6 @@ type hierarchy which know how to convert themselves
 to PyTables types.
 """
 
-from builtins import zip
-from builtins import range
-from builtins import object
-from future.utils import native, bytes_to_native_str, isbytes
 import omero
 import Ice
 import IceImport
@@ -99,14 +89,14 @@ class AbstractColumn(object):
             rows = tbl.read()
         else:
             if has_pytables3:
-                rows = tbl.read_coordinates(rowNumbers)
+                rows = tbl.read_coordinates(rowNumbers, field=self.name)
             else:
-                rows = tbl.readCoordinates(rowNumbers)
-        self.fromrows(rows)
+                rows = tbl.readCoordinates(rowNumbers, field=self.name)
+        self.fromrows(rows, field_only=True)
 
     def read(self, tbl, start, stop):
-        rows = tbl.read(start, stop)
-        self.fromrows(rows)
+        rows = tbl.read(start, stop, field=self.name)
+        self.fromrows(rows, field_only=True)
 
     def getsize(self):
         """
@@ -143,12 +133,17 @@ class AbstractColumn(object):
         names = [self.name + sn for sn in self._subnames]
         return list(zip(names, self._types))
 
-    def fromrows(self, rows):
+    def fromrows(self, rows, field_only=False):
         """
         Any method which does not use the "values" field
         will need to override this method.
         """
-        self.values = rows[self.name]
+
+        if not field_only:
+            rows = rows[self.name]
+
+        self.values = rows
+
         # WORKAROUND:
         # http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         # see ticket:1951 and #2160
@@ -199,6 +194,15 @@ class PlateColumnI(AbstractColumn, omero.grid.PlateColumn):
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
+class DatasetColumnI(AbstractColumn, omero.grid.DatasetColumn):
+
+    def __init__(self, name="Unknown", *args):
+        omero.grid.DatasetColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
+    def descriptor(self, pos):
+        return tables.Int64Col(pos=pos)
+
 
 class RoiColumnI(AbstractColumn, omero.grid.RoiColumn):
 
@@ -242,18 +246,16 @@ class LongColumnI(AbstractColumn, omero.grid.LongColumn):
 
 class StringColumnI(AbstractColumn, omero.grid.StringColumn):
     """
-    StringColumns are actually numpy dtype 'S':
-      "zero-terminated bytes (not recommended)"
+    StringColumns are actually numpy dtype 'S': "zero-terminated bytes (not recommended)"
     https://github.com/ome/omero-py/blob/v5.6.dev8/src/omero/columns.py#L269
     https://docs.scipy.org/doc/numpy-1.15.1/reference/arrays.dtypes.html#specifying-and-constructing-data-types
-
     In any case HDF5 doesn't seem to properly support unicode,
     and numexpr doesn't even pretend to support it:
-      https://github.com/PyTables/PyTables/issues/499
-      https://github.com/pydata/numexpr/issues/142
-      https://github.com/pydata/numexpr/issues/150
-      https://github.com/pydata/numexpr/issues/263
-      https://github.com/pydata/numexpr/blob/v2.7.0/numexpr/necompiler.py#L340-L341
+    - https://github.com/PyTables/PyTables/issues/499
+    - https://github.com/pydata/numexpr/issues/142
+    - https://github.com/pydata/numexpr/issues/150
+    - https://github.com/pydata/numexpr/issues/263
+    - https://github.com/pydata/numexpr/blob/v2.7.0/numexpr/necompiler.py#L340-L341
 
     > import numexpr
     > a = "£"
@@ -261,8 +263,7 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
     ValueError: unknown type str32
     > b = "£".encode()
     > numexpr.evaluate('b=="£"')
-    UnicodeEncodeError: 'ascii' codec can't encode character '\xa3'
-        in position 0: ordinal not in range(128)
+    UnicodeEncodeError: 'ascii' codec can't encode character '\xa3' in position 0: ordinal not in range(128)
 
     You should be able to store/load unicode data but you can't use
     unicode in a where condition
@@ -281,10 +282,7 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         Check for strings longer than the initialised column width
         This will always return bytes
         """
-        if python_sys.version_info >= (3, 0, 0):
-            bytevalues = [v.encode() for v in self.values]
-        else:
-            bytevalues = self.values
+        bytevalues = [v.encode() for v in self.values]
         for bv in bytevalues:
             if len(bv) > self.size:
                 raise omero.ValidationException(
@@ -312,11 +310,11 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
                 % self.name)
         return tables.StringCol(pos=pos, itemsize=self.size)
 
-    def fromrows(self, rows):
-        AbstractColumn.fromrows(self, rows)
+    def fromrows(self, rows, field_only=False):
+        AbstractColumn.fromrows(self, rows, field_only=field_only)
         for i, val in enumerate(self.values):
-            if isbytes(val):
-                self.values[i] = bytes_to_native_str(val)
+            if isinstance(val, bytes):
+                self.values[i] = val.decode("utf-8")
 
 
 class AbstractArrayColumn(AbstractColumn):
@@ -508,7 +506,8 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 
     def read(self, tbl, start, stop):
         self.__sanitycheck()
-        AbstractColumn.read(self, tbl, start, stop)  # calls fromrows
+        # calls fromrows
+        AbstractColumn.read(self, tbl, start, stop)
         masks = self._getmasks(tbl)
         rowNumbers = list(range(start, stop))
         self.getbytes(masks, rowNumbers)
@@ -518,8 +517,11 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         for idx in rowNumbers:
             self.bytes.append(masks[idx].tolist())
 
-    def fromrows(self, all_rows):
-        rows = all_rows[self.name]
+    def fromrows(self, rows, field_only=False):
+
+        if not field_only:
+            rows = rows[self.name]
+
         # WORKAROUND:
         # http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         self.imageId = rows["i"].tolist()
@@ -565,7 +567,11 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 class ObjectFactory(Ice.ObjectFactory):
 
     def __init__(self, cls, f):
-        self.id = cls.ice_staticId()
+        try:
+            self.id = cls.ice_staticId()
+        except Exception:
+            pass
+
         self.f = f
 
     def create(self, string):
@@ -587,6 +593,7 @@ ObjectFactories = {
     RoiColumnI: ObjectFactory(RoiColumnI, lambda: RoiColumnI()),
     WellColumnI: ObjectFactory(WellColumnI, lambda: WellColumnI()),
     PlateColumnI: ObjectFactory(PlateColumnI, lambda: PlateColumnI()),
+    DatasetColumnI: ObjectFactory(DatasetColumnI, lambda: DatasetColumnI()),
     BoolColumnI: ObjectFactory(BoolColumnI, lambda: BoolColumnI()),
     DoubleColumnI: ObjectFactory(DoubleColumnI, lambda: DoubleColumnI()),
     LongColumnI: ObjectFactory(LongColumnI, lambda: LongColumnI()),

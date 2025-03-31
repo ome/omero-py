@@ -11,7 +11,6 @@ Simple command-line searching. Similar to the hql plugin.
 """
 
 
-from builtins import str
 import sys
 import time
 

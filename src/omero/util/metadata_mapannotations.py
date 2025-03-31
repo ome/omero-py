@@ -23,9 +23,6 @@
 Utilities for manipulating map-annotations used as metadata
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import logging
 from omero.model import NamedValue
 from omero.rtypes import rstring, unwrap
@@ -49,9 +46,8 @@ class CanonicalMapAnnotation(object):
     namespace is treated as an empty string (''), but still forms part
     of the primary key.
 
-    ma: The omero.model.MapAnnotation object
-    primary_keys: Keys from key-value pairs that will be used to form the
-        primary key.
+    :param ma: The omero.model.MapAnnotation object
+    :param primary_keys: Keys from key-value pairs that will be used to form the primary key.
     """
 
     def __init__(self, ma, primary_keys=None):
@@ -107,8 +103,8 @@ class CanonicalMapAnnotation(object):
         Add a parent descriptor
         Parameter types are important because they are used in a set
 
-        parenttype: An OMERO type string
-        parentid: An OMERO object ID (integer)
+        :param parenttype: An OMERO type string
+        :param parentid: An OMERO object ID (integer)
         """
         if not isinstance(parenttype, str) or not isinstance(
                 parentid, int):

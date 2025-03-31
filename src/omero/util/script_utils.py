@@ -21,13 +21,7 @@
 """
 Utility methods for dealing with scripts.
 """
-from __future__ import division
-from future.utils import native_str
 
-from builtins import hex
-from builtins import str
-from builtins import range
-from past.utils import old_div
 import logging
 import os
 import warnings
@@ -42,20 +36,9 @@ from omero.model.enums import PixelsTypeint8, PixelsTypeuint8
 from omero.model.enums import PixelsTypefloat
 import omero.util.pixelstypetopython as pixelstypetopython
 
-try:
-    import hashlib
-    hash_sha1 = hashlib.sha1
-except:
-    import sha
-    hash_sha1 = sha.new
+from hashlib import sha1
 
-try:
-    from PIL import Image  # see ticket:2597
-except:  # pragma: nocover
-    try:
-        import Image  # see ticket:2597
-    except:
-        logging.error('No Pillow installed')
+from PIL import Image
 
 # r,g,b,a colours for use in scripts.
 COLOURS = {
@@ -80,11 +63,12 @@ SU_LOG = logging.getLogger("omero.util.script_utils")
 def drawTextOverlay(draw, x, y, text, colour='0xffffff'):
     """
     Draw test on image.
-    @param draw The PIL Draw class.
-    @param x The x-coord to draw.
-    @param y The y-coord to draw.
-    @param text The text to render.
-    @param colour The colour as a PIL colour string to draw the text in.
+
+    :param draw The PIL Draw class.
+    :param x The x-coord to draw.
+    :param y The y-coord to draw.
+    :param text The text to render.
+    :param colour The colour as a PIL colour string to draw the text in.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -94,12 +78,13 @@ def drawTextOverlay(draw, x, y, text, colour='0xffffff'):
 def drawLineOverlay(draw, x0, y0, x1, y1, colour='0xffffff'):
     """
     Draw line on image.
-    @param draw The PIL Draw class.
-    @param x0 The x0-coord of line.
-    @param y0 The y0-coord of line.
-    @param x1 The x1-coord of line.
-    @param y1 The y1-coord of line.
-    @param colour The colour as a PIL colour fill in the line.
+
+    :param draw The PIL Draw class.
+    :param x0 The x0-coord of line.
+    :param y0 The y0-coord of line.
+    :param x1 The x1-coord of line.
+    :param y1 The y1-coord of line.
+    :param colour The colour as a PIL colour fill in the line.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -109,10 +94,11 @@ def drawLineOverlay(draw, x0, y0, x1, y1, colour='0xffffff'):
 def rgbToRGBInt(red, green, blue):
     """
     Convert an R,G,B value to an int.
-    @param R the Red value.
-    @param G the Green value.
-    @param B the Blue value.
-    @return See above.
+
+    :param R the Red value.
+    :param G the Green value.
+    :param B the Blue value.
+    :return See above.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -123,8 +109,9 @@ def rgbToRGBInt(red, green, blue):
 def RGBToPIL(RGB):
     """
     Convert an RGB value to a PIL colour value.
-    @param RGB the RGB value.
-    @return See above.
+
+    :param RGB the RGB value.
+    :return See above.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -134,9 +121,10 @@ def RGBToPIL(RGB):
 
 def rangeToStr(range):
     """
-    Map a range to a string of numbers
-    @param range See above.
-    @return See above.
+    Map a range to a string of numbers.
+
+    :param range See above.
+    :return See above.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -174,8 +162,8 @@ def calcSha1(filename):
     """
     Returns a hash of the file identified by filename
 
-    @param  filename:   pathName of the file
-    @return:            The hash of the file
+    :param  filename:   pathName of the file
+    :return:            The hash of the file
     """
 
     return calc_sha1(filename)
@@ -185,12 +173,12 @@ def calc_sha1(filename):
     """
     Returns a hash of the file identified by filename
 
-    @param  filename:   pathName of the file
-    @return:            The hash of the file
+    :param  filename:   pathName of the file
+    :return:            The hash of the file
     """
 
     with open(filename, 'rb') as file_handle:
-        h = hash_sha1()
+        h = sha1()
         h.update(file_handle.read())
         hash = h.hexdigest()
     return hash
@@ -200,11 +188,12 @@ def calcSha1FromData(data):
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     """
-    Calculate the Sha1 Hash from a data array
-    @param data The data array.
-    @return The Hash
+    Calculate the Sha1 Hash from a data array.
+
+    :param data The data array.
+    :return The Hash
     """
-    h = hash_sha1()
+    h = sha1()
     h.update(data)
     hash = h.hexdigest()
     return hash
@@ -221,14 +210,14 @@ def createFile(updateService, filename, mimetype=None, origFilePathName=None):
     """
     Creates an original file, saves it to the server and returns the result
 
-    @param queryService:    The query service  E.g. session.getQueryService()
-    @param updateService:   The update service E.g. session.getUpdateService()
-    @param filename:        The file path and name (or name if in same folder).
+    :param queryService:    The query service  E.g. session.getQueryService()
+    :param updateService:   The update service E.g. session.getUpdateService()
+    :param filename:        The file path and name (or name if in same folder).
                             String
-    @param mimetype:        The mimetype (string) or Format object representing
+    :param mimetype:        The mimetype (string) or Format object representing
                             the file format
-    @param origFilePathName:       Optional path/name for the original file
-    @return:                The saved OriginalFileI, as returned from the
+    :param origFilePathName:       Optional path/name for the original file
+    :return:                The saved OriginalFileI, as returned from the
                             server
     """
     warnings.warn(
@@ -243,13 +232,13 @@ def create_file(update_service, filename, mimetype=None,
     """
     Creates an original file, saves it to the server and returns the result
 
-    @param update_service:  The update service e.g. session.getUpdateService()
-    @param filename:        The file path and name (or name if in same folder).
+    :param update_service:  The update service e.g. session.getUpdateService()
+    :param filename:        The file path and name (or name if in same folder).
                             String
-    @param mimetype:        The mimetype (string) or Format object representing
+    :param mimetype:        The mimetype (string) or Format object representing
                             the file format
-    @param orig_file_path_name:  Optional path/name for the original file
-    @return:                The saved OriginalFileI, as returned from the
+    :param orig_file_path_name:  Optional path/name for the original file
+    :return:                The saved OriginalFileI, as returned from the
                             server
     """
     original_file = omero.model.OriginalFileI()
@@ -275,9 +264,9 @@ def uploadFile(rawFileStore, originalFile, filePath=None):
     """
     Uploads an OriginalFile to the server
 
-    @param rawFileStore:    The Omero rawFileStore
-    @param originalFile:    The OriginalFileI
-    @param filePath:    Where to find the file to upload.
+    :param rawFileStore:    The Omero rawFileStore
+    :param originalFile:    The OriginalFileI
+    :param filePath:    Where to find the file to upload.
                         If None, use originalFile.getName().getValue()
     """
     warnings.warn(
@@ -290,9 +279,9 @@ def upload_file(raw_file_store, original_file, file_path=None):
     """
     Uploads an OriginalFile to the server
 
-    @param raw_file_store:   The Omero rawFileStore
-    @param original_file:    The OriginalFileI
-    @param file_path:        Where to find the file to upload.
+    :param raw_file_store:   The Omero rawFileStore
+    :param original_file:    The OriginalFileI
+    :param file_path:        Where to find the file to upload.
                         If None, use original_file.getName().getValue()
     """
     raw_file_store.setFileId(original_file.getId().getValue())
@@ -320,9 +309,9 @@ def downloadFile(rawFileStore, originalFile, filePath=None):
     """
     Downloads an OriginalFile from the server.
 
-    @param rawFileStore:    The Omero rawFileStore
-    @param originalFile:    The OriginalFileI
-    @param filePath:    Where to download the file.
+    :param rawFileStore:    The Omero rawFileStore
+    :param originalFile:    The OriginalFileI
+    :param filePath:    Where to download the file.
                         If None, use originalFile.getName().getValue()
     """
     warnings.warn(
@@ -335,9 +324,9 @@ def download_file(raw_file_store, original_file, file_path=None):
     """
     Downloads an OriginalFile from the server.
 
-    @param raw_file_store:    The Omero rawFileStore
-    @param original_file:    The OriginalFileI
-    @param file_path:    Where to download the file.
+    :param raw_file_store:    The Omero rawFileStore
+    :param original_file:    The OriginalFileI
+    :param file_path:    Where to download the file.
                         If None, use original_file.getName().getValue()
     """
     file_id = original_file.getId().getValue()
@@ -370,14 +359,14 @@ def attachFileToParent(updateService, parent, originalFile,
     """
     Attaches the original file (file) to a Project, Dataset or Image (parent)
 
-    @param updateService:       The update service
-    @param parent:              A ProjectI, DatasetI or ImageI to attach
+    :param updateService:       The update service
+    :param parent:              A ProjectI, DatasetI or ImageI to attach
                                 the file to
-    @param originalFile:        The OriginalFileI to attach
-    @param description:         Optional description for the file annotation.
+    :param originalFile:        The OriginalFileI to attach
+    :param description:         Optional description for the file annotation.
                                 String
-    @param namespace:           Optional namespace for file annotataion. String
-    @return:                    The saved and returned *AnnotationLinkI
+    :param namespace:           Optional namespace for file annotataion. String
+    :return:                    The saved and returned *AnnotationLinkI
                                 (* = Project, Dataset or Image)
     """
     warnings.warn(
@@ -410,20 +399,20 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent,
     Uploads a local file to the server, as an Original File and attaches it to
     the parent (Project, Dataset or Image)
 
-    @param queryService:    The query service
-    @param updateService:   The update service
-    @param rawFileStore:    The rawFileStore
-    @param parent:          The ProjectI or DatasetI or ImageI to attach
+    :param queryService:    The query service
+    :param updateService:   The update service
+    :param rawFileStore:    The rawFileStore
+    :param parent:          The ProjectI or DatasetI or ImageI to attach
                             file to
-    @param localName:       Full Name (and path) of the file location
+    :param localName:       Full Name (and path) of the file location
                             to upload. String
-    @param mimetype:        The original file mimetype. E.g. "PNG". String
-    @param description:     Optional description for the file annotation.
+    :param mimetype:        The original file mimetype. E.g. "PNG". String
+    :param description:     Optional description for the file annotation.
                             String
-    @param namespace:       Namespace to set for the original file
-    @param origFilePathName:    The /path/to/file/fileName.ext you want on the
+    :param namespace:       Namespace to set for the original file
+    :param origFilePathName:    The /path/to/file/fileName.ext you want on the
                                 server. If none, use output as name
-    @return:                The originalFileLink child. (FileAnnotationI)
+    :return:                The originalFileLink child. (FileAnnotationI)
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -445,20 +434,14 @@ def createLinkFileAnnotation(conn, localPath, parent, output="Output",
     Uploads a local file to the server, as an Original File and attaches it to
     the parent (Project, Dataset or Image)
 
-    @param conn:            The :class:`omero.gateway.BlitzGateway` connection.
-    @param parent:          The ProjectI or DatasetI or ImageI to attach
-                            file to
-    @param localPath:       Full Name (and path) of the file location
-                            to upload. String
-    @param mimetype:        The original file mimetype. E.g. "PNG". String
-    @param description:     Optional description for the file annotation.
-                            String
-    @param namespace:       Namespace to set for the original file
-    @param
-    @param origFilePathName:    The /path/to/file/fileName.ext you want on the
-                                server. If none, use output as name
-    @return:                The originalFileLink child (FileAnnotationI)
-                            and a log message
+    :param conn The ``:class:omero.gateway.BlitzGateway`` connection.
+    :param parent  ProjectI or DatasetI or ImageI to attach file to
+    :param localPath Full Name (and path) of the file location to upload
+    :param mimetype The original file mimetype. E.g. "PNG".
+    :param desc Optional description for the file annotation.
+    :param ns Namespace to set for the original file
+    :param origFilePathName The path on the server. If none, use output as name
+    :return The originalFileLink child (FileAnnotationI) and a log message
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0. \
@@ -476,19 +459,14 @@ def create_link_file_annotation(conn, local_path, parent, output="Output",
     Uploads a local file to the server, as an Original File and attaches it to
     the parent (Project, Dataset or Image)
 
-    @param conn:            The :class:`omero.gateway.BlitzGateway` connection.
-    @param local_path:      Full Name (and path) of the file location
-                            to upload. String
-    @param parent:          The ProjectI or DatasetI or ImageI to attach
-                            file to
-    @param mimetype:        The original file mimetype e.g. "PNG". String
-    @param description:     Optional description for the file annotation.
-                            String
-    @param namespace:       Namespace to set for the original file
-    @param orig_file_path_and_name: The /path/to/file/fileName.ext you want
-                                    on the server. If none, use output as name
-    @return:                The originalFileLink child (FileAnnotationI)
-                            and a log message
+    :param conn The ``:class:omero.gateway.BlitzGateway`` connection.
+    :param parent  ProjectI or DatasetI or ImageI to attach file to
+    :param localPath Full Name (and path) of the file location to upload
+    :param mimetype The original file mimetype. E.g. "PNG".
+    :param desc Optional description for the file annotation.
+    :param ns Namespace to set for the original file
+    :param origFilePathName The path on the server. If none, use output as name
+    :return The originalFileLink child (FileAnnotationI) and a log message
     """
     if os.path.exists(local_path):
         file_annotation = conn.createFileAnnfromLocalFile(
@@ -515,9 +493,9 @@ def getObjects(conn, params):
     Get the objects specified by the script parameters.
     Assume the parameters contain the keys IDs and Data_Type
 
-    @param conn:            The :class:`omero.gateway.BlitzGateway` connection.
-    @param params:          The script parameters
-    @return:                The valid objects and a log message
+    :param conn:            The :class:`omero.gateway.BlitzGateway` connection.
+    :param params:          The script parameters
+    :return:                The valid objects and a log message
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0. Use get_objects instead",
@@ -530,9 +508,9 @@ def get_objects(conn, params):
     Get the objects specified by the script parameters.
     Assume the parameters contain the keys IDs and Data_Type
 
-    @param conn:            The :class:`omero.gateway.BlitzGateway` connection.
-    @param params:          The script parameters
-    @return:                The valid objects and a log message
+    :param conn: The :class:`omero.gateway.BlitzGateway` connection.
+    :param params: The script parameters
+    :return: The valid objects and a log message
     """
 
     data_type = params["Data_Type"]
@@ -557,10 +535,11 @@ def get_objects(conn, params):
 def addAnnotationToImage(updateService, image, annotation):
     """
     Add the annotation to an image.
-    @param updateService The update service to create the annotation link.
-    @param image The ImageI object that should be annotated.
-    @param annotation The annotation object
-    @return The new annotationlink object
+
+    :param updateService The update service to create the annotation link.
+    :param image The ImageI object that should be annotated.
+    :param annotation The annotation object
+    :return: The new annotationlink object
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -573,11 +552,12 @@ def addAnnotationToImage(updateService, image, annotation):
 def readFromOriginalFile(rawFileService, iQuery, fileId, maxBlockSize=10000):
     """
     Read the OriginalFile with fileId and return it as a string.
-    @param rawFileService The RawFileService service to read the originalfile.
-    @param iQuery The Query Service.
-    @param fileId The id of the originalFile object.
-    @param maxBlockSize The block size of each read.
-    @return The OriginalFile object contents as a string
+
+    :param rawFileService The RawFileService service to read the originalfile.
+    :param iQuery The Query Service.
+    :param fileId The id of the originalFile object.
+    :param maxBlockSize The block size of each read.
+    :return: The OriginalFile object contents as a string
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -599,13 +579,14 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator=' '):
     """
     Read an OriginalFile with id and column separator
     and return it as an array.
-    @param rawFileService The RawFileService service to read the originalfile.
-    @param iQuery The Query Service.
-    @param fileId The id of the originalFile object.
-    @param row The number of rows in the file.
-    @param col The number of columns in the file.
-    @param sep the column separator.
-    @return The file as an NumPy array.
+
+    :param rawFileService The RawFileService service to read the originalfile.
+    :param iQuery The Query Service.
+    :param fileId The id of the originalFile object.
+    :param row The number of rows in the file.
+    :param col The number of columns in the file.
+    :param sep the column separator.
+    :return: The file as an NumPy array.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -616,10 +597,11 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator=' '):
 
 def readFlimImageFile(rawPixelsStore, pixels):
     """
-    Read the RawImageFlimFile with fileId and return it as an array [c, x, y]
-    @param rawPixelsStore The rawPixelStore service to get the image.
-    @param pixels The pixels of the image.
-    @return The Contents of the image for z = 0, t = 0, all channels;
+    Read the RawImageFlimFile with fileId and return it as an array [c, x, y].
+
+    :param rawPixelsStore The rawPixelStore service to get the image.
+    :param pixels The pixels of the image.
+    :return: The Contents of the image for z = 0, t = 0, all channels;
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -643,12 +625,13 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     Download the plane [z,c,t] for image pixels.
     Pixels must have pixelsType loaded.
     N.B. The rawPixelsStore must have already been initialised by setPixelsId()
-    @param rawPixelsStore The rawPixelStore service to get the image.
-    @param pixels The pixels of the image.
-    @param z The Z-Section to retrieve.
-    @param c The C-Section to retrieve.
-    @param t The T-Section to retrieve.
-    @return The Plane of the image for z, c, t
+
+    :param raw_pixels_store The rawPixelStore service to get the image.
+    :param pixels The pixels of the image.
+    :param z The Z-Section to retrieve.
+    :param c The channel to retrieve.
+    :param t The timepoint to retrieve.
+    :return: The Plane of the image for z, c, t
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0.\
@@ -661,19 +644,20 @@ def download_plane(raw_pixels_store, pixels, z, c, t):
     """
     Download the plane [z, c, t] for image pixels.
     Pixels must have pixelsType loaded.
-    N.B. The rawPixelsStore must have already been initialised by setPixelsId()
-    @param raw_pixels_store The rawPixelStore service to get the image.
-    @param pixels The pixels of the image.
-    @param z The Z-Section to retrieve.
-    @param c The channel to retrieve.
-    @param t The timepoint to retrieve.
-    @return The Plane of the image for z, c, t
+    N.B. The rawPixelsStore must have already been initialised by setPixelsId().
+
+    :param raw_pixels_store The rawPixelStore service to get the image.
+    :param pixels The pixels of the image.
+    :param z The Z-Section to retrieve.
+    :param c The channel to retrieve.
+    :param t The timepoint to retrieve.
+    :return: The Plane of the image for z, c, t
     """
     raw_plane = raw_pixels_store.getPlane(z, c, t)
     size_x = pixels.getSizeX().getValue()
     size_y = pixels.getSizeY().getValue()
     pixel_type = pixels.getPixelsType().getValue().getValue()
-    convert_type = '>' + native_str(size_x * size_y) + \
+    convert_type = '>' + str(size_x * size_y) + \
         pixelstypetopython.toPython(pixel_type)
     converted_plane = unpack(convert_type, raw_plane)
     numpy_type = pixelstypetopython.toNumpy(pixel_type)
@@ -687,7 +671,7 @@ def getPlaneFromImage(imagePath, rgbIndex=None):
     Reads a local image (E.g. single plane tiff)
     and returns it as a numpy 2D array.
 
-    @param imagePath   Path to image.
+    :param imagePath   Path to image.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -708,9 +692,8 @@ def uploadDirAsImages(sf, queryService, updateService,
     Uses regex to determine the Z, C, T position of each image by name,
     and therefore determines sizeZ, sizeC, sizeT of the new Image.
 
-    @param path     the path to the directory containing images.
-    @param dataset  the OMERO dataset, if we want to put images somewhere.
-                    omero.model.DatasetI
+    :param path    the path to the directory containing images.
+    :param dataset the OMERO dataset to link the images to
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -908,11 +891,12 @@ def split_image(client, imageId, dir,
     e.g. myLocalDir/tubulin_P037_T%05d_C%s_Z%d_S1.tif
     which will be formatted according to dims e.g. ('T', 'C', 'Z')
     Channel will be formatted according to channel name, not index.
-    @param client The client to use
-    @param imageId The image's ID
-    @param dir Where to save the split images
-    @param unformattedImageName  The name to use
-    @param dims The timepoint, channel, z-section to use
+
+    :param client The client to use
+    :param imageId The image's ID
+    :param dir Where to save the split images
+    :param unformattedImageName  The name to use
+    :param dims The timepoint, channel, z-section to use
 
     """
 
@@ -923,10 +907,7 @@ def split_image(client, imageId, dir,
     raw_pixels_store = session.createRawPixelsStore()
     pixels_service = session.getPixelsService()
 
-    try:
-        from PIL import Image   # see ticket:2597
-    except:
-        import Image        # see ticket:2597
+    from PIL import Image
 
     query_string = "select p from Pixels p join fetch p.image " \
                    "as i join fetch p.pixelsType where i.id='%s'" % imageId
@@ -976,12 +957,13 @@ def split_image(client, imageId, dir,
 
 def createFileFromData(updateService, queryService, filename, data):
     """
-    Create a file from the data of type format, setting sha1, ..
-    @param updateService The updateService to create the annotation link.
-    @param filename The name of the file.
-    @param data The data to save.
-    @param format The Format of the file.
-    @return The newly created OriginalFile.
+    Create a file from the data of type format, setting sha1.
+
+    :param updateService The updateService to create the annotation link.
+    :param filename The name of the file.
+    :param data The data to save.
+    :param format The Format of the file.
+    :return: The newly created OriginalFile.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -997,11 +979,12 @@ def createFileFromData(updateService, queryService, filename, data):
 def attachArrayToImage(updateService, image, file, nameSpace):
     """
     Attach an array, stored as a csv file to an image. Returns the annotation.
-    @param updateService The updateService to create the annotation link.
-    @param image The image to attach the data to.
-    @param filename The name of the file.
-    @param namespace The namespace of the file.
-    @return
+
+    :param updateService The updateService to create the annotation link.
+    :param image The image to attach the data to.
+    :param filename The name of the file.
+    :param namespace The namespace of the file.
+    :return See above
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1020,13 +1003,14 @@ def uploadArray(rawFileStore, updateService, queryService, image,
     """
     Upload the data to the server, creating the OriginalFile Object
     and attaching it to the image.
-    @param rawFileStore The rawFileStore used to create the file.
-    @param updateService The updateService to create the annotation link.
-    @param image The image to attach the data to.
-    @param filename The name of the file.
-    @param namespace The name space associated to the annotation.
-    @param data The data to save.
-    @return The newly created file.
+
+    :param rawFileStore The rawFileStore used to create the file.
+    :param updateService The updateService to create the annotation link.
+    :param image The image to attach the data to.
+    :param filename The name of the file.
+    :param namespace The name space associated to the annotation.
+    :param data The data to save.
+    :return: The newly created file.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1052,8 +1036,9 @@ def uploadArray(rawFileStore, updateService, queryService, image,
 def arrayToCSV(data):
     """
     Convert the numpy array data to a csv file.
-    @param data the Numpy Array
-    @return The CSV string.
+
+    :param  data the Numpy Array
+    :return: The CSV string.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1074,12 +1059,12 @@ def uploadPlane(rawPixelsStore, plane, z, c, t):
     """
     Upload the plane to the server attaching it to the current z,c,t
     of the already instantiated rawPixelStore.
-    @param rawPixelsStore The rawPixelStore which is already pointing
-                        to the data.
-    @param plane The data to upload
-    @param z The Z-Section of the plane.
-    @param c The C-Section of the plane.
-    @param t The T-Section of the plane.
+
+    :param raw_pixels_store store pointing to the data.
+    :param plane The data to upload
+    :param z The Z-Section of the plane.
+    :param c The C-Section of the plane.
+    :param t The T-Section of the plane.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0.\
@@ -1092,12 +1077,12 @@ def upload_plane(raw_pixels_store, plane, z, c, t):
     """
     Upload the plane to the server attaching it to the current z,c,t
     of the already instantiated rawPixelStore.
-    @param raw_pixels_store The rawPixelStore which is already pointing
-                        to the data.
-    @param plane The data to upload
-    @param z The Z-Section of the plane.
-    @param c The C-Section of the plane.
-    @param t The T-Section of the plane.
+
+    :param raw_pixels_store store pointing to the data.
+    :param plane The data to upload
+    :param z The Z-Section of the plane.
+    :param c The C-Section of the plane.
+    :param t The T-Section of the plane.
     """
     byte_swapped_plane = plane.byteswap()
     converted_plane = byte_swapped_plane.tostring()
@@ -1107,18 +1092,17 @@ def upload_plane(raw_pixels_store, plane, z, c, t):
 def uploadPlaneByRow(rawPixelsStore, plane, z, c, t):
     """
     Upload the plane to the server one row at a time,
-    attching it to the current z,c,t of the already instantiated rawPixelStore.
-    @param rawPixelsStore The rawPixelStore which is already pointing
-                          to the data.
-    @param plane The data to upload
-    @param z The Z-Section of the plane.
-    @param c The C-Section of the plane.
-    @param t The T-Section of the plane.
+    attaching it to the current z,c,t of the already
+    instantiated rawPixelStore.
+
+    :param raw_pixels_store store pointing to the data.
+    :param plane The data to upload
+    :param z The Z-Section of the plane.
+    :param c The C-Section of the plane.
+    :param t The T-Section of the plane.
     """
-    warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0.\
-        Use upload_plane_by_row",
-        DeprecationWarning)
+    warnings.warn("This method is deprecated as of OMERO 5.3.0.\
+                   Use upload_plane_by_row", DeprecationWarning)
     upload_plane_by_row(rawPixelsStore, plane, z, c, t)
 
 
@@ -1127,12 +1111,12 @@ def upload_plane_by_row(raw_pixels_store, plane, z, c, t):
     Upload the plane to the server one row at a time,
     attaching it to the current z,c,t of the already instantiated
     rawPixelStore.
-    @param raw_pixels_store The rawPixelStore which is already pointing
-                          to the data.
-    @param plane The data to upload
-    @param z The Z-Section of the plane.
-    @param c The C-Section of the plane.
-    @param t The T-Section of the plane.
+
+    :param raw_pixels_store store pointing to the data.
+    :param plane The data to upload
+    :param z The Z-Section of the plane.
+    :param c The C-Section of the plane.
+    :param t The T-Section of the plane.
     """
     byte_swapped_plane = plane.byteswap()
 
@@ -1146,8 +1130,9 @@ def upload_plane_by_row(raw_pixels_store, plane, z, c, t):
 def getRenderingEngine(session, pixelsId):
     """
     Create the renderingEngine for the pixelsId.
-    @param session The current session to create the renderingEngine from.
-    @return The renderingEngine Service for the pixels.
+
+    :param session The current session to create the renderingEngine from.
+    :return: The renderingEngine Service for the pixels.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1162,10 +1147,11 @@ def getRenderingEngine(session, pixelsId):
 
 def createPlaneDef(z, t):
     """
-    Create the plane rendering def, for z,t
-    @param Z the Z-Section
-    @param T The T-Point.
-    @return The RenderingDef Object.
+    Create the plane rendering def, for z,t.
+
+    :param Z the Z-Section
+    :param T The T-Point.
+    :return The RenderingDef Object.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1181,9 +1167,10 @@ def createPlaneDef(z, t):
 def getPlaneAsPackedInt(renderingEngine, z, t):
     """
     Get the rendered Image of the plane for the z, t with the default channels.
-    @param renderingEngine The already instantiated renderEngine.
-    @param z The Z-section.
-    @param t The Timepoint.
+
+    :param renderingEngine The already instantiated renderEngine.
+    :param z The Z-section.
+    :param t The Timepoint.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1193,9 +1180,10 @@ def getPlaneAsPackedInt(renderingEngine, z, t):
 
 def getRawPixelsStore(session, pixelsId):
     """
-    Get the rawPixelsStore for the Image with pixelsId
-    @param pixelsId The pixelsId of the object to retrieve.
-    @return The rawPixelsStore service.
+    Get the rawPixelsStore for the Image with pixelsId.
+
+    :param pixelsId The pixelsId of the object to retrieve.
+    :return The rawPixelsStore service.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1206,9 +1194,10 @@ def getRawPixelsStore(session, pixelsId):
 
 def getRawFileStore(session, fileId):
     """
-    Get the rawFileStore for the file with fileId
-    @param fileId The fileId of the object to retrieve.
-    @return The rawFileStore service.
+    Get the rawFileStore for the file with fileId.
+
+    :param fileId The fileId of the object to retrieve.
+    :return The rawFileStore service.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1219,11 +1208,12 @@ def getRawFileStore(session, fileId):
 
 def getPlaneInfo(iQuery, pixelsId, asOrderedList=True):
     """
-    Get the plane info for the pixels object returning it in order of z,t,c
-    @param iQuery The query service.
-    @param pixelsId The pixels for Id.
-    @param asOrderedList
-    @return list of planeInfoTimes or map[z:t:c:]
+    Get the plane info for the pixels object returning it in order of z,t,c.
+
+    :param iQuery The query service.
+    :param pixelsId The pixels for Id.
+    :param asOrderedList
+    :return list of planeInfoTimes or map[z:t:c:]
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1254,12 +1244,12 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex,
     The rendering engine does NOT have to be primed with pixelsId,
     as that is handled by this method.
 
-    @param renderingEngine        The OMERO rendering engine
-    @param pixelsId        The Pixels ID
-    @param minValue        Minimum value of rendering window
-    @param maxValue        Maximum value of rendering window
-    @param rgba            Option to set the colour of the channel.
-                           (r,g,b,a) tuple.
+    :param renderingEngine The OMERO rendering engine
+    :param pixelsId        The Pixels ID
+    :param c_index          The channel index.
+    :param minValue        Minimum value of rendering window
+    :param maxValue        Maximum value of rendering window
+    :param rgba            (r,g,b,a) tuple.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0. \
@@ -1277,13 +1267,12 @@ def reset_rendering_settings(rendering_engine, pixels_id, c_index,
     The rendering engine does NOT have to be primed with pixels_id,
     as that is handled by this method.
 
-    @param rendering_engine The OMERO rendering engine
-    @param pixels_id        The Pixels ID
-    @param c_index          The channel index.
-    @param min_value        Minimum value of rendering window
-    @param max_value        Maximum value of rendering window
-    @param rgba             Option to set the color of the channel.
-                           (r,g,b,a) tuple.
+    :param rendering_engine The OMERO rendering engine
+    :param pixels_id        The Pixels ID
+    :param c_index          The channel index.
+    :param min_value        Minimum value of rendering window
+    :param max_value        Maximum value of rendering window
+    :param rgba             (r,g,b,a) tuple.
     """
     rendering_engine.lookupPixels(pixels_id)
     if not rendering_engine.lookupRenderingDef(pixels_id):
@@ -1309,16 +1298,12 @@ def createNewImage(session, plane2Dlist, imageName, description, dataset=None):
     Creates a new single-channel, single-timepoint image from the list of 2D
     numpy arrays in plane2Dlist with each numpy 2D plane becoming a Z-section.
 
-    @param session          An OMERO service factory or equivalent
-                            with getQueryService() etc.
-    @param plane2Dlist      A list of numpy 2D arrays,
-                            corresponding to Z-planes of new image.
-    @param imageName        Name of new image
-    @param description      Description for the new image
-    @param dataset          If specified, put the image in this dataset.
-                            omero.model.Dataset object
-
-    @return The new OMERO image: omero.model.ImageI
+    :param session An OMERO service factory or equivalent with getQueryService() etc.
+    :param plane2Dlist A list of numpy 2D arrays,corresponding to Z-planes of new image.
+    :param imageName Name of new image
+    :param description Description for the new image
+    :param dataset If specified, put the image in this dataset. omero.model.Dataset object
+    :return The new OMERO image: omero.model.ImageI
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1380,10 +1365,11 @@ def parseInputs(client, session=None, processFn=IdentityFn):
     """
     parse the inputs from the client object and map it to some other form,
     values may be transformed by function.
-    @param client The client object
-    @param session The current session (deprecated).
-    @param processFn A function to transform data to some other form.
-    @return Parsed inputs as defined by ProcessFn.
+
+    :param client The client object
+    :param session The current session (deprecated).
+    :param processFn A function to transform data to some other form.
+    :return Parsed inputs as defined by ProcessFn.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1396,11 +1382,12 @@ def parseInputs(client, session=None, processFn=IdentityFn):
 
 def getROIFromImage(iROIService, imageId):
     """
-    Get the ROI from the server for the image with the namespace
-    @param iROIService The iROIService object
-    @param imageId The imageId to retreive ROI from.
-    @param namespace The namespace of the ROI.
-    @return See above.
+    Get the ROI from the server for the image with the namespace.
+
+    :param iROIService The iROIService object
+    :param imageId The imageId to retreive ROI from.
+    :param namespace The namespace of the ROI.
+    :return See above.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1411,8 +1398,9 @@ def getROIFromImage(iROIService, imageId):
 def toCSV(list):
     """
     Convert a list to a Comma Separated Value string.
-    @param list The list to convert.
-    @return See above.
+
+    :param list The list to convert.
+    :return See above.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1429,9 +1417,10 @@ def toCSV(list):
 
 def toList(csvString):
     """
-    Convert a csv string to a list of strings
-    @param csvString The CSV string to convert.
-    @return See above.
+    Convert a csv string to a list of strings.
+
+    :param csvString The CSV string to convert.
+    :return See above.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1446,11 +1435,12 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     Register a workflow with the server,
     if the workflow does not exist create it and returns it,
     otherwise it returns the already created workflow.
-    @param iQuery The query service.
-    @param iUpdate The update service.
-    @param namespace The namespace of the workflow.
-    @param keywords The keywords associated with the workflow.
-    @return see above.
+
+    :param iQuery The query service.
+    :param iUpdate The update service.
+    :param namespace The namespace of the workflow.
+    :param keywords The keywords associated with the workflow.
+    :return see above.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1482,10 +1472,11 @@ def findROIByImage(roiService, image, namespace):
     """
     Finds the ROI with the given namespace linked to the image.
     Returns a collection of ROIs.
-    @param roiService The ROI service.
-    @param image The image the ROIs are linked to .
-    @param namespace The namespace of the ROI.
-    @return see above.
+
+    :param roiService The ROI service.
+    :param image The image the ROIs are linked to .
+    :param namespace The namespace of the ROI.
+    :return see above.
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1504,9 +1495,10 @@ def findROIByImage(roiService, image, namespace):
 def numpy_to_image(plane, min_max, dtype):
     """
     Converts the numpy plane to a PIL Image, converting data type if necessary.
-    @param plane The plane to handle
-    @param min_max the min and the max values for the plane
-    @param dtype the data type to use for scaling
+
+    :param plane The plane to handle
+    :param min_max the min and the max values for the plane
+    :param dtype the data type to use for scaling
     """
 
     conv_array = convert_numpy_array(plane, min_max, dtype)
@@ -1520,10 +1512,11 @@ def numpy_save_as_image(plane, min_max, dtype, name):
     """
     Converts the numpy plane, converting data type if necessary
     and saves it as png, jpeg etc.
-    @param plane The plane to handle
-    @param min_max the min and the max values for the plane
-    @param type the data type to use for scaling
-    @param name the name of the image
+
+    :param plane The plane to handle
+    :param min_max the min and the max values for the plane
+    :param type the data type to use for scaling
+    :param name the name of the image
     """
 
     image = numpy_to_image(plane, min_max, dtype)
@@ -1541,9 +1534,10 @@ def numpy_save_as_image(plane, min_max, dtype, name):
 def convert_numpy_array(plane, min_max, type):
     """
     Converts the numpy plane to a PIL Image, converting data type if necessary.
-    @param plane The plane to handle
-    @param min_max the min and the max values for the plane
-    @param type the data type to use for scaling
+
+    :param plane The plane to handle
+    :param min_max the min and the max values for the plane
+    :param type the data type to use for scaling
     """
 
     if plane.dtype.name not in (PixelsTypeint8, PixelsTypeuint8):
@@ -1552,7 +1546,7 @@ def convert_numpy_array(plane, min_max, type):
         val_range = max_val - min_val
         if (val_range == 0):
             val_range = 1
-        scaled = (plane - min_val) * (old_div(float(255), val_range))
+        scaled = (plane - min_val) * (255 / val_range)
         conv_array = zeros(plane.shape, dtype=type)
         try:
             conv_array += scaled

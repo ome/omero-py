@@ -8,10 +8,6 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
-from builtins import str
-from builtins import object
-from future.utils import native_str
-from past.builtins import long
 import sys
 import pytest
 import omero
@@ -33,10 +29,6 @@ class TestModel(object):
         # Unsupported
         # assert rdouble(0) == rtype(Double.valueOf(0))
         assert rfloat(0) == rtype(float(0))
-        if sys.version_info < (3, 0, 0):
-            assert rlong(0) == rtype(long(0))
-        else:
-            assert rint(0) == rtype(long(0))
         assert rint(0) == rtype(int(0))
         assert rstring("string") == rtype("string")
         # Unsupported
@@ -277,8 +269,8 @@ class TestModel(object):
 
     def testPassThroughNoneAndRTypes(self):
         """
-        To prevent having to check for isintance(int,...) or
-        isintance(RInt,...) all over the place, the static methods
+        To prevent having to check for isinstance(int,...) or
+        isinstance(RInt,...) all over the place, the static methods
         automatically check for acceptable
         types and simply pass them through. Similarly, the primitive types all
         check for None and return a null RType if necessary.
@@ -454,7 +446,7 @@ class TestModel(object):
         ctor2 = myLongFromString.__class__("5")
         assert ctor1.val == ctor2.val
 
-    nu = native_str("u")
+    nu = "u"
     bu = str("u")
     cn = '中國'
     cnu = u'中國'

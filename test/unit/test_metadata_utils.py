@@ -22,11 +22,7 @@
 """
 Test of metadata_utils classes
 """
-from __future__ import print_function
-from __future__ import unicode_literals
 
-
-from builtins import object
 import pytest
 
 from omero.util.metadata_utils import (

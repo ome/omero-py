@@ -22,15 +22,7 @@
 """
 fs plugin for querying repositories, filesets, and the like.
 """
-from __future__ import division
-from __future__ import print_function
 
-from past.builtins import cmp
-from builtins import zip
-from builtins import str
-from builtins import map
-from builtins import object
-from past.utils import old_div
 import platform
 import sys
 
@@ -368,8 +360,6 @@ class FsControl(CmdControl):
                 help="provide more details for each (slow)")
 
     def _table(self, args):
-        """
-        """
         from omero.util.text import TableBuilder
         tb = TableBuilder("#")
         if args.style:
@@ -406,20 +396,22 @@ class FsControl(CmdControl):
         values.append(filesizeformat(rsp.pyramidSize))
 
     def images(self, args):
-        """List images, filtering for archives, etc.
+        """
+        List images, filtering for archives, etc.
 
-This command is useful for showing pre-FS (i.e. OMERO 4.4
-and before) images which have original data archived with
-them. It *may* be possible to convert these to OMERO 5
-filesets.
+        This command is useful for showing pre-FS (i.e. OMERO 4.4
+        and before) images which have original data archived with
+        them. It *may* be possible to convert these to OMERO 5
+        filesets.
 
-Examples:
-
-    omero fs images --archived       # List only OMERO4 images
-    omero fs images --order=newest   # Default
-    omero fs images --order=largest  # Most used space
-    omero fs images --limit=500      # Longer listings
-    omero fs images --extended       # More details
+        Examples:
+        ```
+        omero fs images --archived       # List only OMERO4 images
+        omero fs images --order=newest   # Default
+        omero fs images --order=largest  # Most used space
+        omero fs images --limit=500      # Longer listings
+        omero fs images --extended       # More details
+        ```
         """
 
         from omero.rtypes import unwrap
@@ -482,16 +474,17 @@ Examples:
 
     @admin_only(AdminPrivilegeWriteManagedRepo, AdminPrivilegeChown)
     def mkdir(self, args):
-        """Make a new directory (admin-only)
+        """
+        Make a new directory (admin-only)
 
-Creates a new empty directory in the managed repository.
-A new storage volume may then be mounted at that location
-and the import template (omero.fs.repo.path) adjusted to
-target it. Once created, the directory may be deleted from
-the underlying filesystem and replaced with a symbolic link.
-Directories that violate the root-owned prefix components of
-omero.fs.repo.path are all set to be owned by the root user.
-"""
+        Creates a new empty directory in the managed repository.
+        A new storage volume may then be mounted at that location
+        and the import template (omero.fs.repo.path) adjusted to
+        target it. Once created, the directory may be deleted from
+        the underlying filesystem and replaced with a symbolic link.
+        Directories that violate the root-owned prefix components of
+        ``omero.fs.repo.path`` are all set to be owned by the root user.
+        """
 
         if len(args.new_dir) < 2:
             raise ValueError("directory path too short", args.new_dir)
@@ -510,13 +503,14 @@ omero.fs.repo.path are all set to be owned by the root user.
     # @admin_only(AdminPrivilegeWriteOwned, AdminPrivilegeWriteManagedRepo,
     #             AdminPrivilegeDeleteOwned, AdminPrivilegeDeleteManagedRepo)
     def rename(self, args):
-        """Moves an existing fileset to a new location (admin-only)
+        """
+        Moves an existing fileset to a new location (admin-only)
 
-After the import template (omero.fs.repo.path) has been changed,
-it may be useful to rename an existing fileset to match the new
-template. By default the original files and import log are also
-moved.
-"""
+        After the import template (omero.fs.repo.path) has been changed,
+        it may be useful to rename an existing fileset to match the new
+        template. By default the original files and import log are also
+        moved.
+        """
 
         # See https://trello.com/c/J3LNquSH/ for more information.
         # When reenabling, also reenable testRenameAdminOnly.
@@ -596,34 +590,28 @@ moved.
                 self.ctx.out(cmd)
 
     def repos(self, args):
-        """List all repositories.
+        """
+        List all repositories.
 
-These repositories are where OMERO stores all binary data for your
-system. Most useful is likely the "ManagedRepository" where OMERO 5
-imports to.
+        These repositories are where OMERO stores all binary data for your
+        system. Most useful is likely the ``ManagedRepository`` where OMERO 5
+        imports to.
 
-Examples:
-
-    omero fs repos            # Show all
-    omero fs repos --managed  # Show only the managed repo
-                                  # Or to print only the directory
-                                  # under Unix:
-
-    omero fs repos --managed --style=plain | cut -d, -f5
-
+        Examples:
+        ```
+        omero fs repos            # Show all
+        omero fs repos --managed  # Show only the managed repo or print only the directory under Unix  # noqa
+        omero fs repos --managed --style=plain | cut -d, -f5
+        ```
         """
 
         from omero.grid import ManagedRepositoryPrx as MRepo
-        from functools import cmp_to_key
-
-        def my_cmp(a, b):
-            return cmp(a[0].id.val, b[0].id.val)
 
         client = self.ctx.conn(args)
         shared = client.sf.sharedResources()
         repos = shared.repositories()
         repos = list(zip(repos.descriptions, repos.proxies))
-        repos.sort(key = cmp_to_key(my_cmp))
+        repos.sort(key=lambda repo: repo[0].id.val)
 
         tb = self._table(args)
         tb.cols(["Id", "UUID", "Type", "Path"])
@@ -643,19 +631,22 @@ Examples:
         self.ctx.out(str(tb.build()))
 
     def sets(self, args):
-        """List filesets by various criteria
+        """
+        List filesets by various criteria
 
-Filesets are bundles of original data imported into OMERO 5 and above
-which represent 1 *or more* images.
+        Filesets are bundles of original data imported into OMERO 5 and above
+        which represent 1 *or more* images.
 
-Examples:
+        Examples:
 
-    omero fs sets --order=newest        # Default
-    omero fs sets --order=oldest
-    omero fs sets --order=largest
-    omero fs sets --without-images      # Corrupt filesets
-    omero fs sets --with-transfer=ln_s  # Symlinked filesets
-    omero fs sets --check               # Proof the checksums
+        ```
+        omero fs sets --order=newest        # Default
+        omero fs sets --order=oldest
+        omero fs sets --order=largest
+        omero fs sets --without-images      # Corrupt filesets
+        omero fs sets --with-transfer=ln_s  # Symlinked filesets
+        omero fs sets --check               # Proof the checksums
+        ```
         """
 
         from omero.constants.namespaces import NSFILETRANSFER
@@ -778,7 +769,9 @@ Examples:
         self.ctx.out(str(tb.build()))
 
     def ls(self, args):
-        """List all the original files contained in a fileset"""
+        """
+        List all the original files contained in a fileset
+        """
         client = self.ctx.conn(args)
         gateway = BlitzGateway(client_obj=client)
         gateway.SERVICE_OPTS.setOmeroGroup("-1")
@@ -789,7 +782,9 @@ Examples:
             print(ofile.path + ofile.name)
 
     def logfile(self, args):
-        """Return the logfile associated with a fileset"""
+        """
+        Return the logfile associated with a fileset
+        """
         client = self.ctx.conn(args)
         query = client.sf.getQueryService()
         log = get_logfile(query, args.fileset.id.val)
@@ -827,39 +822,42 @@ Examples:
         shared = client.sf.sharedResources()
         repos = shared.repositories()
         repos = list(zip(repos.descriptions, repos.proxies))
-        repos.sort(lambda a, b: cmp(a[0].id.val, b[0].id.val))
+        repos.sort(key=lambda repo: repo[0].id.val)
 
         for idx, pair in enumerate(repos):
             if MRepo.checkedCast(pair[1]):
                 return pair
 
     def usage(self, args):
-        """Shows the disk usage for various objects.
+        """
+        Shows the disk usage for various objects.
 
-This command shows the total disk usage of various objects including:
-ExperimenterGroup, Experimenter, Project, Dataset, Folder, Screen, Plate,
-Well, WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
-The total size returned will comprise the disk usage by all related files. Thus
-an image's size would typically include the files uploaded to a fileset,
-import log (Job), thumbnails, and, possibly, associated pixels or original
-files. These details can be displayed using the --report option.
+        This command shows the total disk usage of various objects including:
+        ExperimenterGroup, Experimenter, Project, Dataset, Folder, Screen, Plate,
+        Well, WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
+        The total size returned will comprise the disk usage by all related files. Thus
+        an image's size would typically include the files uploaded to a fileset,
+        import log (Job), thumbnails, and, possibly, associated pixels or original
+        files. These details can be displayed using the --report option.
 
-Examples:
+        Examples:
 
-    omero fs usage             # total usage for current user
-    omero fs usage --report    # more detailed usage for current user
-    omero fs usage --groups    # total usage for current user's groups
-    # total usage for five images with minimal output
-    omero fs usage Image:1,2,3,4,5 --size_only
-    # total usage for all images with in a human readable format
-    omero fs usage Image:* --human-readable
-    # total usage for all users broken down by user and group
-    omero fs usage Experimenter:* --report --sum-by user group
-    # total usage for two projects and one dataset Megabytes
-    omero fs usage Project:1,2 Dataset:5 --units M
-    # in this last case if the dataset was within project 1 or 2
-    # then the size returned would be identical to:
-    omero fs usage Project:1,2 --units M
+        ```
+        omero fs usage             # total usage for current user
+        omero fs usage --report    # more detailed usage for current user
+        omero fs usage --groups    # total usage for current user's groups
+        # total usage for five images with minimal output
+        omero fs usage Image:1,2,3,4,5 --size_only
+        # total usage for all images with in a human readable format
+        omero fs usage Image:* --human-readable
+        # total usage for all users broken down by user and group
+        omero fs usage Experimenter:* --report --sum-by user group
+        # total usage for two projects and one dataset Megabytes
+        omero fs usage Project:1,2 Dataset:5 --units M
+        # in this last case if the dataset was within project 1 or 2
+        # then the size returned would be identical to:
+        omero fs usage Project:1,2 --units M
+        ```
         """
         from omero.cmd import DiskUsage2
 
@@ -915,7 +913,7 @@ Examples:
         oneK = 1024.0
         powers = {'K': 1, 'M': 2, 'G': 3, 'T': 4, 'P': 5}
         if units in list(powers.keys()):
-            return round(old_div(size,oneK**powers[units]), 1)
+            return round(size / oneK**powers[units], 1)
         else:
             raise ValueError("Unrecognized units: ", units)
 
@@ -1263,6 +1261,7 @@ class ImportTime(object):
         self.metrics['UPLOAD'] = upload_end - upload_start
         self.metrics['SET_ID'] = set_id_end - upload_end
         self.metrics['METADATA'] = metadata_end - set_id_end
+        self.metrics['PIXELDATA'] = pixeldata_end - metadata_end
 
         if overlays_start:
             if settings_start:
@@ -1273,9 +1272,6 @@ class ImportTime(object):
                 self.metrics['OVERLAY'] = thumbnails_end - pixeldata_end
 
         if settings_start:
-            # If there are no rendering settings, pyramids must be built first.
-            self.metrics['PIXELDATA'] = pixeldata_end - metadata_end
-
             if thumbnails_start:
                 self.metrics['RDEF'] = thumbnails_start - settings_start
                 self.metrics['THUMBNAIL'] = thumbnails_end - thumbnails_start
@@ -1382,49 +1378,51 @@ class ImportTime(object):
         metrics_keys = set(self.metrics)
 
         if set(['UPLOAD', 'UPLOAD_C']) <= metrics_keys:
-            time = old_div(self.metrics['UPLOAD'], 1000.0)
+            time = self.metrics['UPLOAD'] / 1000.0
             count = self.metrics['UPLOAD_C']
             plural = "s" if count > 1 else ""
             print(("   upload time of {0:6.2f}s for "
                    "{1} file{2} ({3:.3f}s/file)")
-                  .format(time, count, plural, old_div(time,count)))
+                  .format(time, count, plural, time / count))
 
-        time = old_div(self.metrics['SET_ID'], 1000.0)
+        time = self.metrics['SET_ID'] / 1000.0
         print("    setId time of {0:6.2f}s".format(time))
 
-        time = old_div(self.metrics['METADATA'], 1000.0)
+        time = self.metrics['METADATA'] / 1000.0
         print(" metadata time of {0:6.2f}s".format(time))
 
         if set(['PIXELDATA', 'PIXELDATA_C']) <= metrics_keys:
-            time = old_div(self.metrics['PIXELDATA'], 1000.0)
+            time = self.metrics['PIXELDATA'] / 1000.0
             count = self.metrics['PIXELDATA_C']
             plural = "s" if count > 1 else ""
             print(("   pixels time of {0:6.2f}s for "
                    "{1} plane{2} ({3:.3f}s/plane)")
-                  .format(time, count, plural, old_div(time,count)))
+                  .format(time, count, plural, time / count))
 
         if 'OVERLAY' in metrics_keys:
-            time = old_div(self.metrics['OVERLAY'], 1000.0)
+            time = self.metrics['OVERLAY'] / 1000.0
             print(" overlays time of {0:6.2f}s".format(time))
 
         if set(['RDEF', 'RDEF_C']) <= metrics_keys:
-            time = old_div(self.metrics['RDEF'], 1000.0)
+            time = self.metrics['RDEF'] / 1000.0
             count = self.metrics['RDEF_C']
             plural = "s" if count > 1 else ""
             print(("    rdefs time of {0:6.2f}s for "
                    "{1} rendering setting{2} ({3:.3f}s/rdef)")
-                  .format(time, count, plural, old_div(time,count)))
+                  .format(time, count, plural, time / count))
 
         if set(['THUMBNAIL', 'THUMBNAIL_C']) <= metrics_keys:
-            time = old_div(self.metrics['THUMBNAIL'], 1000.0)
+            time = self.metrics['THUMBNAIL'] / 1000.0
             count = self.metrics['THUMBNAIL_C']
             plural = "s" if count > 1 else ""
             print(("thumbnail time of {0:6.2f}s for "
                    "{1} thumbnail{2} ({3:.3f}s/thumbnail)")
-                  .format(time, count, plural, old_div(time,count)))
+                  .format(time, count, plural, time / count))
 
     def print_summary(self):
-        """Report import metrics from map annotations on filesets"""
+        """
+        Report import metrics from map annotations on filesets
+        """
         from omero.sys import ParametersI
 
         hql = (
@@ -1461,7 +1459,9 @@ class ImportTime(object):
         self.print_summary_line()
 
     def print_summary_line(self):
-        """Report import metrics from the map annotations on a fileset"""
+        """
+        Report import metrics from the map annotations on a fileset
+        """
         if not self.metrics:
             return
         values = [str(self.fileset_id)]

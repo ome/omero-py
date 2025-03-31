@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
+#
+# :author: Josh Moore <josh@glencoesoftware.com>
+#
+# Copyright (c) 2007, Glencoe Software, Inc.
+# See LICENSE for details.
+#
+
 """
-
-:author: Josh Moore <josh@glencoesoftware.com>
-
 Python driver for OMERO
-Copyright (c) 2007, Glencoe Software, Inc.
-See LICENSE for details.
-
 """
-from __future__ import print_function
 
 import logging
 import os

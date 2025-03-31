@@ -1,20 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+# 
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+
 """
    HQL plugin
 
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
-
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
 """
-from __future__ import division
 
-from builtins import str
-from builtins import range
-from past.utils import old_div
 from omero.cli import BaseControl, CLI
 import time
 import sys
@@ -196,7 +193,7 @@ To quit, enter 'q' or just enter.
         if isinstance(unwrapped, IObject):
             rv = "%s:%s" % (unwrapped.__class__.__name__, unwrapped.id.val)
         elif isinstance(object, RTimeI):
-            rv = time.ctime(old_div(unwrapped,1000.0))
+            rv = time.ctime(unwrapped / 1000.0)
         elif isinstance(object, Details):
             owner = None
             group = None

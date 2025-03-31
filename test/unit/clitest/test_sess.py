@@ -8,12 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import unicode_literals
-from __future__ import division
 
-from builtins import str
-from builtins import object
-from past.utils import old_div
 import os
 import sys
 import pytest
@@ -27,7 +22,7 @@ from omero.util.sessions import SessionsStore
 from omero.util.temp_files import create_path
 from omero.plugins.sessions import SessionsControl
 
-omeroDir = old_div(path(os.getcwd()), "build")
+omeroDir = path(os.getcwd()) / "build"
 
 testsess = "testsess"
 testuser = "testuser"
@@ -224,9 +219,9 @@ class TestStore(object):
         session_dir = tmpdir
 
         # Using last_* methods
-        assert (old_div(session_dir, "._LASTHOST_")).exists()
+        assert (session_dir / "._LASTHOST_").exists()
         assert "srv" == s.last_host()
-        assert (old_div(session_dir, "._LASTPORT_")).exists()
+        assert (session_dir / "._LASTPORT_").exists()
         assert (port or '4064') == s.last_port()
 
         # Using helpers
@@ -658,6 +653,7 @@ class TestSessions(object):
             connection, name=None, port=port[1], group=group)
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+        cli.STORE.clear(testhost, testuser)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', ALL_PORTS)
@@ -706,6 +702,7 @@ class TestSessions(object):
             connection, name=None, port=port[1], group=group[1])
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+        cli.STORE.clear(testhost, testuser)
 
     @pytest.mark.parametrize('port', ALL_PORTS)
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)

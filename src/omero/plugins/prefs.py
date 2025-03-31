@@ -1,22 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+# Copyright 2007-2013 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
 """
-   prefs plugin
+prefs plugin
 
-   Plugin read by omero.cli.Cli during initialization. The method(s)
-   defined here will be added to the Cli class for later use.
+Plugin read by omero.cli.Cli during initialization. The method(s)
+defined here will be added to the Cli class for later use.
 
-   The pref plugin makes use of prefs.class from the common component.
-
-   Copyright 2007-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
+The pref plugin makes use of prefs.class from the common component.
 """
-from __future__ import division
 
-from builtins import zip
-from builtins import str
-from past.utils import old_div
 import sys
 import traceback
 import os
@@ -29,7 +24,7 @@ from omero.config import ConfigXml
 from omero.util import edit_path, get_omero_userdir
 from omero.util.decorators import wraps
 from omero.util.upgrade_check import UpgradeCheck
-from omero_ext import portalocker
+import portalocker
 from omero_ext.argparse import SUPPRESS
 from omero_ext.path import path
 
@@ -525,7 +520,7 @@ class PrefsControl(WriteableConfigControl):
     @with_rw_config
     def upgrade(self, args, config):
         self.ctx.out("Importing pre-4.2 preferences")
-        txt = getprefs(["get"], str(old_div(self.ctx.dir, "lib")))
+        txt = getprefs(["get"], str(self.ctx.dir / "lib"))
 
         # Handle all lines before updating config in case of error.
         new_config = dict(config)
@@ -602,7 +597,7 @@ re-run"""
         config[_key] = _new
 
     def old(self, args):
-        self.ctx.out(getprefs(args.target, str(old_div(self.ctx.dir, "lib"))))
+        self.ctx.out(getprefs(args.target, str(self.ctx.dir / "lib")))
 
 try:
     register("config", PrefsControl, HELP)

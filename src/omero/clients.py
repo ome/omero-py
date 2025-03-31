@@ -1,18 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
+#
+#
+#   Copyright 2009 - 2016 Glencoe Software, Inc. All rights reserved.
+#   Use is subject to license terms supplied in LICENSE.txt
+#
+#
 
-   Copyright 2009 - 2016 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
-"""
-from __future__ import print_function
-
-from builtins import zip
-from builtins import range
-from builtins import object
-from future.utils import bytes_to_native_str
-from future.utils import native_str
 __save__ = __name__
 __name__ = 'omero'
 try:
@@ -34,15 +28,8 @@ import re
 import ssl
 import uuid
 
-from past.builtins import basestring
-
 IceImport.load("Glacier2_Router_ice")
 import Glacier2
-
-
-if sys.version_info >= (3, 0, 0):
-    # Keep str behavior on Python 2
-    from builtins import str
 
 
 class BaseClient(object):
@@ -143,9 +130,7 @@ class BaseClient(object):
             args = [arg.encode("utf-8") if isinstance(arg, str)
                     else arg for arg in args]
 
-        args = [bytes_to_native_str(x) for x in args]
-        # Under Python 2 this can still leave us with 'unicode'
-        args = [native_str(x) for x in args]
+        args = [x.decode("utf-8") for x in args]
 
         # Equiv to multiple constructors. #######################
         if id is None:
@@ -176,7 +161,7 @@ class BaseClient(object):
         This allows for simplified usage without parameter
         names.
         """
-        types = [list, Ice.InitializationData, basestring, int, dict]
+        types = [list, Ice.InitializationData, str, int, dict]
         original = [args, id, host, port, pmap]
         repaired = [None, None, None, None, None]
 
@@ -229,21 +214,8 @@ class BaseClient(object):
         self._optSetProp(id, "Ice.Default.PreferSecure", "1")
         self._optSetProp(id, "Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
 
-        prop = "IceSSL.Ciphers"
-        try:
-            if sys.platform == "darwin":
-                self._optSetProp(id, prop, "(AES_256) (DH_anon.*AES)")
-            elif ssl.OPENSSL_VERSION_INFO >= (1, 1):
-                self._optSetProp(id, prop, "HIGH:ADH:@SECLEVEL=0")
-            else:
-                self._optSetProp(id, prop, "HIGH:ADH")
-        except Exception:
-            # OPENSSL_VERSION_INFO not available for 2.6, fall back to default
-            self._optSetProp(id, prop, "HIGH:ADH")
-
         self._optSetProp(id, "IceSSL.VerifyDepthMax", "6")
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
-        self._optSetProp(id, "IceSSL.Protocols", "tls1_0,tls1_1,tls1_2")
 
         # Setting block size
         self._optSetProp(
@@ -639,8 +611,8 @@ class BaseClient(object):
             # Acquire router and get the proxy
             prx = None
             retries = 0
+            reason = None
             while retries < 3:
-                reason = None
                 if retries > 0:
                     self.__logger.warning(
                         "%s - createSession retry: %s" % (reason, retries))
@@ -837,11 +809,8 @@ class BaseClient(object):
         """
         Calculates the local sha1 for a file.
         """
-        try:
-            from hashlib import sha1 as sha_new
-        except ImportError:
-            from sha import new as sha_new
-        digest = sha_new()
+        from hashlib import sha1
+        digest = sha1()
         file = open(filename, 'rb')
         try:
             while True:
@@ -863,7 +832,7 @@ class BaseClient(object):
 
         import os
         import types
-        if not filename or not isinstance(filename, basestring):
+        if not filename or not isinstance(filename, str):
             raise omero.ClientError("Non-null filename must be provided")
 
         if not os.path.exists(filename):
@@ -977,14 +946,14 @@ class BaseClient(object):
                         filehandle.write(data)
                     except TypeError:
                         # for Python 3.5
-                        filehandle.write(bytes_to_native_str(data))
+                        filehandle.write(data.decode("utf-8"))
                     offset += block_size
                 data = prx.read(offset, size - offset)
                 try:
                     filehandle.write(data)
                 except TypeError:
                     # for Python 3.5
-                    filehandle.write(bytes_to_native_str(data))
+                    filehandle.write(data.decode("utf-8"))
             finally:
                 if filename:
                     filehandle.close()

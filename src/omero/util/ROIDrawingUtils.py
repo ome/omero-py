@@ -21,24 +21,16 @@
 #
 # ------------------------------------------------------------------------------
 
-###
-#
-# ROIDrawingCanvas draws the shapes from the obejct visited.
-# These map to the ROI types in omero.model.*
 #
 # @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
 #   <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 # @author   Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 #   <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk
 #   </a>
-# @version 3.0
-# <small>
-# (<b>Internal version:</b> $Revision: $Date: $)
-# </small>
-# @since 3.0-Beta4
-#
 
 """
+ROIDrawingCanvas draws the shapes from the obejct visited.
+These map to the ROI types in omero.model.*
 
 Example code to draw 10 ellipses randomly on an image::
 
@@ -61,10 +53,7 @@ Example code to draw 10 ellipses randomly on an image::
 
 Example code to draw a polyline on an image an display it in PIL::
 
-    try:
-        from PIL import Image, ImageDraw # see ticket:2597
-    except ImportError:
-        import Image, ImageDraw # see ticket:2597
+    from PIL import Image, ImageDraw
 
     import ROI_utils
     import ROIDrawingUtils
@@ -80,12 +69,7 @@ Example code to draw a polyline on an image an display it in PIL::
 """
 
 
-from builtins import object
-try:
-    from PIL import Image, ImageDraw  # see ticket:2597
-except ImportError:
-    import Image
-    import ImageDraw  # see ticket:2597
+from PIL import Image, ImageDraw
 
 import warnings
 

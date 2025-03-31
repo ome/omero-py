@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# OMERO Tables Interface
 # Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-from __future__ import division
-from builtins import str
-from builtins import range
-from future.utils import native_str
-from past.utils import old_div
+"""
+OMERO Grid Processor
+"""
 import Ice
 import time
 import traceback
@@ -50,14 +47,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, ctx, file_obj, factory, storage, uuid="unknown",
+    def __init__(self, ctx, file_obj, file_path, factory, storage_factory, read_only=False, uuid="unknown",
                  call_context=None, adapter=None):
         self.id = Ice.Identity()
         self.id.name = uuid
         self.uuid = uuid
         self.file_obj = file_obj
         self.factory = factory
-        self.storage = storage
+        self.storage = storage_factory.getOrCreate(file_path, self, read_only)
         self.call_context = call_context
         self.adapter = adapter
         self.can_write = factory.getAdminService().canUpdate(
@@ -65,8 +62,6 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         omero.util.SimpleServant.__init__(self, ctx)
 
         self.stamp = time.time()
-        self.storage.incr(self)
-
         self._closed = False
 
         if (not self.file_obj.isLoaded() or
@@ -162,7 +157,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             gid = unwrap(self.file_obj.details.group.id)
             client_uuid = self.factory.ice_getIdentity().category[8:]
             ctx = {
-                "omero.group": native_str(gid),
+                "omero.group": str(gid),
                 omero.constants.CLIENTUUID: client_uuid}
             try:
                 # Size to reset the server object to (must be checked after
@@ -426,7 +421,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         wait = float(self.communicator.getProperties().getPropertyWithDefault(
             "omero.repo.wait", "1"))
-        per_loop = old_div(wait, retries)
+        per_loop = wait / retries
 
         exc = None
         for x in range(retries):
@@ -475,7 +470,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         """
         cfg = self.ctx.getSession().getConfigService()
         self.db_uuid = cfg.getDatabaseUuid()
-        self.instance = old_div(self.repo_cfg, self.db_uuid)
+        self.instance = self.repo_cfg / self.db_uuid
 
     def _get_repo(self):
         """
@@ -484,7 +479,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         create a proxy for the InternalRepository attached to that.
         """
 
-        uuidfile = old_div(self.instance, "repo_uuid")
+        uuidfile = self.instance / "repo_uuid"
         if not uuidfile.exists():
             msg = "%s doesn't exist" % uuidfile
             raise IOError(msg)
@@ -531,8 +526,10 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         if not p.exists():
             p.makedirs()
 
-        storage = self._storage_factory.getOrCreate(file_path, self.read_only)
-        table = TableI(self.ctx, file_obj, factory, storage,
+        table = TableI(self.ctx, file_obj,file_path,
+                       factory,
+                       self._storage_factory,
+                       read_only=self.read_only,
                        uuid=Ice.generateUUID(),
                        call_context=current.ctx,
                        adapter=current.adapter)

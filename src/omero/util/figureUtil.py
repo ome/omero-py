@@ -17,33 +17,19 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+# <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+# @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+# <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+# @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+# <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+
 """
 A collection of utility methods used by Figure scripts for producing
 publication type of figures.
-
-@author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
-<a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
-@author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-@author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-@version 3.0
-<small>
-(<b>Internal version:</b> $Revision: $Date: $)
-</small>
-@since 3.0-Beta4.1
-
 """
-from __future__ import division
 
-from builtins import str
-from builtins import range
-from past.utils import old_div
-try:
-    from PIL import Image, ImageDraw  # see ticket:2597
-except ImportError:
-    import Image
-    import ImageDraw
+from PIL import Image, ImageDraw
 
 WHITE = (255, 255, 255)
 
@@ -172,27 +158,27 @@ def formatTime(seconds, timeUnits):
     elif timeUnits == "SECS":
         label = "%d" % int(round(seconds))
     elif timeUnits == "MINS":
-        mins = old_div(float(seconds), float(60))
+        mins = seconds / 60
         label = "%d" % int(round(mins))
     elif timeUnits == "HOURS":
-        hrs = old_div(float(seconds), float(3600))
+        hrs = seconds / 3600
         label = "%d" % int(round(hrs))
     elif timeUnits == "MINS_SECS":
-        mins = old_div(seconds, 60)
+        mins = seconds // 60
         secs = round(seconds % 60)
         label = "%d:%02d" % (mins, secs)
     elif timeUnits == "HOURS_MINS":
-        hrs = old_div(seconds, 3600)
-        mins = round(old_div((seconds % 3600), 60))
+        hrs = seconds // 3600
+        mins = round((seconds % 3600) // 60)
         label = "%d:%02d" % (hrs, mins)
     elif timeUnits == "HOURS_MINS_SECS":
-        hrs = old_div(seconds, 3600)
-        mins = old_div((seconds % 3600), 60)
+        hrs = seconds // 3600
+        mins = (seconds % 3600) // 60
         secs = round(seconds % (3600 * 60))
         label = "%d:%02d:%02d" % (hrs, mins, secs)
     elif timeUnits == "HOURS_MINS_SECS_MILLIS":
-        hrs = old_div(seconds, 3600)
-        mins = old_div((seconds % 3600), 60)
+        hrs = seconds // 3600
+        mins = (seconds % 3600) // 60
         secs = (seconds % (3600 * 60))
         label = "%d:%02d:%05.2f" % (hrs, mins, secs)
     else:
@@ -211,16 +197,16 @@ def getTimeLabels(queryService, pixelsId, tIndexes, sizeT,
     The list of label returned includes the timeUnits as the last string
     in the list, in case you didn't specify it.
 
-    @param queryService:        The Omero query service
-    @param pixelsId:            The ID of the pixels you want info for
-    @param tIndexes:            List of t-index to get the times for.
+    :param queryService:        The Omero query service
+    :param pixelsId:            The ID of the pixels you want info for
+    :param tIndexes:            List of t-index to get the times for.
                                 Assumed to be in t order.
-    @param sizeT:               The T dimension size of the pixels.
+    :param sizeT:               The T dimension size of the pixels.
                                 Used if no plane info
-    @param timeUnits:           Format choice, see formatTime(). String
-    @param showRoiDuration:     If true, times shown are from the start of
+    :param timeUnits:           Format choice, see formatTime(). String
+    :param showRoiDuration:     If true, times shown are from the start of
                                 the ROI frames, otherwise use movie timestamp.
-    @return:                    A list of strings, ordered same as tIndexes
+    :return:                    A list of strings, ordered same as tIndexes
     """
     secondsMap = getTimes(queryService, pixelsId, tIndexes)
 
@@ -251,12 +237,12 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
     """
     Adds a scalebar at the bottom right of an image, No text.
 
-    @param scalebar     length of scalebar in microns
-    @param xIndent      indent from the right of the image
-    @param yIndent      indent from the bottom of the image
-    @param image        the PIL image to add scalebar to
-    @param pixels       the pixels object
-    @param colour       colour of the overlay as r,g,b tuple
+    :param scalebar     length of scalebar in microns
+    :param xIndent      indent from the right of the image
+    :param yIndent      indent from the bottom of the image
+    :param image        the PIL image to add scalebar to
+    :param pixels       the pixels object
+    :param colour       colour of the overlay as r,g,b tuple
     """
     draw = ImageDraw.Draw(image)
     if pixels.getPhysicalSizeX() is None:
@@ -287,9 +273,12 @@ def getVerticalLabels(labels, font, textGap):
 
     maxWidth = 0
     height = 0
-    textHeight = font.getsize("testq")[1]
+    box = font.getbbox("testq")
+    textHeight = box[3] - box[1]
     for label in labels:
-        maxWidth = max(maxWidth, font.getsize(label)[0])
+        box = font.getbbox(label)
+        width = box[2] - box[0]
+        maxWidth = max(maxWidth, width)
         if height > 0:
             height += textGap
         height += textHeight
@@ -298,7 +287,9 @@ def getVerticalLabels(labels, font, textGap):
     textdraw = ImageDraw.Draw(textCanvas)
     py = 0
     for label in labels:
-        indent = old_div((maxWidth - font.getsize(label)[0]), 2)
+        box = font.getbbox(label)
+        width = box[2] - box[0]
+        indent = (maxWidth - width) // 2
         textdraw.text((indent, py), label, font=font, fill=(0, 0, 0))
         py += textHeight + textGap
     return textCanvas.rotate(90)

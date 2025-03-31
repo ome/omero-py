@@ -1,19 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-    Copyright 2009 Glencoe Software, Inc. All rights reserved.
-    Use is subject to license terms supplied in LICENSE.txt
-"""
 
-from future import standard_library
-from builtins import str
-from builtins import object
+#
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+
 from omero_version import omero_version
 
 import platform
 import logging
 import requests
-standard_library.install_aliases()
+
+# Ensure we are using pyopenssl (ome/omero-py#240)
+try:
+    import urllib3.contrib.pyopenssl
+    urllib3.contrib.pyopenssl.inject_into_urllib3()
+except ImportError:
+    pass
 
 
 class UpgradeCheck(object):

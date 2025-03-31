@@ -47,7 +47,6 @@ forcefully killing the process.
 Note: On Windows, this module requires Windows 2000 or higher (no support for
 Windows 95, 98, or NT 4.0).
 """
-from __future__ import absolute_import
 
 import subprocess
 import sys

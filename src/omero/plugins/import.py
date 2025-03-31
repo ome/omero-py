@@ -23,19 +23,14 @@
    Startup plugin for command-line importer.
 
 """
-from __future__ import division
-from __future__ import print_function
 
-from builtins import str
-from past.utils import old_div
-from past.builtins import basestring
-from builtins import object
 from io import BytesIO
 import os
 import csv
 import sys
 import shlex
 import requests
+import re
 from zipfile import ZipFile
 
 
@@ -97,7 +92,7 @@ Examples:
 
 For additional information, see:
 https://docs.openmicroscopy.org/latest/omero/users/cli/import.html
-Report bugs to <ome-users@lists.openmicroscopy.org.uk>
+Report bugs at https://forum.image.sc/
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
@@ -161,13 +156,13 @@ class CommandArguments(object):
         if len(key) == 1:
             arg_list.append("-"+key)
             if val != NO_ARG:
-                if isinstance(val, basestring):
+                if isinstance(val, str):
                     arg_list.append(val)
         else:
             key = key.replace("_", "-")
             if val == NO_ARG:
                 arg_list.append("--%s" % key)
-            elif isinstance(val, basestring):
+            elif isinstance(val, str):
                 arg_list.append(
                     "--%s=%s" % (key, val))
             else:
@@ -334,7 +329,7 @@ class ImportControl(BaseControl):
             " Default: etc/logback-cli.xml")
         add_python_argument(
             "--fetch-jars", type=str,
-            help="Download this version of OMERO.java jars and exit")
+            help="Download OMERO.java jars by version or URL, then exit")
 
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
@@ -517,11 +512,11 @@ class ImportControl(BaseControl):
             omero_java_dir, omero_java_txt = self._userdir_jars()
             client_dir = omero_java_dir
 
-        etc_dir = old_div(self.ctx.dir, "etc")
+        etc_dir = self.ctx.dir / "etc"
         if args.logback:
             xml_file = path(args.logback)
         else:
-            xml_file = old_div(etc_dir, "logback-cli.xml")
+            xml_file = etc_dir / "logback-cli.xml"
 
         classpath = []
         if client_dir and client_dir.exists():
@@ -575,15 +570,18 @@ class ImportControl(BaseControl):
         else:
             return None, omero_java_txt
 
-    def download_omero_java(self, version):
-        omero_java_zip = OMERO_JAVA_ZIP.format(version=version)
+    def download_omero_java(self, version_or_uri):
+        if re.match(r"^\w+://", version_or_uri):
+            omero_java_zip = version_or_uri
+        else:
+            omero_java_zip = OMERO_JAVA_ZIP.format(version=version_or_uri)
         self.ctx.err("Downloading %s" % omero_java_zip)
         jars_dir, omero_java_txt = self._userdir_jars(parentonly=True)
         jars_dir.makedirs_p()
         with requests.get(omero_java_zip) as resp:
             with ZipFile(BytesIO(resp.content)) as zipfile:
-                topdirs = set(f.filename.split(
-                    os.path.sep)[0] for f in zipfile.filelist if f.is_dir())
+                topdirs = set(f.filename.split("/")[0]
+                              for f in zipfile.filelist if f.is_dir())
                 if len(topdirs) != 1:
                     self.ctx.die(
                         108,

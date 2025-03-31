@@ -1,23 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-
-   Function for parsing OMERO log files.
-   The format expected is defined for Python in
-   omero.util.configure_logging.
-
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
-   :author: Josh Moore <josh@glencoesoftware.com>
+# 
+# Copyright 2010 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+# 
+# Josh Moore <josh@glencoesoftware.com>
 
 """
-from __future__ import division
-from __future__ import print_function
+Function for parsing OMERO log files.
+The format expected is defined for Python in
+omero.util.configure_logging.
+"""
 
-from builtins import object
-from past.utils import old_div
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as lines
@@ -39,7 +34,7 @@ def parse_time(value):
     """
     parts = value.split(",")
     value = parts[0]
-    millis = old_div(float(parts[1]), 1000.0)
+    millis = parts[1] / 1000.0
     t = mktime(strptime(value, "%Y-%m-%d %H:%M:%S"))
     t = float(t)
     t += millis

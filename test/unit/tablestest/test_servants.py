@@ -8,13 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import division
 
-from builtins import str
-from builtins import range
-from future.utils import native_str
-from past.utils import old_div
-from builtins import object
 import pytest
 import Ice
 import omero
@@ -25,6 +19,10 @@ from library import TestCase
 
 from omero.columns import LongColumnI, DoubleColumnI, ObjectFactories
 from omero_ext.path import path
+
+import sys
+if sys.platform.startswith("win"):
+    pytest.skip("skipping tests on windows", allow_module_level=True)
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -92,7 +90,7 @@ class mocked_internal_service_factory(object):
 
 class mocked_service_factory(object):
     def __init__(self):
-        self.db_uuid = native_str(uuid.uuid4())
+        self.db_uuid = str(uuid.uuid4())
         self.return_values = []
 
     def keepAlive(self, *args):
@@ -160,7 +158,7 @@ class mocked_query_service(object):
 
 class mock_internal_repo(object):
     def __init__(self, dir):
-        self.path = old_div(dir, "mock.h5")
+        self.path = dir / "mock.h5"
 
     def __call__(self, *args):
         return self
@@ -192,6 +190,15 @@ class mock_storage(object):
     def size(self):
         return 0
 
+class mock_storage_factory():
+    def __init__(self):
+        self.storages = []
+
+    def add_storage(self, storage):
+        self.storages.append(storage)
+
+    def getOrCreate(self, hdfpath, table, read_only=False):
+        return self.storages.pop()
 
 class TestTables(TestCase):
 
@@ -241,7 +248,7 @@ class TestTables(TestCase):
     def repodir(self, make=True):
         self.tmp = path(self.tmpdir())
         self.communicator.getProperties().setProperty("omero.repo.dir",
-                                                      native_str(self.tmp))
+                                                      str(self.tmp))
         repo = self.tmp / ".omero" / "repository"
         if make:
             repo.makedirs()
@@ -251,9 +258,9 @@ class TestTables(TestCase):
         if repo_uuid is None:
             repo_uuid = self.repouuid()
         f = self.repodir()
-        f = old_div(path(f), db_uuid)
+        f = path(f) / db_uuid
         f.makedirs()
-        f = old_div(f, "repo_uuid")
+        f = f / "repo_uuid"
         f.write_lines([repo_uuid])
 
     # Note: some of the following method were added as __init__ called
@@ -307,18 +314,11 @@ class TestTables(TestCase):
         f2.details.group = omero.model.ExperimenterGroupI(1, False)
         self.sf.return_values.append(f2)
         storage = mock_storage()
+        storage_factory = mock_storage_factory()
+        storage_factory.add_storage(storage)
         self.ctx.newSession()
-        table = omero.tables.TableI(self.ctx, f1, self.sf, storage)
+        table = omero.tables.TableI(self.ctx, f1, 'dummy/path', self.sf, storage_factory)
         assert table.file_obj.details.group
-
-    def testTableIncrDecr(self):
-        f = omero.model.OriginalFileI(1, True)
-        f.details.group = omero.model.ExperimenterGroupI(1, False)
-        storage = mock_storage()
-        table = omero.tables.TableI(self.ctx, f, self.sf, storage)
-        assert storage.up
-        table.cleanup()
-        assert storage.down
 
     def testTablePreInitialized(self):
         f = omero.model.OriginalFileI(1, True)
@@ -327,7 +327,8 @@ class TestTables(TestCase):
         table1 = mocktable.table
         storage = table1.storage
         storage.initialize([LongColumnI("a", None, [])])
-        table2 = omero.tables.TableI(self.ctx, f, self.sf, storage)
+        storage_factory = self._TestTables__tables[0]._storage_factory
+        table2 = omero.tables.TableI(self.ctx, f, str(storage._HdfStorage__hdf_path), self.sf, storage_factory)
         table2.cleanup()
         table1.cleanup()
 
@@ -372,12 +373,12 @@ class TestTables(TestCase):
         self.repofile(self.sf.db_uuid)
         of = omero.model.OriginalFileI(1, False)
         self.sf.return_values.append(of)
+        self.sf.return_values.append(of)
 
         internal_repo = mock_internal_repo(self.tmp)
         f = open(internal_repo.path, "w")
         f.write("this file is not HDF")
         f.close()
-
         tables = self.tablesI(internal_repo)
         pytest.raises(omero.ValidationException, tables.getTable, of, self.sf,
                       self.current)
