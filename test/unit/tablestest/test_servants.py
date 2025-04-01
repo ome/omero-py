@@ -230,6 +230,7 @@ class TestTables(TestCase):
         """
         for t in self.__tables:
             t.__del__()
+        self.communicator.delegate.destroy()
 
     def tablesI(self, internal_repo=None):
         if internal_repo is None:
