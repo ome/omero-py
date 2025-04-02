@@ -209,7 +209,7 @@ for x in data:
 
 
 def template_xml():
-    templates = path(OMERODIR) / ".."
+    templates = path(OMERODIR)
     templates = templates / "etc" / "templates" / "grid" / "templates.xml"
     templates = templates.abspath()
     return XML(templates.text())
