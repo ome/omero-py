@@ -153,9 +153,7 @@ class TestStrategy(object):
         strategy = ManualStrategy("blitz")
         settings = strategy.get_memory_settings()
         assert settings == [
-            "-Xmx512m",
-            "-XX:MaxPermSize=128m",
-            "-XX:+IgnoreUnrecognizedVMOptions",
+            "-Xmx512m"
         ]
 
     def test_percent_usage(self):
