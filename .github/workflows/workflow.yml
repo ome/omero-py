@@ -36,6 +36,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Download the latest OMERO.server
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          curl -L -o server.zip https://downloads.openmicroscopy.org/latest/omero/server.zip
+          unzip server.zip
+          ln -s OMERO.server* OMERO.current
+          echo "OMERODIR=${{ github.workspace }}/OMERO.current" >> $GITHUB_ENV
       - name: Install dependencies
         run: python -mpip install --upgrade wheel pytest tox virtualenv
       - name: Run tests
