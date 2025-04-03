@@ -39,7 +39,7 @@ jobs:
       - name: Download the latest OMERO.server
         if: matrix.os == 'ubuntu-22.04'
         run: |
-          curl -L -o server.zip https://downloads.openmicroscopy.org/latest/omero/server.zip
+          curl -L -o server.zip https://github.com/ome/openmicroscopy/releases/download/v5.6.15/OMERO.server-5.6.15-ice36.zip
           unzip server.zip
           ln -s OMERO.server* OMERO.current
           echo "OMERODIR=${{ github.workspace }}/OMERO.current" >> $GITHUB_ENV
