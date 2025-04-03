@@ -230,6 +230,7 @@ class TestTables(TestCase):
         """
         for t in self.__tables:
             t.__del__()
+        self.communicator.delegate.destroy()
 
     def tablesI(self, internal_repo=None):
         if internal_repo is None:
@@ -263,6 +264,14 @@ class TestTables(TestCase):
         f = f / "repo_uuid"
         f.write_lines([repo_uuid])
 
+    def new_table(self):
+        self.repofile(self.sf.db_uuid)
+        f = omero.model.OriginalFileI(1, True)
+        f.details.group = omero.model.ExperimenterGroupI(1, False)
+        self.sf.return_values.append(f)
+        tables = self.tablesI()
+        return tables.getTable(f, self.sf, self.current)
+
     # Note: some of the following method were added as __init__ called
     # first _get_dir() and then _get_uuid(), so the naming is off
 
@@ -295,18 +304,11 @@ class TestTables(TestCase):
         self.sf.return_values.append(omero.model.OriginalFileI(1, False))
         self.tablesI()
 
-    def testTables(self, newfile=True):
-        if newfile:
-            self.repofile(self.sf.db_uuid)
-        f = omero.model.OriginalFileI(1, True)
-        f.details.group = omero.model.ExperimenterGroupI(1, False)
-        self.sf.return_values.append(f)
-        tables = self.tablesI()
-        table = tables.getTable(f, self.sf, self.current)
+    def testTables(self):
+        table = self.new_table()
         assert table
         assert table.table
         assert table.table.storage
-        return table
 
     def testTableOriginalFileLoaded(self):
         f1 = omero.model.OriginalFileI(1, False)
@@ -323,7 +325,7 @@ class TestTables(TestCase):
     def testTablePreInitialized(self):
         f = omero.model.OriginalFileI(1, True)
         f.details.group = omero.model.ExperimenterGroupI(1, False)
-        mocktable = self.testTables()
+        mocktable = self.new_table()
         table1 = mocktable.table
         storage = table1.storage
         storage.initialize([LongColumnI("a", None, [])])
@@ -333,7 +335,7 @@ class TestTables(TestCase):
         table1.cleanup()
 
     def testTableModifications(self):
-        mocktable = self.testTables()
+        mocktable = self.new_table()
         table = mocktable.table
         storage = table.storage
         storage.initialize([LongColumnI("a", None, [])])
@@ -342,8 +344,8 @@ class TestTables(TestCase):
         assert not storage.uptodate(table.stamp)
         table.cleanup()
 
-    def testTableAddData(self, newfile=True, cleanup=True):
-        mocktable = self.testTables(newfile)
+    def testTableAddData(self):
+        mocktable = self.new_table()
         table = mocktable.table
         storage = table.storage
         assert storage
@@ -354,12 +356,17 @@ class TestTables(TestCase):
         template[0].values = [1] * 5
         template[1].values = [2.0] * 5
         table.addData(template)
-        if cleanup:
-            table.cleanup()
-        return table
+        table.cleanup()
 
     def testTableSearch(self):
-        table = self.testTableAddData(True, False)
+        mocktable = self.new_table()
+        table = mocktable.table
+        table.initialize([LongColumnI("a", None, []),
+                          DoubleColumnI("b", None, [])])
+        template = table.getHeaders(self.current)
+        template[0].values = [1] * 5
+        template[1].values = [2.0] * 5
+        table.addData(template)
         rv = list(table.getWhereList('(a==1)', None, None, None, None, None))
         assert list(range(5)) == rv
         data = table.readCoordinates(rv, self.current)
