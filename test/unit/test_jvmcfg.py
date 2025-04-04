@@ -153,9 +153,7 @@ class TestStrategy(object):
         strategy = ManualStrategy("blitz")
         settings = strategy.get_memory_settings()
         assert settings == [
-            "-Xmx512m",
-            "-XX:MaxPermSize=128m",
-            "-XX:+IgnoreUnrecognizedVMOptions",
+            "-Xmx512m"
         ]
 
     def test_percent_usage(self):
@@ -209,7 +207,7 @@ for x in data:
 
 
 def template_xml():
-    templates = path(OMERODIR) / ".."
+    templates = path(OMERODIR)
     templates = templates / "etc" / "templates" / "grid" / "templates.xml"
     templates = templates.abspath()
     return XML(templates.text())

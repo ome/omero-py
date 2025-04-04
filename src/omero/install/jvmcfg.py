@@ -262,13 +262,6 @@ class Strategy(object):
         elif hd in ("on", "cwd", "tmp"):
             return "-XX:+HeapDumpOnOutOfMemoryError"
 
-    def get_perm_gen(self):
-        pg = self.settings.perm_gen
-        if str(pg).startswith("-XX"):
-            return pg
-        else:
-            return "-XX:MaxPermSize=%s" % pg
-
     def get_append(self):
         values = []
         if self.settings.heap_dump == "tmp":
@@ -281,10 +274,7 @@ class Strategy(object):
         values = [
             self.get_heap_size(),
             self.get_heap_dump(),
-            self.get_perm_gen(),
         ]
-        if any([x.startswith("-XX:MaxPermSize") for x in values]):
-            values.append("-XX:+IgnoreUnrecognizedVMOptions")
         values += self.get_append()
         return [x for x in values if x]
 
@@ -329,20 +319,6 @@ class PercentStrategy(Strategy):
         default = self.defaults.get(self.name, other)
         percent = int(self.settings.lookup("percent", default))
         return percent
-
-    def get_perm_gen(self):
-        available, active, total = self.system_memory_mb()
-        choice = self.use_active and active or total
-
-        if choice <= 4000:
-            if choice >= 2000:
-                self.settings.overwrite("perm_gen", "256m")
-        elif choice <= 8000:
-            self.settings.overwrite("perm_gen", "512m")
-        else:
-            self.settings.overwrite("perm_gen", "1g")
-
-        return super(PercentStrategy, self).get_perm_gen()
 
     def calculate_heap_size(self, method=None):
         """
