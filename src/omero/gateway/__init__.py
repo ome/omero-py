@@ -7496,12 +7496,12 @@ class _PixelsWrapper (BlitzObjectWrapper):
         planeList = list(self.getPlanes([(theZ, theC, theT)]))
         return planeList[0]
 
-    def get_numpy_dtype(self):
+    def get_numpy_type(self):
         """
-        Returns the numpy dtype corresponding to the OMERO pixels type.
+        Returns the numpy class corresponding to the OMERO pixels type.
 
-        This is the numpy dtype that is used for getTiles() and getPlane()
-        :return:    numpy dtype
+        This is the numpy type that is used for getTiles() and getPlane()
+        :return:    numpy type, e.g. np.int8
         """
         pixels_type = self.getPixelsType().value
         return OMERO_NUMPY_TYPES[pixels_type]
@@ -7521,7 +7521,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         sizeX = self.sizeX
         sizeY = self.sizeY
         pixelType = self.getPixelsType().value
-        numpyType = self.get_numpy_pixels_type()
+        numpyType = self.get_numpy_type()
         exc = None
         try:
             rawPixelsStore = self._prepareRawPixelsStore()
