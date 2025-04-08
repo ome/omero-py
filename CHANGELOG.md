@@ -1,3 +1,15 @@
+# 5.20.0 (April 2025)
+
+This main focus of this release is to relax the requirements and allow OMERO.py to be deployed
+with Numpy 2. The package remains compatible with Numpy 1 although this might be removed in a
+future release.
+
+- Relax numpy<2 capping [#445](https://github.com/ome/omero-py/pull/445)
+- Numpy pixels type [#387](https://github.com/ome/omero-py/pull/387)
+- omero admin jvmcfg: remove MaxPermSize option [#458](https://github.com/ome/omero-py/pull/458)
+- errors: use raise_error from cli plugins [#266](https://github.com/ome/omero-py/pull/266)
+- Pytest warning fixes [#457](https://github.com/ome/omero-py/pull/457)
+
 # 5.19.8 (March 2025)
 
 - PyPA action: use release/v1 branch [#456](https://github.com/ome/omero-py/pull/456)
