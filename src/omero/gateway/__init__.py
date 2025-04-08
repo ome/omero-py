@@ -56,7 +56,7 @@ from omero.rtypes import rtime, rlist, rdouble, unwrap
 
 logger = logging.getLogger(__name__)
 THISPATH = os.path.dirname(os.path.abspath(__file__))
-OMERO_NUMPY_DTYPES = {
+OMERO_NUMPY_TYPES = {
     PixelsTypeint8: numpy.int8,
     PixelsTypeuint8: numpy.uint8,
     PixelsTypeint16: numpy.int16,
@@ -3797,8 +3797,8 @@ class _BlitzGateway (object):
                 # of our new image
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                if OMERO_NUMPY_DTYPES[newPtype] != firstPlane.dtype.name:
-                    convertToType = OMERO_NUMPY_DTYPES[newPtype]
+                if OMERO_NUMPY_TYPES[newPtype] != firstPlane.dtype.name:
+                    convertToType = OMERO_NUMPY_TYPES[newPtype]
                 img._obj.setName(rstring(imageName))
                 img._obj.setSeries(rint(0))
                 updateService.saveObject(img._obj, self.SERVICE_OPTS)
@@ -7496,9 +7496,15 @@ class _PixelsWrapper (BlitzObjectWrapper):
         planeList = list(self.getPlanes([(theZ, theC, theT)]))
         return planeList[0]
 
-    def get_numpy_pixels_type(self):
+    def get_numpy_dtype(self):
+        """
+        Returns the numpy dtype corresponding to the OMERO pixels type.
+
+        This is the numpy dtype that is used for getTiles() and getPlane()
+        :return:    numpy dtype
+        """
         pixels_type = self.getPixelsType().value
-        return OMERO_NUMPY_DTYPES[pixels_type]
+        return OMERO_NUMPY_TYPES[pixels_type]
 
     def getTiles(self, zctTileList):
         """
@@ -7511,14 +7517,6 @@ class _PixelsWrapper (BlitzObjectWrapper):
 
         from struct import unpack
 
-        pixelTypes = {PixelsTypeint8: 'b',
-                      PixelsTypeuint8: 'B',
-                      PixelsTypeint16: 'h',
-                      PixelsTypeuint16: 'H',
-                      PixelsTypeint32: 'i',
-                      PixelsTypeuint32: 'I',
-                      PixelsTypefloat: 'f',
-                      PixelsTypedouble: 'd'}
         rawPixelsStore = None
         sizeX = self.sizeX
         sizeY = self.sizeY
@@ -7539,9 +7537,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
                         z, c, t, x, y, width, height)
                     planeY = height
                     planeX = width
-                # +str(sizeX*sizeY)+pythonTypes[pixelType]
-                convertType = '>%d%s' % (
-                    (planeY*planeX), pixelTypes[pixelType])
+                np_char = numpy.dtype(OMERO_NUMPY_TYPES[pixelType]).char
+                convertType = '>%d%s' % ((planeY*planeX), np_char)
                 if isinstance(rawPlane, bytes):
                     convertedPlane = unpack(convertType, rawPlane)
                 else:
