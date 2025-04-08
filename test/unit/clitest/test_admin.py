@@ -248,10 +248,23 @@ class TestAdmin(object):
     def testDiagnostics(self, mocker):
         mock_out = mocker.patch.object(self.cli, "out")
         mock_err = mocker.patch.object(self.cli, "err")
-        
+        mock_popen = mocker.patch.object(self.cli, "popen")
+        mock_popen.return_value.wait.return_value = 0
+
         self.cli.invoke("admin diagnostics", strict=True)
         mock_out.assert_called()
-        mock_err.assert_not_called()
+        mock_err.assert_called()
+        mock_popen.assert_has_calls([
+            mocker.call(['java', '-version']),
+            mocker.call(['python', '-V']),
+            mocker.call(['icegridnode', '--version']),
+            mocker.call(['icegridadmin', '--version']),
+            mocker.call(['psql', '--version']),
+            mocker.call(['openssl', 'version']),
+            mocker.call([
+                "icegridadmin", f"--Ice.Config={self.cli.dir}/etc/internal.cfg",
+                "-e", "application list"])],
+            any_order=True)
 
     def testStatusNoConfig(self, mocker):
         mock_out = mocker.patch.object(self.cli, "out")
