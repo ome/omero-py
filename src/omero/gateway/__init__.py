@@ -154,9 +154,9 @@ def getAnnotationLinkTableName(objecttype):
     if objecttype == "project":
         return "ProjectAnnotationLink"
     if objecttype == "dataset":
-        return"DatasetAnnotationLink"
+        return "DatasetAnnotationLink"
     if objecttype == "image":
-        return"ImageAnnotationLink"
+        return "ImageAnnotationLink"
     if objecttype == "screen":
         return "ScreenAnnotationLink"
     if objecttype == "plate":
@@ -165,6 +165,8 @@ def getAnnotationLinkTableName(objecttype):
         return "PlateAcquisitionAnnotationLink"
     if objecttype == "well":
         return "WellAnnotationLink"
+    if objecttype == "roi":
+        return "RoiAnnotationLink"
     return None
 
 
@@ -5237,7 +5239,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
     def getParentLinks(self, ptype, pids=None):
         ptype = ptype.title().replace("Plateacquisition", "PlateAcquisition")
         objs = ('Project', 'Dataset', 'Image', 'Screen',
-                'Plate', 'Well', 'PlateAcquisition')
+                'Plate', 'Well', 'PlateAcquisition', 'Roi')
         if ptype not in objs:
             raise AttributeError(
                 "getParentLinks(): ptype '%s' not supported" % ptype)
@@ -5591,7 +5593,7 @@ from omero_model_TagAnnotationI import TagAnnotationI
 
 class TagAnnotationWrapper (AnnotationWrapper):
     """
-    omero_model_BooleanAnnotationI class wrapper extends AnnotationWrapper.
+    omero_model_TagAnnotationWrapper class wrapper extends AnnotationWrapper.
     """
 
     OMERO_TYPE = TagAnnotationI
@@ -5955,6 +5957,16 @@ class _RoiWrapper (BlitzObjectWrapper):
 
         if self._obj.image is not None:
             return ImageWrapper(self._conn, self._obj.image)
+
+    def getShapes(self):
+        """
+        Gets shapes associated to an ROI.
+        Shapes must be pre-loaded, use opts={"load_shapes":True}
+
+        :return: list of shapes in this ROI.
+        """
+        return [ShapeWrapper(self._conn, shape) for shape in
+                self._obj._shapesSeq]
 
 RoiWrapper = _RoiWrapper
 
@@ -9491,7 +9503,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             p1 = 0
             p2 = 1
             while (p2 <= len(tokens) and
-                   (font.getbbox(' '.join(tokens[p1:p2]))[2] - 
+                   (font.getbbox(' '.join(tokens[p1:p2]))[2] -
                     font.getbbox(' '.join(tokens[p1:p2]))[0]) < width):
                 p2 += 1
             rv.append(' '.join(tokens[p1:p2-1]))
@@ -10407,9 +10419,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                  filterByCurrentUser is True, otherwise the total rois
                  found.
         """
-        return [RoiWrapper(self._conn, roi) for roi in 
+        return [RoiWrapper(self._conn, roi) for roi in
                 self._get_rois(shapeType, filterByCurrentUser)]
-        
+
 
     def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
