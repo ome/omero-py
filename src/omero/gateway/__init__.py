@@ -5593,7 +5593,7 @@ from omero_model_TagAnnotationI import TagAnnotationI
 
 class TagAnnotationWrapper (AnnotationWrapper):
     """
-    omero_model_BooleanAnnotationI class wrapper extends AnnotationWrapper.
+    omero_model_TagAnnotationWrapper class wrapper extends AnnotationWrapper.
     """
 
     OMERO_TYPE = TagAnnotationI
