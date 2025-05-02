@@ -5958,6 +5958,16 @@ class _RoiWrapper (BlitzObjectWrapper):
         if self._obj.image is not None:
             return ImageWrapper(self._conn, self._obj.image)
 
+    def getShapes(self):
+        """
+        Gets shapes associated to an ROI.
+        Shapes must be pre-loaded, use opts={"load_shapes":True}
+
+        :return: list of shapes in this ROI.
+        """
+        return [ShapeWrapper(self._conn, shape) for shape in
+                self._obj._shapesSeq]
+
 RoiWrapper = _RoiWrapper
 
 
