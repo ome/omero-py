@@ -34,7 +34,7 @@ import fileinput
 
 from omero_ext.argparse import SUPPRESS
 from omero.cli import BaseControl, CLI, ExceptionHandler
-from omero.rtypes import rlong
+from omero.rtypes import rlong, unwrap
 
 
 class TxField(object):
@@ -304,6 +304,33 @@ class ExtInfoSetTxAction(NonFieldTxAction):
         self.save_and_return(ctx)
 
 
+class ExtInfoGetTxAction(NonFieldTxAction):
+
+    def on_go(self, ctx, args):
+        details = self.obj.getDetails()
+        extinfo = None
+        if details and details._externalInfo:
+            extinfo = self.query.get("ExternalInfo",
+                details._externalInfo._id.val, {"omero.group": "-1"})
+
+        if extinfo is None:
+            obj, kls = self.instance(ctx)
+            ctx.die(346, f"No ExternalInfo found: {kls}:{obj.id.val}")
+
+        attr_list = ["id", "lsid", "entityId", "entityType", "uuid"]
+        proxy = ""
+        if len(self.tx_cmd.arg_list) == 3:
+            field = self.tx_cmd.arg_list[2]
+            if field not in attr_list:
+                ctx.die(335, f"usage: ext-info-get OBJ [{"|".join(attr_list)}]")
+            value = getattr(extinfo, field) or ""
+            proxy += f"{unwrap(value)}"
+        else:
+            for field in attr_list:
+                value = getattr(extinfo, field) or ""
+                proxy += f"{field}={unwrap(value)}\n"
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+
 class MapSetTxAction(NonFieldTxAction):
 
     def on_go(self, ctx, args):
@@ -553,6 +580,8 @@ Examples:
     (foo,bar)
 
     $ omero obj ext-info-set Image:12 myLsid myEntityType
+    $ omero obj ext-info-get Image:12
+    $ omero obj ext-info-get Image:12 entityType
 
 Bash examples:
 
@@ -575,7 +604,7 @@ Bash examples:
             choices=("new", "update", "null",
                      "map-get", "map-set",
                      "get", "list-get",
-                     "ext-info-set"),
+                     "ext-info-get", "ext-info-set"),
             help="operation to be performed")
         parser.add_argument(
             "Class", nargs="?",
@@ -634,6 +663,8 @@ Bash examples:
             return MapGetTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "ext-info-set":
             return ExtInfoSetTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "ext-info-get":
+            return ExtInfoGetTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "null":
             return NullTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "get":
