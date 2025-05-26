@@ -283,24 +283,28 @@ class ExtInfoSetTxAction(NonFieldTxAction):
     def on_go(self, ctx, args):
         # ['ext-info-set', 'Project:302', 'lsid', 'entityType', 'entityId']
         argc = len(self.tx_cmd.arg_list)
-        if argc not in [4, 5]:
+        if argc not in [4, 5, 6]:
             ctx.die(345,
-                    "usage: ext-info-set OBJ lsid entityType [entityId]")
-        lsid = self.tx_cmd.arg_list[2]
+                    "usage: ext-info-set OBJ entityId entityType [lsid] [uuid]")
+        entity_id = int(self.tx_cmd.arg_list[2])
         entity_type = self.tx_cmd.arg_list[3]
-        entity_id = 3
-        if argc == 5:
-            entity_id = int(self.tx_cmd.arg_list[4])
 
         from omero.model import ExternalInfoI
         from omero.rtypes import rstring, rlong
 
         extinfo = ExternalInfoI()
-        setattr(extinfo, "lsid", rstring(lsid))
+        # non-nullable properties
         setattr(extinfo, "entityId", rlong(entity_id))
         setattr(extinfo, "entityType", rstring(entity_type))
-        self.obj.details.externalInfo = extinfo
+        # nullable properties
+        if argc > 4:
+            lsid = self.tx_cmd.arg_list[4]
+            setattr(extinfo, "lsid", rstring(lsid))
+        if argc == 6:
+            uuid = self.tx_cmd.arg_list[5]
+            setattr(extinfo, "uuid", rstring(uuid))
 
+        self.obj.details.externalInfo = extinfo
         self.save_and_return(ctx)
 
 
@@ -317,7 +321,7 @@ class ExtInfoGetTxAction(NonFieldTxAction):
             obj, kls = self.instance(ctx)
             ctx.die(346, f"No ExternalInfo found: {kls}:{obj.id.val}")
 
-        attr_list = ["id", "lsid", "entityId", "entityType", "uuid"]
+        attr_list = ["id", "entityId", "entityType", "lsid", "uuid"]
         proxy = ""
         if len(self.tx_cmd.arg_list) == 3:
             field = self.tx_cmd.arg_list[2]
@@ -579,7 +583,8 @@ Examples:
     $ omero obj list-get MapAnnotation:456 mapValue 0
     (foo,bar)
 
-    $ omero obj ext-info-set Image:12 myLsid myEntityType
+    $ omero obj ext-info-set Image:12 3 myEntityType myLsid
+    $ omero obj ext-info-set Image:12 3 myEntityType myLsid myUuid
     $ omero obj ext-info-get Image:12
     $ omero obj ext-info-get Image:12 entityType
 
