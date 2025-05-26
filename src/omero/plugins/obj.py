@@ -326,7 +326,7 @@ class ExtInfoGetTxAction(NonFieldTxAction):
         if len(self.tx_cmd.arg_list) == 3:
             field = self.tx_cmd.arg_list[2]
             if field not in attr_list:
-                ctx.die(335, f"usage: ext-info-get OBJ [{"|".join(attr_list)}]")
+                ctx.die(335, f"usage: ext-info-get OBJ [{'|'.join(attr_list)}]")
             value = getattr(extinfo, field) or ""
             proxy += f"{unwrap(value)}"
         else:
