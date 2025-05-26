@@ -283,31 +283,14 @@ class ExtInfoSetTxAction(NonFieldTxAction):
     def on_go(self, ctx, args):
         # ['ext-info-set', 'Project:302', 'lsid', 'entityType', 'entityId']
         argc = len(self.tx_cmd.arg_list)
-        if argc not in [3, 4, 5]:
+        if argc not in [4, 5]:
             ctx.die(345,
-                    "usage: ext-info-set OBJ lsid [entityType] [entityId]")
+                    "usage: ext-info-set OBJ lsid entityType [entityId]")
         lsid = self.tx_cmd.arg_list[2]
-
-        # lookup externalInfo for default values (NB: it is immutable)
-        extinfo = None
-        details = self.obj.getDetails()
-        if details and details._externalInfo:
-            extinfo = self.query.get("ExternalInfo",
-                details._externalInfo._id.val, {"omero.group": "-1"})
-
+        entity_type = self.tx_cmd.arg_list[3]
         entity_id = 3
         if argc == 5:
             entity_id = int(self.tx_cmd.arg_list[4])
-        elif extinfo is not None:
-            entity_id = extinfo.entityId.val
-
-        if argc > 3:
-            entity_type = self.tx_cmd.arg_list[3]
-        elif extinfo is not None:
-            entity_type = extinfo.entityType.val
-        else:
-            ctx.die(346, "usage: ext-info-set OBJ lsid entityType [entityId]"
-                    " No existing entityType found")
 
         from omero.model import ExternalInfoI
         from omero.rtypes import rstring, rlong
