@@ -286,8 +286,18 @@ class ExtInfoSetTxAction(NonFieldTxAction):
         if argc not in [4, 5, 6]:
             ctx.die(345,
                     "usage: ext-info-set OBJ entityId entityType [lsid] [uuid]")
-        entity_id = int(self.tx_cmd.arg_list[2])
+        try:
+            entity_id = int(self.tx_cmd.arg_list[2])
+        except ValueError:
+            ctx.die(347, "entityId must be an integer, got: %s" %
+                    self.tx_cmd.arg_list[2])
         entity_type = self.tx_cmd.arg_list[3]
+
+        details = self.obj.getDetails()
+        extinfo_id = None
+        # if externalInfo exists, delete affer replacing below...
+        if details and details._externalInfo:
+            extinfo_id = details._externalInfo._id.val
 
         from omero.model import ExternalInfoI
         from omero.rtypes import rstring, rlong
@@ -306,6 +316,9 @@ class ExtInfoSetTxAction(NonFieldTxAction):
 
         self.obj.details.externalInfo = extinfo
         self.save_and_return(ctx)
+
+        if extinfo_id is not None:
+            self.update.deleteObject(ExternalInfoI(extinfo_id, False))
 
 
 class ExtInfoGetTxAction(NonFieldTxAction):
