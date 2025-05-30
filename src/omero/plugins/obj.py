@@ -34,7 +34,7 @@ import fileinput
 
 from omero_ext.argparse import SUPPRESS
 from omero.cli import BaseControl, CLI, ExceptionHandler
-from omero.rtypes import rlong
+from omero.rtypes import rlong, unwrap
 
 
 class TxField(object):
@@ -277,6 +277,76 @@ class NonFieldTxAction(TxAction):
         proxy = "%s:%s" % (self.kls, out.id.val)
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
+
+class ExtInfoSetTxAction(NonFieldTxAction):
+
+    def on_go(self, ctx, args):
+        # ['ext-info-set', 'Project:302', 'lsid', 'entityType', 'entityId']
+        argc = len(self.tx_cmd.arg_list)
+        if argc not in [4, 5, 6]:
+            ctx.die(345,
+                    "usage: ext-info-set OBJ entityId entityType [lsid] [uuid]")
+        try:
+            entity_id = int(self.tx_cmd.arg_list[2])
+        except ValueError:
+            ctx.die(347, "entityId must be an integer, got: %s" %
+                    self.tx_cmd.arg_list[2])
+        entity_type = self.tx_cmd.arg_list[3]
+
+        details = self.obj.getDetails()
+        extinfo_id = None
+        # if externalInfo exists, delete affer replacing below...
+        if details and details._externalInfo:
+            extinfo_id = details._externalInfo._id.val
+
+        from omero.model import ExternalInfoI
+        from omero.rtypes import rstring, rlong
+
+        extinfo = ExternalInfoI()
+        # non-nullable properties
+        setattr(extinfo, "entityId", rlong(entity_id))
+        setattr(extinfo, "entityType", rstring(entity_type))
+        # nullable properties
+        if argc > 4:
+            lsid = self.tx_cmd.arg_list[4]
+            setattr(extinfo, "lsid", rstring(lsid))
+        if argc == 6:
+            uuid = self.tx_cmd.arg_list[5]
+            setattr(extinfo, "uuid", rstring(uuid))
+
+        self.obj.details.externalInfo = extinfo
+        self.save_and_return(ctx)
+
+        if extinfo_id is not None:
+            self.update.deleteObject(ExternalInfoI(extinfo_id, False))
+
+
+class ExtInfoGetTxAction(NonFieldTxAction):
+
+    def on_go(self, ctx, args):
+        details = self.obj.getDetails()
+        extinfo = None
+        if details and details._externalInfo:
+            extinfo = self.query.get("ExternalInfo",
+                details._externalInfo._id.val, {"omero.group": "-1"})
+
+        if extinfo is None:
+            obj, kls = self.instance(ctx)
+            ctx.die(346, f"No ExternalInfo found: {kls}:{obj.id.val}")
+
+        attr_list = ["id", "entityId", "entityType", "lsid", "uuid"]
+        proxy = ""
+        if len(self.tx_cmd.arg_list) == 3:
+            field = self.tx_cmd.arg_list[2]
+            if field not in attr_list:
+                ctx.die(335, f"usage: ext-info-get OBJ [{'|'.join(attr_list)}]")
+            value = getattr(extinfo, field) or ""
+            proxy += f"{unwrap(value)}"
+        else:
+            for field in attr_list:
+                value = getattr(extinfo, field) or ""
+                proxy += f"{field}={unwrap(value)}\n"
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 class MapSetTxAction(NonFieldTxAction):
 
@@ -526,6 +596,11 @@ Examples:
     $ omero obj list-get MapAnnotation:456 mapValue 0
     (foo,bar)
 
+    $ omero obj ext-info-set Image:12 3 myEntityType myLsid
+    $ omero obj ext-info-set Image:12 3 myEntityType myLsid myUuid
+    $ omero obj ext-info-get Image:12
+    $ omero obj ext-info-get Image:12 entityType
+
 Bash examples:
 
     $ project=$(omero obj new Project name='my Project')
@@ -546,7 +621,8 @@ Bash examples:
             "command", nargs="?",
             choices=("new", "update", "null",
                      "map-get", "map-set",
-                     "get", "list-get"),
+                     "get", "list-get",
+                     "ext-info-get", "ext-info-set"),
             help="operation to be performed")
         parser.add_argument(
             "Class", nargs="?",
@@ -603,6 +679,10 @@ Bash examples:
             return MapSetTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "map-get":
             return MapGetTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "ext-info-set":
+            return ExtInfoSetTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "ext-info-get":
+            return ExtInfoGetTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "null":
             return NullTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "get":
