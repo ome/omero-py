@@ -3866,7 +3866,7 @@ class _BlitzGateway (object):
                 p += plane
                 plane = p
             byteSwappedPlane = plane.byteswap()
-            convertedPlane = byteSwappedPlane.tostring()
+            convertedPlane = byteSwappedPlane.tobytes()
             rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
         image = None

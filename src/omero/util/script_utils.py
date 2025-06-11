@@ -1085,7 +1085,7 @@ def upload_plane(raw_pixels_store, plane, z, c, t):
     :param t The T-Section of the plane.
     """
     byte_swapped_plane = plane.byteswap()
-    converted_plane = byte_swapped_plane.tostring()
+    converted_plane = byte_swapped_plane.tobytes()
     raw_pixels_store.setPlane(converted_plane, z, c, t)
 
 
@@ -1123,7 +1123,7 @@ def upload_plane_by_row(raw_pixels_store, plane, z, c, t):
     row_count, col_count = plane.shape
     for y in range(row_count):
         row = byte_swapped_plane[y:y+1, :]        # slice y axis into rows
-        converted_row = row.tostring()
+        converted_row = row.tobytes()
         raw_pixels_store.setRow(converted_row, y, z, c, t)
 
 

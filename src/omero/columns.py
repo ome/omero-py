@@ -540,7 +540,7 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
                 # This occurs primarily in testing.
                 masks.append(numpy.array(x, dtype=tables.UInt8Atom()))
             else:
-                masks.append(numpy.fromstring(x, count=len(x),
+                masks.append(numpy.frombytes(x, count=len(x),
                                               dtype=tables.UInt8Atom()))
 
     def _getmasks(self, tbl):
