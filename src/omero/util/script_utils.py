@@ -27,7 +27,7 @@ import os
 import warnings
 
 from struct import unpack
-from numpy import add, array, asarray, fromstring, reshape, zeros
+from numpy import add, array, asarray, frombuffer, reshape, zeros
 from os.path import exists
 
 import omero.clients
@@ -591,7 +591,7 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator=' '):
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     textBlock = readFromOriginalFile(rawFileService, iQuery, fileId)
-    arrayFromFile = fromstring(textBlock, sep=separator)
+    arrayFromFile = frombuffer(textBlock, sep=separator)
     return reshape(arrayFromFile, (row, col))
 
 
@@ -1503,7 +1503,7 @@ def numpy_to_image(plane, min_max, dtype):
 
     conv_array = convert_numpy_array(plane, min_max, dtype)
     if plane.dtype.name not in (PixelsTypeint8, PixelsTypeuint8):
-        return Image.frombuffer('I', plane.shape, conv_array)
+        return Image.fromstring('I', plane.shape, conv_array)
     else:
         return Image.fromarray(conv_array)
 
