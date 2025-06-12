@@ -1503,7 +1503,7 @@ def numpy_to_image(plane, min_max, dtype):
 
     conv_array = convert_numpy_array(plane, min_max, dtype)
     if plane.dtype.name not in (PixelsTypeint8, PixelsTypeuint8):
-        return Image.fromstring('I', plane.shape, conv_array)
+        return Image.frombytes('I', plane.shape, conv_array)
     else:
         return Image.fromarray(conv_array)
 
