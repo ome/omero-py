@@ -5910,6 +5910,23 @@ class MapAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = MapAnnotationI
 
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Used for building queries in generic methods such as
+        getObjects("MapAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
+        """
+
+        query = ("select obj from MapAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+
     def getValue(self):
         """
         Gets the value of the Map Annotation as a list of
