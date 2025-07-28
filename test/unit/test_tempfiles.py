@@ -55,17 +55,18 @@ class TestTemps(object):
         p = t_f.create_path("close", ".dir", folder=True)
         assert p.exists()
         assert p.isdir()
-        return p
 
     def testFolderWrite(self):
-        p = self.testFolderSimple()
+        p = t_f.create_path("close", ".dir", folder=True)
         f = p / "file"
         f.write_text("hi")
-        return p
+        assert ["hi"] == f.lines()
 
     def testFolderDelete(self):
-        p = self.testFolderWrite()
+        p = t_f.create_path("close", ".dir", folder=True)
+        assert p.exists()
         p.rmtree()
+        assert not p.exists()
 
     #
     # Misc

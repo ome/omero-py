@@ -8,8 +8,6 @@
         "output": {
             "blitz" : [
                 "-Xmx512m",
-                "-XX:MaxPermSize=128m",
-                "-XX:+IgnoreUnrecognizedVMOptions",
                 "foo",
                 "bar"
             ]
@@ -22,9 +20,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx512m",
-                "-XX:MaxPermSize=128m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx512m"
             ]
         }
     },
@@ -36,9 +32,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx1G",
-                "-XX:MaxPermSize=128m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx1G"
             ]
         }
     },
@@ -51,9 +45,7 @@
         "output": {
             "blitz" : [
                 "-Xmx512m",
-                "-XX:+HeapDumpOnOutOfMemoryError",
-                "-XX:MaxPermSize=128m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-XX:+HeapDumpOnOutOfMemoryError"
             ]
         }
     },
@@ -65,9 +57,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx512m",
-                "-XX:MaxPermSize=1G",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx512m"
             ]
         }
     },
@@ -79,9 +69,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx512m",
-                "-XX:MaxPermSize=256m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx512m"
             ]
         }
     },
@@ -94,9 +82,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx150m",
-                "-XX:MaxPermSize=128m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx150m"
             ]
         }
     },
@@ -108,9 +94,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx600m",
-                "-XX:MaxPermSize=256m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx600m"
             ]
         }
     },
@@ -122,9 +106,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx1200m",
-                "-XX:MaxPermSize=512m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx1200m"
             ]
         }
     },
@@ -136,9 +118,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx3600m",
-                "-XX:MaxPermSize=1g",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx3600m"
             ]
         }
     },
@@ -150,9 +130,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx7200m",
-                "-XX:MaxPermSize=1g",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx7200m"
             ]
         }
     },
@@ -164,9 +142,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx7200m",
-                "-XX:MaxPermSize=1g",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx7200m"
             ]
         }
     },
@@ -179,9 +155,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx9600m",
-                "-XX:MaxPermSize=1g",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx9600m"
             ]
         }
     },
@@ -194,8 +168,6 @@
         "output": {
             "blitz" : [
                 "-Xmx512m",
-                "-XX:MaxPermSize=128m",
-                "-XX:+IgnoreUnrecognizedVMOptions",
                 "foo"
             ]
         }
@@ -209,9 +181,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx4000m",
-                "-XX:MaxPermSize=512m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx4000m"
             ]
         }
     },
@@ -223,19 +193,13 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx1200m",
-                "-XX:MaxPermSize=512m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx1200m"
             ],
             "pixeldata" : [
-                "-Xmx1200m",
-                "-XX:MaxPermSize=512m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx1200m"
             ],
             "indexer" : [
-                "-Xmx800m",
-                "-XX:MaxPermSize=512m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx800m"
             ]
         }
     },
@@ -247,9 +211,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx4g",
-                "-XX:MaxPermSize=256m",
-                "-XX:+IgnoreUnrecognizedVMOptions"
+                "-Xmx4g"
             ]
         }
     }
