@@ -200,6 +200,9 @@ setup(
     package_data={
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
+    data_files=[
+        ('', list(glob.glob("target/*.pyi")))
+    ],
     py_modules=packageless,
     entry_points={
         'console_scripts': ['omero=omero.main:main'],
