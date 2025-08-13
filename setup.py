@@ -206,7 +206,6 @@ setup(
     },
     python_requires='>=3.8',
     install_requires=[
-        'urllib3<2',
         'appdirs',
         'future',
         'numpy<2; python_version<"3.10"',
