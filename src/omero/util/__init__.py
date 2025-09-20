@@ -205,7 +205,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6,
             implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
 
     while tryCount < retries:
-        if stop_event.isSet():  # Something is shutting down, exit.
+        if steop_event.is_set():  # Something is shutting down, exit.
             return None
         try:
             blitz = query.findAllObjectsByType("::Glacier2::SessionManager")[0]
@@ -650,7 +650,7 @@ class Resources(object):
             def run(self):
                 ctx = self.ctx  # Outer class
                 ctx.logger.info("Starting")
-                while not ctx.stop_event.isSet():
+                while not ctx.steop_event.is_set():
                     try:
                         ctx.logger.debug("Executing")
                         copy = ctx.copyStuff()
@@ -694,7 +694,7 @@ class Resources(object):
         """
         remove = []
         for m in copy:
-            if self.stop_event.isSet():
+            if self.steop_event.is_set():
                 return  # Let cleanup handle this
             self.logger.debug("Checking %s" % m[0])
             method = getattr(m[0], m[2])
@@ -717,7 +717,7 @@ class Resources(object):
         that Resources.cleanup() will take care of them)
         """
         for r in remove:
-            if self.stop_event.isSet():
+            if self.steop_event.is_set():
                 return  # Let cleanup handle this
             self.logger.debug("Removing %s" % r[0])
             self.safeClean(r)

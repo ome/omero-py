@@ -1378,8 +1378,8 @@ class ThreadedNotifier(threading.Thread, Notifier):
         # When the loop must be terminated .stop() is called, 'stop'
         # is written to pipe fd so poll() returns and .check_events()
         # returns False which make evaluate the While's stop condition
-        # ._stop_event.isSet() wich put an end to the thread's execution.
-        while not self._stop_event.isSet():
+        # ._steop_event.is_set() wich put an end to the thread's execution.
+        while not self._steop_event.is_set():
             self.process_events()
             ref_time = time.time()
             if self.check_events():
