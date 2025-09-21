@@ -1,3 +1,29 @@
+# 5.20.0 (April 2025)
+
+This main focus of this release is to relax the requirements and allow OMERO.py to be deployed
+with Numpy 2. The package remains compatible with Numpy 1 although this might be removed in a
+future release.
+
+- Relax numpy<2 capping [#445](https://github.com/ome/omero-py/pull/445)
+- Numpy pixels type [#387](https://github.com/ome/omero-py/pull/387)
+- omero admin jvmcfg: remove MaxPermSize option [#458](https://github.com/ome/omero-py/pull/458)
+- errors: use raise_error from cli plugins [#266](https://github.com/ome/omero-py/pull/266)
+- Pytest warning fixes [#457](https://github.com/ome/omero-py/pull/457)
+
+# 5.19.8 (March 2025)
+
+- PyPA action: use release/v1 branch [#456](https://github.com/ome/omero-py/pull/456)
+
+# 5.19.7 (March 2025)
+
+- Remove all usage of sha library in favor of hashlib [#454](https://github.com/ome/omero-py/pull/454)
+- Bump code generated omero-blitz-python dependency to version 5.8.1 [#455](https://github.com/ome/omero-py/pull/455)
+- Change ignoreExceptions default to empty tuple,
+  thanks to [Jeremy Muhlich](https://github.com/jmuhlich) [#447](https://github.com/ome/omero-py/pull/444)
+- omero.gateway: fix Dataset AttributeError,
+  thanks to [Michael Milton](https://github.com/multimeric) [#452](https://github.com/ome/omero-py/pull/452)
+- omero.util.populate_metadata: only log column types from HeaderResolver [#444](https://github.com/ome/omero-py/pull/444)
+
 # 5.19.6 (January 2025)
 
 - Fix image_to_html pixel unit,

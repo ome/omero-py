@@ -27,7 +27,7 @@ import os
 import warnings
 
 from struct import unpack
-from numpy import add, array, asarray, fromstring, reshape, zeros
+from numpy import add, array, asarray, frombuffer, reshape, zeros
 from os.path import exists
 
 import omero.clients
@@ -36,12 +36,7 @@ from omero.model.enums import PixelsTypeint8, PixelsTypeuint8
 from omero.model.enums import PixelsTypefloat
 import omero.util.pixelstypetopython as pixelstypetopython
 
-try:
-    import hashlib
-    hash_sha1 = hashlib.sha1
-except:
-    import sha
-    hash_sha1 = sha.new
+from hashlib import sha1
 
 from PIL import Image
 
@@ -183,7 +178,7 @@ def calc_sha1(filename):
     """
 
     with open(filename, 'rb') as file_handle:
-        h = hash_sha1()
+        h = sha1()
         h.update(file_handle.read())
         hash = h.hexdigest()
     return hash
@@ -198,7 +193,7 @@ def calcSha1FromData(data):
     :param data The data array.
     :return The Hash
     """
-    h = hash_sha1()
+    h = sha1()
     h.update(data)
     hash = h.hexdigest()
     return hash
@@ -596,7 +591,7 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator=' '):
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     textBlock = readFromOriginalFile(rawFileService, iQuery, fileId)
-    arrayFromFile = fromstring(textBlock, sep=separator)
+    arrayFromFile = frombuffer(textBlock, sep=separator)
     return reshape(arrayFromFile, (row, col))
 
 
@@ -1090,7 +1085,7 @@ def upload_plane(raw_pixels_store, plane, z, c, t):
     :param t The T-Section of the plane.
     """
     byte_swapped_plane = plane.byteswap()
-    converted_plane = byte_swapped_plane.tostring()
+    converted_plane = byte_swapped_plane.tobytes()
     raw_pixels_store.setPlane(converted_plane, z, c, t)
 
 
@@ -1128,7 +1123,7 @@ def upload_plane_by_row(raw_pixels_store, plane, z, c, t):
     row_count, col_count = plane.shape
     for y in range(row_count):
         row = byte_swapped_plane[y:y+1, :]        # slice y axis into rows
-        converted_row = row.tostring()
+        converted_row = row.tobytes()
         raw_pixels_store.setRow(converted_row, y, z, c, t)
 
 

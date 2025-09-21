@@ -1240,9 +1240,9 @@ PFS = (
 class AbstractRepoTest(ITest):
 
     def setup_method(self, method):
-        self.unique_dir = self.test_dir()
+        self.unique_dir = self.create_managed_dir()
 
-    def test_dir(self, client=None):
+    def create_managed_dir(self, client=None):
         if client is None:
             client = self.client
         mrepo = self.get_managed_repo(client=client)

@@ -824,7 +824,7 @@ class ParsingContext(object):
                                 % rows[header_index])
         if self.column_types is None and first_row_is_types:
             self.column_types = HeaderResolver.get_column_types(rows[0])
-        log.debug('Column types: %r' % self.column_types)
+            log.debug('Column types: %r' % self.column_types)
         self.header_resolver = HeaderResolver(
             self.target_object, rows[header_index],
             column_types=self.column_types)

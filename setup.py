@@ -33,7 +33,7 @@ import configparser
 
 def get_blitz_location():
 
-    config_blitz_version = "5.5.5"
+    config_blitz_version = "5.8.1"
 
     # simplified strings
     defaultsect = configparser.DEFAULTSECT
@@ -206,10 +206,10 @@ setup(
     },
     python_requires='>=3.8',
     install_requires=[
-        'urllib3<2',
         'appdirs',
         'future',
-        'numpy<2',
+        'numpy<2; python_version<"3.10"',
+        'numpy<3; python_version>="3.10"',
         'Pillow>=10.0.0',
         'PyYAML',
         'zeroc-ice>=3.6.5,<3.7',

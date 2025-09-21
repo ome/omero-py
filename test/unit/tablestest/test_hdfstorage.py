@@ -56,6 +56,9 @@ class TestHdfStorage(TestCase):
         for of in list(omero.columns.ObjectFactories.values()):
             of.register(self.ic)
 
+    def teardown_method(self, method):
+        self.ic.destroy()
+
     def cols(self):
         a = omero.columns.LongColumnI('a', 'first', None)
         b = omero.columns.LongColumnI('b', 'first', None)

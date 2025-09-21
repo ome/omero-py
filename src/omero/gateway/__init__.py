@@ -12,6 +12,7 @@
 # jason@glencoesoftware.com.
 
 # Set up the python include paths
+import numpy
 import os
 
 import warnings
@@ -55,6 +56,16 @@ from omero.rtypes import rtime, rlist, rdouble, unwrap
 
 logger = logging.getLogger(__name__)
 THISPATH = os.path.dirname(os.path.abspath(__file__))
+OMERO_NUMPY_TYPES = {
+    PixelsTypeint8: numpy.int8,
+    PixelsTypeuint8: numpy.uint8,
+    PixelsTypeint16: numpy.int16,
+    PixelsTypeuint16: numpy.uint16,
+    PixelsTypeint32: numpy.int32,
+    PixelsTypeuint32: numpy.uint32,
+    PixelsTypefloat: numpy.float32,
+    PixelsTypedouble: numpy.float64,
+}
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -328,6 +339,7 @@ class BlitzObjectWrapper (object):
         """
         query = ("select obj from %s obj "
                  "join fetch obj.details.owner as owner "
+                 "left outer join fetch obj.details.externalInfo "
                  "join fetch obj.details.creationEvent" % cls.OMERO_CLASS)
 
         params = omero.sys.ParametersI()
@@ -495,6 +507,7 @@ class BlitzObjectWrapper (object):
             ctx.setOmeroGroup(self.getDetails().getGroup().getId())
         self._obj = self._conn.getUpdateService().saveAndReturnObject(
             self._obj, ctx)
+        self._oid = self._obj.id.val
 
     def saveAs(self, details):
         """
@@ -1332,6 +1345,26 @@ class BlitzObjectWrapper (object):
                 return self._obj.getName()
         else:
             return None
+
+    def getExternalInfo(self):
+        """
+        Gets the object's details.externalInfo
+
+        :return: omero.model.ExternalInfo object
+        """
+        extinfo = self.getDetails()._externalInfo
+        if extinfo is not None and not extinfo._loaded:
+            params = omero.sys.ParametersI()
+            params.addId(extinfo.id)
+            query = """
+                select e from ExternalInfo as e
+                where e.id = :id
+            """
+            queryService = self._conn.getQueryService()
+            extinfo = queryService.findByQuery(query, params, {"omero.group": "-1"})
+            # cache the result
+            self._obj._details._externalInfo = extinfo
+        return extinfo
 
     def getDescription(self):
         """
@@ -3772,8 +3805,6 @@ class _BlitzGateway (object):
         containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
-        import numpy
-
         def createImage(firstPlane, channelList):
             """ Create our new Image once we have the first plane in hand """
             convertToType = None
@@ -3788,16 +3819,8 @@ class _BlitzGateway (object):
                 # of our new image
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {PixelsTypeint8: 'int8',
-                                PixelsTypeuint8: 'uint8',
-                                PixelsTypeint16: 'int16',
-                                PixelsTypeuint16: 'uint16',
-                                PixelsTypeint32: 'int32',
-                                PixelsTypeuint32: 'uint32',
-                                PixelsTypefloat: 'float32',
-                                PixelsTypedouble: 'double'}
-                if omeroToNumpy[newPtype] != firstPlane.dtype.name:
-                    convertToType = getattr(numpy, omeroToNumpy[newPtype])
+                if OMERO_NUMPY_TYPES[newPtype] != firstPlane.dtype.name:
+                    convertToType = OMERO_NUMPY_TYPES[newPtype]
                 img._obj.setName(rstring(imageName))
                 img._obj.setSeries(rint(0))
                 updateService.saveObject(img._obj, self.SERVICE_OPTS)
@@ -3843,7 +3866,7 @@ class _BlitzGateway (object):
                 p += plane
                 plane = p
             byteSwappedPlane = plane.byteswap()
-            convertedPlane = byteSwappedPlane.tostring()
+            convertedPlane = byteSwappedPlane.tobytes()
             rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
         image = None
@@ -4046,14 +4069,9 @@ class _BlitzGateway (object):
             originalFile.mimetype = rstring(mimetype)
         originalFile.setSize(rlong(fileSize))
         # set sha1
-        try:
-            import hashlib
-            hash_sha1 = hashlib.sha1
-        except:
-            import sha
-            hash_sha1 = sha.new
+        from hashlib import sha1
         fo.seek(0)
-        h = hash_sha1()
+        h = sha1()
         h.update(fo.read())
         shaHast = h.hexdigest()
         originalFile.setHash(rstring(shaHast))
@@ -5892,6 +5910,23 @@ class MapAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = MapAnnotationI
 
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Used for building queries in generic methods such as
+        getObjects("MapAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
+        """
+
+        query = ("select obj from MapAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+
     def getValue(self):
         """
         Gets the value of the Map Annotation as a list of
@@ -7495,6 +7530,16 @@ class _PixelsWrapper (BlitzObjectWrapper):
         planeList = list(self.getPlanes([(theZ, theC, theT)]))
         return planeList[0]
 
+    def get_numpy_type(self):
+        """
+        Returns the numpy class corresponding to the OMERO pixels type.
+
+        This is the numpy type that is used for getTiles() and getPlane()
+        :return:    numpy type, e.g. np.int8
+        """
+        pixels_type = self.getPixelsType().value
+        return OMERO_NUMPY_TYPES[pixels_type]
+
     def getTiles(self, zctTileList):
         """
         Returns generator of numpy 2D planes from this set of pixels for a
@@ -7504,22 +7549,13 @@ class _PixelsWrapper (BlitzObjectWrapper):
         :param zctrList:     A list of indexes: [(z,c,t, region), ]
         """
 
-        import numpy
         from struct import unpack
 
-        pixelTypes = {PixelsTypeint8: ['b', numpy.int8],
-                      PixelsTypeuint8: ['B', numpy.uint8],
-                      PixelsTypeint16: ['h', numpy.int16],
-                      PixelsTypeuint16: ['H', numpy.uint16],
-                      PixelsTypeint32: ['i', numpy.int32],
-                      PixelsTypeuint32: ['I', numpy.uint32],
-                      PixelsTypefloat: ['f', numpy.float32],
-                      PixelsTypedouble: ['d', numpy.float64]}
         rawPixelsStore = None
         sizeX = self.sizeX
         sizeY = self.sizeY
         pixelType = self.getPixelsType().value
-        numpyType = pixelTypes[pixelType][1]
+        numpyType = self.get_numpy_type()
         exc = None
         try:
             rawPixelsStore = self._prepareRawPixelsStore()
@@ -7535,9 +7571,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
                         z, c, t, x, y, width, height)
                     planeY = height
                     planeX = width
-                # +str(sizeX*sizeY)+pythonTypes[pixelType]
-                convertType = '>%d%s' % (
-                    (planeY*planeX), pixelTypes[pixelType][0])
+                np_char = numpy.dtype(OMERO_NUMPY_TYPES[pixelType]).char
+                convertType = '>%d%s' % ((planeY*planeX), np_char)
                 if isinstance(rawPlane, bytes):
                     convertedPlane = unpack(convertType, rawPlane)
                 else:
@@ -7924,7 +7959,7 @@ class assert_re (object):
     call. Is configurable by various options.
     """
 
-    def __init__(self, onPrepareFailureReturnNone=True, ignoreExceptions=None):
+    def __init__(self, onPrepareFailureReturnNone=True, ignoreExceptions=()):
         """
         Initialises the decorator.
 
@@ -7936,7 +7971,7 @@ class assert_re (object):
         :param ignoreExceptions: A set of exceptions thrown during the
         preparation of the rendering engine for which the decorator should
         ignore and allow the execution of the decorated function or method.
-        Defaults to 'None'.
+        Defaults to empty tuple.
         :type ignoreExceptions: Set
         """
         self.onPrepareFailureReturnNone = onPrepareFailureReturnNone
