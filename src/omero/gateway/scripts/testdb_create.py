@@ -33,25 +33,23 @@ dbhelpers.DATASETS = {
     'testds3': dbhelpers.DatasetEntry('weblitz_test_priv_dataset3', 'testpr2'),
 }
 
-BIGIMG = 'bigimg&pixelType=uint8&sizeX=8192&sizeY=8192&resolutions=4.fake'
-FLOATIMG = '32bitfloat&pixelType=float&sizeX=8192&sizeY=8192.fake'
 dbhelpers.IMAGES = {
     'testimg1': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image', "imgs/testimg.ome.xml", 'testds1'),
+        'weblitz_test_priv_image', "imgs/testimg.fake", 'testds1'),
     'testimg2': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image2', "imgs/testimg.ome.xml", 'testds1'),
+        'weblitz_test_priv_image2', "imgs/testimg.fake", 'testds1'),
     'tinyimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny', "imgs/tinyimg.ome.xml", 'testds1'),
+        'weblitz_test_priv_image_tiny', "imgs/tinyimg.fake", 'testds1'),
     'badimg': dbhelpers.ImageEntry(
         'weblitz_test_priv_image_bad', False, 'testds1'),
     'tinyimg2': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny2', "imgs/tinyimg.ome.xml", 'testds2'),
+        'weblitz_test_priv_image_tiny2', "imgs/tinyimg.fake", 'testds2'),
     'tinyimg3': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny3', "imgs/tinyimg.ome.xml", 'testds3'),
+        'weblitz_test_priv_image_tiny3', "imgs/tinyimg.fake", 'testds3'),
     'bigimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_big', BIGIMG, 'testds3'),
+        'weblitz_test_priv_image_big', "imgs/bigimg.fake", 'testds3'),
     '32float': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_32float', FLOATIMG, 'testds3'),
+        'weblitz_test_priv_image_32float', "imgs/32float.fake", 'testds3'),
 }
 
 
