@@ -26,12 +26,6 @@
 import logging
 import json
 
-try:
-    long
-except:
-    # Python 3
-    long = int
-
 logger = logging.getLogger(__name__)
 
 
@@ -172,7 +166,6 @@ class ServiceOptsDict(dict):
         if item is not None and not isinstance(item, bool) and \
             (isinstance(item, str) or
              isinstance(item, int) or
-             isinstance(item, long) or
              isinstance(item, float)):
             return True
         return False
