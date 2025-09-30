@@ -6419,6 +6419,16 @@ class DetailsWrapper (BlitzObjectWrapper):
                 self._conn, self._obj.getGroup()) or None
         return self._group
 
+    def getExternalInfo(self):
+        """
+        Returns a wrapped ExternalInfo or None
+
+        :return:    ExternalInfo
+        :rtype:     :class:`BlitzObjectWrapper`
+        """
+        if self.externalInfo is not None:
+            return BlitzObjectWrapper(self._conn, self.externalInfo)
+        return None
 
 class _DatasetWrapper (BlitzObjectWrapper):
     """
