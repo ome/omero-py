@@ -357,6 +357,7 @@ class TestBlitzGatewayImageWrapper(object):
         assert wrapper.getDetails().getExternalInfo() is None
         assert wrapper._obj.getDetails().getExternalInfo() is None
         assert wrapper.getDetails()._obj.getExternalInfo() is None
+        assert wrapper.getExternalInfo() is None
 
         external_info = ExternalInfoI()
         external_info.id = rlong(1)
@@ -368,3 +369,6 @@ class TestBlitzGatewayImageWrapper(object):
         assert wrapper.getDetails().getExternalInfo()._obj == external_info
         assert wrapper._obj.getDetails().getExternalInfo() == external_info
         assert wrapper.getDetails()._obj.getExternalInfo() == external_info
+        # BlitzObjectWrapper.getExternalInfo() returns omero.model.ExternalInfo
+        assert isinstance(wrapper.getExternalInfo(), ExternalInfoI)
+        assert wrapper.getExternalInfo() == external_info
