@@ -28,13 +28,13 @@ import Ice
 import pytest
 import sys
 
-from omero.gateway import BlitzGateway, ImageWrapper, \
+from omero.gateway import BlitzGateway, BlitzObjectWrapper, ImageWrapper, \
     WellWrapper, LogicalChannelWrapper, OriginalFileWrapper
 from omero.model import ImageI, PixelsI, ExperimenterI, EventI, \
     ProjectI, TagAnnotationI, FileAnnotationI, OriginalFileI, \
     MapAnnotationI, NamedValue, PlateI, WellI, \
     LogicalChannelI, LengthI, IlluminationI, BinningI, \
-    DetectorSettingsI, DichroicI, LightPathI
+    DetectorSettingsI, DichroicI, LightPathI, ExternalInfoI
 from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rtime, rlong, rint, rdouble
 
@@ -347,3 +347,24 @@ class TestBlitzGatewayImageWrapper(object):
         data = wrapped_image.simpleMarshal(xtra={'tiled': True})
         self.assert_data(data)
         assert data['tiled'] is False
+
+    def test_externalinfo(self):
+        image = ImageI()
+        image.id = rlong(1)
+        image.name = rstring('name')
+        image.details.owner = ExperimenterI(1, False)
+        wrapper = ImageWrapper(conn=None, obj=image)
+        assert wrapper.getDetails().getExternalInfo() is None
+        assert wrapper._obj.getDetails().getExternalInfo() is None
+        assert wrapper.getDetails()._obj.getExternalInfo() is None
+
+        external_info = ExternalInfoI()
+        external_info.id = rlong(1)
+        external_info.entityType = rstring("type")
+        external_info.entityId = rlong(1)
+        image.details.externalInfo = external_info
+        wrapper = ImageWrapper(conn=None, obj=image)
+        assert isinstance(wrapper.getDetails().getExternalInfo(), BlitzObjectWrapper)
+        assert wrapper.getDetails().getExternalInfo()._obj == external_info
+        assert wrapper._obj.getDetails().getExternalInfo() == external_info
+        assert wrapper.getDetails()._obj.getExternalInfo() == external_info
