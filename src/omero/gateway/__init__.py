@@ -1349,9 +1349,14 @@ class BlitzObjectWrapper (object):
     def getExternalInfo(self):
         """
         Gets the object's details.externalInfo
+        Deprecated in OMERO.py 5.22.0. Use getDetails().getExternalInfo().
 
         :return: omero.model.ExternalInfo object
         """
+        warnings.warn(
+            "Deprecated in OMERO.py 5.22.0. Use getDetails().getExternalInfo().",
+            DeprecationWarning)
+
         extinfo = self.getDetails()._externalInfo
         if extinfo is not None and not extinfo._loaded:
             params = omero.sys.ParametersI()
