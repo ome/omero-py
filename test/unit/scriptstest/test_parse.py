@@ -22,12 +22,6 @@ from omero.scripts import (
 from omero.scripts import client, parse_inputs, validate_inputs, parse_text
 from omero.scripts import group_params, rlist, rlong, rint, wrap, unwrap
 
-try:
-    long
-except:
-    # Python 3
-    long = int
-
 
 class TestParse(object):
 
