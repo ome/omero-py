@@ -277,6 +277,24 @@ Examples:
                                           action="append",
                                           exclusive=False)
 
+        jstack = Action(
+            "jstack",
+            """Print active threads from the OMERO backend.
+
+If installed, the `jstack` tool will be invoked on
+the OMERO Java processes.
+
+Examples:
+
+  # By default, print the threads from the main Java process (Blitz-0)
+  omero admin jstack
+
+            """).parser
+        jstack.add_argument(
+            "--service",
+            default="Blitz-0",
+            help="Service name. '*' designates all services)")
+
         Action(
             "rewrite",
             """Regenerate the IceGrid configuration files
@@ -1659,6 +1677,38 @@ present, the user will enter a console""")
         finally:
             cb.close(True)
 
+
+    @with_config
+    def jstack(self, args, config):
+        """
+        """
+        if args.service == "*":
+            # TODO: get a list of services
+            services = ("Blitz-0", "Indexer-0", "PixelData-0")
+        else:
+            services = (args.service,)
+
+        unknown_services = 0
+        for service in services:
+            pid = self.check_service(service, return_pid=True)
+            if pid is None:
+                unknown_services += 1
+                self.ctx.err(f"service not running: {service}")
+            else:
+                self.ctx.err(f"Loading jstack for {service} ({pid})")
+                popen = self.ctx.popen(["jstack", str(pid)])
+                popen.wait()
+                jstack = popen.communicate()
+                jstack = [x.decode("utf-8") for x in jstack]
+                # TODO: offer to write to file
+                self.ctx.out("stdout:")
+                self.ctx.out(jstack[0])
+                self.ctx.err("stderr:")
+                self.ctx.err(jstack[1])
+
+        if unknown_services:
+                self.ctx.die(14, f"{unknown_services} unknown service(s)")
+
     def getdirsize(self, directory, strict=True):
         """
         Uses os.walk to calculate the deep size of the given
@@ -2005,12 +2055,19 @@ present, the user will enter a console""")
         self.ctx.controls["hql"].display(
             mapped, ("node", "session", "started", "owner", "agent", "notes"))
 
-    def check_service(self, name):
+    def check_service(self, name, return_pid=False):
         command = self._cmd()
         command.extend(["-e", "server pid %s" % name])
         p = self.ctx.popen(command)  # popen
         rc = p.wait()
-        return rc == 0
+        rv = rc == 0
+        if return_pid:
+            if rv:
+                return p.communicate()[0].decode("utf-8").strip()
+            else:
+                return None
+        else:
+            return rv
 
     def start_service(self, name):
         command = self._cmd()
