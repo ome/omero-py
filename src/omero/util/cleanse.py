@@ -32,12 +32,13 @@ import omero.clients
 import omero
 import sys
 import os
+from shutil import rmtree
 import getpass
 import Ice
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
-from omero.util import get_user
+from omero.util import get_user, long_to_path
 from math import ceil
 from stat import ST_SIZE
 
@@ -107,7 +108,15 @@ class Cleanser(object):
         for file in os.listdir(root):
             path = os.path.join(root, file)
             if os.path.isdir(path):
-                self.cleanse(path)
+                # Check if it's an OriginalFile ID
+                try:
+                    ofid = int(file)
+                    expected_path = long_to_path(ofid, root)
+                    if expected_path == path:
+                        self.query_or_defer(path)
+                except ValueError:
+                    # If it's not a candidate for deletion, recurse into it.
+                    self.cleanse(path)
             else:
                 self.query_or_defer(path)
 
@@ -171,7 +180,11 @@ class Cleanser(object):
                         print(r"   \_ %s (remove)" % path)
                     else:
                         try:
-                            os.unlink(path)
+                            # Unlink for files, rmtree for directories
+                            if os.path.isdir(path):
+                                rmtree(path)
+                            else:
+                                os.unlink(path)
                         except OSError as e:
                             print(e)
             elif self.dry_run:
