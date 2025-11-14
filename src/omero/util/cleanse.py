@@ -108,7 +108,7 @@ class Cleanser(object):
         Begins a cleansing operation from a given OMERO binary repository
         root directory. /OMERO/Files or /OMERO/Pixels for instance.
         """
-        if self.root_dir == None:
+        if self.root_dir is None:
             self.root_dir = root
         for file in os.listdir(root):
             path = os.path.join(root, file)
