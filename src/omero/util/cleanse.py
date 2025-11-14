@@ -100,12 +100,15 @@ class Cleanser(object):
         self.deferred_paths = list()
         self.dry_run = False
         self.remove_dirs = False
+        self.root_dir = None
 
     def cleanse(self, root):
         """
         Begins a cleansing operation from a given OMERO binary repository
         root directory. /OMERO/Files or /OMERO/Pixels for instance.
         """
+        if self.root_dir == None:
+            self.root_dir = root
         for file in os.listdir(root):
             path = os.path.join(root, file)
             if os.path.isdir(path):
@@ -113,7 +116,7 @@ class Cleanser(object):
                     # Check if it's an OriginalFile ID
                     try:
                         ofid = int(file)
-                        expected_path = long_to_path(ofid, root)
+                        expected_path = long_to_path(ofid, self.root_dir)
                         if expected_path == path:
                             self.query_or_defer(path)
                     except ValueError:
