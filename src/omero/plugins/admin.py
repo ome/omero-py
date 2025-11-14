@@ -430,6 +430,10 @@ location.
                 help="omero.data.dir directory value e.g. /OMERO")
             x.add_login_arguments()
 
+        cleanse.add_argument(
+            "--remove-dirs", action="store_true",
+            help="Also remove directories which represented OriginalFiles")
+
         removepyramids.add_argument(
             "--dry-run", action="store_true",
             help="Print out which files would be deleted")
@@ -1960,7 +1964,7 @@ present, the user will enter a console""")
         self.check_access()
         from omero.util.cleanse import cleanse
         cleanse(data_dir=args.data_dir, client=self.ctx.conn(args),
-                dry_run=args.dry_run)
+                dry_run=args.dry_run, remove_dirs=args.remove_dirs)
 
     @admin_only(full_admin=False)
     def log(self, args):

@@ -99,6 +99,7 @@ class Cleanser(object):
         self.bytes_cleansed = 0
         self.deferred_paths = list()
         self.dry_run = False
+        self.remove_dirs = False
 
     def cleanse(self, root):
         """
@@ -108,14 +109,17 @@ class Cleanser(object):
         for file in os.listdir(root):
             path = os.path.join(root, file)
             if os.path.isdir(path):
-                # Check if it's an OriginalFile ID
-                try:
-                    ofid = int(file)
-                    expected_path = long_to_path(ofid, root)
-                    if expected_path == path:
-                        self.query_or_defer(path)
-                except ValueError:
-                    # If it's not a candidate for deletion, recurse into it.
+                if self.remove_dirs:
+                    # Check if it's an OriginalFile ID
+                    try:
+                        ofid = int(file)
+                        expected_path = long_to_path(ofid, root)
+                        if expected_path == path:
+                            self.query_or_defer(path)
+                    except ValueError:
+                        # If it's not a candidate for deletion, recurse into it.
+                        self.cleanse(path)
+                else:
                     self.cleanse(path)
             else:
                 self.query_or_defer(path)
@@ -229,7 +233,7 @@ def initial_check(config_service, admin_service=None):
         sys.exit(3)
 
 
-def cleanse(data_dir, client, dry_run=False):
+def cleanse(data_dir, client, dry_run=False, remove_dirs=False):
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
 
     admin_service = client.sf.getAdminService()
@@ -250,6 +254,7 @@ def cleanse(data_dir, client, dry_run=False):
             object_type = SEARCH_DIRECTORIES[directory]
             cleanser = Cleanser(query_service, object_type)
             cleanser.dry_run = dry_run
+            cleanser.remove_dirs = remove_dirs
             cleanser.cleanse(full_path)
             cleanser.finalize()
     finally:
@@ -456,7 +461,7 @@ def main():
         sys.exit(1)
 
     try:
-        cleanse(data_dir, client, dry_run)
+        cleanse(data_dir, client, dry_run, remove_dirs)
     finally:
         if session_key is None:
             client.closeSession()
