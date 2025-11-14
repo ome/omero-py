@@ -68,6 +68,7 @@ Options:
   -u          Administrator username to log in to OMERO with
   -k          Session key to log in to OMERO with
   --dry-run   Just prints out what would have been done
+  --remove-dirs Also remove directories which represented OriginalFiles
 
 Examples:
   %s --dry-run -u root /OMERO
@@ -423,7 +424,8 @@ def main():
     Default main() that performs OMERO data directory cleansing.
     """
     try:
-        options, args = getopt(sys.argv[1:], "u:k:", ["dry-run"])
+        options, args = getopt(sys.argv[1:], "u:k:",
+                               ["dry-run", "remove-dirs"])
     except GetoptError as xxx_todo_changeme:
         (msg, opt) = xxx_todo_changeme.args
         usage(msg)
@@ -436,6 +438,7 @@ def main():
     username = get_user("root")
     session_key = None
     dry_run = False
+    remove_dirs = False
     for option, argument in options:
         if option == "-u":
             username = argument
@@ -443,6 +446,8 @@ def main():
             session_key = argument
         if option == "--dry-run":
             dry_run = True
+        if option == "--remove-dirs":
+            remove_dirs = True
 
     if session_key is None:
         print("Username: %s" % username)
