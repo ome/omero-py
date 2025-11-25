@@ -37,6 +37,7 @@ from zipfile import ZipFile
 from omero.cli import BaseControl, CLI
 import omero.java
 from omero.util import get_omero_user_cache_dir
+from omero.util.temp_files import gettempdir
 from omero_ext.argparse import SUPPRESS
 from omero_ext.path import path
 
@@ -547,7 +548,11 @@ class ImportControl(BaseControl):
             classpath, logback = self._get_classpath_logback(args)
 
         command_args = CommandArguments(self.ctx, args)
-        xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
+        xargs = [
+            logback,
+            "-Djava.io.tmpdir=%s" % gettempdir(),
+            "-Xmx1024M",
+            "-cp", os.pathsep.join(classpath)]
         xargs.append("-Domero.import.depth=%s" % args.depth)
 
         if args.bulk and args.path:
