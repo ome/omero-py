@@ -24,7 +24,7 @@ Dependencies
 Direct dependencies of OMERO.py are:
 
 - `ZeroC IcePy 3.6`_
-- numpy
+- `NumPy 2`_
 - Pillow >= 10.0.0
 
 Installation
@@ -144,6 +144,7 @@ Copyright
 2009-2024, The Open Microscopy Environment, Glencoe Software, Inc.
 
 .. _ZeroC IcePy 3.6: https://zeroc.com/downloads/ice/3.6
+.. _Numpy 2: https://numpy.org
 .. _OMERO.py: https://omero.readthedocs.io/en/stable/developers/Python.html
 .. _OMERO.CLI: https://omero.readthedocs.io/en/stable/users/cli/index.html
 .. _OMERO: https://omero.readthedocs.io/en/stable/index.html
