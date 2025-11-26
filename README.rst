@@ -13,6 +13,11 @@ Introduction
 OMERO.py provides Python bindings to the OMERO.blitz server
 as well as a pluggable command-line interface.
 
+Requirements
+------------
+
+- Python 3.10+
+
 Dependencies
 ------------
 

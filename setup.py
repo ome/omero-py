@@ -204,7 +204,7 @@ setup(
     entry_points={
         'console_scripts': ['omero=omero.main:main'],
     },
-    python_requires='>=3.8',
+    python_requires='>=3.10',
     install_requires=[
         'appdirs',
         'future',
