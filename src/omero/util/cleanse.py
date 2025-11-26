@@ -32,12 +32,13 @@ import omero.clients
 import omero
 import sys
 import os
+from shutil import rmtree
 import getpass
 import Ice
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
-from omero.util import get_user
+from omero.util import get_user, long_to_path
 from math import ceil
 from stat import ST_SIZE
 
@@ -67,6 +68,7 @@ Options:
   -u          Administrator username to log in to OMERO with
   -k          Session key to log in to OMERO with
   --dry-run   Just prints out what would have been done
+  --remove-dirs Also remove directories which represented OriginalFiles
 
 Examples:
   %s --dry-run -u root /OMERO
@@ -98,16 +100,31 @@ class Cleanser(object):
         self.bytes_cleansed = 0
         self.deferred_paths = list()
         self.dry_run = False
+        self.remove_dirs = False
+        self.root_dir = None
 
     def cleanse(self, root):
         """
         Begins a cleansing operation from a given OMERO binary repository
         root directory. /OMERO/Files or /OMERO/Pixels for instance.
         """
+        if self.root_dir is None:
+            self.root_dir = root
         for file in os.listdir(root):
             path = os.path.join(root, file)
             if os.path.isdir(path):
-                self.cleanse(path)
+                if self.remove_dirs:
+                    # Check if it's an OriginalFile ID
+                    try:
+                        ofid = int(file)
+                        expected_path = long_to_path(ofid, self.root_dir)
+                        if expected_path == path:
+                            self.query_or_defer(path)
+                    except ValueError:
+                        # If it's not a candidate for deletion, recurse into it.
+                        self.cleanse(path)
+                else:
+                    self.cleanse(path)
             else:
                 self.query_or_defer(path)
 
@@ -171,7 +188,11 @@ class Cleanser(object):
                         print(r"   \_ %s (remove)" % path)
                     else:
                         try:
-                            os.unlink(path)
+                            # Unlink for files, rmtree for directories
+                            if os.path.isdir(path):
+                                rmtree(path)
+                            else:
+                                os.unlink(path)
                         except OSError as e:
                             print(e)
             elif self.dry_run:
@@ -216,7 +237,7 @@ def initial_check(config_service, admin_service=None):
         sys.exit(3)
 
 
-def cleanse(data_dir, client, dry_run=False):
+def cleanse(data_dir, client, dry_run=False, remove_dirs=False):
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
 
     admin_service = client.sf.getAdminService()
@@ -237,6 +258,7 @@ def cleanse(data_dir, client, dry_run=False):
             object_type = SEARCH_DIRECTORIES[directory]
             cleanser = Cleanser(query_service, object_type)
             cleanser.dry_run = dry_run
+            cleanser.remove_dirs = remove_dirs
             cleanser.cleanse(full_path)
             cleanser.finalize()
     finally:
@@ -402,7 +424,8 @@ def main():
     Default main() that performs OMERO data directory cleansing.
     """
     try:
-        options, args = getopt(sys.argv[1:], "u:k:", ["dry-run"])
+        options, args = getopt(sys.argv[1:], "u:k:",
+                               ["dry-run", "remove-dirs"])
     except GetoptError as xxx_todo_changeme:
         (msg, opt) = xxx_todo_changeme.args
         usage(msg)
@@ -415,6 +438,7 @@ def main():
     username = get_user("root")
     session_key = None
     dry_run = False
+    remove_dirs = False
     for option, argument in options:
         if option == "-u":
             username = argument
@@ -422,6 +446,8 @@ def main():
             session_key = argument
         if option == "--dry-run":
             dry_run = True
+        if option == "--remove-dirs":
+            remove_dirs = True
 
     if session_key is None:
         print("Username: %s" % username)
@@ -443,7 +469,7 @@ def main():
         sys.exit(1)
 
     try:
-        cleanse(data_dir, client, dry_run)
+        cleanse(data_dir, client, dry_run, remove_dirs)
     finally:
         if session_key is None:
             client.closeSession()
