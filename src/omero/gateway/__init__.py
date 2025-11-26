@@ -5167,10 +5167,42 @@ class AnnotationWrapper (BlitzObjectWrapper):
                             NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
+
+        query, clauses, params = super(
+            AnnotationWrapper, cls)._getQueryString(opts)
+        if opts is None:
+            opts = {}
+
         query = ("select obj from Annotation obj "
                  "join fetch obj.details.owner as owner "
                  "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+
+        ann_type = opts.get('ann_type', None)
+        if ann_type == "tag":
+            clauses.append("obj.class=TagAnnotation")
+        elif ann_type == "file":
+            clauses.append("obj.class=FileAnnotation")
+        elif ann_type == "comment":
+            clauses.append("obj.class=CommentAnnotation")
+        elif ann_type == "rating":
+            clauses.append("obj.class=LongAnnotation")
+            clauses.append("obj.ns='openmicroscopy.org/omero/insight/rating'")
+        elif ann_type == "map":
+            clauses.append("obj.class=MapAnnotation")
+
+        for obj_type in ['Project', 'Dataset', 'Image', 'Screen',
+                         'Plate', 'Well', 'Roi']:
+            plural = obj_type.lower() + "s"
+            if plural in opts:
+                ids = opts[plural]
+                if isinstance(ids, list) and len(ids) > 0:
+                    clauses.append(
+                        "exists (from %sAnnotationLink as link "
+                        "where link.child.id = obj.id "
+                        "and link.parent.id in (:%s_ids))" % (obj_type, plural))
+                    params.add("%s_ids" % plural, rlist([rlong(i) for i in ids]))
+        
+        return (query, clauses, params)
 
     @classmethod
     def _register(cls, regklass):
