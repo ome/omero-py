@@ -5922,8 +5922,6 @@ class _RoiWrapper (BlitzObjectWrapper):
     omero_model_ExperimenterI class wrapper extends BlitzObjectWrapper.
     """
     OMERO_CLASS = 'Roi'
-    # TODO: test listChildren() to use ShapeWrapper? or remove?
-    CHILD_WRAPPER_CLASS = 'ShapeWrapper'
 
     @classmethod
     def _getQueryString(cls, opts=None):
@@ -5958,7 +5956,7 @@ class _RoiWrapper (BlitzObjectWrapper):
         if self._obj.image is not None:
             return ImageWrapper(self._conn, self._obj.image)
 
-    def getShapes(self):
+    def listChildren(self):
         """
         Gets shapes associated to an ROI.
         Shapes must be pre-loaded, use opts={"load_shapes":True}
