@@ -141,23 +141,37 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     #
 
     def make_env(self):
-        self.env = omero.util.Environment(
-            "CLASSPATH",
-            "DISPLAY",
-            "DYLD_LIBRARY_PATH",
-            "HOME",
-            "JYTHON_HOME",
-            "LC_ALL",
-            "LANG",
-            "LANGUAGE",
-            "LD_LIBRARY_PATH",
-            "MLABRAW_CMD_STR",
-            "OMERODIR",
-            "OMERO_TEMPDIR",
-            "OMERO_TMPDIR",
-            "PATH",
-            "PYTHONPATH",
-        )
+        variables = self.ctx.get("omero.process.env_vars", None)
+        if variables is None:
+            variables = (
+                # For backwards compatibility
+                "CLASSPATH",
+                "DISPLAY",
+                "DYLD_LIBRARY_PATH",
+                "HOME",
+                "JYTHON_HOME",
+                "LC_ALL",
+                "LANG",
+                "LANGUAGE",
+                "LD_LIBRARY_PATH",
+                "MLABRAW_CMD_STR",
+                "OMERODIR",
+                "OMERO_TEMPDIR",
+                "OMERO_TMPDIR",
+                "PATH",
+                "PYTHONPATH",
+                # issue:395
+                "http_proxy",
+                "HTTP_PROXY",
+                "https_proxy",
+                "HTTPS_PROXY",
+                "no_proxy",
+                "NO_PROXY",
+            )
+        else:
+            variables = variables.split(",")
+
+        self.env = omero.util.Environment(*variables)
 
         # Since we know the location of our OMERO, we're going to
         # force the value for OMERO_HOME. This is useful in scripts
