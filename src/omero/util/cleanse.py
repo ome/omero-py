@@ -258,7 +258,7 @@ def cleanse_dir(data_dir, directory, dry_run, verbose, query_service):
     cleanser.finalize()
     return cleanser
 
-def cleanse(data_dir, client, dry_run=False, subdirectory=False,
+def cleanse(data_dir, client, dry_run=False, subdirectory=None,
             verbose=False):
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
 
@@ -271,7 +271,7 @@ def cleanse(data_dir, client, dry_run=False, subdirectory=False,
     try:
 
         cleanser = ""
-        if subdirectory:
+        if subdirectory is not None:
             cleanser = cleanse_dir(
                 data_dir, subdirectory, dry_run, verbose, query_service)
         else:
@@ -442,7 +442,8 @@ def main():
     Default main() that performs OMERO data directory cleansing.
     """
     try:
-        options, args = getopt(sys.argv[1:], "u:k:", ["dry-run"])
+        options, args = getopt(sys.argv[1:], "u:k:",
+                               ["dry-run", "subdirectory=", "verbose"])
     except GetoptError as xxx_todo_changeme:
         (msg, opt) = xxx_todo_changeme.args
         usage(msg)
@@ -455,6 +456,8 @@ def main():
     username = get_user("root")
     session_key = None
     dry_run = False
+    subdirectory = None
+    verbose = False
     for option, argument in options:
         if option == "-u":
             username = argument
@@ -462,6 +465,10 @@ def main():
             session_key = argument
         if option == "--dry-run":
             dry_run = True
+        if option == "--subdirectory":
+            subdirectory = argument
+        if option == "--verbose":
+            verbose = True
 
     if session_key is None:
         print("Username: %s" % username)
@@ -483,7 +490,9 @@ def main():
         sys.exit(1)
 
     try:
-        cleanse(data_dir, client, dry_run)
+        print(f'verbose is {verbose}')
+        cleanse(data_dir, client, dry_run, subdirectory=subdirectory,
+                verbose=verbose)
     finally:
         if session_key is None:
             client.closeSession()
