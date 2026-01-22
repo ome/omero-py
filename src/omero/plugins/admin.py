@@ -430,6 +430,14 @@ location.
                 help="omero.data.dir directory value e.g. /OMERO")
             x.add_login_arguments()
 
+        cleanse.add_argument(
+            "--subdirectory",  choices=("Pixels", "Files", "Thumbnails"),
+            help="Limit to a single subdirectory, e.g. Files")
+
+        cleanse.add_argument(
+            "--verbose", action="store_true",
+            help="Print more information when using --dry-run")
+
         removepyramids.add_argument(
             "--dry-run", action="store_true",
             help="Print out which files would be deleted")
@@ -1960,7 +1968,8 @@ present, the user will enter a console""")
         self.check_access()
         from omero.util.cleanse import cleanse
         cleanse(data_dir=args.data_dir, client=self.ctx.conn(args),
-                dry_run=args.dry_run)
+                dry_run=args.dry_run, subdirectory=args.subdirectory,
+                verbose=args.verbose)
 
     @admin_only(full_admin=False)
     def log(self, args):
