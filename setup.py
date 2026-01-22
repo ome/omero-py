@@ -29,7 +29,12 @@ from urllib.request import urlopen
 from zipfile import ZipFile
 
 import configparser
+import sysconfig
+from pathlib import Path
 
+site_packages = Path(sysconfig.get_path("purelib"))
+prefix = Path(sysconfig.get_path("data"))
+relative_site_packages = site_packages.relative_to(prefix)
 
 def get_blitz_location():
 
@@ -200,6 +205,9 @@ setup(
     package_data={
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
+    data_files=[
+        (str(relative_site_packages), list(glob.glob("target/*.pyi")))
+    ],
     py_modules=packageless,
     entry_points={
         'console_scripts': ['omero=omero.main:main'],
