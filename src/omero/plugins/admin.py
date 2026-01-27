@@ -415,6 +415,8 @@ located.
 Examples:
   omero admin cleanse --dry-run /OMERO      # Lists files that will be \
 deleted
+  omero admin cleanse --dry-run --subdirectory Files /OMERO # List only those \
+fies in /OMERO/Files which will be deleted
   omero admin cleanse /OMERO                # Actually delete them.
   omero admin cleanse /volumes/data/OMERO   # Delete from a standard \
 location.

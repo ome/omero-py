@@ -187,7 +187,6 @@ class Cleanser(object):
                     size = os.stat(path)[ST_SIZE]
                     self.cleansed.append(path)
                     self.bytes_cleansed = size
-                    dry_run_msg = f"   \_ {path} (remove)"
                     if os.path.isdir(path):
                         if self.dry_run:
                             print(f"   \_ {path} (removedir)")
