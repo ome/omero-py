@@ -37,7 +37,7 @@ import Ice
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
-from omero.util import get_user
+from omero.util import get_user, long_to_path
 from math import ceil
 from stat import ST_SIZE
 
@@ -67,6 +67,7 @@ Options:
   -u          Administrator username to log in to OMERO with
   -k          Session key to log in to OMERO with
   --dry-run   Just prints out what would have been done
+  --subdirectory Limit search to a single directory, e.g. Files
 
 Examples:
   %s --dry-run -u root /OMERO
@@ -98,6 +99,19 @@ class Cleanser(object):
         self.bytes_cleansed = 0
         self.deferred_paths = list()
         self.dry_run = False
+        self.verbose = False
+
+    def is_object_id(self, path, root):
+        file = os.path.basename(path)
+        try:
+            ofid = int(file)
+            expected_path = long_to_path(ofid, root)
+            if expected_path == path:
+                return True
+        except ValueError:
+            pass
+        return False
+
 
     def cleanse(self, root):
         """
@@ -107,7 +121,13 @@ class Cleanser(object):
         for file in os.listdir(root):
             path = os.path.join(root, file)
             if os.path.isdir(path):
-                self.cleanse(path)
+                # Check if it's an OriginalFile ID
+                if os.path.basename(root) == 'Files' and \
+                        self.is_object_id(path, root):
+                    self.query_or_defer(path)
+                else:
+                    # If it's not a candidate for deletion, recurse into it.
+                    self.cleanse(path)
             else:
                 self.query_or_defer(path)
 
@@ -161,20 +181,26 @@ class Cleanser(object):
             path = self.deferred_paths[i]
             if object_id.val not in existing_ids:
                 if object_id.val == -1:
-                    if self.dry_run:
+                    if self.dry_run and self.verbose:
                         print(r"   \_ %s (ignored/keep)" % path)
                 else:
                     size = os.stat(path)[ST_SIZE]
                     self.cleansed.append(path)
                     self.bytes_cleansed = size
-                    if self.dry_run:
-                        print(r"   \_ %s (remove)" % path)
+                    if os.path.isdir(path):
+                        if self.dry_run:
+                            print(f"   \_ {path} (removedir)")
+                        else:
+                            print(f"No action taken for directory {path}")
                     else:
-                        try:
-                            os.unlink(path)
-                        except OSError as e:
-                            print(e)
-            elif self.dry_run:
+                        if self.dry_run:
+                            print(f"   \_ {path} (remove)")
+                        else:
+                            try:
+                                os.unlink(path)
+                            except OSError as e:
+                                print(e)
+            elif self.dry_run and self.verbose:
                 print(r"   \_ %s (keep)" % path)
         self.deferred_paths = list()
 
@@ -216,7 +242,23 @@ def initial_check(config_service, admin_service=None):
         sys.exit(3)
 
 
-def cleanse(data_dir, client, dry_run=False):
+def cleanse_dir(data_dir, directory, dry_run, verbose, query_service):
+    full_path = os.path.join(data_dir, directory)
+    if not os.path.exists(full_path):
+        print("%s does not exist. Skipping..." % full_path)
+        return None
+    if dry_run:
+        print("Reconciling OMERO data directory...\n %s" % full_path)
+    object_type = SEARCH_DIRECTORIES[directory]
+    cleanser = Cleanser(query_service, object_type)
+    cleanser.dry_run = dry_run
+    cleanser.verbose = verbose
+    cleanser.cleanse(full_path)
+    cleanser.finalize()
+    return cleanser
+
+def cleanse(data_dir, client, dry_run=False, subdirectory=None,
+            verbose=False):
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
 
     admin_service = client.sf.getAdminService()
@@ -225,30 +267,27 @@ def cleanse(data_dir, client, dry_run=False):
 
     initial_check(config_service, admin_service)
 
-    try:
-        cleanser = ""
-        for directory in SEARCH_DIRECTORIES:
-            full_path = os.path.join(data_dir, directory)
-            if not os.path.exists(full_path):
-                print("%s does not exist. Skipping..." % full_path)
-                continue
+    if subdirectory is None or subdirectory != "ManagedRepository":
+        try:
+            cleanser = ""
+            if subdirectory is not None:
+                cleanser = cleanse_dir(
+                    data_dir, subdirectory, dry_run, verbose, query_service)
+            else:
+                for directory in SEARCH_DIRECTORIES:
+                    cleanser = cleanse_dir(
+                        data_dir, directory, dry_run, verbose, query_service)
+        finally:
             if dry_run:
-                print("Reconciling OMERO data directory...\n %s" % full_path)
-            object_type = SEARCH_DIRECTORIES[directory]
-            cleanser = Cleanser(query_service, object_type)
-            cleanser.dry_run = dry_run
-            cleanser.cleanse(full_path)
-            cleanser.finalize()
-    finally:
-        if dry_run:
-            print(cleanser)
+                print(cleanser)
 
-    # delete empty directories from the managed repositories
-    proxy, description = client.getManagedRepository(description=True)
-    if proxy:
-        root = description.path.val + description.name.val
-        print("Removing empty directories from...\n %s" % root)
-        delete_empty_dirs(proxy, root, client, dry_run)
+    if subdirectory is None or subdirectory  == "ManagedRepository":
+        # delete empty directories from the managed repositories
+        proxy, description = client.getManagedRepository(description=True)
+        if proxy:
+            root = description.path.val + description.name.val
+            print("Removing empty directories from...\n %s" % root)
+            delete_empty_dirs(proxy, root, client, dry_run)
 
 
 def delete_empty_dirs(repo, root, client, dry_run):
@@ -402,7 +441,8 @@ def main():
     Default main() that performs OMERO data directory cleansing.
     """
     try:
-        options, args = getopt(sys.argv[1:], "u:k:", ["dry-run"])
+        options, args = getopt(sys.argv[1:], "u:k:",
+                               ["dry-run", "subdirectory=", "verbose"])
     except GetoptError as xxx_todo_changeme:
         (msg, opt) = xxx_todo_changeme.args
         usage(msg)
@@ -415,6 +455,8 @@ def main():
     username = get_user("root")
     session_key = None
     dry_run = False
+    subdirectory = None
+    verbose = False
     for option, argument in options:
         if option == "-u":
             username = argument
@@ -422,6 +464,10 @@ def main():
             session_key = argument
         if option == "--dry-run":
             dry_run = True
+        if option == "--subdirectory":
+            subdirectory = argument
+        if option == "--verbose":
+            verbose = True
 
     if session_key is None:
         print("Username: %s" % username)
@@ -443,7 +489,9 @@ def main():
         sys.exit(1)
 
     try:
-        cleanse(data_dir, client, dry_run)
+        print(f'verbose is {verbose}')
+        cleanse(data_dir, client, dry_run, subdirectory=subdirectory,
+                verbose=verbose)
     finally:
         if session_key is None:
             client.closeSession()

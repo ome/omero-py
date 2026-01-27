@@ -415,6 +415,8 @@ located.
 Examples:
   omero admin cleanse --dry-run /OMERO      # Lists files that will be \
 deleted
+  omero admin cleanse --dry-run --subdirectory Files /OMERO # List only those \
+fies in /OMERO/Files which will be deleted
   omero admin cleanse /OMERO                # Actually delete them.
   omero admin cleanse /volumes/data/OMERO   # Delete from a standard \
 location.
@@ -429,6 +431,15 @@ location.
                 "data_dir", type=DirectoryType(),
                 help="omero.data.dir directory value e.g. /OMERO")
             x.add_login_arguments()
+
+        cleanse.add_argument(
+            "--subdirectory",  choices=("Pixels", "Files", "Thumbnails",
+                                        "ManagedRepository"),
+            help="Limit to a single subdirectory, e.g. Files")
+
+        cleanse.add_argument(
+            "-v", "--verbose", action="store_true",
+            help="Print more information when using --dry-run")
 
         removepyramids.add_argument(
             "--dry-run", action="store_true",
@@ -1960,7 +1971,8 @@ present, the user will enter a console""")
         self.check_access()
         from omero.util.cleanse import cleanse
         cleanse(data_dir=args.data_dir, client=self.ctx.conn(args),
-                dry_run=args.dry_run)
+                dry_run=args.dry_run, subdirectory=args.subdirectory,
+                verbose=args.verbose)
 
     @admin_only(full_admin=False)
     def log(self, args):
