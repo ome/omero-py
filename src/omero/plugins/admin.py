@@ -433,7 +433,8 @@ location.
             x.add_login_arguments()
 
         cleanse.add_argument(
-            "--subdirectory",  choices=("Pixels", "Files", "Thumbnails"),
+            "--subdirectory",  choices=("Pixels", "Files", "Thumbnails",
+                                        "ManagedRepository"),
             help="Limit to a single subdirectory, e.g. Files")
 
         cleanse.add_argument(

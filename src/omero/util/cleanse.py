@@ -267,21 +267,21 @@ def cleanse(data_dir, client, dry_run=False, subdirectory=None,
 
     initial_check(config_service, admin_service)
 
-    try:
-
-        cleanser = ""
-        if subdirectory is not None:
-            cleanser = cleanse_dir(
-                data_dir, subdirectory, dry_run, verbose, query_service)
-        else:
-            for directory in SEARCH_DIRECTORIES:
+    if subdirectory is None or subdirectory != "ManagedRepository":
+        try:
+            cleanser = ""
+            if subdirectory is not None:
                 cleanser = cleanse_dir(
-                    data_dir, directory, dry_run, verbose, query_service)
-    finally:
-        if dry_run:
-            print(cleanser)
+                    data_dir, subdirectory, dry_run, verbose, query_service)
+            else:
+                for directory in SEARCH_DIRECTORIES:
+                    cleanser = cleanse_dir(
+                        data_dir, directory, dry_run, verbose, query_service)
+        finally:
+            if dry_run:
+                print(cleanser)
 
-    if not subdirectory:
+    if subdirectory is None or subdirectory  == "ManagedRepository":
         # delete empty directories from the managed repositories
         proxy, description = client.getManagedRepository(description=True)
         if proxy:
