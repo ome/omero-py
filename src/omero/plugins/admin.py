@@ -435,7 +435,7 @@ location.
             help="Limit to a single subdirectory, e.g. Files")
 
         cleanse.add_argument(
-            "--verbose", action="store_true",
+            "-v", "--verbose", action="store_true",
             help="Print more information when using --dry-run")
 
         removepyramids.add_argument(
