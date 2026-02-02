@@ -92,7 +92,7 @@ class Cleanser(object):
     PYRAMID_LOCK = ".pyr_lock"
     PYRAMID_TEMP = ".tmp"
 
-    def __init__(self, query_service, object_type):
+    def __init__(self, query_service, object_type, data_dir):
         self.query_service = query_service
         self.object_type = object_type
         self.cleansed = list()
@@ -100,12 +100,14 @@ class Cleanser(object):
         self.deferred_paths = list()
         self.dry_run = False
         self.verbose = False
+        self.data_dir = data_dir
 
-    def is_object_id(self, path, root):
+    def is_object_id(self, path):
         file = os.path.basename(path)
         try:
             ofid = int(file)
-            expected_path = long_to_path(ofid, root)
+            expected_path = long_to_path(
+                ofid, os.path.join(self.data_dir, 'Files'))
             if expected_path == path:
                 return True
         except ValueError:
@@ -122,8 +124,8 @@ class Cleanser(object):
             path = os.path.join(root, file)
             if os.path.isdir(path):
                 # Check if it's an OriginalFile ID
-                if os.path.basename(root) == 'Files' and \
-                        self.is_object_id(path, root):
+                if path.startswith(os.path.join(self.data_dir, 'Files')) and \
+                        self.is_object_id(path):
                     self.query_or_defer(path)
                 else:
                     # If it's not a candidate for deletion, recurse into it.
@@ -250,7 +252,7 @@ def cleanse_dir(data_dir, directory, dry_run, verbose, query_service):
     if dry_run:
         print("Reconciling OMERO data directory...\n %s" % full_path)
     object_type = SEARCH_DIRECTORIES[directory]
-    cleanser = Cleanser(query_service, object_type)
+    cleanser = Cleanser(query_service, object_type, data_dir)
     cleanser.dry_run = dry_run
     cleanser.verbose = verbose
     cleanser.cleanse(full_path)
