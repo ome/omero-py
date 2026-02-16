@@ -34,6 +34,7 @@ import sys
 import os
 import getpass
 import Ice
+import warnings
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
@@ -442,6 +443,9 @@ def main():
     """
     Default main() that performs OMERO data directory cleansing.
     """
+    warnings.warn(
+        "Calling omero.util.cleanse.main directly is deprecated. "
+        "Use omero admin cleanse instead", DeprecationWarning)
     try:
         options, args = getopt(sys.argv[1:], "u:k:",
                                ["dry-run", "subdirectory=", "verbose"])
