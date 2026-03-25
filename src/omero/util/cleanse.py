@@ -325,7 +325,13 @@ def is_empty_dir(repo, directory, may_delete_dir, to_delete):
     empty_subdirs = []
     is_empty = True
 
-    for entry in repo.listFiles(directory):
+    try:
+        entries = repo.listFiles(directory)
+    except omero.ServerError as e:
+        print(f"   ERROR: {e.message}")
+        return False
+
+    for entry in entries:
         subdirectory = directory + entry.name.val + '/'
         may_delete_subdir = entry.details.permissions.canDelete()
         if entry.mimetype is not None and \
