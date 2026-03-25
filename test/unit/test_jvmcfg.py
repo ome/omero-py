@@ -22,12 +22,7 @@
 """
 Test of the automatic JVM setting logic for OMERO startup.
 """
-from __future__ import division
 
-
-from builtins import str
-from past.utils import old_div
-from builtins import object
 import pytest
 import os
 
@@ -158,9 +153,7 @@ class TestStrategy(object):
         strategy = ManualStrategy("blitz")
         settings = strategy.get_memory_settings()
         assert settings == [
-            "-Xmx512m",
-            "-XX:MaxPermSize=128m",
-            "-XX:+IgnoreUnrecognizedVMOptions",
+            "-Xmx512m"
         ]
 
     def test_percent_usage(self):
@@ -206,15 +199,15 @@ class AdjustFixture(object):
 
 
 import json
-f = open(__file__[:-3] + ".json", "r")
-data = json.load(f)
 AFS = []
-for x in data:
-    AFS.append(AdjustFixture(x["input"], x["output"], x["name"]))
+with open(__file__[:-3] + ".json", "r") as f:
+    data = json.load(f)
+    for x in data:
+        AFS.append(AdjustFixture(x["input"], x["output"], x["name"]))
 
 
 def template_xml():
-    templates = old_div(path(OMERODIR), "..")
+    templates = path(OMERODIR)
     templates = templates / "etc" / "templates" / "grid" / "templates.xml"
     templates = templates.abspath()
     return XML(templates.text())
@@ -241,7 +234,7 @@ class TestAdjustStrategy(object):
         monkeypatch.setattr(Strategy, '_system_memory_mb_java',
                             lambda x: (2000, 4000))
         p = write_config(fixture.input)
-        old_templates = old_div(path(__file__).dirname(), "old_templates.xml")
+        old_templates = path(__file__).dirname() / "old_templates.xml"
         xml = XML(old_templates.abspath().text())
         config = ConfigXml(filename=str(p), env_config="default")
         with pytest.raises(Exception):

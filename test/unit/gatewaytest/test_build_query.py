@@ -21,7 +21,6 @@
 
 """Gateway tests - buildQuery() as used by conn.getObjects()."""
 
-from builtins import object
 from omero.gateway import _BlitzGateway, BlitzObjectWrapper, KNOWN_WRAPPERS
 from omero.sys import Parameters, ParametersI, Filter
 import pytest

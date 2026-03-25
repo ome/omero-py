@@ -1,21 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2013-2015 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+# Sam Hart <sam@glencoesoftware.com>
+
 """
-   Tag plugin for command-line tag manipulation
-
-   :author: Sam Hart <sam@glencoesoftware.com>
-
-   Copyright (C) 2013-2015 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
+Tag plugin for command-line tag manipulation
 """
-from __future__ import division
 
-from builtins import input
-from builtins import map
-from builtins import str
-from past.utils import old_div
-from builtins import object
-import builtins
 import platform
 import subprocess
 import sys
@@ -193,10 +187,10 @@ JSON File Format:
         if self.console_length is None:
                 self.ctx.out(line)
         elif index % self.console_length == 0 and index:
-            input = input("[Enter], [f]orward forever, or [q]uit: ")
-            if input.lower() == 'q':
+            input_val = input("[Enter], [f]orward forever, or [q]uit: ")
+            if input_val.lower() == 'q':
                 sys.exit(0)
-            elif input.lower() == 'f':
+            elif input_val.lower() == 'f':
                 self.console_length = None
         else:
             self.ctx.out(line)
@@ -518,7 +512,7 @@ JSON File Format:
         (the default). If we were creating a tagset, this could be "tag set".
         """
         if name is None:
-            name = builtins.input("Please enter a name for this %s: " % text)
+            name = input("Please enter a name for this %s: " % text)
 
         if name is not None and name != '':
             tag = TagAnnotationI()
@@ -731,7 +725,7 @@ JSON File Format:
             self.width, self.console_length = self.determine_console_size()
 
         if args.desc:
-            max_field_width = int((old_div((self.width - max_id_width), 2.0)) - 2)
+            max_field_width = int(((self.width - max_id_width) / 2.0) - 2)
         else:
             max_field_width = self.width - max_id_width - 2
 

@@ -76,12 +76,6 @@ considered public as object names -- the API of the formatter objects is
 still considered an implementation detail.)
 """
 
-from builtins import zip
-from builtins import map
-from builtins import str
-from builtins import range
-from past.builtins import basestring
-from builtins import object
 __version__ = '1.1'
 __all__ = [
     'ArgumentParser',
@@ -110,11 +104,6 @@ except NameError:
     from sets import Set as _set
 
 try:
-    _basestring = basestring
-except NameError:
-    _basestring = str
-
-try:
     _sorted = sorted
 except NameError:
 
@@ -128,15 +117,6 @@ except NameError:
 
 def _callable(obj):
     return hasattr(obj, '__call__') or hasattr(obj, '__bases__')
-
-# silence Python 2.6 buggy warnings about Exception.message
-if _sys.version_info[:2] == (2, 6):
-    import warnings
-    warnings.filterwarnings(
-        action='ignore',
-        message='BaseException.message has been deprecated as of Python 2.6',
-        category=DeprecationWarning,
-        module='omero_ext.argparse')
 
 
 SUPPRESS = '==SUPPRESS=='
@@ -1726,7 +1706,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 if not hasattr(namespace, action.dest):
                     if action.default is not SUPPRESS:
                         default = action.default
-                        if isinstance(action.default, _basestring):
+                        if isinstance(action.default, str):
                             default = self._get_value(action, default)
                         setattr(namespace, action.dest, default)
 
@@ -2200,7 +2180,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 value = action.const
             else:
                 value = action.default
-            if isinstance(value, _basestring):
+            if isinstance(value, str):
                 value = self._get_value(action, value)
                 self._check_value(action, value)
 

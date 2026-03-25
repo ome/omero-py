@@ -8,17 +8,14 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import division
 
-from builtins import object
-from past.utils import old_div
 import os
 from omero_ext.path import path
 from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.export import ExportControl
 from omero.util.temp_files import create_path
 
-omeroDir = old_div(path(os.getcwd()), "build")
+omeroDir = path(os.getcwd()) / "build"
 
 
 class MockCLI(CLI):
@@ -65,7 +62,7 @@ class TestExport(object):
         self.cli.invoke(string, strict=True)
 
     def testSimpleExport(self):
-        self.invoke("x -f %s Image:3" % self.p)
+        self.invoke(["x", "-f", self.p, "Image:3"])
 
     def testStdOutExport(self):
         """

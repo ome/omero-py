@@ -33,12 +33,7 @@ of where the match was found. For example:
     from PATH element 0
     from HKLM\SOFTWARE\...\perl.exe
 """
-from __future__ import print_function
 
-from future import standard_library
-standard_library.install_aliases()
-from builtins import map
-from builtins import range
 _cmdlnUsage = """
     Show the full path of commands.
 

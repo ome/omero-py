@@ -24,18 +24,17 @@
 Test of various things under omero.gateway
 """
 
-from builtins import object
 import Ice
 import pytest
 import sys
 
-from omero.gateway import BlitzGateway, ImageWrapper, \
+from omero.gateway import BlitzGateway, BlitzObjectWrapper, ImageWrapper, \
     WellWrapper, LogicalChannelWrapper, OriginalFileWrapper
 from omero.model import ImageI, PixelsI, ExperimenterI, EventI, \
     ProjectI, TagAnnotationI, FileAnnotationI, OriginalFileI, \
     MapAnnotationI, NamedValue, PlateI, WellI, \
     LogicalChannelI, LengthI, IlluminationI, BinningI, \
-    DetectorSettingsI, DichroicI, LightPathI
+    DetectorSettingsI, DichroicI, LightPathI, ExternalInfoI
 from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rtime, rlong, rint, rdouble
 
@@ -84,12 +83,6 @@ class TestObjectsUnicode(object):
     Tests that ExperimenterWrapper methods return correct unicode
     """
 
-    def _encode(self, s):
-        if sys.version_info >= (3, 0, 0):
-            return s
-        else:
-            return s.encode('utf8')
-
     def test_experimenter(self):
         """
         Tests methods handled by BlitzObjectWrapper.__getattr__
@@ -117,9 +110,9 @@ class TestObjectsUnicode(object):
 
         proj = MockConnection(project).getObject("Project", 1)
         # getName is of type String
-        assert proj.getName() == self._encode(name)
+        assert proj.getName() == name
         assert proj.name == name
-        assert proj.getDescription() == self._encode(desc)
+        assert proj.getDescription() == desc
         assert proj.description == desc
 
     def test_tag_annotation(self):
@@ -131,9 +124,9 @@ class TestObjectsUnicode(object):
         obj.ns = rstring(ns)
 
         tag = MockConnection(obj).getObject("Annotation", 1)
-        assert tag.getValue() == self._encode(text_value)
+        assert tag.getValue() == text_value
         assert tag.textValue == text_value
-        assert tag.getNs() == self._encode(ns)
+        assert tag.getNs() == ns
         assert tag.ns == ns
 
     def test_file_annotation(self):
@@ -145,7 +138,7 @@ class TestObjectsUnicode(object):
         obj.file = f
 
         file_ann = MockConnection(obj).getObject("Annotation", 1)
-        assert file_ann.getFileName() == self._encode(file_name)
+        assert file_ann.getFileName() == file_name
 
     def test_map_annotation(self):
         """Tests MapAnnotationWrapper.getValue() returns unicode"""
@@ -166,7 +159,7 @@ class TestObjectsUnicode(object):
         obj.name = rstring(name)
 
         plate = MockConnection(obj).getObject("Plate", 1)
-        assert plate.getName() == self._encode(name)
+        assert plate.getName() == name
         plate._gridSize = {'rows': rows, 'columns': cols}
         assert plate.getColumnLabels() == [c for c in range(1, cols + 1)]
         assert plate.getRowLabels() == ['A', 'B', 'C']
@@ -187,12 +180,6 @@ class TestBlitzObjectGetAttr(object):
     """
     Tests returning objects via the BlitzObject.__getattr__
     """
-
-    def _encode(self, s):
-        if sys.version_info >= (3, 0, 0):
-            return s
-        else:
-            return s.encode('utf8')
 
     def test_logical_channel(self):
         name = u'₩€_name_$$'
@@ -238,13 +225,13 @@ class TestBlitzObjectGetAttr(object):
                 pass
 
         channel = MockChannel(None, obj)
-        assert channel.getName() == self._encode(name)
+        assert channel.getName() == name
         assert channel.name == name
         assert channel.getPinHoleSize().getValue() == ph_size
         assert channel.getPinHoleSize().getUnit() == ph_units
         assert channel.getPinHoleSize().getSymbol() == 'µm'
         # Illumination is an enumeration
-        assert channel.getIllumination().getValue() == self._encode(ill_val)
+        assert channel.getIllumination().getValue() == ill_val
         assert channel.getExcitationWave().getValue() == ex_wave
         assert channel.getExcitationWave().getUnit() == ex_units
         assert channel.getExcitationWave().getSymbol() == 'Å'
@@ -360,3 +347,28 @@ class TestBlitzGatewayImageWrapper(object):
         data = wrapped_image.simpleMarshal(xtra={'tiled': True})
         self.assert_data(data)
         assert data['tiled'] is False
+
+    def test_externalinfo(self):
+        image = ImageI()
+        image.id = rlong(1)
+        image.name = rstring('name')
+        image.details.owner = ExperimenterI(1, False)
+        wrapper = ImageWrapper(conn=None, obj=image)
+        assert wrapper.getDetails().getExternalInfo() is None
+        assert wrapper._obj.getDetails().getExternalInfo() is None
+        assert wrapper.getDetails()._obj.getExternalInfo() is None
+        assert wrapper.getExternalInfo() is None
+
+        external_info = ExternalInfoI()
+        external_info.id = rlong(1)
+        external_info.entityType = rstring("type")
+        external_info.entityId = rlong(1)
+        image.details.externalInfo = external_info
+        wrapper = ImageWrapper(conn=None, obj=image)
+        assert isinstance(wrapper.getDetails().getExternalInfo(), BlitzObjectWrapper)
+        assert wrapper.getDetails().getExternalInfo()._obj == external_info
+        assert wrapper._obj.getDetails().getExternalInfo() == external_info
+        assert wrapper.getDetails()._obj.getExternalInfo() == external_info
+        # BlitzObjectWrapper.getExternalInfo() returns omero.model.ExternalInfo
+        assert isinstance(wrapper.getExternalInfo(), ExternalInfoI)
+        assert wrapper.getExternalInfo() == external_info

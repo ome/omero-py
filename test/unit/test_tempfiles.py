@@ -8,11 +8,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
-from __future__ import division
 
-from builtins import str
-from builtins import object
-from past.utils import old_div
 import logging
 logging.basicConfig(level=0)
 
@@ -59,17 +55,18 @@ class TestTemps(object):
         p = t_f.create_path("close", ".dir", folder=True)
         assert p.exists()
         assert p.isdir()
-        return p
 
     def testFolderWrite(self):
-        p = self.testFolderSimple()
-        f = old_div(p, "file")
+        p = t_f.create_path("close", ".dir", folder=True)
+        f = p / "file"
         f.write_text("hi")
-        return p
+        assert ["hi"] == f.lines()
 
     def testFolderDelete(self):
-        p = self.testFolderWrite()
+        p = t_f.create_path("close", ".dir", folder=True)
+        assert p.exists()
         p.rmtree()
+        assert not p.exists()
 
     #
     # Misc

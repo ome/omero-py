@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+# Copyright 2007, 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+
 """
    Primary OmeroPy types
 
    Classes:
       omero.client    -- Main OmeroPy connector object
-
-   Copyright 2007, 2008 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
 """
-
-
 from omero_version import omero_version
 from omero_version import ice_compatibility as compat
 import Ice
@@ -122,14 +120,3 @@ def proxy_to_instance(proxy_string, default=None):
         raise ClientError(("Invalid proxy string: %s. "
                           "Correct format is Class:ID") % proxy_string)
     return kls(proxy_string)
-
-#
-# Workaround for warning messages produced in
-# code-generated Ice files.
-#
-if _sys.version_info[:2] == (2, 6):
-    import warnings
-    warnings.filterwarnings(
-        action='ignore',
-        message='BaseException.message has been deprecated as of Python 2.6',
-        category=DeprecationWarning)

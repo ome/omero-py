@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+
 """
    Group administration plugin
-
-   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
 """
 
-from builtins import str
 import sys
 
 from omero.cli import UserGroupControl, CLI, ExceptionHandler, admin_only

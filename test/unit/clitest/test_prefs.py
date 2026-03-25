@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
-
 """
    Test of the scripts plugin
 
@@ -11,9 +9,6 @@ from __future__ import unicode_literals
 
 """
 
-from builtins import str
-from past.builtins import basestring
-from builtins import object
 import pytest
 import sys
 from omero.cli import CLI, NonZeroReturnCode
@@ -22,11 +17,6 @@ from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import PrefsControl, HELP
 from omero.util.temp_files import create_path
 
-
-try:
-    basestring
-except:
-    basestring = str
 
 @pytest.fixture
 def configxml(monkeypatch):
@@ -62,7 +52,7 @@ class TestPrefs(object):
                 e.strip() == err)
 
     def invoke(self, s):
-        if isinstance(s, basestring):
+        if isinstance(s, str):
             s = s.split()
         self.cli.invoke(self.args + s, strict=True)
 
@@ -188,23 +178,23 @@ class TestPrefs(object):
     def testLoad(self, capsys):
         to_load = create_path()
         to_load.write_text("A=B")
-        self.invoke("load %s" % to_load)
+        self.invoke(["load", to_load])
         self.assertStdoutStderr(capsys)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=B")
 
         # Same property/value pairs should pass
-        self.invoke("load %s" % to_load)
+        self.invoke(["load", to_load])
 
         to_load.write_text("A=C")
         with pytest.raises(NonZeroReturnCode):
             # Different property/value pair should fail
-            self.invoke("load %s" % to_load)
+            self.invoke(["load", to_load])
         self.assertStdoutStderr(
             capsys, err="Duplicate property: A ('B' => 'C')")
 
         # Quiet load
-        self.invoke("load -q %s" % to_load)
+        self.invoke(["load", "-q", to_load])
         self.assertStdoutStderr(capsys)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=C")
@@ -217,7 +207,7 @@ class TestPrefs(object):
     def testLoadMultiLine(self, capsys):
         to_load = create_path()
         to_load.write_text("A=B\\\nC")
-        self.invoke("load %s" % to_load)
+        self.invoke(["load", to_load])
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=BC")
 
@@ -228,7 +218,7 @@ class TestPrefs(object):
         valid_key, valid_value = validkeyvalue
         to_load = create_path()
         to_load.write_text("%s=%s\n" % (valid_key, valid_value))
-        self.invoke("load %s" % to_load)
+        self.invoke(["load", to_load])
         self.invoke("get %s" % valid_key)
         self.assertStdoutStderr(capsys, out=valid_value)
 
@@ -244,7 +234,7 @@ class TestPrefs(object):
         to_load = create_path()
         to_load.write_text("C=D\n%s\nH=I\n" % invalidline)
         with pytest.raises(NonZeroReturnCode):
-            self.invoke("load %s" % to_load)
+            self.invoke(["load", to_load])
         self.assertStdoutStderr(
             capsys, err="Illegal property name: %s" % invalidkey)
         self.invoke("get")
@@ -269,7 +259,7 @@ class TestPrefs(object):
     def testSetFromFile(self, capsys):
         to_load = create_path()
         to_load.write_text("Test")
-        self.invoke("set -f %s A" % to_load)
+        self.invoke(["set", "-f", to_load, "A"])
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=Test")
 
@@ -519,3 +509,18 @@ class TestPrefs(object):
         assert props[2].val == 'line1line2'
         assert props[3].key == 'f.g'
         assert props[3].val == '\\n'
+
+    def testConfigNoVersionPropertyParser(self, tmpdir):
+        cfg = tmpdir.join("test-noversion.properties")
+        s = "omero.version=5.6.1\na.1=a\nomero.db.version=5.4.0"
+        cfg.write(s)
+        pp = PropertyParser()
+        props = pp.parse_file(str(cfg))
+
+        # Fails, the last two properties are parsed as one:
+        # 'd.e' = 'line1line2f.g=\\n'
+        assert len(props) == 2
+        assert props[0].key == 'a.1'
+        assert props[0].val == 'a'
+        assert props[1].key == 'omero.db.version'
+        assert props[1].val == '5.4.0'

@@ -22,40 +22,32 @@ Read text-based dictionary file formats such as YAML and JSON
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-from past.builtins import basestring
 import os
 import json
 import re
 from omero.rtypes import unwrap
-
-try:
-    import yaml
-    YAML_ENABLED = True
-except ImportError:
-    YAML_ENABLED = False
+import yaml
 
 
 def get_supported_formats():
     """
     Return the supported formats
     """
-    if YAML_ENABLED:
-        return ('json', 'yaml')
-    return ('json',)
+    return ('json', 'yaml')
 
 
 def load(fileobj, filetype=None, single=True, session=None):
     """
     Try and load a file in a format that is convertible to a Python dictionary
 
-    fileobj: Either a single json object string, file-path, or OriginalFile:ID
-    single: If True file should only contain a single document, otherwise a
+    :param fileobj: Either a single json object string, file-path, or OriginalFile:ID
+    :param single: If True file should only contain a single document, otherwise a
         list of documents will always be returned. Multiple documents are not
         supported for JSON strings.
-    session: If fileobj is an OriginalFile:ID a valid session is required
+    :param session: If fileobj is an OriginalFile:ID a valid session is required
     """
 
-    if not isinstance(fileobj, basestring):
+    if not isinstance(fileobj, (str, bytes)):
         raise Exception(
             'Invalid type: fileobj must be a filename or json string')
 
@@ -76,9 +68,7 @@ def load(fileobj, filetype=None, single=True, session=None):
         rawdata, filetype = get_format_filename(fileobj, filetype)
 
     if filetype == 'yaml':
-        if not YAML_ENABLED:
-            raise ImportError("yaml (PyYAML) module required")
-        data = list(yaml.load_all(rawdata))
+        data = list(yaml.safe_load_all(rawdata))
         if single:
             if len(data) != 1:
                 raise Exception(
@@ -88,7 +78,11 @@ def load(fileobj, filetype=None, single=True, session=None):
         return data
 
     if filetype == 'json':
-        data = json.loads(rawdata)
+        try:
+            data = json.loads(rawdata)
+        except TypeError:
+            # for Python 3.5
+            data = json.loads(rawdata.decode("utf-8"))
         if single:
             return data
         return [data]
@@ -98,13 +92,11 @@ def dump(data, formattype):
     """
     Convert a python object to a string in the requested format
 
-    data: A python object (most likely a dictionary)
-    formattype: The output format
+    :param data: A python object (most likely a dictionary)
+    :param formattype: The output format
     """
 
     if formattype == 'yaml':
-        if not YAML_ENABLED:
-            raise ImportError("yaml (PyYAML) module required")
         return yaml.dump(data)
 
     if formattype == 'json':

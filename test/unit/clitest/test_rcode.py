@@ -8,15 +8,12 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import division
 
-from builtins import object
-from past.utils import old_div
 import os
 from omero_ext.path import path
 from omero.cli import BaseControl, CLI
 
-omeroDir = old_div(path(os.getcwd()), "build")
+omeroDir = path(os.getcwd()) / "build"
 
 
 class TestRCode(object):

@@ -20,7 +20,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from builtins import object
 import pytest
 
 import omero
@@ -29,7 +28,8 @@ from omero.plugins.sessions import SessionsControl
 from omero.rtypes import rstring
 
 from omero.testlib import ITest
-from mox3 import mox
+
+import warnings
 
 class AbstractCLITest(ITest):
 
@@ -40,9 +40,16 @@ class AbstractCLITest(ITest):
         cls.cli.register("sessions", SessionsControl, "TEST")
 
     def setup_mock(self):
+        from mox3 import mox
+        warnings.warn(
+            "The usage of mox3 is deprecated as of OMERO.py 5.17.0",
+            DeprecationWarning)
         self.mox = mox.Mox()
 
     def teardown_mock(self):
+        warnings.warn(
+            "The usage of mox3 is deprecated as of OMERO.py 5.17.0",
+            DeprecationWarning)
         self.mox.UnsetStubs()
         self.mox.VerifyAll()
 

@@ -25,11 +25,7 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 """
-from __future__ import division
 
-from future.utils import bytes_to_native_str
-from future.utils import isbytes
-from past.utils import old_div
 from omero.cli import BaseControl
 from omero.cli import CLI
 
@@ -43,10 +39,6 @@ import omero.java
 import platform
 import sys
 import time
-
-if sys.version_info >= (3, 0, 0):
-    # Keep str behavior on Python 2
-    from builtins import str
 
 
 HELP = """Database tools for creating scripts, setting passwords, etc."""
@@ -172,8 +164,8 @@ class DatabaseControl(BaseControl):
 
     def _make_replace(self, root_pass, db_vers, db_patch):
         def fix(str_in):
-            if isbytes(str_in):
-                str_in = bytes_to_native_str(str_in)
+            if isinstance(str_in, bytes):
+                return str_in.decode("utf-8")
             return str_in
         def replace_method(str_in):
             str_out = str_in.replace("@ROOTPASS@", fix(root_pass))
@@ -214,7 +206,7 @@ class DatabaseControl(BaseControl):
             script = "<filename here>"
         else:
             script = "%s__%s.sql" % (db_vers, db_patch)
-            location = old_div(path.getcwd(), script)
+            location = path.getcwd() / script
             try:
                 output = open(location, 'w', encoding='utf-8')
             except TypeError:
@@ -223,8 +215,8 @@ class DatabaseControl(BaseControl):
 
         try:
             dbprofile = self._db_profile()
-            header = old_div(sql_directory, ("%s-header.sql" % dbprofile))
-            footer = old_div(sql_directory, ("%s-footer.sql" % dbprofile))
+            header = sql_directory / ("%s-header.sql" % dbprofile)
+            footer = sql_directory / ("%s-footer.sql" % dbprofile)
             if header.exists():
                 # 73 multiple DB support. OMERO 4.3+
                 cfg = {
@@ -232,8 +224,8 @@ class DatabaseControl(BaseControl):
                     "DIR": sql_directory,
                     "SCRIPT": script}
                 self._copy(header, output, str, cfg)
-                self._copy(old_div(sql_directory,"schema.sql"), output, str)
-                self._copy(old_div(sql_directory,"views.sql"), output, str)
+                self._copy(sql_directory / "schema.sql", output, str)
+                self._copy(sql_directory / "views.sql", output, str)
                 self._copy(
                     footer, output,
                     self._make_replace(password_hash, db_vers, db_patch), cfg)
@@ -255,11 +247,11 @@ class DatabaseControl(BaseControl):
 
 BEGIN;
                 """ % (time.ctime(time.time()), sql_directory, script))
-                self._copy(old_div(sql_directory,"schema.sql"), output, str)
+                self._copy(sql_directory / "schema.sql", output, str)
                 self._copy(
-                    old_div(sql_directory,"data.sql"), output,
+                    sql_directory / "data.sql", output,
                     self._make_replace(password_hash, db_vers, db_patch))
-                self._copy(old_div(sql_directory,"views.sql"), output, str)
+                self._copy(sql_directory / "views.sql", output, str)
                 output.write("COMMIT;\n")
 
         finally:

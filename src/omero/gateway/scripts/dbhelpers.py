@@ -1,28 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
+
 import sys
-sys.path.append('.')
 
 import omero.gateway
 import omero.model
 import os
 import subprocess
-import urllib.request, urllib.error, urllib.parse
 
-try:
-    from types import StringTypes
-except ImportError:
-    StringTypes = str
-
-from omero_ext.path import path
+sys.path.append('.')
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
-TESTIMG_URL = 'https://downloads.openmicroscopy.org/images/gateway_tests/'
 DEFAULT_GROUP_PERMS = 'rwr---'
 
 if not omero.gateway.BlitzGateway.ICE_CONFIG:
@@ -105,7 +93,8 @@ class UserEntry (object):
         if groupname is None:
             groupname = self.groupname
         client = omero.gateway.BlitzGateway(
-            self.name, self.passwd, group=groupname, try_super=self.admin)
+            username=self.name, passwd=self.passwd,
+            group=groupname, try_super=self.admin)
         if not client.connect():
             print("Can not connect")
             return None
@@ -135,7 +124,7 @@ class UserEntry (object):
         nothing will be checked.
         """
         if groupperms is not None:
-            if isinstance(group, StringTypes):
+            if isinstance(group, str):
                 a = client.getAdminService()
                 g = a.lookupGroup(group)
             else:
@@ -156,7 +145,7 @@ class UserEntry (object):
         """
         a = client.getAdminService()
         try:
-            if isinstance(group, StringTypes):
+            if isinstance(group, str):
                 g = a.lookupGroup(group)
             else:
                 g = group
@@ -294,7 +283,7 @@ class ProjectEntry (ObjectEntry):
         p.setName(omero.gateway.omero_type(self.name))
         p.setDescription(omero.gateway.omero_type(self.name))
         if self.create_group:
-            if isinstance(self.create_group, StringTypes):
+            if isinstance(self.create_group, str):
                 groupname = self.create_group
             else:
                 raise ValueError('group must be string')
@@ -324,7 +313,7 @@ class DatasetEntry (ObjectEntry):
 
     def get(self, client, forceproj=None):
         if forceproj is None:
-            if isinstance(self.project, StringTypes):
+            if isinstance(self.project, str):
                 project = PROJECTS[self.project].get(client)
             elif isinstance(self.project, ProjectEntry):
                 project = self.project.get(client)
@@ -339,7 +328,7 @@ class DatasetEntry (ObjectEntry):
         return None
 
     def create(self):
-        if isinstance(self.project, StringTypes):
+        if isinstance(self.project, str):
             project = PROJECTS[self.project]
             user = USERS[project.owner]
             client = user.login()
@@ -392,7 +381,7 @@ class ImageEntry (ObjectEntry):
         return None
 
     def create(self):
-        if isinstance(self.dataset, StringTypes):
+        if isinstance(self.dataset, str):
             dataset = DATASETS[self.dataset]
             project = PROJECTS[dataset.project]
             client = USERS[project.owner].login()
@@ -419,16 +408,7 @@ class ImageEntry (ObjectEntry):
                 # If it's a .fake file, simply create it
                 os.close(os.open(fpath, os.O_CREAT | os.O_EXCL))
             else:
-                # First try to download the image
-                try:
-                    # print "Trying to get test image from " + TESTIMG_URL +
-                    # self.filename
-                    sys.stderr.write('<')
-                    fin = urllib.request.urlopen(TESTIMG_URL + self.filename)
-                    with open(fpath, 'wb') as fout:
-                        fout.write(fin.read())
-                except urllib.error.HTTPError:
-                    raise IOError('No such file %s' % fpath)
+                 raise IOError('No such file %s' % fpath)
         host = dataset._conn.c.ic.getProperties().getProperty(
             'omero.host') or 'localhost'
         port = dataset._conn.c.ic.getProperties().getProperty(

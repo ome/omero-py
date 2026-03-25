@@ -1,26 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-   script plugin
 
-   Plugin read by omero.cli.Cli during initialization. The method(s)
-   defined here will be added to the Cli class for later use.
-
-   The script plugin is used to run arbitrary blitz scripts which
-   take as their sole input Ice configuration arguments, including
-   --Ice.Config=file1,file2.
-
-   The first parameter, the script itself, should be natively executable
-   on a given platform. I.e. invokable by subprocess.call([file,...])
-
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import print_function
+script plugin
 
-from builtins import str
-from builtins import object
+Plugin read by omero.cli.Cli during initialization. The method(s)
+defined here will be added to the Cli class for later use.
+
+The script plugin is used to run arbitrary blitz scripts which
+take as their sole input Ice configuration arguments, including
+--Ice.Config=file1,file2.
+
+The first parameter, the script itself, should be natively executable
+on a given platform i.e. invokable by subprocess.call([file,...])
+"""
+
 import re
 import os
 import sys
@@ -287,12 +285,9 @@ class ScriptControl(BaseControl):
         from omero.util.temp_files import create_path
         t = create_path("Demo_Script", ".py")
 
-        try:
-            from hashlib import sha1 as sha_new
-        except ImportError:
-            from sha import new as sha_new
+        from hashlib import sha1
 
-        digest = sha_new()
+        digest = sha1()
         digest.update(DEMO_SCRIPT.encode('utf-8'))
         sha1 = digest.hexdigest()
 
@@ -436,7 +431,7 @@ class ScriptControl(BaseControl):
         def p(m):
             class handle(object):
                 def write(this, val):
-                    val = "\t* %s" % val
+                    val = "\t* %s" % val.decode()
                     val = val.replace("\n", "\n\t* ")
                     self.ctx.out(val, newline=False)
 

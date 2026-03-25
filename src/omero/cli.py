@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Josh Moore, josh at glencoesoftware.com
+# Copyright (c) 2007-2016, Glencoe Software, Inc.
+# See LICENSE for details.
+#
+
 """
 Python driver for OMERO
 
@@ -9,33 +15,14 @@ utilities, including starting and stopping servers, running
 analyses, configuration, and more.
 
 Usable via the ./omero script provided with the distribution
-as well as from python via "import omero.cli; omero.cli.argv()"
+as well as from python via ``import omero.cli; omero.cli.argv()``.
 
-Arguments are taken from (in order of priority): the run method
-arguments, sys.argv, and finally from standard-in using the
-cmd.Cmd.cmdloop method.
-
-Josh Moore, josh at glencoesoftware.com
-Copyright (c) 2007-2016, Glencoe Software, Inc.
-See LICENSE for details.
-
+Arguments are taken from (in order of priority): the ``run`` method
+arguments, ``sys.argv``, and finally from standard-in using the
+``cmd.Cmd.cmdloop`` method.
 """
-from __future__ import division
-from __future__ import print_function
 
-from past.builtins import execfile
-from past.builtins import basestring
-from future.utils import bytes_to_native_str
-from future.utils import isbytes
-from future.utils import native_str
-from builtins import zip
-from builtins import input
-from builtins import map
-from builtins import str
-from builtins import range
-from builtins import bytes
-from past.utils import old_div
-from builtins import object
+
 sys = __import__("sys")
 cmd = __import__("cmd")
 
@@ -447,7 +434,8 @@ Examples (admin or group owner only):
 
 
 class Context(object):
-    """Simple context used for default logic. The CLI registry which registers
+    """
+    Simple context used for default logic. The CLI registry which registers
     the plugins installs itself as a fully functional Context.
 
     The Context class is designed to increase pluggability. Rather than
@@ -517,9 +505,6 @@ class Context(object):
         Prints text to a given string, capturing any exceptions.
         """
         try:
-            if sys.version_info < (3, 0, 0):
-                if isinstance(text, basestring) and not isinstance(text, unicode):
-                    text = text.encode("utf-8")
             stream.write(text)
             if newline:
                 stream.write("\n")
@@ -530,7 +515,10 @@ class Context(object):
                 raise
         except:
             print("Error printing text", file=sys.stderr)
-            print(text, file=sys.stdout)
+            try:
+                print(text, file=sys.stdout)
+            except UnicodeEncodeError:
+                print(text.encode('utf-8', 'surrogateescape'), file=sys.stdout)
             if self.isdebug:
                 traceback.print_exc()
 
@@ -804,7 +792,7 @@ class BaseControl(object):
             nodepath = self._properties()[property]
 
             if RELFILE.match(nodepath):
-                nodedata = old_div(self.dir, path(nodepath))
+                nodedata = self.dir / path(nodepath)
             else:
                 nodedata = path(nodepath)
 
@@ -825,7 +813,7 @@ class BaseControl(object):
         """
         props = self._properties()
         self._nodedata()
-        logdata = old_div(self.dir, path(props["Ice.StdOut"]).dirname())
+        logdata = self.dir / path(props["Ice.StdOut"]).dirname()
         if not logdata.exists():
             self.ctx.out("Initializing %s" % logdata)
             logdata.makedirs()
@@ -857,7 +845,7 @@ class BaseControl(object):
         Returns a path of the form _nodedata() / (_node() + ".pid"),
         i.e. a file named NODENAME.pid in the node's data directory.
         """
-        pidfile = old_div(self._nodedata(), (self._node() + ".pid"))
+        pidfile = self._nodedata() / (self._node() + ".pid")
         return pidfile
 
     def _cfglist(self):
@@ -867,13 +855,13 @@ class BaseControl(object):
         followed by a file named NODENAME.cfg under the etc/
         directory, following by PLATFORM.cfg if it exists.
         """
-        cfgs = old_div(self.dir, "etc")
-        internal = old_div(cfgs, "internal.cfg")
-        owncfg = old_div(cfgs, self._node()) + ".cfg"
+        cfgs = self.dir / "etc"
+        internal = cfgs / "internal.cfg"
+        owncfg = cfgs / self._node() + ".cfg"
         results = [internal, owncfg]
         # Look for <platform>.cfg
         p_s = platform.system()
-        p_c = old_div(cfgs, p_s) + ".cfg"
+        p_c = cfgs / p_s + ".cfg"
         if p_c.exists():
             results.append(p_c)
         return results
@@ -894,7 +882,7 @@ class BaseControl(object):
         """
         intcfg = self.dir / "etc" / "internal.cfg"
         intcfg.abspath()
-        return native_str("--Ice.Config=%s" % intcfg)
+        return "--Ice.Config=%s" % intcfg
 
     def _properties(self, prefix=""):
         """
@@ -908,7 +896,7 @@ class BaseControl(object):
             self._props = Ice.createProperties()
             for cfg in self._cfglist():
                 try:
-                    self._props.load(native_str(cfg))
+                    self._props.load(str(cfg))
                 except Exception:
                     self.ctx.dbg("Complete error: %s" % traceback.format_exc())
                     self.ctx.die(3, "Could not find file: " + cfg +
@@ -1070,14 +1058,15 @@ class DiagnosticsControl(BaseControl):
         diagnostics.add_argument(
             "--no-logs", action="store_true",
             help="Skip log parsing")
+        return diagnostics
 
     def _diagnostics_banner(self, control_name):
 
         self.ctx.out("""
 %s
-OMERO Diagnostics (%s) %s
+OMERO Diagnostics (%s)
 %s
-        """ % ("="*80, control_name, VERSION, "="*80))
+        """ % ("="*80, control_name, "="*80))
 
     def _sz_str(self, sz):
         if sz < 1000:
@@ -1114,7 +1103,7 @@ OMERO Diagnostics (%s) %s
                              r'error:?\s')
                 warn = 0
                 err = 0
-                for l in p.lines():
+                for l in p.lines(errors="surrogateescape"):
                     # ensure errors/warnings search is case-insensitive
                     lcl = l.lower()
                     if re.match(warn_regex, lcl):
@@ -1125,6 +1114,38 @@ OMERO Diagnostics (%s) %s
                 if warn or err:
                     msg = " errors=%-4s warnings=%-4s" % (err, warn)
                 self.ctx.out("%-12s %s" % (self._sz_str(p.size), msg))
+
+
+class ServiceManagerMixin:
+    """
+    A mixin that adds a requires_service_manager method.
+
+    This method can be called to check for the presence of an environment
+    variable that indicates the plugin is being controlled by an external
+    service manager.
+
+    The class must define a property SERVICE_MANAGER_KEY that is used to
+    construct the name of the OMERO property
+    `omero.{SERVICE_MANAGER_KEY}.servicemanager.checkenv` defining the name of
+    the environment variable.
+    """
+
+    def requires_service_manager(self, config):
+        """
+        Checks whether OMERO is being managed by a service manager by
+        checking that a specified environment variable is non-empty.
+
+        config: An OMERO ConfigXml object
+        """
+        service_env = config.as_map().get(
+            "omero.{}.servicemanager.checkenv".format(
+                self.SERVICE_MANAGER_KEY))
+        if service_env:
+            service_envvalue = os.getenv(service_env)
+            if not service_envvalue:
+                self.ctx.die(112, (
+                    "ERROR: OMERO is configured to run under a service "
+                    "manager which should also set {}".format(service_env)))
 
 
 class CLI(cmd.Cmd, Context):
@@ -1171,7 +1192,7 @@ class CLI(cmd.Cmd, Context):
         self._stack = []     #: List of commands being processed
         self._client = None  #: Single client for all activities
         #: Paths to be loaded; initially official plugins
-        self._plugin_paths = [old_div(OMEROCLI, "plugins")]
+        self._plugin_paths = [OMEROCLI / "plugins"]
         self._pluginsLoaded = CLI.PluginsLoaded()
 
     def assertRC(self):
@@ -1302,7 +1323,7 @@ class CLI(cmd.Cmd, Context):
         function returned by argparse.
         """
 
-        if isinstance(line, basestring):
+        if isinstance(line, str):
             if COMMENT.match(line):
                 return  # EARLY EXIT!
             args = shlex.split(line)
@@ -1336,7 +1357,7 @@ class CLI(cmd.Cmd, Context):
             self.isdebug = 0
             debug_opts.remove("0")
 
-        for x in range(1, 9):
+        for x in range(1, 10):
             if str(x) in debug_opts:
                 self.isdebug = x
                 debug_opts.remove(str(x))
@@ -1354,7 +1375,7 @@ class CLI(cmd.Cmd, Context):
             elif "p" in debug_opts or "profile" in debug_opts:
                 from hotshot import stats, Profile
                 from omero.util import get_omero_userdir
-                profile_file = old_div(get_omero_userdir(), "hotshot_edi_stats")
+                profile_file = get_omero_userdir() / "hotshot_edi_stats"
                 prof = Profile(profile_file)
                 prof.runcall(lambda: args.func(args))
                 prof.close()
@@ -1453,7 +1474,7 @@ class CLI(cmd.Cmd, Context):
         jar_root = root_path / 'lib' / 'server'
         for component in OMERO_COMPONENTS:
             from zipfile import ZipFile, is_zipfile, BadZipfile
-            jar_name = old_div(jar_root, 'omero-{}.jar'.format(component))
+            jar_name = jar_root / 'omero-{}.jar'.format(component)
             if is_zipfile(jar_name):
                 config_name = 'omero-{}.properties'.format(component)
                 try:
@@ -1480,8 +1501,8 @@ class CLI(cmd.Cmd, Context):
         lines = self.get_config_property_lines(path(self._cwd(None)))
         defaults = ""
         for line in lines:
-            if isbytes(line):
-                defaults += bytes_to_native_str(line)
+            if isinstance(line, bytes):
+                defaults += line.decode("utf-8")
             else:
                 defaults += line
             defaults += "\n"
@@ -1491,8 +1512,8 @@ class CLI(cmd.Cmd, Context):
 
     def parsePropertyFile(self, data, output):
         for line in output.splitlines():
-            if isbytes(line):
-                line = bytes_to_native_str(line)
+            if isinstance(line, bytes):
+                line = line.decode("utf-8")
             if line.startswith(
                     "Listening for transport dt_socket at address"):
                 self.dbg(
@@ -1516,7 +1537,7 @@ class CLI(cmd.Cmd, Context):
 
         from omero.plugins.prefs import getprefs
         try:
-            output = getprefs(["get"], str(old_div(path(self._cwd(None)), "lib")))
+            output = getprefs(["get"], str(path(self._cwd(None)) / "lib"))
         except OSError as err:
             self.err("Error getting preferences")
             self.dbg(err)
@@ -1580,7 +1601,7 @@ class CLI(cmd.Cmd, Context):
         self.configure_plugins()
 
     def register_only(self, name, Control, help, epilog=None):
-        """ This method is added to the globals when execfile() is
+        """ This method is added to the globals when exec() is
         called on each plugin. A Control class should be
         passed to the register method which will be added to the CLI.
         """
@@ -1652,7 +1673,8 @@ class CLI(cmd.Cmd, Context):
                 print("Loading %s" % pathobj)
             try:
                 loc = {"register": self.register_only}
-                execfile(str(pathobj), loc)
+                with open(str(pathobj), "r") as f:
+                    exec(f.read(), loc)
             except KeyboardInterrupt:
                 raise
             except:
@@ -1716,49 +1738,41 @@ def argv(args=sys.argv):
     Finally, the cli enters a command loop reading from standard in.
     """
 
-    # Modiying the run-time environment
-    old_ice_config = os.getenv("ICE_CONFIG")
-    os.unsetenv("ICE_CONFIG")
-    try:
+    # Modifying the args list if the name of the file
+    # has arguments encoded in it
+    original_executable = path(args[0])
+    base_executable = str(original_executable.basename())
+    if base_executable.find("-") >= 0:
+        parts = base_executable.split("-")
+        for arg in args[1:]:
+            parts.append(arg)
+        args = parts
 
-        # Modifying the args list if the name of the file
-        # has arguments encoded in it
-        original_executable = path(args[0])
-        base_executable = str(original_executable.basename())
-        if base_executable.find("-") >= 0:
-            parts = base_executable.split("-")
-            for arg in args[1:]:
-                parts.append(arg)
-            args = parts
+    # Now load other plugins. After debugging is turned on, but before
+    # tracing.
+    cli = CLI(prog=original_executable.split("-")[0])
 
-        # Now load other plugins. After debugging is turned on, but before
-        # tracing.
-        cli = CLI(prog=original_executable.split("-")[0])
+    parser = Parser(add_help=False)
+    # parser.add_argument("-d", "--debug", help="Use 'help debug' for more
+    # information", default = SUPPRESS)
+    parser.add_argument(
+        "--path", action="append",
+        help="Add file or directory to plugin list. Supports globs.")
+    ns, args = parser.parse_known_args(args)
+    if getattr(ns, "path"):
+        for p in ns.path:
+            for g in glob.glob(p):
+                cli._plugin_paths.append(g)
 
-        parser = Parser(add_help=False)
-        # parser.add_argument("-d", "--debug", help="Use 'help debug' for more
-        # information", default = SUPPRESS)
-        parser.add_argument(
-            "--path", action="append",
-            help="Add file or directory to plugin list. Supports globs.")
-        ns, args = parser.parse_known_args(args)
-        if getattr(ns, "path"):
-            for p in ns.path:
-                for g in glob.glob(p):
-                    cli._plugin_paths.append(g)
+    # For argparse dispatch, this cannot be done lazily
+    cli.loadplugins()
 
-        # For argparse dispatch, this cannot be done lazily
-        cli.loadplugins()
-
-        if len(args) > 1:
-            cli.invoke(args[1:])
-            return cli.rv
-        else:
-            cli.invokeloop()
-            return cli.rv
-    finally:
-        if old_ice_config:
-            os.putenv("ICE_CONFIG", old_ice_config)
+    if len(args) > 1:
+        cli.invoke(args[1:])
+        return cli.rv
+    else:
+        cli.invokeloop()
+        return cli.rv
 
 #####################################################
 #
@@ -1926,7 +1940,7 @@ class CmdControl(BaseControl):
             self.ctx.out("Steps: %s" % status.steps)
             if status.stopTime > 0 and status.startTime > 0:
                 elapse = status.stopTime - status.startTime
-                self.ctx.out("Elapsed time: %s secs." % (old_div(elapse,1000.0)))
+                self.ctx.out("Elapsed time: %s secs." % (elapse / 1000.0))
             else:
                 self.ctx.out("Unfinished.")
             self.ctx.out("Flags: %s" % status.flags)
@@ -1957,7 +1971,7 @@ class CmdControl(BaseControl):
             self.ctx.out("Exiting immediately")
         elif wait > 0:
             ms = wait * 1000
-            ms = old_div(ms, loops)
+            ms = ms // loops
             self.ctx.out("Waiting %s loops of %s ms" % (ms, loops))
             cb.loop(loops, ms)
         else:
@@ -1989,14 +2003,17 @@ class GraphControl(CmdControl):
         self._add_wait(parser, default=-1)
         parser.add_argument(
             "--include",
-            help="Modifies the given option by including a list of classes")
+            help="Specify kinds of object to include",
+            metavar="CLASS",
+            nargs="+", type=lambda s: s.split(","), action="append")
         parser.add_argument(
             "--exclude",
-            help="Modifies the given option by excluding a list of classes")
+            help="Specify kinds of object to exclude",
+            metavar="CLASS",
+            nargs="+", type=lambda s: s.split(","), action="append")
         parser.add_argument(
             "--ordered", action="store_true",
-            help=("Pass multiple objects to commands strictly in the order "
-                  "given, otherwise group into as few commands as possible."))
+            help=("Pass objects to commands in the given order"))
         parser.add_argument(
             "--list", action="store_true",
             help="Print a list of all available graph specs")
@@ -2042,6 +2059,7 @@ class GraphControl(CmdControl):
 
     def main_method(self, args):
 
+        from itertools import chain
         client = self.ctx.conn(args)
         if args.list_details or args.list:
             cb = None
@@ -2066,10 +2084,10 @@ class GraphControl(CmdControl):
 
         inc = []
         if args.include:
-            inc = args.include.split(",")
+            inc.extend(chain(*chain(*args.include)))
         exc = self.default_exclude()
         if args.exclude:
-            exc.extend(args.exclude.split(","))
+            exc.extend(chain(*chain(*args.exclude)))
 
         if inc or exc:
             opt = omero.cmd.graphs.ChildOption()

@@ -20,32 +20,21 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # ------------------------------------------------------------------------------
-
-###
-#
-# ROIUtils allows the mapping of omero.model.ROIDataTypesI to python types
-# and to create ROIDataTypesI from ROIUtil types.
-# These methods also implement the acceptVisitor method linking to
-# the ROIDrawingCanvas.
-#
-#
 # @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
 #   <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 # @author   Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 #   <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk
 #   </a>
-# @version 3.0
-# <small>
-# (<b>Internal version:</b> $Revision: $Date: $)
-# </small>
-# @since 3.0-Beta4
 #
-from __future__ import division
-from builtins import str
-from builtins import map
-from builtins import range
-from past.utils import old_div
-from builtins import object
+
+"""
+ROIUtils allows the mapping of omero.model.ROIDataTypesI to python types
+and to create ROIDataTypesI from ROIUtil types.
+
+These methods also implement the acceptVisitor method linking to
+the ROIDrawingCanvas.
+"""
+
 from omero.model.enums import UnitsLength
 from omero.model import LengthI
 from omero.model import EllipseI
@@ -818,7 +807,7 @@ class PolygonData(ShapeData, ROIDrawingI):
         elements = []
         list = pointString.split(',')
         numTokens = len(list)
-        for tokenPair in range(0, old_div(numTokens, 2)):
+        for tokenPair in range(0, numTokens // 2):
             elements.append(
                 (int(list[tokenPair * 2]), int(list[tokenPair * 2 + 1])))
         return elements
@@ -906,7 +895,7 @@ class PolylineData(ShapeData, ROIDrawingI):
         elements = []
         list = pointString.split(',')
         numTokens = len(list)
-        for tokenPair in range(0, old_div(numTokens, 2)):
+        for tokenPair in range(0, numTokens // 2):
             elements.append(
                 (int(list[tokenPair * 2]), int(list[tokenPair * 2 + 1])))
         return elements

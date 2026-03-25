@@ -6,12 +6,6 @@
 # Add: plotting
 #
 
-from __future__ import division
-from __future__ import print_function
-from builtins import str
-from builtins import range
-from builtins import object
-from past.utils import old_div
 import re
 import os
 import sys
@@ -124,7 +118,7 @@ class Item(object):
 
     def create_obj(self, ctx, name):
         id = None
-        id_path = old_div(ctx.dir, ("%s.id" % name))
+        id_path = ctx.dir / ("%s.id" % name)
         prop = self.props.get(name)
         # Do nothing if not in props
         if prop is None:
@@ -175,8 +169,8 @@ class Item(object):
             raise BadPath("File does not exist: %s" % self.path)
 
         f = str(p.abspath())
-        out = old_div(ctx.dir, ("import_%s.out" % ctx.count))
-        err = old_div(ctx.dir, ("import_%s.err" % ctx.count))
+        out = ctx.dir / ("import_%s.out" % ctx.count)
+        err = ctx.dir / ("import_%s.err" % ctx.count)
 
         args = ["import", "---file=%s" % str(out), "---errs=%s" % str(err),
                 "-s", ctx.host(), "-k", ctx.key(), f]
@@ -231,14 +225,14 @@ class Context(object):
         self.reporters.append(reporter)
 
     def setup_dir(self):
-        self.dir = old_div(path.path("."), ("perfdir-%s" % os.getpid()))
+        self.dir = path.path(".") / ("perfdir-%s" % os.getpid())
         if self.dir.exists():
             raise Exception("%s exists!" % self.dir)
         self.dir.makedirs()
 
         # Adding a file logger
         handler = logging.handlers.RotatingFileHandler(
-            str(old_div(self.dir, "perf.log")), maxBytes=10000000, backupCount=5)
+            str(self.dir / "perf.log"), maxBytes=10000000, backupCount=5)
         handler.setLevel(logging.DEBUG)
         formatter = logging.Formatter(omero.util.LOGFORMAT)
         handler.setFormatter(formatter)
@@ -289,7 +283,7 @@ class PerfHandler(object):
 
     def __call__(self, line):
 
-        (old_div(self.ctx.dir,"line.log")).write_text(line, append=True)
+        (self.ctx.dir / "line.log").write_text(line, append=True)
 
         item = Item(line)
         if item.comment():
@@ -314,7 +308,7 @@ class PerfHandler(object):
                 values["errs"] = errs
 
         if loops > 1:
-            values["avg"] = old_div(total, loops)
+            values["avg"] = total // loops
 
         stop = time.time()
         total += (stop - start)
@@ -341,13 +335,13 @@ class CsvReporter(Reporter):
         if dir is None:
             self.stream = sys.stdout
         else:
-            self.file = str(old_div(dir, "report.csv"))
+            self.file = str(dir / "report.csv")
             self.stream = open(self.file, "w")
         print("Command,Start,Stop,Elapsed,Average,Values", file=self.stream)
 
     def report(self, command, start, stop, loops, values):
         print("%s,%s,%s,%s,%s,%s" % (
-            command, start, stop, (stop-start), old_div((stop-start),loops), values), file=self.stream)
+            command, start, stop, (stop-start), (stop-start) // loops, values), file=self.stream)
         self.stream.flush()
 
 
@@ -355,7 +349,7 @@ class HdfReporter(Reporter):
 
     def __init__(self, dir):
         import tables
-        self.file = str(old_div(dir, "report.hdf"))
+        self.file = str(dir / "report.hdf")
 
         # Temporarily support old and new PyTables methods
         try:
@@ -381,7 +375,7 @@ class HdfReporter(Reporter):
         self.row["Start"] = start
         self.row["Stop"] = stop
         self.row["Elapsed"] = (stop-start)
-        self.row["Average"] = old_div((stop-start),loops)
+        self.row["Average"] = (stop-start) // loops
         self.row["Values"] = values
         self.row.append()
         self.hdf.flush()

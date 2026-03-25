@@ -20,8 +20,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from __future__ import unicode_literals
-from builtins import object
 import pytest
 from omero.cli import CLI
 
@@ -79,3 +77,8 @@ class TestBasics(object):
         captured = capsys.readouterr()
         lines = captured.out.splitlines()
         assert lines == ['a=a', 'b=b', 'c=c']
+
+    def testErrors(object, monkeypatch, tmp_path, capsys):
+        cli.invoke(["errors"], strict=True)
+        captured = capsys.readouterr()
+        assert "52	       hql	 BAD_QUERY" in captured.out

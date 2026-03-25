@@ -1,59 +1,61 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright 2008-2016 Glencoe Software, Inc.  All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+# Josh Moore, josh at glencoesoftware.com
 """
- :author: Josh Moore, josh at glencoesoftware.com
+OMERO Grid admin controller.
 
- OMERO Grid admin controller
-
- This is a python wrapper around icegridregistry/icegridnode for master
- and various other tools needed for administration.
-
- Copyright 2008-2016 Glencoe Software, Inc.  All Rights Reserved.
- Use is subject to license terms supplied in LICENSE.txt
-
+This is a python wrapper around icegridregistry/icegridnode for master
+and various other tools needed for administration.
 """
-from __future__ import division
-from __future__ import print_function
 
-from builtins import str
-from future.utils import bytes_to_native_str
-from future.utils import isbytes
-from past.utils import old_div
-from builtins import object
 import re
 import os
 import sys
-import stat
 import platform
 import datetime
 import time
 
 from glob import glob
 from math import ceil
+from zipfile import ZipFile
 
 import omero
 import omero.config
 
 from omero.grid import RawAccessRequest
 
-from omero.cli import admin_only
-from omero.cli import CLI
-from omero.cli import DirectoryType
-from omero.cli import NonZeroReturnCode
-from omero.cli import DiagnosticsControl
-from omero.cli import UserGroupControl
+from omero.cli import (
+    admin_only,
+    CLI,
+    DiagnosticsControl,
+    DirectoryType,
+    NonZeroReturnCode,
+    ServiceManagerMixin,
+    UserGroupControl,
+)
 
 from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
-from omero_ext import portalocker
+import portalocker
 from omero_ext.path import path
 from omero_ext.which import whichall
 from omero_ext.argparse import FileType
 from omero_version import ice_compatibility
 
+from omero.util._process_defaultxml import _process_xml
+
+try:
+    from omero_version import omero_version
+    VERSION = omero_version
+except ImportError:
+    VERSION = "Unknown"  # Usually during testing
 
 try:
     import pywintypes
@@ -91,7 +93,11 @@ if platform.system() == 'Windows':
 
 class AdminControl(DiagnosticsControl,
                    WriteableConfigControl,
-                   UserGroupControl):
+                   UserGroupControl,
+                   ServiceManagerMixin):
+
+    # Require by omero.cli.ServiceManagerMixin
+    SERVICE_MANAGER_KEY = 'server'
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -109,7 +115,10 @@ class AdminControl(DiagnosticsControl,
 
     def _configure(self, parser):
         sub = parser.sub()
-        self._add_diagnostics(parser, sub)
+        parser = self._add_diagnostics(parser, sub)
+        parser.add_argument(
+            "--all-jars", action="store_true",
+            help="Show information for all jars")
         self.add_error(
             "NOT_WINDOWS", 123,
             "Not Windows")
@@ -406,6 +415,8 @@ located.
 Examples:
   omero admin cleanse --dry-run /OMERO      # Lists files that will be \
 deleted
+  omero admin cleanse --dry-run --subdirectory Files /OMERO # List only those \
+fies in /OMERO/Files which will be deleted
   omero admin cleanse /OMERO                # Actually delete them.
   omero admin cleanse /volumes/data/OMERO   # Delete from a standard \
 location.
@@ -420,6 +431,15 @@ location.
                 "data_dir", type=DirectoryType(),
                 help="omero.data.dir directory value e.g. /OMERO")
             x.add_login_arguments()
+
+        cleanse.add_argument(
+            "--subdirectory",  choices=("Pixels", "Files", "Thumbnails",
+                                        "ManagedRepository"),
+            help="Limit to a single subdirectory, e.g. Files")
+
+        cleanse.add_argument(
+            "-v", "--verbose", action="store_true",
+            help="Print more information when using --dry-run")
 
         removepyramids.add_argument(
             "--dry-run", action="store_true",
@@ -680,11 +700,11 @@ present, the user will enter a console""")
 
     def _get_etc_dir(self):
         """Return path to directory containing configuration files"""
-        return old_div(self.ctx.dir, "etc")
+        return self.ctx.dir / "etc"
 
     def _get_grid_dir(self):
         """Return path to directory containing Gridconfiguration files"""
-        return old_div(self._get_etc_dir(), "grid")
+        return self._get_etc_dir() / "grid"
 
     def _get_templates_dir(self):
         """Return path to directory containing templates"""
@@ -713,7 +733,7 @@ present, the user will enter a console""")
             __d__ = "default.xml"
             if self._isWindows():
                 __d__ = "windefault.xml"
-            descript = old_div(self._get_grid_dir(), __d__)
+            descript = self._get_grid_dir() / __d__
             self.ctx.err("No descriptor given. Using %s"
                          % os.path.sep.join(["etc", "grid", __d__]))
         return descript
@@ -757,6 +777,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
+        self.requires_service_manager(config)
         self.check_access(mask=os.R_OK, config=config)
         self.checkice()
         self.check_node(args)
@@ -773,6 +794,31 @@ present, the user will enter a console""")
         if self._isWindows():
             self.checkwindows(args)
         self.check_lock(config)
+
+        try:
+            config['omero.db.poolsize']
+        except KeyError:
+            self.ctx.out(
+                "WARNING: Your server has not been configured for production "
+                "use.\nSee https://docs.openmicroscopy.org/omero/latest/"
+                "sysadmins/server-performance.html?highlight=poolsize\n"
+                "for more information.")
+
+        # Warn if deprecated TLS 1.0 and 1.1 protocols are allowed
+        # See https://datatracker.ietf.org/doc/html/rfc8996
+        # Both protocols are included in the default value of IceSSL.Protocols
+        # https://doc.zeroc.com/ice/3.6/property-reference/icessl#id-.IceSSL.*v3.6-IceSSL.Protocols
+        DEPRECATED_TLS_MESSAGE = (
+            "Your server is configured to allow a deprecated TLS protocol."
+            "\n\nPlease refer to https://omero.readthedocs.io/en/stable/"
+            "sysadmins/server-upgrade.html#server-certificates for "
+            "instructions on how to upgrade your configuration.")
+        try:
+            ssl_protocols = config["omero.glacier2.IceSSL.Protocols"]
+            if ("TLS1_0" in ssl_protocols or "TLS1_1" in ssl_protocols):
+                self.ctx.out("WARNING: " + DEPRECATED_TLS_MESSAGE)
+        except KeyError:
+            self.ctx.out("WARNING: " + DEPRECATED_TLS_MESSAGE)
 
         self._initDir()
         # Do a check to see if we've started before.
@@ -954,7 +1000,7 @@ present, the user will enter a console""")
             args.wait = DEFAULT_WAIT
 
         total_secs = args.wait
-        loop_secs = old_div(total_secs, 30.0)
+        loop_secs = total_secs // 30.0
         return 30, loop_secs, "%s seconds" % total_secs
 
     @with_config
@@ -962,6 +1008,7 @@ present, the user will enter a console""")
         """
         Returns true if the server was already stopped
         """
+        self.requires_service_manager(config)
         self.check_node(args)
         if args.force_rewrite:
             self.rewrite(args, config, force=True)
@@ -1070,7 +1117,7 @@ present, the user will enter a console""")
             self.ctx.out("%s=%s" % (k, sb))
 
     def _get_omero_properties(self):
-        omero_props_file = old_div(self._get_etc_dir(), "omero.properties")
+        omero_props_file = self._get_etc_dir() / "omero.properties"
         pp = PropertyParser()
         omero_props = dict(
             (p.key, p.val) for p in pp.parse_file(omero_props_file))
@@ -1088,6 +1135,16 @@ present, the user will enter a console""")
                                if k.startswith('omero.glacier2.IceSSL.'))
         return ['<property name="%s" value="%s"/>' % kv
                 for kv in list(glacier2_icessl.items())]
+
+    def get_omero_server_version(self):
+        """Returns the value of omero.version stored in omero.properties"""
+        omero_props_file = os.path.join(self._get_etc_dir(), "omero.properties")
+        with open(omero_props_file, 'r') as f:
+            for line in f.readlines():
+                if line.startswith("omero.version"):
+                    idx = line.index("=")
+                    return line[idx + 1:].rstrip()
+        return "unknown"
 
     @with_config
     def rewrite(self, args, config, force=False):
@@ -1111,7 +1168,7 @@ present, the user will enter a console""")
         # Get some defaults from omero.properties
         config_props = self._get_omero_properties()
 
-        generated = old_div(self._get_grid_dir(), "templates.xml")
+        generated = self._get_grid_dir() / "templates.xml"
         if generated.exists():
             generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
@@ -1132,7 +1189,7 @@ present, the user will enter a console""")
             elem.tail = ""
             if elem.text is not None and not elem.text.strip():
                 elem.text = ""
-            for child in elem.getchildren():
+            for child in list(elem):
                 clear_tail(child)
 
         clear_tail(template_xml)
@@ -1152,7 +1209,9 @@ present, the user will enter a console""")
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
             '@omero.master.host@': config.get('omero.master.host', config.get(
-                'Ice.Default.Host', '127.0.0.1'))
+                'Ice.Default.Host', '127.0.0.1')),
+            "@omero.tables.module@": config.get(
+                "omero.tables.module", "runTables")
             }
 
         client_transports = config.get('omero.client.icetransports', 'ssl,tcp')
@@ -1165,27 +1224,32 @@ present, the user will enter a console""")
             for clienttp in client_transports.split(',')]
         substitutions['@omero.client.endpoints@'] = ':'.join(client_endpoints)
 
-        def copy_template(input_file, output_dir):
-            """Replace templates"""
+        node_descriptors = config.get('omero.server.nodedescriptors', '')
 
+        def copy_template(input_file, output_dir, post_process=None):
+            """Replace templates"""
             with open(input_file) as template:
                 data = template.read()
-            output_file = path(old_div(output_dir,
-                               os.path.basename(input_file)))
+            output_file = path(output_dir /
+                               os.path.basename(input_file))
             if output_file.exists():
                 output_file.remove()
             with open(output_file, 'w') as f:
                 for key, value in substitutions.items():
                     data = re.sub(key, value, data)
+                if post_process:
+                    data = post_process(data)
                 f.write(data)
 
         # Regenerate various configuration files from templates
-        for cfg_file in glob(old_div(self._get_templates_dir(), "*.cfg")):
+        for cfg_file in glob(self._get_templates_dir() / "*.cfg"):
             copy_template(cfg_file, self._get_etc_dir())
         for xml_file in glob(
                 self._get_templates_dir() / "grid" / "*default.xml"):
-            copy_template(xml_file, old_div(self._get_etc_dir(), "grid"))
-        ice_config = old_div(self._get_templates_dir(), "ice.config")
+            copy_template(
+                xml_file, self._get_etc_dir() / "grid",
+                lambda xml: _process_xml(xml, node_descriptors))
+        ice_config = self._get_templates_dir() / "ice.config"
         substitutions['@omero.master.host@'] = config.get(
             'omero.master.host', config.get('Ice.Default.Host', 'localhost'))
         copy_template(ice_config, self._get_etc_dir())
@@ -1202,7 +1266,7 @@ present, the user will enter a console""")
         from omero.install.jvmcfg import read_settings
 
         self.check_access(os.R_OK)
-        templates = old_div(self._get_grid_dir(), "templates.xml")
+        templates = self._get_grid_dir() / "templates.xml"
         if templates.exists():
             template_xml = XML(templates.text())
             try:
@@ -1235,10 +1299,11 @@ present, the user will enter a console""")
                 return False
 
             p.wait()
-            io = list(map(bytes_to_native_str, p.communicate()))
+            stdout_data = p.communicate()[0].decode("utf-8")
+            stderr_data = p.communicate()[1].decode("utf-8")
             try:
-                v = io[0].split()
-                v.extend(io[1].split())
+                v = stdout_data.split()
+                v.extend(stderr_data.split())
                 v = "".join(v)
                 m = re.match(r"^\D*(\d[.\d]+\d)\D?.*$", v)
                 v = "%-10s" % m.group(1)
@@ -1272,6 +1337,12 @@ present, the user will enter a console""")
         iga = version(["icegridadmin", "--version"])
         version(["psql",         "--version"])
         version(["openssl",      "version"])
+
+        self.ctx.out("")
+        self._item("Component", "OMERO.py")
+        self.ctx.out(VERSION)
+        self._item("Component", "OMERO.server")
+        self.ctx.out(self.get_omero_server_version())
 
         def get_ports(input):
             router_lines = [line for line in input.split("\n")
@@ -1368,12 +1439,12 @@ present, the user will enter a console""")
             files.sort()
             for x in files:
                 self._item("Log files", x)
-                self._exists(old_div(log_dir, x))
+                self._exists(log_dir / x)
             self._item("Log files", "Total size")
             sz = 0
             for x in log_dir.walkfiles():
                 sz += x.size
-            self.ctx.out("%-.2f MB" % (old_div(float(sz), 1000000.0)))
+            self.ctx.out("%-.2f MB" % (sz / 1000000.0))
             self.ctx.out("")
 
             # Parsing well known issues
@@ -1487,6 +1558,57 @@ present, the user will enter a console""")
                 self._item("JVM settings", " %s" % (k[0].upper() + k[1:]))
                 self.ctx.out("%s" % sb)
 
+        def jar_manifest(jar):
+            manifest = {}
+            error = ''
+            try:
+                with ZipFile(jar) as z:
+                    current = ''
+                    for line in z.read('META-INF/MANIFEST.MF').splitlines():
+                        line = line.decode()
+                        if line and line[0] == ' ':
+                            current += line[1:]
+                        else:
+                            if current:
+                                manifest.update([current.split(': ', 1)])
+                            current = line
+                    if current:
+                        manifest.update([current.split(': ', 1)])
+            except Exception as e:
+                error = str(e)
+            return manifest, error
+
+        # Jar versions
+        jars = sorted(
+            os.path.join(os.path.relpath(root, self.ctx.dir), filename)
+            for root, dirnames, filenames in os.walk(self.ctx.dir)
+            for filename in filenames
+            if filename.endswith('.jar')
+        )
+        if args.all_jars:
+            jar_re = r'.*'
+        else:
+            jar_re = r'lib/server/(formats|ome|omero)-.*.jar'
+        manifest_keys = (
+            'Implementation-Title',
+            'Implementation-Version',
+            'Implementation-Date',
+            'Implementation-Build',
+        )
+        self.ctx.out("")
+        for jar in jars:
+            if not re.match(jar_re, jar):
+                continue
+            manifest, error = jar_manifest(self.ctx.dir / jar)
+            if error:
+                info = [error]
+            else:
+                info = [manifest.get(key, '') for key in manifest_keys]
+            self._item("Jar", jar)
+            self.ctx.out('\t'.join(info))
+
+
+
     def email(self, args):
         client = self.ctx.conn(args)
         iadmin = client.sf.getAdminService()
@@ -1593,23 +1715,14 @@ present, the user will enter a console""")
             self.ctx.die(8, "FATAL: OMERO directory does not exist: %s"
                          % pathobj)
 
-        owner = os.stat(filepath)[stat.ST_UID]
-        if owner == 0:
-            msg = ""
-            msg += "FATAL: OMERO directory which needs to be writeable"\
-                " belongs to root: %s\n" % filepath
-            msg += "Please use \"chown -R NEWUSER %s\" and run as then"\
-                " run %s as NEWUSER" % (filepath, sys.argv[0])
-            self.ctx.die(9, msg)
-        else:
-            if not os.access(filepath, mask):
-                self.ctx.die(10, "FATAL: Cannot access %s, a required"
-                             " file/directory for OMERO" % filepath)
+        if not os.access(filepath, mask):
+            self.ctx.die(10, "FATAL: Cannot access %s, a required"
+                         " file/directory for OMERO" % filepath)
 
     def check_access(self, mask=os.R_OK | os.W_OK, config=None):
         """Check that 'var' is accessible by the current user."""
 
-        var = old_div(self.ctx.dir, 'var')
+        var = self.ctx.dir / 'var'
         if not os.path.exists(var):
             self.ctx.out("Creating directory %s" % var)
             os.makedirs(var)
@@ -1669,8 +1782,8 @@ present, the user will enter a console""")
 
         def _check(msg, vers):
             compat = ice_compatibility.split(".")
-            if isbytes(vers):
-                vers = bytes_to_native_str(vers)
+            if isinstance(vers, bytes):
+                vers = vers.decode("utf-8")
             vers = vers.split(".")
             if compat[0:2] != vers[0:2]:
                 self.ctx.die(164, "%s is not compatible with %s: %s"
@@ -1683,6 +1796,7 @@ present, the user will enter a console""")
         # See ticket #10051
         popen = self.ctx.popen(["icegridnode", "--version"])
         env = self.ctx._env()
+        # Unclear how this could have been set with the call to unsetenv
         ice_config = env.get("ICE_CONFIG")
         if ice_config is not None and not os.path.exists(ice_config):
             popen = self.ctx.popen(["icegridnode", "--version"],
@@ -1696,8 +1810,8 @@ present, the user will enter a console""")
         Callers are responsible for closing the
         returned ConfigXml object.
         """
-        cfg_xml = old_div(self._get_grid_dir(), "config.xml")
-        cfg_tmp = old_div(self._get_grid_dir(), "config.xml.tmp")
+        cfg_xml = self._get_grid_dir() / "config.xml"
+        cfg_tmp = self._get_grid_dir() / "config.xml.tmp"
         grid_dir = self._get_grid_dir()
         if not cfg_xml.exists() and self.can_access(grid_dir):
             if cfg_tmp.exists() and self.can_access(cfg_tmp):
@@ -1746,7 +1860,7 @@ present, the user will enter a console""")
         cfg = config.as_map()
         omero_data_dir = self._get_data_dir(config)
         config.close()  # Early close. See #9800
-        for x in ("name", "user", "host", "port"):
+        for x in ("name", "user", "host", "port", "properties", "url"):
             # NOT passing password on command-line
             k = "omero.db.%s" % x
             if k in cfg:
@@ -1857,7 +1971,8 @@ present, the user will enter a console""")
         self.check_access()
         from omero.util.cleanse import cleanse
         cleanse(data_dir=args.data_dir, client=self.ctx.conn(args),
-                dry_run=args.dry_run)
+                dry_run=args.dry_run, subdirectory=args.subdirectory,
+                verbose=args.verbose)
 
     @admin_only(full_admin=False)
     def log(self, args):

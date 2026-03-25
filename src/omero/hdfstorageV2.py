@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# OMERO HdfStorage Interface
+
+# 
 # Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-from builtins import str
-from builtins import zip
-from builtins import range
-from builtins import object
-from future.utils import native, bytes_to_native_str, isbytes
-from past.builtins import basestring
+"""
+OMERO HdfStorage Interface
+"""
+
 import time
 import numpy
 import logging
@@ -29,7 +27,7 @@ from omero.columns import columns2definition
 from omero.rtypes import rfloat, rlong, rstring, unwrap
 from omero.util.decorators import locked
 from omero_ext.path import path
-from omero_ext import portalocker
+import portalocker
 from functools import wraps
 
 
@@ -37,14 +35,7 @@ sys = __import__("sys")  # Python sys
 tables = __import__("tables")  # Pytables
 
 
-try:
-    # long only exists on Python 2
-    # Recent versions of PyTables may have treated Python 2 int and long
-    # identically anyway so treat the same
-    TABLES_METADATA_INT_TYPES = (int, numpy.int64, long)
-except NameError:
-    TABLES_METADATA_INT_TYPES = (int, numpy.int64)
-
+TABLES_METADATA_INT_TYPES = (int, numpy.int64)
 VERSION = '2'
 
 
@@ -131,11 +122,10 @@ class HdfList(object):
         mode = read_only and "r" or "a"
         hdffile = hdfstorage.openfile(mode)
         fileno = hdffile.fileno()
-
         if not read_only:
             try:
-                portalocker.lockno(
-                    fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
+                portalocker.lock(
+                    hdffile, flags=(portalocker.LOCK_NB | portalocker.LOCK_EX))
             except portalocker.LockException:
                 hdffile.close()
                 raise omero.LockTimeout(
@@ -156,12 +146,15 @@ class HdfList(object):
         return hdffile
 
     @locked
-    def getOrCreate(self, hdfpath, read_only=False):
+    def getOrCreate(self, hdfpath, table, read_only=False):
+        storage = None
         try:
-            return self.__paths[hdfpath]
+            storage = self.__paths[hdfpath]
         except KeyError:
             # Adds itself to the global list
-            return HdfStorage(hdfpath, self._lock, read_only=read_only)
+            storage = HdfStorage(hdfpath, self._lock, read_only=read_only)
+        storage.incr(table)
+        return storage
 
     @locked
     def remove(self, hdfpath, hdffile):
@@ -235,7 +228,7 @@ class HdfStorage(object):
                             self.__hdf_path, mode))
                     mode = "r"
 
-            return tables.open_file(native(str(self.__hdf_path)), mode=mode,
+            return tables.open_file(str(self.__hdf_path), mode=mode,
                                     title="OMERO HDF Measurement Storage",
                                     rootUEP="/")
         except (tables.HDF5ExtError, IOError) as e:
@@ -308,13 +301,13 @@ class HdfStorage(object):
         k = '__version'
         try:
             v = self.__mea.attrs[k]
-            if isinstance(v, basestring):
+            if isinstance(v, str):
                 return v
         except KeyError:
             k = 'version'
             v = self.__mea.attrs[k]
-            if isbytes(v):
-                v = bytes_to_native_str(v)
+            if isinstance(v, bytes):
+                v = v.decode("utf-8")
             if v == 'v1':
                 return '1'
 
@@ -425,12 +418,12 @@ class HdfStorage(object):
         cols = []
         for i in range(len(types)):
             t = types[i]
-            if isbytes(t):
-                t = bytes_to_native_str(t)
+            if isinstance(t, bytes):
+                t = t.decode("utf-8")
             n = names[i]
             d = descs[i]
-            if isbytes(d):
-                d = bytes_to_native_str(d)
+            if isinstance(d, bytes):
+                d = d.decode("utf-8")
             try:
                 col = ic.findObjectFactory(t).create(t)
                 col.name = n
@@ -456,10 +449,10 @@ class HdfStorage(object):
                 val = rfloat(val)
             elif isinstance(val, TABLES_METADATA_INT_TYPES):
                 val = rlong(val)
-            elif isinstance(val, basestring):
-                if isbytes(val):
-                    val = bytes_to_native_str(val)
+            elif isinstance(val, str):
                 val = rstring(val)
+            elif isinstance(val, bytes):
+                val = rstring(val.decode("utf-8"))
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))
             metadata[key] = val
@@ -533,6 +526,7 @@ class HdfStorage(object):
     @modifies
     def update(self, stamp, data):
         self.__initcheck()
+        self.__sizecheck(None, data.rowNumbers)
         if data:
             for i, rn in enumerate(data.rowNumbers):
                 for col in data.columns:
@@ -543,7 +537,12 @@ class HdfStorage(object):
                      start, stop, step):
         self.__initcheck()
         try:
-            return self.__mea.get_where_list(condition, variables, None,
+            condvars = variables
+            if variables:
+                for key, value in condvars.items():
+                    if isinstance(value, str):
+                        condvars[key] = getattr(self.__mea.cols, value)
+            return self.__mea.get_where_list(condition, condvars, None,
                                              start, stop, step).tolist()
         except (NameError, SyntaxError, TypeError, ValueError) as err:
             aue = omero.ApiUsageException()
@@ -552,13 +551,21 @@ class HdfStorage(object):
             aue.serverExceptionClass = str(err.__class__.__name__)
             raise aue
 
-    def _as_data(self, cols, rowNumbers):
+    def _as_data(self, cols, rowNumbers, current):
         """
         Constructs a omero.grid.Data object for returning to the client.
         """
+        include_row_numbers = True
+        try:
+            include_row_numbers = current.ctx.get(
+                "omero.tables.include_row_numbers", "true"
+            ).lower() == "true"
+        except Exception:
+            pass
         data = omero.grid.Data()
         data.columns = cols
-        data.rowNumbers = rowNumbers
+        if include_row_numbers:
+            data.rowNumbers = rowNumbers
         # Convert to millis since epoch
         data.lastModification = int(self._stamp * 1000)
         return data
@@ -570,31 +577,25 @@ class HdfStorage(object):
         cols = self.cols(None, current)
         for col in cols:
             col.readCoordinates(self.__mea, rowNumbers)
-        return self._as_data(cols, rowNumbers)
+        return self._as_data(cols, rowNumbers, current)
 
     @stamped
     def read(self, stamp, colNumbers, start, stop, current):
         self.__initcheck()
         self.__sizecheck(colNumbers, None)
-        cols = self.cols(None, current)
+        all_cols = self.cols(None, current)
+        cols = [all_cols[i] for i in colNumbers]
 
-        rows = self._getrows(start, stop)
-        rv, l = self._rowstocols(rows, colNumbers, cols)
-        return self._as_data(rv, list(range(start, start + l)))
+        for col in cols:
+            col.read(self.__mea, start, stop)
+        if start is not None and stop is not None:
+            rowNumbers = list(range(start, stop))
+        elif start is not None and stop is None:
+            rowNumbers =  list(range(start, self.__length()))
+        elif start is None and stop is None:
+            rowNumbers = list(range(self.__length()))
 
-    def _getrows(self, start, stop):
-        return self.__mea.read(start, stop)
-
-    def _rowstocols(self, rows, colNumbers, cols):
-        l = 0
-        rv = []
-        for i in colNumbers:
-            col = cols[i]
-            col.fromrows(rows)
-            rv.append(col)
-            if not l:
-                l = len(col.values)
-        return rv, l
+        return self._as_data(cols, rowNumbers, current)
 
     @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):
@@ -612,7 +613,7 @@ class HdfStorage(object):
             col = cols[i]
             col.readCoordinates(self.__mea, rowNumbers)
             rv.append(col)
-        return self._as_data(rv, rowNumbers)
+        return self._as_data(rv, rowNumbers, current)
 
     #
     # Lifecycle methods

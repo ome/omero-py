@@ -1,21 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-   Library for gateway tests
-
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
+# 
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import print_function
+Library for gateway tests
+"""
 
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import range
-from builtins import object
-from io import StringIO
 from io import BytesIO
 import omero
 from omero.rtypes import rstring
@@ -42,22 +35,21 @@ dbhelpers.DATASETS = {
 
 dbhelpers.IMAGES = {
     'testimg1': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image', 'CHOBI_d3d.dv', 'testds1'),
+        'weblitz_test_priv_image', "imgs/testimg.fake", 'testds1'),
     'testimg2': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image2', 'CHOBI_d3d.dv', 'testds1'),
+        'weblitz_test_priv_image2', "imgs/testimg.fake", 'testds1'),
     'tinyimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny', 'tinyTest.d3d.dv', 'testds1'),
+        'weblitz_test_priv_image_tiny', "imgs/tinyimg.fake", 'testds1'),
     'badimg': dbhelpers.ImageEntry(
         'weblitz_test_priv_image_bad', False, 'testds1'),
     'tinyimg2': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny2', 'tinyTest.d3d.dv', 'testds2'),
+        'weblitz_test_priv_image_tiny2', "imgs/tinyimg.fake", 'testds2'),
     'tinyimg3': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_tiny3', 'tinyTest.d3d.dv', 'testds3'),
+        'weblitz_test_priv_image_tiny3', "imgs/tinyimg.fake", 'testds3'),
     'bigimg': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_big', 'big.tiff', 'testds3'),
+        'weblitz_test_priv_image_big', "imgs/bigimg.fake", 'testds3'),
     '32float': dbhelpers.ImageEntry(
-        'weblitz_test_priv_image_32float',
-        '32bitfloat&pixelType=float&sizeX=8192&sizeY=8192.fake', 'testds3'),
+        'weblitz_test_priv_image_32float', "imgs/32float.fake", 'testds3'),
 }
 
 

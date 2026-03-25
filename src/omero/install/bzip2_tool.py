@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-
-   Function for enabling/disabling the bzip2.dll which
-   comes with PyTables.
-
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
+#
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import print_function
+Function for enabling/disabling the bzip2.dll which
+comes with PyTables.
+"""
 
 import os
 import sys

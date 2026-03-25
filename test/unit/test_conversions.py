@@ -23,8 +23,6 @@
 Simple tests of the new conversions used for units.
 """
 
-from builtins import str
-from builtins import object
 from pytest import assertAlmostEqual
 from omero.conversions import Add
 from omero.conversions import Int

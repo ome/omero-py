@@ -1,11 +1,9 @@
-from __future__ import division
-
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
 #
-# Copyright (c) 2007-2015 Glencoe Software, Inc. All rights reserved.
+# Copyright (c) 2007-2022 Glencoe Software, Inc. All rights reserved.
 #
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
@@ -14,52 +12,25 @@ from __future__ import division
 # jason@glencoesoftware.com.
 
 # Set up the python include paths
-from past.builtins import cmp
-from future import standard_library
-standard_library.install_aliases()
-from builtins import chr
-from builtins import map
-from builtins import str
-from future.utils import native_str
-from builtins import range
-from past.builtins import basestring
-from past.utils import old_div
-from builtins import object
+import numpy
 import os
 
 import warnings
 from collections import defaultdict
 
-try:
-    from types import IntType, LongType, UnicodeType, ListType
-    from types import BooleanType, TupleType, StringType, StringTypes
-except ImportError:
-    IntType = int
-    LongType = int
-    UnicodeType = str
-    ListType = list
-    BooleanType = bool
-    TupleType = tuple
-    StringType = str
-    StringTypes = str
-
 from datetime import datetime
 from io import StringIO
 from io import BytesIO
 
-try:
-    import configparser
-except ImportError:
-    # Python 2
-    import ConfigParser as configparser
+import configparser
 
 import omero
 import omero.clients
 from omero.util.decorators import timeit
-from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
+from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead, Chown2
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
-from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
+from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean, image_to_html
 from omero.model.enums import PixelsTypeint8, PixelsTypeuint8, PixelsTypeint16
 from omero.model.enums import PixelsTypeuint16, PixelsTypeint32
 from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
@@ -85,28 +56,26 @@ from omero.rtypes import rtime, rlist, rdouble, unwrap
 
 logger = logging.getLogger(__name__)
 THISPATH = os.path.dirname(os.path.abspath(__file__))
+OMERO_NUMPY_TYPES = {
+    PixelsTypeint8: numpy.int8,
+    PixelsTypeuint8: numpy.uint8,
+    PixelsTypeint16: numpy.int16,
+    PixelsTypeuint16: numpy.uint16,
+    PixelsTypeint32: numpy.int32,
+    PixelsTypeuint32: numpy.uint32,
+    PixelsTypefloat: numpy.float32,
+    PixelsTypedouble: numpy.float64,
+}
 
-try:
-    from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
-except:  # pragma: nocover
-    try:
-        # see ticket:2597
-        import Image
-        import ImageDraw
-        import ImageFont
-    except:
-        logger.error(
-            'No Pillow installed, line plots and split channel will fail!')
+from PIL import Image, ImageDraw, ImageFont
 
 
 def omero_type(val):
     """
     Converts rtypes from static factory methods:
-     - StringType to rstring
-     - UnicodeType to rstring
-     - BooleanType to rbool
-     - IntType to rint
-     - LongType to rlong
+     - str to rstring
+     - bool to rbool
+     - int to rint
 
     else return the argument itself
 
@@ -115,16 +84,12 @@ def omero_type(val):
     :return:    matched RType or value
     """
 
-    if isinstance(val, StringType):
+    if isinstance(val, str):
         return rstring(val)
-    elif isinstance(val, UnicodeType):
-        return rstring(val.encode('utf-8'))
-    elif isinstance(val, BooleanType):
+    elif isinstance(val, bool):
         return rbool(val)
-    elif isinstance(val, IntType):
+    elif isinstance(val, int):
         return rint(val)
-    elif isinstance(val, LongType):
-        return rlong(val)
     else:
         return val
 
@@ -181,7 +146,7 @@ def fileread_gen(fin, fsize, bufsize):
 
 def getAnnotationLinkTableName(objecttype):
     """
-    Get the name of the *AnnotationLink table
+    Get the name of the AnnotationLink table
     for the given objecttype
     """
     objecttype = objecttype.lower()
@@ -348,7 +313,7 @@ class BlitzObjectWrapper (object):
             return None
         if units is not None:
             # If units is an attribute of the same Class as our obj...
-            if isinstance(units, basestring):
+            if isinstance(units, str):
                 unitClass = obj.getUnit().__class__
                 unitEnum = getattr(unitClass, str(units))
                 # ... we can convert units
@@ -374,6 +339,7 @@ class BlitzObjectWrapper (object):
         """
         query = ("select obj from %s obj "
                  "join fetch obj.details.owner as owner "
+                 "left outer join fetch obj.details.externalInfo "
                  "join fetch obj.details.creationEvent" % cls.OMERO_CLASS)
 
         params = omero.sys.ParametersI()
@@ -397,7 +363,7 @@ class BlitzObjectWrapper (object):
         if self.CHILD_WRAPPER_CLASS is None:  # pragma: no cover
             raise NotImplementedError(
                 '%s has no child wrapper defined' % self.__class__)
-        if isinstance(self.CHILD_WRAPPER_CLASS, StringTypes):
+        if isinstance(self.CHILD_WRAPPER_CLASS, str):
             # resolve class
             if hasattr(omero.gateway, self.CHILD_WRAPPER_CLASS):
                 self.__class__.CHILD_WRAPPER_CLASS \
@@ -419,10 +385,10 @@ class BlitzObjectWrapper (object):
         if self.PARENT_WRAPPER_CLASS is None:  # pragma: no cover
             raise NotImplementedError
         pwc = self.PARENT_WRAPPER_CLASS
-        if not isinstance(pwc, ListType):
+        if not isinstance(pwc, list):
             pwc = [pwc, ]
         for i in range(len(pwc)):
-            if isinstance(pwc[i], StringTypes):
+            if isinstance(pwc[i], str):
                 # resolve class
                 g = globals()
                 if not pwc[i] in g:  # pragma: no cover
@@ -521,7 +487,7 @@ class BlitzObjectWrapper (object):
             if (self._obj.acquisitionDate.val is not None and
                     self._obj.acquisitionDate.val > 0):
                 t = self._obj.acquisitionDate.val
-                return datetime.fromtimestamp(old_div(t,1000))
+                return datetime.fromtimestamp(t / 1000)
         except:
             # object doesn't have acquisitionDate
             pass
@@ -541,6 +507,7 @@ class BlitzObjectWrapper (object):
             ctx.setOmeroGroup(self.getDetails().getGroup().getId())
         self._obj = self._conn.getUpdateService().saveAndReturnObject(
             self._obj, ctx)
+        self._oid = self._obj.id.val
 
     def saveAs(self, details):
         """
@@ -771,7 +738,7 @@ class BlitzObjectWrapper (object):
         if ns is not None:
             query += " and a.ns=:ns"
             if val is not None:
-                if isinstance(val, StringTypes):
+                if isinstance(val, str):
                     params.map["val"] = omero_type(val)
                     query += " and a.textValue=:val"
         query += " order by c.child.name"
@@ -1239,7 +1206,7 @@ class BlitzObjectWrapper (object):
                     v = v._value
                 if wrapper is not None and v is not None:
                     if wrapper == '':
-                        if isinstance(v, ListType):
+                        if isinstance(v, list):
                             v = [x.simpleMarshal() for x in v]
                         else:
                             v = v.simpleMarshal()
@@ -1316,7 +1283,7 @@ class BlitzObjectWrapper (object):
                 def wrap():
                     rv = getattr(self._obj, attrName)
                     if hasattr(rv, 'val'):
-                        if isinstance(rv.val, StringType):
+                        if isinstance(rv.val, str):
                             if isinstance(rv.val, str):
                                 return rv.val
                             else:
@@ -1341,7 +1308,7 @@ class BlitzObjectWrapper (object):
                 # since it's not an rtype to unwrap.
                 if not hasattr(rv, "_unit"):
                     rv = rv.val
-                    if isinstance(rv, StringType):
+                    if isinstance(rv, str):
                         try:
                             rv = rv.decode('utf8')
                         except:
@@ -1378,6 +1345,31 @@ class BlitzObjectWrapper (object):
                 return self._obj.getName()
         else:
             return None
+
+    def getExternalInfo(self):
+        """
+        Gets the object's details.externalInfo
+        Deprecated in OMERO.py 5.22.0. Use getDetails().getExternalInfo().
+
+        :return: omero.model.ExternalInfo object
+        """
+        warnings.warn(
+            "Deprecated in OMERO.py 5.22.0. Use getDetails().getExternalInfo().",
+            DeprecationWarning)
+
+        extinfo = self.getDetails()._externalInfo
+        if extinfo is not None and not extinfo._loaded:
+            params = omero.sys.ParametersI()
+            params.addId(extinfo.id)
+            query = """
+                select e from ExternalInfo as e
+                where e.id = :id
+            """
+            queryService = self._conn.getQueryService()
+            extinfo = queryService.findByQuery(query, params, {"omero.group": "-1"})
+            # cache the result
+            self._obj._details._externalInfo = extinfo
+        return extinfo
 
     def getDescription(self):
         """
@@ -1435,7 +1427,7 @@ class BlitzObjectWrapper (object):
         """
 
         if self._creationDate is not None:
-            return datetime.fromtimestamp(old_div(self._creationDate,1000))
+            return datetime.fromtimestamp(self._creationDate / 1000)
 
         try:
             if self._obj.details.creationEvent._time is not None:
@@ -1448,7 +1440,7 @@ class BlitzObjectWrapper (object):
             self._creationDate = self._conn.getQueryService().get(
                 "Event", self._obj.details.creationEvent.id.val,
                 self._conn.SERVICE_OPTS).time.val
-        return datetime.fromtimestamp(old_div(self._creationDate,1000))
+        return datetime.fromtimestamp(self._creationDate / 1000)
 
     def updateEventDate(self):
         """
@@ -1470,7 +1462,7 @@ class BlitzObjectWrapper (object):
             t = self._conn.getQueryService().get(
                 "Event", self._obj.details.updateEvent.id.val,
                 self._conn.SERVICE_OPTS).time.val
-        return datetime.fromtimestamp(old_div(t,1000))
+        return datetime.fromtimestamp(t / 1000)
 
     # setters are also provided
 
@@ -1523,7 +1515,7 @@ class _BlitzGateway (object):
 
     def __init__(self, username=None, passwd=None, client_obj=None, group=None,
                  clone=False, try_super=False, host=None, port=None,
-                 extra_config=None, secure=False, anonymous=True,
+                 extra_config=None, secure=None, anonymous=True,
                  useragent=None, userip=None):
         """
         Create the connection wrapper.
@@ -1571,7 +1563,31 @@ class _BlitzGateway (object):
         self.ice_config = [os.path.abspath(str(x)) for x in [_f for _f in self.ice_config if _f]]
 
         self.host = host
+        if self.c is not None:
+            hc = self.c.getProperty("omero.host")
+            if self.host is None:
+                self.host = hc
+            elif hc != self.host:
+                raise Exception("hosts %s and %s do not match" % (hc, self.host))
         self.port = port
+        if self.c is not None:
+            pc = self.c.getProperty("omero.port")
+            if self.port is None:
+                self.port = pc
+            elif pc != self.port:
+                raise Exception("ports %s and %s do not match" % (pc, self.port))
+        if self.c is None:
+            if secure is None:
+                secure = False
+        else:
+            cs = self.c.isSecure()
+            if secure is None:
+                secure = cs
+            else:
+                # Check that the values match
+                if secure != cs:
+                    raise Exception("Secure flag %s and %s do not match" % (secure, cs))
+
         self.secure = secure
         self.useragent = useragent
         self.userip = userip
@@ -1579,6 +1595,11 @@ class _BlitzGateway (object):
         self._sessionUuid = None
         self._session_cb = None
         self._session = None
+        if self.c is not None:
+            try:
+                self._sessionUuid = self.c.getSessionId()
+            except omero.ClientError: # no session available
+                pass
         self._lastGroupId = None
         self._anonymous = anonymous
         self._defaultOmeroGroup = None
@@ -1853,7 +1874,8 @@ class _BlitzGateway (object):
         if self.isAdmin():
             if group is None:
                 e = self.getObject(
-                    "Experimenter", attributes={'omeName': username})
+                    "Experimenter", attributes={'omeName': username},
+                    opts={'load_experimentergroups': True})
                 if e is None:
                     return
                 group = e._obj._groupExperimenterMapSeq[0].parent.name.val
@@ -1981,6 +2003,7 @@ class _BlitzGateway (object):
                 oldC = None
                 self.c = None
                 self._session = None
+                self._sessionUuid = None
 
         self._proxies = NoProxies()
         logger.info("closed connection (uuid=%s)" % str(self._sessionUuid))
@@ -2074,7 +2097,7 @@ class _BlitzGateway (object):
         Returns 'True' if the underlying omero.clients.BaseClient is connected
         using SSL
         """
-        return hasattr(self.c, 'isSecure') and self.c.isSecure() or False
+        return  self.secure
 
     def _getSessionId(self):
         return self.c.getSessionId()
@@ -2127,8 +2150,11 @@ class _BlitzGateway (object):
         logger.debug(self.ice_config)
 
         if self.c is not None:
-            self.c.__del__()
-            self.c = None
+            try:
+                self.c.__del__()
+                self.c = None
+            except omero.ClientError: # no session available
+                pass
 
         if self.host is not None:
             if self.port is not None:
@@ -2170,6 +2196,15 @@ class _BlitzGateway (object):
             logger.debug("Ooops. no self._c")
             return False
         try:
+            try:
+                sid = self.c.getSessionId()
+                # we have a session already from the client
+                if sUuid is None or sid == sUuid:
+                    logger.debug('connected via client')
+                    return True
+            except omero.ClientError: # no session available
+                pass
+
             if self._sessionUuid is None and sUuid:
                 self._sessionUuid = sUuid
             if self._sessionUuid is not None:
@@ -2216,7 +2251,7 @@ class _BlitzGateway (object):
                 for key, value in list(self._ic_props.items()):
                     if isinstance(value, str):
                         value = value.encode('utf_8')
-                    self.c.ic.getProperties().setProperty(key, native_str(value))
+                    self.c.ic.getProperties().setProperty(key, str(value))
                 if self._anonymous:
                     self.c.ic.getImplicitContext().put(
                         omero.constants.EVENT, 'Internal')
@@ -2351,7 +2386,8 @@ class _BlitzGateway (object):
             uid = self.getUserId()
             if uid is not None:
                 self._user = self.getObject(
-                    "Experimenter", self._userid) or None
+                    "Experimenter", self._userid,
+                    opts={'load_experimentergroups': True}) or None
         return self._user
 
     def getAdministrators(self):
@@ -2363,7 +2399,8 @@ class _BlitzGateway (object):
         """
         sysGroup = self.getObject(
             "ExperimenterGroup",
-            self.getAdminService().getSecurityRoles().systemGroupId)
+            self.getAdminService().getSecurityRoles().systemGroupId,
+            opts={'load_experimenters': True})
         for gem in sysGroup.copyGroupExperimenterMap():
             yield ExperimenterWrapper(self, gem.child)
 
@@ -2453,7 +2490,7 @@ class _BlitzGateway (object):
         """
         if gid is None:
             gid = self.getEventContext().groupId
-        if not isinstance(gid, LongType) or not isinstance(gid, IntType):
+        if not isinstance(gid, int):
             gid = int(gid)
         if gid in self.getEventContext().leaderOfGroups:
             return True
@@ -2948,7 +2985,8 @@ class _BlitzGateway (object):
             self.getAdminService().getSecurityRoles().userGroupId]
         if len(self.getEventContext().memberOfGroups) > 0:
             for g in self.getObjects("ExperimenterGroup",
-                                     self.getEventContext().memberOfGroups):
+                                     self.getEventContext().memberOfGroups,
+                                     opts={'load_experimenters': True}):
                 if g.getId() not in system_groups:
                     yield g
 
@@ -3011,16 +3049,13 @@ class _BlitzGateway (object):
         :return:        Generator of experimenters
         :rtype:         :class:`ExperimenterWrapper` generator
         """
-
-        if isinstance(start, UnicodeType):
-            start = start.encode('utf8')
         params = omero.sys.Parameters()
-        params.map = {'start': rstring('%s%%' % start.lower())}
+        params.map = {'start': omero_type('%s%%' % start.lower())}
         q = self.getQueryService()
         rv = q.findAllByQuery(
             "from Experimenter e where lower(e.omeName) like :start",
             params, self.SERVICE_OPTS)
-        rv.sort(lambda x, y: cmp(x.omeName.val, y.omeName.val))
+        rv.sort(key=lambda x: x.omeName.val)
         for e in rv:
             yield ExperimenterWrapper(self, e)
 
@@ -3050,7 +3085,8 @@ class _BlitzGateway (object):
         """
 
         default = self.getObject(
-            "ExperimenterGroup", self.getEventContext().groupId)
+            "ExperimenterGroup", self.getEventContext().groupId,
+            opts={'load_experimenters': True})
         if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d is None:
@@ -3337,7 +3373,7 @@ class _BlitzGateway (object):
         :return:            (query, params, wrapper)
         """
 
-        if isinstance(obj_type, StringTypes):
+        if isinstance(obj_type, str):
             wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
             if wrapper is None:
                 raise KeyError(
@@ -3365,9 +3401,9 @@ class _BlitzGateway (object):
         # Handle dict of parameters -> convert to ParametersI()
         if opts is not None:
             # Parse opts dict to build params
-            if 'offset' in opts and 'limit' in opts:
+            if 'limit' in opts:
                 limit = opts['limit']
-                offset = opts['offset']
+                offset = opts.get('offset', 0)
             if 'owner' in opts:
                 owner = rlong(opts['owner'])
             if 'order_by' in opts:
@@ -3379,12 +3415,14 @@ class _BlitzGateway (object):
             # pagination
             ofs = params.theFilter.offset
             lmt = params.theFilter.limit
-            if ofs is not None and lmt is not None:
+            if ofs is not None:
                 offset = ofs.val
+            if lmt is not None:
                 limit = lmt.val
-            # Other params args will be ignored unless we handle here
 
-        if limit is not None and offset is not None:
+        if limit is not None:
+            if offset is None:
+                offset = 0
             baseParams.page(offset, limit)
 
         # getting object by ids
@@ -3405,7 +3443,7 @@ class _BlitzGateway (object):
                 clauses.append('obj.%s=:%s' % (k, k))
                 if k == 'id':
                     rv = rlong(v)
-                elif isinstance(v, IntType):
+                elif isinstance(v, int):
                     # lookup rint vv rlong from class
                     if wrapper.OMERO_CLASS is not None:
                         klass = getattr(omero.model,
@@ -3772,8 +3810,6 @@ class _BlitzGateway (object):
         containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
-        import numpy
-
         def createImage(firstPlane, channelList):
             """ Create our new Image once we have the first plane in hand """
             convertToType = None
@@ -3788,16 +3824,8 @@ class _BlitzGateway (object):
                 # of our new image
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {PixelsTypeint8: 'int8',
-                                PixelsTypeuint8: 'uint8',
-                                PixelsTypeint16: 'int16',
-                                PixelsTypeuint16: 'uint16',
-                                PixelsTypeint32: 'int32',
-                                PixelsTypeuint32: 'uint32',
-                                PixelsTypefloat: 'float32',
-                                PixelsTypedouble: 'double'}
-                if omeroToNumpy[newPtype] != firstPlane.dtype.name:
-                    convertToType = getattr(numpy, omeroToNumpy[newPtype])
+                if OMERO_NUMPY_TYPES[newPtype] != firstPlane.dtype.name:
+                    convertToType = OMERO_NUMPY_TYPES[newPtype]
                 img._obj.setName(rstring(imageName))
                 img._obj.setSeries(rint(0))
                 updateService.saveObject(img._obj, self.SERVICE_OPTS)
@@ -3843,7 +3871,7 @@ class _BlitzGateway (object):
                 p += plane
                 plane = p
             byteSwappedPlane = plane.byteswap()
-            convertedPlane = byteSwappedPlane.tostring()
+            convertedPlane = byteSwappedPlane.tobytes()
             rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
         image = None
@@ -3960,9 +3988,10 @@ class _BlitzGateway (object):
         if data_type == "Image":
             imageIds = [int(i) for i in ids]
         elif data_type == "Dataset":
-            images = self.getContainerService().getImages(
-                "Dataset", ids, None, self.SERVICE_OPTS)
-            imageIds = [i.getId().getValue() for i in images]
+            imageIds = []
+            for dataset_id in ids:
+                images = self.getObjects("Image", opts={'dataset': dataset_id})
+                imageIds.extend([i.id for i in images])
         elif data_type == "Plate":
             imageIds = []
             plates = self.getObjects("Plate", ids)
@@ -4045,14 +4074,9 @@ class _BlitzGateway (object):
             originalFile.mimetype = rstring(mimetype)
         originalFile.setSize(rlong(fileSize))
         # set sha1
-        try:
-            import hashlib
-            hash_sha1 = hashlib.sha1
-        except:
-            import sha
-            hash_sha1 = sha.new
+        from hashlib import sha1
         fo.seek(0)
-        h = hash_sha1()
+        h = sha1()
         h.update(fo.read())
         shaHast = h.hexdigest()
         originalFile.setHash(rstring(shaHast))
@@ -4177,6 +4201,69 @@ class _BlitzGateway (object):
         p.map["oids"] = rlist([rlong(o) for o in set(annids)])
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield wrapper(self, e)
+
+    def getObjectsByMapAnnotations(self, obj_type, key=None, value=None, ns=None,
+                                   opts={}):
+        """
+        Retrieve objects linked to Map Annotations, filter by key and value.
+
+        :param obj_type:    'Dataset', 'Image' etc.
+        :param key:         Filter by key. Can start or end with * wild card
+        :param value:       Filter by value. Can start or end with * wild card
+        :param ns:          Filter by namespace
+        :return:            Generator yielding Objects
+        :rtype:             :class:`BlitzObjectWrapper` generator
+        """
+
+        wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
+        if not wrapper:
+            raise AttributeError("Don't know how to handle '%s'" % obj_type)
+
+        params = omero.sys.ParametersI()
+        clauses = []
+
+        def add_param(param, value):
+            if value is None:
+                return
+            # Replace wild-cards with `%%` for `like` search
+            wild_card = (value[0] == "*" or value[-1] == "*")
+            if value[0] == "*":
+                value = "%%" + value[1:]
+            if value[-1] == "*":
+                value = value[:-1] + "%%"
+            like = "like" if wild_card else "="
+            clauses.append("mv.%s %s :%s" % (param, like, param))
+            params.addString(param, value)
+
+        # Build the query, handling wildcards for key and value
+        add_param("name", key)
+        add_param("value", value)
+
+        if ns is not None:
+            clauses.append("ann.ns = :ns")
+            params.addString("ns", ns)
+
+        # Parse opts dict to build params
+        limit = opts.get('limit', 500)
+        offset = opts.get('offset', 0)
+        if offset is not None and limit is not None:
+            params.page(offset, limit)
+
+        # Using projection since can't seem to fetch objects AND filter by mapValue
+        query = """
+            select distinct obj.id from
+            %sAnnotationLink ial
+            join ial.child ann
+            join ann.mapValue mv
+            join ial.parent obj""" % wrapper().OMERO_CLASS
+        if len(clauses) > 0:
+            query += " where " + " and ".join(clauses)
+        result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
+        ids = [row[0].val for row in result]
+        if len(ids) == 0:
+            return []
+        return self.getObjects(obj_type, ids)
+
 
     ################
     # Enumerations #
@@ -4548,6 +4635,48 @@ class _BlitzGateway (object):
         prx = self.c.sf.submit(da, ctx)
         return prx
 
+    def chownObjects(self, graph_spec, obj_ids, owner_id, wait=False):
+        """
+        Change the Owner for a specified objects using queue.
+
+        This can only be used by OMERO administrators with "Chown"
+        privilege and group owners.
+        Group owners can only transfer ownership between members of the
+        owned group.
+        Administrators can transfer ownership between any users
+        regardless of their respective groups.
+
+        :param graph_spec:      String to indicate the object type or graph
+                                specification. Examples include:
+
+                                * 'Image'
+                                * 'Project'   # will move contents too.
+        :param obj_ids:         IDs for the objects to move.
+        :param owner_id:        The owner to move the data to.
+        """
+
+        if not isinstance(obj_ids, list) or len(obj_ids) < 1:
+            raise AttributeError('Must be a list of object IDs')
+
+        graph = graph_spec.lstrip('/').split('/')
+        obj_ids = list(map(int, obj_ids))
+        chown = Chown2(targetObjects={graph[0]: obj_ids})
+        chown.userId = owner_id
+
+        da = DoAll()
+        da.requests = [chown]
+
+        logger.debug('Chown2: type: %s, ids: %s, owner: %s' %
+                     (graph_spec, obj_ids, owner_id))
+
+        handle = self.c.sf.submit(da, self.SERVICE_OPTS)
+        if wait:
+            try:
+                cb = self._waitOnCmd(handle)
+            finally:
+                cb.close(True)
+        return handle
+
     ###################
     # Searching stuff #
 
@@ -4605,7 +4734,7 @@ class _BlitzGateway (object):
                 t = c[i]
                 t = unwrap(t)
                 if t is not None:
-                    t = time.localtime(old_div(t, 1000))
+                    t = time.localtime(t / 1000)
                     t = time.strftime("%Y%m%d", t)
                     return t
             except:
@@ -4905,7 +5034,7 @@ class ProxyObjectWrapper (object):
             try:
                 logger.debug("## - refreshing %s" %
                              (self._func_str or self._service_name))
-                obj = conn.c.ic.stringToProxy(native_str(self._obj))
+                obj = conn.c.ic.stringToProxy(str(self._obj))
                 self._obj = self._obj.checkedCast(obj)
             except Ice.ObjectNotExistException:
                 self._obj = None
@@ -5415,7 +5544,7 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
         :rtype:     :class:`datetime.datetime`
         """
 
-        return datetime.fromtimestamp(old_div(self._obj.timeValue.val, 1000.0))
+        return datetime.fromtimestamp(self._obj.timeValue.val / 1000.0)
 
     def setValue(self, val):
         """
@@ -5786,6 +5915,23 @@ class MapAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = MapAnnotationI
 
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Used for building queries in generic methods such as
+        getObjects("MapAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
+        """
+
+        query = ("select obj from MapAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+
     def getValue(self):
         """
         Gets the value of the Map Annotation as a list of
@@ -5908,15 +6054,42 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         Returns string for building queries, loading Experimenters only.
 
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'experimentergroup': <group_id> to filter by ExperimenterGroup
+                        'load_experimentergroups': <bool> to load ExperimenterGroups
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
-        query = ("select distinct obj from Experimenter as obj "
-                 "left outer join fetch obj.groupExperimenterMap as map "
-                 "left outer join fetch map.parent g")
-        return query, [], omero.sys.ParametersI()
+        clauses = []
+        query = "select obj from Experimenter as obj"
+        params = omero.sys.ParametersI()
+
+        if opts is None:
+            opts = {}
+        load_experimentergroups = opts.get('load_experimentergroups', True)
+        if load_experimentergroups:
+            query += (" left outer join fetch obj.groupExperimenterMap "
+                      "as groupExperimenterMap "
+                      "left outer join fetch groupExperimenterMap.parent g")
+
+        if 'experimentergroup' in opts:
+            if not load_experimentergroups:
+                query += ' join obj.groupExperimenterMap groupExperimenterMap'
+            clauses.append('groupExperimenterMap.parent.id = :group')
+            params.add('group', rlong(opts['experimentergroup']))
+        return query, clauses, params
+
+    def copyGroupExperimenterMap(self):
+        """Delegate to the wrapped _obj.copyGroupExperimenterMap()."""
+        if not self._obj.groupExperimenterMapLoaded:
+            self.__loadedHotSwap__()
+        return self._obj.copyGroupExperimenterMap()
+
+    def __loadedHotSwap__(self):
+        """Load Experimenter with Groups loaded."""
+        e = self._conn.getObject('Experimenter', self.getId(),
+                                 opts={'load_experimentergroups': True})
+        self._obj = e._obj
 
     def getRawPreferences(self):
         """
@@ -6143,15 +6316,42 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         Returns string for building queries, loading Experimenters for each
         group.
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'experimenter': <experimenter_id> to filter by
+                                        Experimenter
+                        'load_experimenters': <bool> to load Experimenters
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
-        query = ("select distinct obj from ExperimenterGroup as obj "
-                 "left outer join fetch obj.groupExperimenterMap as map "
-                 "left outer join fetch map.child e")
-        return query, [], omero.sys.ParametersI()
+        clauses = []
+        query = "select obj from ExperimenterGroup as obj"
+        params = omero.sys.ParametersI()
+        if opts is None:
+            opts = {}
+
+        load_experimenters = opts.get('load_experimenters', True)
+        if load_experimenters:
+            query += (" left outer join fetch obj.groupExperimenterMap as map "
+                      "left outer join fetch map.child e")
+
+        if 'experimenter' in opts:
+            if not load_experimenters:
+                query += ' join obj.groupExperimenterMap as map'
+            clauses.append('map.child.id = :experimenter')
+            params.add('experimenter', rlong(opts['experimenter']))
+        return query, clauses, params
+
+    def copyGroupExperimenterMap(self):
+        """Delegate to the wrapped _obj.copyGroupExperimenterMap()."""
+        if not self._obj.groupExperimenterMapLoaded:
+            self.__loadedHotSwap__()
+        return self._obj.copyGroupExperimenterMap()
+
+    def __loadedHotSwap__(self):
+        """Load ExperimenterGroup with Experimenters loaded."""
+        g = self._conn.getObject('ExperimenterGroup', self.getId(),
+                                 opts={'load_experimenters': True})
+        self._obj = g._obj
 
     def groupSummary(self, exclude_self=False):
         """
@@ -6224,6 +6424,16 @@ class DetailsWrapper (BlitzObjectWrapper):
                 self._conn, self._obj.getGroup()) or None
         return self._group
 
+    def getExternalInfo(self):
+        """
+        Returns a wrapped ExternalInfo or None
+
+        :return:    ExternalInfo
+        :rtype:     :class:`BlitzObjectWrapper`
+        """
+        if self.externalInfo is not None:
+            return BlitzObjectWrapper(self._conn, self.externalInfo)
+        return None
 
 class _DatasetWrapper (BlitzObjectWrapper):
     """
@@ -6356,11 +6566,11 @@ ScreenWrapper = _ScreenWrapper
 def _letterGridLabel(i):
     """  Convert number to letter label. E.g. 0 -> 'A' and 100 -> 'CW'  """
     r = chr(ord('A') + i % 26)
-    i = old_div(i,26)
+    i = i // 26
     while i > 0:
         i -= 1
         r = chr(ord('A') + i % 26) + r
-        i = old_div(i,26)
+        i = i // 26
     return r
 
 
@@ -6481,6 +6691,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         Iterates all wells on plate to retrieve grid size as {'rows': rSize,
         'columns':cSize} dict.
+        If the Plate has no Wells, it will return {'rows': 0, 'columns': 0}
 
         :rtype:     dict of {'rows': rSize, 'columns':cSize}
         """
@@ -6492,7 +6703,10 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     "where plate.id = :id"
             res = q.projection(query, params, self._conn.SERVICE_OPTS)
             (row, col) = res[0]
-            self._gridSize = {'rows': row.val+1, 'columns': col.val+1}
+            if row is None or col is None:
+                self._gridSize = {'rows': 0, 'columns': 0}
+            else:
+                self._gridSize = {'rows': row.val+1, 'columns': col.val+1}
         return self._gridSize
 
     def getWellGrid(self, index=0):
@@ -6628,8 +6842,8 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
         if name is None:
             if self.startTime is not None and self.endTime is not None:
                 name = "%s - %s" % (
-                    datetime.fromtimestamp(old_div(self.startTime,1000)),
-                    datetime.fromtimestamp(old_div(self.endTime,1000)))
+                    datetime.fromtimestamp(self.startTime / 1000),
+                    datetime.fromtimestamp(self.endTime / 1000))
             else:
                 name = "Run %i" % self.id
         return name
@@ -6648,12 +6862,12 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
     def getStartTime(self):
         """Get the StartTime as a datetime object or None if not set."""
         if self.startTime:
-            return datetime.fromtimestamp(old_div(self.startTime,1000))
+            return datetime.fromtimestamp(self.startTime / 1000)
 
     def getEndTime(self):
         """Get the EndTime as a datetime object or None if not set."""
         if self.endTime:
-            return datetime.fromtimestamp(old_div(self.endTime,1000))
+            return datetime.fromtimestamp(self.endTime / 1000)
 
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
 
@@ -7023,7 +7237,7 @@ class ColorHolder (object):
         Set red, as int 0..255
 
         :param val: value of Red.
-        :type val:  Int
+        :type val:  int
         """
 
         self._color['red'] = max(min(255, int(val)), 0)
@@ -7043,7 +7257,7 @@ class ColorHolder (object):
         Set green, as int 0..255
 
         :param val: value of Green.
-        :type val:  Int
+        :type val:  int
         """
 
         self._color['green'] = max(min(255, int(val)), 0)
@@ -7063,7 +7277,7 @@ class ColorHolder (object):
         Set Blue, as int 0..255
 
         :param val: value of Blue.
-        :type val:  Int
+        :type val:  int
         """
 
         self._color['blue'] = max(min(255, int(val)), 0)
@@ -7331,6 +7545,16 @@ class _PixelsWrapper (BlitzObjectWrapper):
         planeList = list(self.getPlanes([(theZ, theC, theT)]))
         return planeList[0]
 
+    def get_numpy_type(self):
+        """
+        Returns the numpy class corresponding to the OMERO pixels type.
+
+        This is the numpy type that is used for getTiles() and getPlane()
+        :return:    numpy type, e.g. np.int8
+        """
+        pixels_type = self.getPixelsType().value
+        return OMERO_NUMPY_TYPES[pixels_type]
+
     def getTiles(self, zctTileList):
         """
         Returns generator of numpy 2D planes from this set of pixels for a
@@ -7340,22 +7564,13 @@ class _PixelsWrapper (BlitzObjectWrapper):
         :param zctrList:     A list of indexes: [(z,c,t, region), ]
         """
 
-        import numpy
         from struct import unpack
 
-        pixelTypes = {PixelsTypeint8: ['b', numpy.int8],
-                      PixelsTypeuint8: ['B', numpy.uint8],
-                      PixelsTypeint16: ['h', numpy.int16],
-                      PixelsTypeuint16: ['H', numpy.uint16],
-                      PixelsTypeint32: ['i', numpy.int32],
-                      PixelsTypeuint32: ['I', numpy.uint32],
-                      PixelsTypefloat: ['f', numpy.float32],
-                      PixelsTypedouble: ['d', numpy.float64]}
         rawPixelsStore = None
         sizeX = self.sizeX
         sizeY = self.sizeY
         pixelType = self.getPixelsType().value
-        numpyType = pixelTypes[pixelType][1]
+        numpyType = self.get_numpy_type()
         exc = None
         try:
             rawPixelsStore = self._prepareRawPixelsStore()
@@ -7371,9 +7586,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
                         z, c, t, x, y, width, height)
                     planeY = height
                     planeX = width
-                # +str(sizeX*sizeY)+pythonTypes[pixelType]
-                convertType = '>%d%s' % (
-                    (planeY*planeX), pixelTypes[pixelType][0])
+                np_char = numpy.dtype(OMERO_NUMPY_TYPES[pixelType]).char
+                convertType = '>%d%s' % ((planeY*planeX), np_char)
                 if isinstance(rawPlane, bytes):
                     convertedPlane = unpack(convertType, rawPlane)
                 else:
@@ -7417,32 +7631,41 @@ class _FilesetWrapper (BlitzObjectWrapper):
 
     OMERO_CLASS = 'Fileset'
 
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("Fileset").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = "select obj from Fileset obj "\
-            "left outer join fetch obj.images as image "\
-            "left outer join fetch obj.usedFiles as usedFile " \
-            "join fetch usedFile.originalFile"
-        return query, [], omero.sys.ParametersI()
+    def _loadImages(self):
+        """ Load the Images linked to this Fileset """
+        params = omero.sys.ParametersI()
+        params.addId(self.getId())
+        query_svc = self._conn.getQueryService()
+        query = "select image from Image as image where image.fileset.id=:id"
+        self._obj._imagesSeq = query_svc.findAllByQuery(query, params,
+                                                        self._conn.SERVICE_OPTS)
+        self._obj._imagesLoaded = True
 
     def copyImages(self):
         """ Returns a list of :class:`ImageWrapper` linked to this Fileset """
+        if not self._obj._imagesLoaded:
+            self._loadImages()
+
         return [ImageWrapper(self._conn, i) for i in self._obj.copyImages()]
+
+    def _loadUsedFiles(self):
+        """ Load the UsedFiles linked to this Fileset """
+        params = omero.sys.ParametersI()
+        params.addId(self.getId())
+        query_svc = self._conn.getQueryService()
+        query = "select fse from FilesetEntry as fse join fetch fse.originalFile where fse.fileset.id=:id"
+        self._obj._usedFilesSeq = query_svc.findAllByQuery(query, params,
+                                                           self._conn.SERVICE_OPTS)
+        self._obj._usedFilesLoaded = True
 
     def listFiles(self):
         """
         Returns a list of :class:`OriginalFileWrapper` linked to this Fileset
         via Fileset Entries
         """
+        if not self._obj._usedFilesLoaded:
+            self._loadUsedFiles()
+
         return [OriginalFileWrapper(self._conn, f.originalFile)
                 for f in self._obj.copyUsedFiles()]
 
@@ -7751,7 +7974,7 @@ class assert_re (object):
     call. Is configurable by various options.
     """
 
-    def __init__(self, onPrepareFailureReturnNone=True, ignoreExceptions=None):
+    def __init__(self, onPrepareFailureReturnNone=True, ignoreExceptions=()):
         """
         Initialises the decorator.
 
@@ -7763,7 +7986,7 @@ class assert_re (object):
         :param ignoreExceptions: A set of exceptions thrown during the
         preparation of the rendering engine for which the decorator should
         ignore and allow the execution of the decorated function or method.
-        Defaults to 'None'.
+        Defaults to empty tuple.
         :type ignoreExceptions: Set
         """
         self.onPrepareFailureReturnNone = onPrepareFailureReturnNone
@@ -7931,7 +8154,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         t = unwrap(self._obj.acquisitionDate)
         if t is not None and t > 0:
             try:
-                return datetime.fromtimestamp(old_div(t,1000))
+                return datetime.fromtimestamp(t / 1000)
             except ValueError:
                 return None
 
@@ -7955,6 +8178,13 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 ctx.setOmeroGroup(-1)
             i = self._obj.instrument = meta_serv.loadInstrument(i.id.val, ctx)
         return InstrumentWrapper(self._conn, i)
+
+    def _repr_html_(self):
+        """
+        Returns an HTML representation of the object. This is used by the
+        IPython notebook to display the object in a cell.
+        """
+        return image_to_html(self)
 
     def _loadPixels(self):
         """
@@ -8380,7 +8610,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if len(size) == 1:
             w = self.getSizeX()
             h = self.getSizeY()
-            ratio = old_div(float(w), h)
+            ratio = w / h
             if ratio > 1:
                 h = h * size[0] / w
                 w = size[0]
@@ -8425,7 +8655,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             tb = self._prepareTB(rdefId=rdefId)
             if tb is None:
                 return None
-            if isinstance(size, IntType):
+            if isinstance(size, int):
                 size = (size,)
             if z is not None or t is not None:
                 if z is None:
@@ -8499,7 +8729,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
             pmax = 2 ** (8 * rp.getByteWidth())
             if rp.isSigned():
-                return (-(old_div(pmax, 2)), old_div(pmax, 2) - 1)
+                return (- pmax / 2, pmax / 2 - 1)
             else:
                 return (0, pmax-1)
         finally:
@@ -8616,13 +8846,13 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         eg {0: 1.0, 1: 0.25, 2: 0.062489446727078291, 3: 0.031237687848258006}
         Returns None if this image doesn't support tiles.
         """
-        if not self._re.requiresPixelsPyramid():
+        if self._re.getResolutionLevels() == 1:
             return None
         levels = self._re.getResolutionDescriptions()
         rv = {}
         sizeXList = [level.sizeX for level in levels]
         for i, level in enumerate(sizeXList):
-            rv[i] = old_div(float(level),sizeXList[0])
+            rv[i] = level / sizeXList[0]
         return rv
 
     @assert_re()
@@ -8842,7 +9072,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             channels = [x._idx for x in [x for x in self.getChannels() if x.isActive()]]
         if range is None:
             range = axis == 'h' and self.getSizeY() or self.getSizeX()
-        if not isinstance(channels, (TupleType, ListType)):
+        if not isinstance(channels, (tuple, list)):
             channels = (channels,)
         chw = [(x.getWindowMin(), x.getWindowMax()) for x in self.getChannels()]
         rv = []
@@ -9119,16 +9349,16 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             size_x = self.getSizeX()
             size_y = self.getSizeY()
             tile_width, tile_height = re.getTileSize()
-            tiles_wide = math.ceil(old_div(float(size_x), tile_width))
-            tiles_high = math.ceil(old_div(float(size_y), tile_height))
+            tiles_wide = math.ceil(size_x / tile_width)
+            tiles_high = math.ceil(size_y / tile_height)
             # Since the JPEG 2000 algorithm is iterative and rounds pixel
             # counts at each resolution level we're doing the resulting tile
             # size calculations in a loop. Also, since the image is physically
             # tiled the resulting size is a multiple of the tile size and not
             # the iterative quotient of a 2**(resolutionLevels - 1).
             for i in range(1, re.getResolutionLevels()):
-                tile_width = round(old_div(tile_width, 2.0))
-                tile_height = round(old_div(tile_height, 2.0))
+                tile_width = round(tile_width /  2.0)
+                tile_height = round(tile_height / 2.0)
             width = int(tiles_wide * tile_width)
             height = int(tiles_high * tile_height)
             jpeg_data = self.renderJpegRegion(
@@ -9138,13 +9368,13 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             # We've been asked to scale the image by its longest side so we'll
             # perform that operation until the server has the capability of
             # doing so.
-            ratio = old_div(float(size), max(width, height))
+            ratio = size / max(width, height)
             if width > height:
                 size = (int(size), int(height * ratio))
             else:
                 size = (int(width * ratio), int(size))
             jpeg_data = Image.open(BytesIO(jpeg_data))
-            jpeg_data.thumbnail(size, Image.ANTIALIAS)
+            jpeg_data.thumbnail(size, Image.LANCZOS)
             ImageDraw.Draw(jpeg_data)
             f = BytesIO()
             jpeg_data.save(f, "JPEG")
@@ -9314,7 +9544,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             p1 = 0
             p2 = 1
             while (p2 <= len(tokens) and
-                   font.getsize(' '.join(tokens[p1:p2]))[0] < width):
+                   (font.getbbox(' '.join(tokens[p1:p2]))[2] - 
+                    font.getbbox(' '.join(tokens[p1:p2]))[0]) < width):
                 p2 += 1
             rv.append(' '.join(tokens[p1:p2-1]))
             tokens = tokens[p2-1:]
@@ -9405,10 +9636,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             args.append('Canvas_Colour=%s' % opts['minsize'][2])
 
         scalebars = (1, 1, 2, 2, 5, 5, 5, 5, 10, 10, 10, 10)
-        scalebar = scalebars[max(min(int(old_div(w, 256))-1, len(scalebars)), 1) - 1]
+        scalebar = scalebars[max(min(int(w // 256)-1, len(scalebars)), 1) - 1]
         args.append('Scalebar=%d' % scalebar)
         fsizes = (8, 8, 12, 18, 24, 32, 32, 40, 48, 56, 56, 64)
-        fsize = fsizes[max(min(int(old_div(w, 256))-1, len(fsizes)), 1) - 1]
+        fsize = fsizes[max(min(int(w // 256)-1, len(fsizes)), 1) - 1]
         font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize))
         slides = opts.get('slides', [])
         for slidepos in range(min(2, len(slides))):
@@ -9418,17 +9649,17 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 line = line.decode('utf8').encode('iso8859-1')
                 wwline = self._wordwrap(w, line, font)
                 for j, line in enumerate(wwline):
-                    tsize = font.getsize(line)
+                    tsize = font.getbbox(line)[2:]
                     draw = ImageDraw.Draw(slide)
                     if i == 0:
                         y = 10+j*tsize[1]
                     elif i == 1:
-                        y = old_div(h, 2) - \
+                        y = h // 2 - \
                             ((len(wwline)-j)*tsize[1]) + \
-                            old_div((len(wwline)*tsize[1]),2)
+                            (len(wwline)*tsize[1]) // 2
                     else:
                         y = h - (len(wwline) - j)*tsize[1] - 10
-                    draw.text((old_div(w,2)-old_div(tsize[0],2), y), line, font=font)
+                    draw.text((w // 2 - tsize[0] // 2, y), line, font=font)
             fp = StringIO()
             slide.save(fp, "JPEG")
             fileSize = len(fp.getvalue())
@@ -9589,7 +9820,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         # Font sizes depends on image width
         w = self.getSizeX()
         if w >= 640:
-            fsize = (int(old_div((w-640),128))*8) + 24
+            fsize = (int((w-640) // 128)*8) + 24
             if fsize > 64:
                 fsize = 64
         elif w >= 512:
@@ -10190,18 +10421,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 if ns == a['ns']:
                     return a['value']
 
-    def getROICount(self, shapeType=None, filterByCurrentUser=False):
-        """
-        Count number of ROIs associated to an image
-
-        :param shapeType: Filter by shape type ("Rectangle",...).
-        :param filterByCurrentUser: Whether or not to filter the count by
-                                    the currently logged in user.
-        :return: Number of ROIs found for the currently logged in user if
-                 filterByCurrentUser is True, otherwise the total number
-                 found.
-        """
-
+    def _get_rois(self, shapeType=None, filterByCurrentUser=False):
         # Create ROI shape validator (return True if at least one shape is
         # found)
         def isValidType(shape):
@@ -10221,6 +10441,40 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     return True
             return False
 
+        roiOptions = omero.api.RoiOptions()
+        if filterByCurrentUser:
+            roiOptions.userId = omero.rtypes.rlong(self._conn.getUserId())
+
+        result = self._conn.getRoiService().findByImage(self.id, roiOptions)
+        rois = [roi for roi in result.rois if isValidROI(roi)]
+        return rois
+
+    def getROIs(self, shapeType=None, filterByCurrentUser=False):
+        """
+        Gets ROIs associated to an image
+
+        :param shapeType: Filter by shape type ("Rectangle",...).
+        :param filterByCurrentUser: Whether or not to filter the count by
+                                    the currently logged in user.
+        :return: list of ROIs found for the currently logged in user if
+                 filterByCurrentUser is True, otherwise the total rois
+                 found.
+        """
+        return [RoiWrapper(self._conn, roi) for roi in 
+                self._get_rois(shapeType, filterByCurrentUser)]
+        
+
+    def getROICount(self, shapeType=None, filterByCurrentUser=False):
+        """
+        Count number of ROIs associated to an image
+
+        :param shapeType: Filter by shape type ("Rectangle",...).
+        :param filterByCurrentUser: Whether or not to filter the count by
+                                    the currently logged in user.
+        :return: Number of ROIs found for the currently logged in user if
+                 filterByCurrentUser is True, otherwise the total number
+                 found.
+        """
         # Optimisation for the most common use case of unfiltered ROI counts
         # for the current user.
         if shapeType is None:
@@ -10236,14 +10490,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             # Projection returns a two dimensional array of RType wrapped
             # return values so we want the value of row one, column one.
             return count[0][0].getValue()
-
-        roiOptions = omero.api.RoiOptions()
-        if filterByCurrentUser:
-            roiOptions.userId = omero.rtypes.rlong(self._conn.getUserId())
-
-        result = self._conn.getRoiService().findByImage(self.id, roiOptions)
-        count = sum(1 for roi in result.rois if isValidROI(roi))
-        return count
+        return len(self._get_rois(shapeType, filterByCurrentUser))
 
 ImageWrapper = _ImageWrapper
 

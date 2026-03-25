@@ -9,10 +9,6 @@
 
 """
 
-from builtins import str
-from past.builtins import basestring
-from builtins import hex
-from builtins import object
 from omero.gateway.utils import ServiceOptsDict
 from omero.gateway.utils import toBoolean
 from omero.gateway.utils import propertiesToDict
@@ -30,7 +26,7 @@ class TestServiceOptsDict (object):
         d = ServiceOptsDict(d)
 
         resd = d.get("omero.group")
-        assert isinstance(resd, basestring)
+        assert isinstance(resd, str)
         assert d.get("omero.group") == str(d["omero.group"])
 
         d = ServiceOptsDict(x=1, y=2)

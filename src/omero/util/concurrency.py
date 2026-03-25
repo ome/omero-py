@@ -1,25 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# OMERO Concurrency Utilities
+
 #
 # Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+"""
+OMERO Concurrency Utilities
+"""
 import atexit
 import logging
 import threading
 import omero.util
 import logging.handlers
 
-try:
-    from threading import _Event
-    from threading import _Timer
-except ImportError:
-    # Python3
-    from threading import Event as _Event
-    from threading import Timer as _Timer
+from threading import Event as _Event
+from threading import Timer as _Timer
 
 
 def get_event(name="Unknown"):

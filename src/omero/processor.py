@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# OMERO Grid Processor
 # Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-from __future__ import division
-from builtins import str
-from builtins import range
-from future.utils import native_str
-from past.utils import old_div
-from builtins import object
+"""
+OMERO Grid Processor
+"""
+
 import os
 import time
 import signal
@@ -57,13 +54,13 @@ class WithGroup(object):
 
     def __init__(self, service, group_id):
         self._service = service
-        self._group_id = native_str(group_id)
+        self._group_id = str(group_id)
 
     def _get_ctx(self, group=None):
         ctx = self._service.ice_getCommunicator()\
             .getImplicitContext().getContext()
         ctx = dict(ctx)
-        ctx["omero.group"] = native_str(group)
+        ctx["omero.group"] = str(group)
         return ctx
 
     def __getattr__(self, name):
@@ -183,10 +180,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 
     def make_files(self):
         self.dir = create_path("process", ".dir", folder=True)
-        self.script_path = old_div(self.dir, "script")
-        self.config_path = old_div(self.dir, "config")
-        self.stdout_path = old_div(self.dir, "out")
-        self.stderr_path = old_div(self.dir, "err")
+        self.script_path = self.dir / "script"
+        self.config_path = self.dir / "config"
+        self.stdout_path = self.dir / "out"
+        self.stderr_path = self.dir / "err"
 
     def make_config(self):
         """
@@ -702,7 +699,7 @@ class MATLABProcessI(ProcessI):
         in ordert to append a ".m"
         """
         ProcessI.make_files(self)
-        self.script_path = old_div(self.dir, "script.m")
+        self.script_path = self.dir / "script.m"
 
     def command(self):
         """

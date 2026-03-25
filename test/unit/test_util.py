@@ -23,14 +23,7 @@
 """
 Test of various things under omero.util
 """
-from __future__ import division
-from __future__ import unicode_literals
 
-from builtins import str
-from builtins import range
-from future.utils import native_str
-from past.utils import old_div
-from builtins import object
 import json
 import pytest
 from omero_ext.path import path
@@ -39,13 +32,11 @@ from os import linesep
 from omero.util.text import CSVStyle, JSONStyle, PlainStyle, TableBuilder
 from omero.util.upgrade_check import UpgradeCheck
 from omero.util.temp_files import manager
-from omero.util import get_user_dir
+from omero.util import (
+    get_omero_userdir, get_omero_user_cache_dir, get_user_dir)
 from omero_version import omero_version
 import omero.util.image_utils as image_utils
-try:
-    from PIL import Image
-except ImportError:
-    import Image
+from PIL import Image
 import numpy
 
 
@@ -215,10 +206,10 @@ class TestTempFileManager(object):
         for var in list(environment.keys()):
             if environment[var]:
                 monkeypatch.setenv(
-                    native_str(var),
-                    native_str(old_div(tmpdir, environment.get(var))))
+                    var,
+                    str(tmpdir / environment.get(var)))
             else:
-                monkeypatch.delenv(native_str(var), raising=False)
+                monkeypatch.delenv(var, raising=False)
 
         if environment.get('OMERO_TEMPDIR'):
             value = pytest.deprecated_call(manager.tmpdir)
@@ -226,7 +217,7 @@ class TestTempFileManager(object):
             value = manager.tmpdir()
 
         if environment.get('OMERO_TMPDIR'):
-            tdir = old_div(tmpdir, environment.get('OMERO_TMPDIR'))
+            tdir = tmpdir / environment.get('OMERO_TMPDIR')
         elif environment.get('OMERO_TEMPDIR'):
             tdir = tmpdir / environment.get('OMERO_TEMPDIR') / "omero" / "tmp"
         elif environment.get('OMERO_USERDIR'):
@@ -238,9 +229,9 @@ class TestTempFileManager(object):
 
     def testTmpdir2805_1(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv(native_str('OMERO_TEMPDIR'), native_str(tmpdir))
-        monkeypatch.delenv(native_str('OMERO_USERDIR'), raising=False)
-        tmpfile = old_div(tmpdir, 'omero')
+        monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
+        monkeypatch.delenv('OMERO_USERDIR', raising=False)
+        tmpfile = tmpdir / 'omero'
         tmpfile.write('')
 
         value = pytest.deprecated_call(manager.tmpdir)
@@ -248,11 +239,11 @@ class TestTempFileManager(object):
 
     def testTmpdir2805_2(self, monkeypatch, tmpdir):
 
-        monkeypatch.setenv(native_str('OMERO_TEMPDIR'), native_str(tmpdir))
-        monkeypatch.delenv(native_str('OMERO_USERDIR'), raising=False)
-        tempdir = old_div(tmpdir, 'omero')
+        monkeypatch.setenv('OMERO_TEMPDIR', str(tmpdir))
+        monkeypatch.delenv('OMERO_USERDIR', raising=False)
+        tempdir = tmpdir / 'omero'
         tempdir.mkdir()
-        tmpfile = old_div(tempdir, 'tmp')
+        tmpfile = tempdir / 'tmp'
         tmpfile.write('')
 
         value = pytest.deprecated_call(manager.tmpdir)
@@ -314,3 +305,33 @@ class TestImageUtils(object):
         data_canvas[256, 256] = [255, 255, 0]
         canvas = Image.fromarray(data_canvas, 'RGB')
         image_utils.paste_image(img, canvas, 0, 0)
+
+
+class TestUserdirs(object):
+
+    def testUserdirEnvironmentDefault(self, monkeypatch):
+        monkeypatch.delenv('OMERO_USERDIR', raising=False)
+
+        assert get_omero_userdir().basename() == 'omero'
+
+        c = get_omero_user_cache_dir()
+        assert c.basename() == omero_version.split('.')[0]
+        assert 'OMERO.py' in str(c)
+
+    def testUserdirEnvironmentAppdir(self, monkeypatch):
+        monkeypatch.setenv('OMERO_USERDIR', '')
+
+        d = get_omero_userdir()
+        assert d.basename() == omero_version.split('.')[0]
+        assert 'OMERO.py' in str(d)
+
+        c = get_omero_user_cache_dir()
+        assert c.basename() == omero_version.split('.')[0]
+        assert 'OMERO.py' in str(c)
+
+    def testUserdirEnvironmentSet(self, monkeypatch, tmpdir):
+        monkeypatch.setenv('OMERO_USERDIR', str(tmpdir))
+
+        assert get_omero_userdir() == tmpdir
+
+        assert get_omero_user_cache_dir() == tmpdir / "cache"

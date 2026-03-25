@@ -1,16 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import print_function
-from __future__ import unicode_literals
-
-"""
-::
-
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
-"""
+#
+# Copyright 2010 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
 
 """
 Module which parses an icegrid XML file for configuration settings.
@@ -19,7 +12,6 @@ see ticket:800
 see ticket:2213 - Replacing Java Preferences API
 """
 
-from builtins import object, str
 import os
 import time
 import logging
@@ -33,7 +25,7 @@ from xml.etree.ElementTree import (
     XML, Element, ElementTree, SubElement, Comment, tostring
 )
 import omero_ext.path as path
-from omero_ext import portalocker
+import portalocker
 import json
 
 
