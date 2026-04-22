@@ -92,13 +92,19 @@ class UserControl(UserGroupControl):
             "--all", action="store_true", default=False,
             help="Include all users, including deactivated accounts")
 
-        joingroup = parser.add(sub, self.joingroup, "Join one or more groups")
+        joingroup = parser.add(sub, self.joingroup,
+                               "Join one or more groups and set default group")
         self.add_id_name_arguments(
             joingroup, "user. Default to the current user")
         group = self.add_group_arguments(joingroup, " to join")
         group.add_argument(
             "--as-owner", action="store_true", default=False,
             help="Join the group(s) as an owner")
+        group.add_argument(
+            "--as-default", action="store_true", default=False,
+            help="Sets the group as the user's default group. "
+                 "Requires a single group. Can be used to change "
+                 "default group even if already a member.")
 
         leavegroup = parser.add(
             sub, self.leavegroup, "Leave one or more groups")
@@ -180,7 +186,8 @@ class UserControl(UserGroupControl):
         except omero.SecurityViolation as sv:
             import traceback
             self.ctx.die(456, "SecurityViolation: Bad credentials")
-            self.ctx.dbg(traceback.format_exception(None, e, sys.exc_info()[2]))
+            self.ctx.dbg(traceback.format_exception(None, sv,
+                                                    sys.exc_info()[2]))
 
         if args.username:
             try:
@@ -341,13 +348,42 @@ class UserControl(UserGroupControl):
 
         uid, username = self.parse_userid(a, args)
         [gid, groups] = self.list_groups(a, args, use_context=False)
-        groups = self.filter_groups(groups, uid, args.as_owner, True)
 
+        if args.as_default:
+            # Check group count BEFORE filtering
+            # Otherwise we can't tell if multiple groups were passed
+            # for setting default group.
+            if len(groups) == 1:
+                # If that's the case, set that to be the default group
+                # which will happen in the rest of the function.
+                pass
+            else:
+                if len(groups) > 1:
+                    # Message to user that we can only
+                    # set the default group if only one group
+                    # is supplied as an argument.
+                    self.ctx.out("--as-default requires a "
+                                 "single group ID to be supplied.")
+                    # Exit the function making no changes.
+                    return None
+
+        if args.as_default:
+            # Store the group to be set as default as filter_groups
+            # will remove it from the list if the user is already a member.
+            default_group = groups[0]
+
+        groups = self.filter_groups(groups, uid, args.as_owner, True)
         for group in groups:
             if args.as_owner:
                 self.addownersbyid(a, group, [uid])
             else:
                 self.addusersbyid(a, group, [uid])
+
+        if args.as_default:
+            # Here, we know only one group is being processed.
+            # Even if user was already a member of the group,
+            # we still want to set it as the default group.
+            self.set_users_default_group_by_user_id(a, default_group, [uid])
 
     def leavegroup(self, args):
         c = self.ctx.conn(args)
