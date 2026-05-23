@@ -5982,7 +5982,8 @@ class _RoiWrapper (BlitzObjectWrapper):
         if opts is None:
             opts = {}
         if opts.get('load_shapes'):
-            query += ' left outer join fetch obj.shapes'
+            query += """ left outer join fetch obj.shapes as shapes
+            left outer join fetch shapes.details.externalInfo"""
         if 'image' in opts:
             clauses.append('obj.image.id = :image_id')
             params.add('image_id', rlong(opts['image']))
