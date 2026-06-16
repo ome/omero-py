@@ -143,7 +143,7 @@ Copyright
 
 2009-2024, The Open Microscopy Environment, Glencoe Software, Inc.
 
-.. _ZeroC IcePy 3.6: https://zeroc.com/downloads/ice/3.6
+.. _ZeroC IcePy 3.6: https://zeroc.com/ice/downloads/archive/3.6
 .. _Numpy 2: https://numpy.org
 .. _OMERO.py: https://omero.readthedocs.io/en/stable/developers/Python.html
 .. _OMERO.CLI: https://omero.readthedocs.io/en/stable/users/cli/index.html
