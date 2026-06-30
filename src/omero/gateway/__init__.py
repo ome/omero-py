@@ -5164,9 +5164,10 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
-                            ann_type: "tag", "file", "comment", "rating", "map"
+                            ann_type: (optional) "tag", "file", "comment", "rating", "map"
                             parent_type: (optional) "project", "dataset", "image" etc
                             parent_ids: (optional) list of IDs for the parent type
+                            ns: (optional) namespace string to filter by
         :return:            Tuple of string, list, ParametersI
         """
 
@@ -5202,6 +5203,10 @@ class AnnotationWrapper (BlitzObjectWrapper):
             clause = f"""exists (from {obj_type}AnnotationLink as link
                         where link.child.id = obj.id {ids_clause})"""
             clauses.append(clause)
+
+        if 'ns' in opts:
+            clauses.append("obj.ns=:ns")
+            params.add("ns", rstring(opts['ns']))
 
         return (query, clauses, params)
 
