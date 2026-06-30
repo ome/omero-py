@@ -5164,7 +5164,9 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
+                            ann_type: "tag", "file", "comment", "rating", "map"
+                            parent_type: (optional) "project", "dataset", "image" etc
+                            parent_ids: (optional) list of IDs for the parent type
         :return:            Tuple of string, list, ParametersI
         """
 
@@ -5190,18 +5192,17 @@ class AnnotationWrapper (BlitzObjectWrapper):
         elif ann_type == "map":
             clauses.append("obj.class=MapAnnotation")
 
-        for obj_type in ['Project', 'Dataset', 'Image', 'Screen',
-                         'Plate', 'Well', 'Roi']:
-            plural = obj_type.lower() + "s"
-            if plural in opts:
-                ids = opts[plural]
-                if isinstance(ids, list) and len(ids) > 0:
-                    clauses.append(
-                        "exists (from %sAnnotationLink as link "
-                        "where link.child.id = obj.id "
-                        "and link.parent.id in (:%s_ids))" % (obj_type, plural))
-                    params.add("%s_ids" % plural, rlist([rlong(i) for i in ids]))
-        
+        if 'parent_type' in opts:
+            obj_type = opts['parent_type'].title().replace("Plateacquisition", "PlateAcquisition")
+            ids_clause = ""
+            if 'parent_ids' in opts:
+                ids_clause = f"and link.parent.id in (:parent_ids)"
+                params.add("parent_ids", rlist([rlong(i) for i in opts['parent_ids']]))
+
+            clause = f"""exists (from {obj_type}AnnotationLink as link
+                        where link.child.id = obj.id {ids_clause})"""
+            clauses.append(clause)
+
         return (query, clauses, params)
 
     @classmethod
