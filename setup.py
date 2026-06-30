@@ -204,12 +204,11 @@ setup(
     entry_points={
         'console_scripts': ['omero=omero.main:main'],
     },
-    python_requires='>=3.8',
+    python_requires='>=3.10',
     install_requires=[
         'appdirs',
         'future',
-        'numpy<2; python_version<"3.10"',
-        'numpy<3; python_version>="3.10"',
+        'numpy>=2,<3',
         'Pillow>=10.0.0',
         'PyYAML',
         'zeroc-ice>=3.6.5,<3.7',
