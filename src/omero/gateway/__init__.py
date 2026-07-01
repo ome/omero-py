@@ -5177,6 +5177,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
             opts = {}
 
         query = ("select obj from Annotation obj "
+                 "left outer join fetch obj.file as file "
                  "join fetch obj.details.owner as owner "
                  "join fetch obj.details.creationEvent")
 
@@ -5185,7 +5186,6 @@ class AnnotationWrapper (BlitzObjectWrapper):
             clauses.append("obj.class=TagAnnotation")
         elif ann_type == "file":
             clauses.append("obj.class=FileAnnotation")
-            query += " join fetch obj.file as file"
         elif ann_type == "comment":
             clauses.append("obj.class=CommentAnnotation")
         elif ann_type == "rating":
