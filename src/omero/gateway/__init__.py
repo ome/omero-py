@@ -5188,9 +5188,6 @@ class AnnotationWrapper (BlitzObjectWrapper):
             clauses.append("obj.class=FileAnnotation")
         elif ann_type == "comment":
             clauses.append("obj.class=CommentAnnotation")
-        elif ann_type == "rating":
-            clauses.append("obj.class=LongAnnotation")
-            clauses.append("obj.ns='openmicroscopy.org/omero/insight/rating'")
         elif ann_type == "long":
             clauses.append("obj.class=LongAnnotation")
         elif ann_type == "map":
@@ -5207,7 +5204,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
                         where link.child.id = obj.id {ids_clause})"""
             clauses.append(clause)
 
-        if 'ns' in opts and ann_type != "rating":
+        if 'ns' in opts:
             clauses.append("obj.ns=:ns")
             params.add("ns", rstring(opts['ns']))
 
