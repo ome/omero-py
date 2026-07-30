@@ -5192,6 +5192,10 @@ class AnnotationWrapper (BlitzObjectWrapper):
             clauses.append("obj.class=LongAnnotation")
         elif ann_type == "map":
             clauses.append("obj.class=MapAnnotation")
+        elif ann_type is not None:
+            msg = ("ann_type '%s' not recognised. Must be one of 'tag', 'file', "
+                   "'comment', 'long', 'map'" % ann_type)
+            raise AttributeError(msg)
 
         if 'parent_type' in opts:
             obj_type = opts['parent_type'].title().replace("Plateacquisition", "PlateAcquisition")
