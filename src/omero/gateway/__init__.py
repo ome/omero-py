@@ -5164,7 +5164,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
-                            ann_type: (optional) "tag", "file", "comment", "rating", "map"
+                            ann_type: (optional) "tag", "file", "comment", "long", "map"
                             parent_type: (optional) "project", "dataset", "image" etc
                             parent_ids: (optional) list of IDs for the parent type
                             ns: (optional) namespace string to filter by
