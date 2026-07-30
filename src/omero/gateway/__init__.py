@@ -3377,7 +3377,7 @@ class _BlitzGateway (object):
             wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
             if wrapper is None:
                 raise KeyError(
-                    "obj_type of %s not supported by getOjbects(). "
+                    "obj_type of %s not supported by getObjects(). "
                     "E.g. use 'Image' etc" % obj_type)
         else:
             raise AttributeError(
@@ -11034,6 +11034,7 @@ def refreshWrappers():
                            "termannotation": TermAnnotationWrapper,
                            "timestampannotation": TimestampAnnotationWrapper,
                            "mapannotation": MapAnnotationWrapper,
+                           "xmlannotation": XmlAnnotationWrapper,
                            # allows for getObjects("Annotation", ids)
                            "annotation": AnnotationWrapper._wrap})
 
