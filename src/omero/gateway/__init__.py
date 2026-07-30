@@ -5134,6 +5134,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
     # E.g. DoubleAnnotationI : DoubleAnnotationWrapper
     registry = {}
     OMERO_TYPE = None
+    OMERO_CLASS = "Annotation"
 
     def __init__(self, *args, **kwargs):
         """
@@ -5164,7 +5165,6 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
-                            ann_type: (optional) "tag", "file", "comment", "long", "map"
                             parent_type: (optional) "project", "dataset", "image" etc
                             parent_ids: (optional) list of IDs for the parent type
                             ns: (optional) namespace string to filter by
@@ -5176,26 +5176,14 @@ class AnnotationWrapper (BlitzObjectWrapper):
         if opts is None:
             opts = {}
 
-        query = ("select obj from Annotation obj "
-                 "left outer join fetch obj.file as file "
+        fetch_file = ""
+        if cls.OMERO_CLASS in ("Annotation", "FileAnnotation"):
+            fetch_file = "left outer join fetch obj.file as file"
+
+        query = (f"select obj from {cls.OMERO_CLASS} obj "
+                 f"{fetch_file} "
                  "join fetch obj.details.owner as owner "
                  "join fetch obj.details.creationEvent")
-
-        ann_type = opts.get('ann_type', None)
-        if ann_type == "tag":
-            clauses.append("obj.class=TagAnnotation")
-        elif ann_type == "file":
-            clauses.append("obj.class=FileAnnotation")
-        elif ann_type == "comment":
-            clauses.append("obj.class=CommentAnnotation")
-        elif ann_type == "long":
-            clauses.append("obj.class=LongAnnotation")
-        elif ann_type == "map":
-            clauses.append("obj.class=MapAnnotation")
-        elif ann_type is not None:
-            msg = ("ann_type '%s' not recognised. Must be one of 'tag', 'file', "
-                   "'comment', 'long', 'map'" % ann_type)
-            raise AttributeError(msg)
 
         if 'parent_type' in opts:
             obj_type = opts['parent_type'].title().replace("Plateacquisition", "PlateAcquisition")
@@ -5357,28 +5345,13 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
     """
 
     OMERO_TYPE = FileAnnotationI
+    OMERO_CLASS = "FileAnnotation"
 
     def __init__(self, *args, **kwargs):
         super(FileAnnotationWrapper, self).__init__(*args, **kwargs)
         self._file = None
 
     _attrs = ('file|OriginalFileWrapper',)
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("FileAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from FileAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent join fetch obj.file")
-        return query, [], omero.sys.ParametersI()
 
     def getValue(self):
         """ Not implemented """
@@ -5561,22 +5534,7 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
     """
 
     OMERO_TYPE = TimestampAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("TimestampAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from TimestampAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "TimestampAnnotation"
 
     def getValue(self):
         """
@@ -5616,22 +5574,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
     """
 
     OMERO_TYPE = BooleanAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("BooleanAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from BooleanAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "BooleanAnnotation"
 
     def getValue(self):
         """
@@ -5659,10 +5602,11 @@ from omero_model_TagAnnotationI import TagAnnotationI
 
 class TagAnnotationWrapper (AnnotationWrapper):
     """
-    omero_model_BooleanAnnotationI class wrapper extends AnnotationWrapper.
+    omero_model_TagAnnotationI class wrapper extends AnnotationWrapper.
     """
 
     OMERO_TYPE = TagAnnotationI
+    OMERO_CLASS = "TagAnnotation"
 
     def countTagsInTagset(self):
         # temp solution waiting for #5785
@@ -5709,22 +5653,6 @@ class TagAnnotationWrapper (AnnotationWrapper):
                         self._conn, l.parent, l))
         return rv
 
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("TagAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from TagAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
-
     def getValue(self):
         """
         Gets the value of the Tag
@@ -5756,22 +5684,7 @@ class CommentAnnotationWrapper (AnnotationWrapper):
     """
 
     OMERO_TYPE = CommentAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("CommentAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from CommentAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "CommentAnnotation"
 
     def getValue(self):
         """
@@ -5802,22 +5715,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
     omero_model_LongAnnotationI class wrapper extends AnnotationWrapper.
     """
     OMERO_TYPE = LongAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("LongAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from LongAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "LongAnnotation"
 
     def getValue(self):
         """
@@ -5849,22 +5747,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
     omero_model_DoubleAnnotationI class wrapper extends AnnotationWrapper.
     """
     OMERO_TYPE = DoubleAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("DoubleAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from DoubleAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "DoubleAnnotation"
 
     def getValue(self):
         """
@@ -5897,22 +5780,7 @@ class TermAnnotationWrapper (AnnotationWrapper):
     only in 4.2+
     """
     OMERO_TYPE = TermAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("TermAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from TermAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "TermAnnotation"
 
     def getValue(self):
         """
@@ -5944,6 +5812,7 @@ class XmlAnnotationWrapper (CommentAnnotationWrapper):
     omero_model_XmlAnnotationI class wrapper extends CommentAnnotationWrapper.
     """
     OMERO_TYPE = XmlAnnotationI
+    OMERO_CLASS = "XmlAnnotation"
 
 AnnotationWrapper._register(XmlAnnotationWrapper)
 
@@ -5956,23 +5825,7 @@ class MapAnnotationWrapper (AnnotationWrapper):
     omero_model_MapAnnotationI class wrapper.
     """
     OMERO_TYPE = MapAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("MapAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-
-        query = ("select obj from MapAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "MapAnnotation"
 
     def getValue(self):
         """
