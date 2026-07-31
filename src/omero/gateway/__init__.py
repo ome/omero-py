@@ -5165,7 +5165,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
-                            parent_type: (optional) "project", "dataset", "image" etc
+                            parent_type: (optional) "Project", "Dataset", "Image" etc
                             parent_ids: (optional) list of IDs for the parent type
                             ns: (optional) namespace string to filter by
         :return:            Tuple of string, list, ParametersI
@@ -5185,8 +5185,15 @@ class AnnotationWrapper (BlitzObjectWrapper):
                  "join fetch obj.details.owner as owner "
                  "join fetch obj.details.creationEvent")
 
+        # We want to make parent_type case-insensitive...
         if 'parent_type' in opts:
-            obj_type = opts['parent_type'].title().replace("Plateacquisition", "PlateAcquisition")
+            # Title case works for most objects...
+            obj_type = opts['parent_type'].title()
+            # Handle special cases for certain annotatable object types
+            for otype in ["ExperimenterGroup", "LightPath", "LightSource",
+                          "OriginalFile", "PlaneInfo", "PlateAcquisition"]:
+                if obj_type == otype.title():
+                    obj_type = otype
             ids_clause = ""
             if 'parent_ids' in opts:
                 ids_clause = f"and link.parent.id in (:parent_ids)"
