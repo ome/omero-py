@@ -3553,8 +3553,8 @@ class _BlitzGateway (object):
             raise AttributeError(err_msg)
         wrapper = KNOWN_WRAPPERS.get(parent_type.lower(), None)
         class_string = wrapper().OMERO_CLASS
-        # E.g. AnnotationWrappers have no OMERO_CLASS
-        if class_string is None and "annotation" in parent_type.lower():
+        # E.g. TagAnnotation -> Annotation for AnnotationAnnotationLink
+        if class_string.endswith("Annotation"):
             class_string = "Annotation"
 
         query = ("select annLink from %sAnnotationLink as annLink "
