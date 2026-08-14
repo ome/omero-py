@@ -1062,7 +1062,11 @@ class BlitzObjectWrapper (object):
         :param ann:     The annotation object
         :type ann:      :class:`AnnotationWrapper`
         """
-        return self._linkObject(ann, "%sAnnotationLinkI" % self.OMERO_CLASS)
+        class_string = self.OMERO_CLASS
+        # e.g. "TagAnnotation" -> "AnnotationAnnotationLinkI"
+        if class_string.endswith("Annotation"):
+            class_string = "Annotation"
+        return self._linkObject(ann, "%sAnnotationLinkI" % class_string)
 
     def linkAnnotation(self, ann, sameOwner=False):
         """
