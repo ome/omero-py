@@ -229,6 +229,10 @@ class BlitzObjectWrapper (object):
     def LINK_PARENT(x):
         return x.parent
 
+    @classmethod
+    def ann_link_name(klass):
+        return klass.OMERO_CLASS + "AnnotationLink"
+
     def __init__(self, conn=None, obj=None, cache=None, **kwargs):
         """
         Initialises the wrapper object, setting the various class variables etc
@@ -5139,6 +5143,11 @@ class AnnotationWrapper (BlitzObjectWrapper):
     registry = {}
     OMERO_TYPE = None
     OMERO_CLASS = "Annotation"
+
+    @classmethod
+    def ann_link_name(cls):
+        # avoid TagAnnotationAnnotationLink etc.
+        return "AnnotationAnnotationLink"
 
     def __init__(self, *args, **kwargs):
         """
