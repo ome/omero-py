@@ -10756,6 +10756,10 @@ class _LightSourceWrapper (BlitzObjectWrapper):
               '#type;lightSourceType',
               'version')
 
+    @classmethod
+    def ann_link_name(klass):
+        return "LightSourceAnnotationLink"
+
     def getLightSourceType(self):
         """
         Gets the Light Source type for this light source (enum value)
@@ -11053,7 +11057,6 @@ def refreshWrappers():
                            "filter": FilterWrapper,
                            "instrument": InstrumentWrapper,
                            "lightpath": LightPathWrapper,
-                           "lightsource": LightSourceWrapper,
                            "objective": ObjectiveWrapper,
                            "planeinfo": PlaneInfoWrapper,
                            # allows for getObjects("Annotation", ids)
