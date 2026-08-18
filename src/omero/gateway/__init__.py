@@ -910,13 +910,13 @@ class BlitzObjectWrapper (object):
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
         if not self._obj.isAnnotationLinksLoaded():
-            query = ("select l from %sAnnotationLink as l join "
+            query = ("select l from %s as l join "
                      "fetch l.details.owner join "
                      "fetch l.details.creationEvent "
                      "join fetch l.child as a join fetch a.details.owner "
                      "left outer join fetch a.file "
                      "join fetch a.details.creationEvent where l.parent.id=%i"
-                     % (self.OMERO_CLASS, self._oid))
+                     % (self.ann_link_name(), self._oid))
             links = self._conn.getQueryService().findAllByQuery(
                 query, None, ctx)
             self._obj._annotationLinksLoaded = True
@@ -1066,11 +1066,8 @@ class BlitzObjectWrapper (object):
         :param ann:     The annotation object
         :type ann:      :class:`AnnotationWrapper`
         """
-        class_string = self.OMERO_CLASS
-        # e.g. "TagAnnotation" -> "AnnotationAnnotationLinkI"
-        if class_string.endswith("Annotation"):
-            class_string = "Annotation"
-        return self._linkObject(ann, "%sAnnotationLinkI" % class_string)
+        link_name = self.ann_link_name()
+        return self._linkObject(ann, "%sI" % link_name)
 
     def linkAnnotation(self, ann, sameOwner=False):
         """
@@ -3556,18 +3553,15 @@ class _BlitzGateway (object):
                        "Must be one of: %s" % (parent_type, wrapper_types))
             raise AttributeError(err_msg)
         wrapper = KNOWN_WRAPPERS.get(parent_type.lower(), None)
-        class_string = wrapper().OMERO_CLASS
-        # E.g. TagAnnotation -> Annotation for AnnotationAnnotationLink
-        if class_string.endswith("Annotation"):
-            class_string = "Annotation"
+        link_name = wrapper.ann_link_name()
 
-        query = ("select annLink from %sAnnotationLink as annLink "
+        query = ("select annLink from %s as annLink "
                  "join fetch annLink.details.owner as owner "
                  "join fetch annLink.details.creationEvent "
                  "join fetch annLink.child as ann "
                  "join fetch ann.details.owner "
                  "join fetch ann.details.creationEvent "
-                 "join fetch annLink.parent as parent" % class_string)
+                 "join fetch annLink.parent as parent" % link_name)
 
         q = self.getQueryService()
         if params is None:
@@ -3619,6 +3613,8 @@ class _BlitzGateway (object):
         if obj_type is None or not obj_ids:
             return counts
 
+        wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
+
         ctx = self.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(-1)
 
@@ -3637,12 +3633,12 @@ class _BlitzGateway (object):
                sum( case when an.class != LongAnnotation
                         then 1 else 0 end ), type(an.class)
                from Annotation an where an.id in
-                    (select distinct(ann.id) from %sAnnotationLink ial
+                    (select distinct(ann.id) from %s ial
                         join ial.child as ann
                         join ial.parent as i
                 where i.id in (:ids))
                     group by an.class
-            """ % obj_type
+            """ % wrapper.ann_link_name()
 
         queryResult = self.getQueryService().projection(q, params, ctx)
 
@@ -3703,22 +3699,23 @@ class _BlitzGateway (object):
 
         q = self.getQueryService()
         wheres = []
+        wrapper = KNOWN_WRAPPERS.get(parent_type.lower())
 
         if len(parent_ids) == 1:
             # We can use a single query to exclude links to a single parent
             p.map["oid"] = rlong(parent_ids[0])
             wheres.append(
-                "not exists ( select link from %sAnnotationLink as link "
+                "not exists ( select link from %s as link "
                 "where link.child=an.id and link.parent.id=:oid%s)"
-                % (parent_type, filterlink))
+                % (wrapper.ann_link_name(), filterlink))
         else:
             # for multiple parents, we first need to find annotations linked to
             # ALL of them, then exclude those from query
             p.map["oids"] = omero.rtypes.wrap([rlong(id) for id in parent_ids])
             query = ("select link.child.id, count(link.id) "
-                     "from %sAnnotationLink link where link.parent.id in "
+                     "from %s link where link.parent.id in "
                      "(:oids)%s group by link.child.id"
-                     % (parent_type, filterlink))
+                     % (wrapper.ann_link_name(), filterlink))
             # count annLinks and check if count == number of parents (all
             # parents linked to annotation)
             usedAnnIds = [e[0].getValue() for e in
@@ -4260,10 +4257,10 @@ class _BlitzGateway (object):
         # Using projection since can't seem to fetch objects AND filter by mapValue
         query = """
             select distinct obj.id from
-            %sAnnotationLink ial
+            %s ial
             join ial.child ann
             join ann.mapValue mv
-            join ial.parent obj""" % wrapper().OMERO_CLASS
+            join ial.parent obj""" % wrapper.ann_link_name()
         if len(clauses) > 0:
             query += " where " + " and ".join(clauses)
         result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
@@ -5200,19 +5197,16 @@ class AnnotationWrapper (BlitzObjectWrapper):
 
         # We want to make parent_type case-insensitive...
         if 'parent_type' in opts:
-            # Title case works for most objects...
-            obj_type = opts['parent_type'].title()
-            # Handle special cases for certain annotatable object types
-            for otype in ["ExperimenterGroup", "LightPath", "LightSource",
-                          "OriginalFile", "PlaneInfo", "PlateAcquisition"]:
-                if obj_type == otype.title():
-                    obj_type = otype
+            wrapper = KNOWN_WRAPPERS.get(opts['parent_type'].lower(), None)
+            if wrapper is None:
+                raise AttributeError(
+                    f"parent_type '{opts['parent_type']}' not recognised")
             ids_clause = ""
             if 'parent_ids' in opts:
                 ids_clause = f"and link.parent.id in (:parent_ids)"
                 params.add("parent_ids", rlist([rlong(i) for i in opts['parent_ids']]))
 
-            clause = f"""exists (from {obj_type}AnnotationLink as link
+            clause = f"""exists (from {wrapper.ann_link_name()} as link
                         where link.child.id = obj.id {ids_clause})"""
             clauses.append(clause)
 
@@ -5311,19 +5305,17 @@ class AnnotationWrapper (BlitzObjectWrapper):
         raise NotImplementedError
 
     def getParentLinks(self, ptype, pids=None):
-        ptype = ptype.title().replace("Plateacquisition", "PlateAcquisition")
-        objs = ('Project', 'Dataset', 'Image', 'Screen',
-                'Plate', 'Well', 'PlateAcquisition')
-        if ptype not in objs:
+        wrapper = KNOWN_WRAPPERS.get(ptype.lower(), None)
+        if wrapper is None:
             raise AttributeError(
                 "getParentLinks(): ptype '%s' not supported" % ptype)
         p = omero.sys.Parameters()
         p.map = {}
         p.map["aid"] = rlong(self.id)
-        sql = ("select oal from %sAnnotationLink as oal "
+        sql = ("select oal from %s as oal "
                "left outer join fetch oal.child as ch "
                "left outer join fetch oal.parent as pa "
-               "where ch.id=:aid " % (ptype))
+               "where ch.id=:aid " % (wrapper.ann_link_name()))
         if pids is not None:
             p.map["pids"] = rlist([rlong(ob) for ob in pids])
             sql += " and pa.id in (:pids)"
