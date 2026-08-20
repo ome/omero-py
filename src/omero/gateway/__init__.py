@@ -5210,13 +5210,12 @@ class AnnotationWrapper (BlitzObjectWrapper):
 
         # We want to make parent_type case-insensitive...
         if 'parent_type' in opts:
-            ann_link_name = ann_link_name(opts['parent_type'])
             ids_clause = ""
             if 'parent_ids' in opts:
                 ids_clause = f"and link.parent.id in (:parent_ids)"
                 params.add("parent_ids", rlist([rlong(i) for i in opts['parent_ids']]))
 
-            clause = f"""exists (from {ann_link_name} as link
+            clause = f"""exists (from {ann_link_name(opts['parent_type'])} as link
                         where link.child.id = obj.id {ids_clause})"""
             clauses.append(clause)
 
