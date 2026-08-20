@@ -1063,7 +1063,10 @@ class BlitzObjectWrapper (object):
         :type obj:      :class:`BlitzObjectWrapper`
         """
         ctx = self._conn.SERVICE_OPTS.copy()
-        ctx.setOmeroGroup(self.details.group.id.val)
+        if isinstance(self, ExperimenterGroupWrapper):
+            ctx.setOmeroGroup(self.id)
+        else:
+            ctx.setOmeroGroup(self.details.group.id.val)
         if not obj.getId():
             # Not yet in db, save it
             obj = obj.__class__(
