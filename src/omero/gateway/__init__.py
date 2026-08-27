@@ -169,23 +169,7 @@ def getAnnotationLinkTableName(objecttype):
     Get the name of the AnnotationLink table
     for the given objecttype
     """
-    objecttype = objecttype.lower()
-
-    if objecttype == "project":
-        return "ProjectAnnotationLink"
-    if objecttype == "dataset":
-        return"DatasetAnnotationLink"
-    if objecttype == "image":
-        return"ImageAnnotationLink"
-    if objecttype == "screen":
-        return "ScreenAnnotationLink"
-    if objecttype == "plate":
-        return "PlateAnnotationLink"
-    if objecttype == "plateacquisition":
-        return "PlateAcquisitionAnnotationLink"
-    if objecttype == "well":
-        return "WellAnnotationLink"
-    return None
+    return ann_link_name(objecttype)
 
 
 def getPixelsQuery(imageName):
