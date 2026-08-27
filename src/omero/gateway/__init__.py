@@ -5919,7 +5919,7 @@ AnnotationWrapper._register(MapAnnotationWrapper)
 
 class _RoiWrapper (BlitzObjectWrapper):
     """
-    omero_model_ExperimenterI class wrapper extends BlitzObjectWrapper.
+    omero_model_RoiI class wrapper extends BlitzObjectWrapper.
     """
     OMERO_CLASS = 'Roi'
 
@@ -5956,15 +5956,38 @@ class _RoiWrapper (BlitzObjectWrapper):
         if self._obj.image is not None:
             return ImageWrapper(self._conn, self._obj.image)
 
-    def listChildren(self):
-        """
-        Gets shapes associated to an ROI.
-        Shapes must be pre-loaded, use opts={"load_shapes":True}
+    def listChildren(self, ns=None, val=None, params=None):
+            """
+            Lists available child objects.
 
-        :return: list of shapes in this ROI.
+            :rtype: generator of :class:`BlitzObjectWrapper` objs
+            :return: child objects.
+            """
+            for child in self._listChildren(ns=ns, val=val, params=params):
+                yield ShapeWrapper(self._conn, child, self._cache)
+
+    def _listChildren(self, ns=None, val=None, params=None):
         """
-        return [ShapeWrapper(self._conn, shape) for shape in
-                self._obj._shapesSeq]
+        Lists Shapes in this ROI, not sorted
+
+        :rtype: list of :class:`omero.model.ShapeI` objects
+        :return: child objects.
+        """
+        q = self._conn.getQueryService()
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["oid"] = rlong(self.getId())
+        query = ("select shape from Shape as shape "
+                "join fetch shape.details.creationEvent "
+                "join fetch shape.details.owner "
+                "join fetch shape.details.group "
+                "left outer join fetch shape.roi as roi "
+                "where roi.id = :oid")
+
+        self._childcache = {}
+        for shape in q.findAllByQuery(
+                query, params, self._conn.SERVICE_OPTS):
+            yield shape
 
 RoiWrapper = _RoiWrapper
 
