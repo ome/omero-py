@@ -5617,7 +5617,7 @@ from omero_model_TagAnnotationI import TagAnnotationI
 
 class TagAnnotationWrapper (AnnotationWrapper):
     """
-    omero_model_BooleanAnnotationI class wrapper extends AnnotationWrapper.
+    omero_model_TagAnnotationWrapper class wrapper extends AnnotationWrapper.
     """
 
     OMERO_TYPE = TagAnnotationI
@@ -5960,11 +5960,9 @@ AnnotationWrapper._register(MapAnnotationWrapper)
 
 class _RoiWrapper (BlitzObjectWrapper):
     """
-    omero_model_ExperimenterI class wrapper extends BlitzObjectWrapper.
+    omero_model_RoiI class wrapper extends BlitzObjectWrapper.
     """
     OMERO_CLASS = 'Roi'
-    # TODO: test listChildren() to use ShapeWrapper? or remove?
-    CHILD_WRAPPER_CLASS = 'ShapeWrapper'
 
     @classmethod
     def _getQueryString(cls, opts=None):
@@ -5999,6 +5997,39 @@ class _RoiWrapper (BlitzObjectWrapper):
 
         if self._obj.image is not None:
             return ImageWrapper(self._conn, self._obj.image)
+
+    def listChildren(self, ns=None, val=None, params=None):
+            """
+            Lists available child objects.
+
+            :rtype: generator of :class:`BlitzObjectWrapper` objs
+            :return: child objects.
+            """
+            for child in self._listChildren(ns=ns, val=val, params=params):
+                yield ShapeWrapper(self._conn, child, self._cache)
+
+    def _listChildren(self, ns=None, val=None, params=None):
+        """
+        Lists Shapes in this ROI, not sorted
+
+        :rtype: list of :class:`omero.model.ShapeI` objects
+        :return: child objects.
+        """
+        q = self._conn.getQueryService()
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["oid"] = rlong(self.getId())
+        query = ("select shape from Shape as shape "
+                "join fetch shape.details.creationEvent "
+                "join fetch shape.details.owner "
+                "join fetch shape.details.group "
+                "left outer join fetch shape.roi as roi "
+                "where roi.id = :oid")
+
+        self._childcache = {}
+        for shape in q.findAllByQuery(
+                query, params, self._conn.SERVICE_OPTS):
+            yield shape
 
 RoiWrapper = _RoiWrapper
 
@@ -9545,7 +9576,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             p1 = 0
             p2 = 1
             while (p2 <= len(tokens) and
-                   (font.getbbox(' '.join(tokens[p1:p2]))[2] - 
+                   (font.getbbox(' '.join(tokens[p1:p2]))[2] -
                     font.getbbox(' '.join(tokens[p1:p2]))[0]) < width):
                 p2 += 1
             rv.append(' '.join(tokens[p1:p2-1]))
@@ -10461,9 +10492,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                  filterByCurrentUser is True, otherwise the total rois
                  found.
         """
-        return [RoiWrapper(self._conn, roi) for roi in 
+        return [RoiWrapper(self._conn, roi) for roi in
                 self._get_rois(shapeType, filterByCurrentUser)]
-        
+
 
     def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
