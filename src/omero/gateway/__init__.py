@@ -5237,7 +5237,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
     def getParentLinks(self, ptype, pids=None):
         ptype = ptype.title().replace("Plateacquisition", "PlateAcquisition")
         objs = ('Project', 'Dataset', 'Image', 'Screen',
-                'Plate', 'Well', 'PlateAcquisition', 'Roi')
+                'Plate', 'Well', 'PlateAcquisition')
         if ptype not in objs:
             raise AttributeError(
                 "getParentLinks(): ptype '%s' not supported" % ptype)
