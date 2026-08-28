@@ -154,9 +154,9 @@ def getAnnotationLinkTableName(objecttype):
     if objecttype == "project":
         return "ProjectAnnotationLink"
     if objecttype == "dataset":
-        return "DatasetAnnotationLink"
+        return"DatasetAnnotationLink"
     if objecttype == "image":
-        return "ImageAnnotationLink"
+        return"ImageAnnotationLink"
     if objecttype == "screen":
         return "ScreenAnnotationLink"
     if objecttype == "plate":
@@ -165,8 +165,6 @@ def getAnnotationLinkTableName(objecttype):
         return "PlateAcquisitionAnnotationLink"
     if objecttype == "well":
         return "WellAnnotationLink"
-    if objecttype == "roi":
-        return "RoiAnnotationLink"
     return None
 
 
