@@ -94,6 +94,26 @@ def omero_type(val):
         return val
 
 
+def ann_link_name(objecttype):
+    """
+    Returns AnnotationLink name, e.g. Image -> ImageAnnotationLink
+
+    Works with any case and handles annotations e.g:
+    plateacquisition -> PlateAcquisitionAnnotationLink
+    CommentAnnotation -> AnnotationAnnotationLink
+    annotation -> AnnotationAnnotationLink
+    """
+
+    # KNOWN_WRAPPERS['annotation'] is a function, so we can't use it here
+    if objecttype.lower() == "annotation":
+        return "AnnotationAnnotationLink"
+
+    wrapper = KNOWN_WRAPPERS.get(objecttype.lower())
+    if wrapper is None:
+        raise ValueError("Unknown object type: %s" % objecttype)
+    return wrapper.ann_link_name()
+
+
 def fileread(fin, fsize, bufsize):
     """
     Reads everything from fin, in chunks of bufsize.
@@ -149,23 +169,7 @@ def getAnnotationLinkTableName(objecttype):
     Get the name of the AnnotationLink table
     for the given objecttype
     """
-    objecttype = objecttype.lower()
-
-    if objecttype == "project":
-        return "ProjectAnnotationLink"
-    if objecttype == "dataset":
-        return"DatasetAnnotationLink"
-    if objecttype == "image":
-        return"ImageAnnotationLink"
-    if objecttype == "screen":
-        return "ScreenAnnotationLink"
-    if objecttype == "plate":
-        return "PlateAnnotationLink"
-    if objecttype == "plateacquisition":
-        return "PlateAcquisitionAnnotationLink"
-    if objecttype == "well":
-        return "WellAnnotationLink"
-    return None
+    return ann_link_name(objecttype)
 
 
 def getPixelsQuery(imageName):
@@ -228,6 +232,10 @@ class BlitzObjectWrapper (object):
     @staticmethod
     def LINK_PARENT(x):
         return x.parent
+
+    @classmethod
+    def ann_link_name(klass):
+        return klass.OMERO_CLASS + "AnnotationLink"
 
     def __init__(self, conn=None, obj=None, cache=None, **kwargs):
         """
@@ -904,15 +912,18 @@ class BlitzObjectWrapper (object):
         # Need to set group context. If '-1' then canDelete() etc on
         # annotations will be False
         ctx = self._conn.SERVICE_OPTS.copy()
-        ctx.setOmeroGroup(self.details.group.id.val)
+        if isinstance(self, ExperimenterGroupWrapper):
+            ctx.setOmeroGroup(self.id)
+        else:
+            ctx.setOmeroGroup(self.details.group.id.val)
         if not self._obj.isAnnotationLinksLoaded():
-            query = ("select l from %sAnnotationLink as l join "
+            query = ("select l from %s as l join "
                      "fetch l.details.owner join "
                      "fetch l.details.creationEvent "
                      "join fetch l.child as a join fetch a.details.owner "
                      "left outer join fetch a.file "
                      "join fetch a.details.creationEvent where l.parent.id=%i"
-                     % (self.OMERO_CLASS, self._oid))
+                     % (self.ann_link_name(), self._oid))
             links = self._conn.getQueryService().findAllByQuery(
                 query, None, ctx)
             self._obj._annotationLinksLoaded = True
@@ -1009,7 +1020,11 @@ class BlitzObjectWrapper (object):
         :rtype:     :class:`AnnotationWrapper` generator
         """
         for ann in self._getAnnotationLinks(ns):
-            yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
+            if isinstance(ann, omero.model.AnnotationAnnotationLink):
+                child = ann._child
+            else:
+                child = ann.child
+            yield AnnotationWrapper._wrap(self._conn, child, link=ann)
 
     def listOrphanedAnnotations(self, eid=None, ns=None, anntype=None,
                                 addedByMe=True):
@@ -1039,7 +1054,10 @@ class BlitzObjectWrapper (object):
         :type obj:      :class:`BlitzObjectWrapper`
         """
         ctx = self._conn.SERVICE_OPTS.copy()
-        ctx.setOmeroGroup(self.details.group.id.val)
+        if isinstance(self, ExperimenterGroupWrapper):
+            ctx.setOmeroGroup(self.id)
+        else:
+            ctx.setOmeroGroup(self.details.group.id.val)
         if not obj.getId():
             # Not yet in db, save it
             obj = obj.__class__(
@@ -1062,7 +1080,8 @@ class BlitzObjectWrapper (object):
         :param ann:     The annotation object
         :type ann:      :class:`AnnotationWrapper`
         """
-        return self._linkObject(ann, "%sAnnotationLinkI" % self.OMERO_CLASS)
+        link_name = self.ann_link_name()
+        return self._linkObject(ann, "%sI" % link_name)
 
     def linkAnnotation(self, ann, sameOwner=False):
         """
@@ -3377,7 +3396,7 @@ class _BlitzGateway (object):
             wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
             if wrapper is None:
                 raise KeyError(
-                    "obj_type of %s not supported by getOjbects(). "
+                    "obj_type of %s not supported by getObjects(). "
                     "E.g. use 'Image' etc" % obj_type)
         else:
             raise AttributeError(
@@ -3547,19 +3566,15 @@ class _BlitzGateway (object):
             err_msg = ("getAnnotationLinks() does not support type: '%s'. "
                        "Must be one of: %s" % (parent_type, wrapper_types))
             raise AttributeError(err_msg)
-        wrapper = KNOWN_WRAPPERS.get(parent_type.lower(), None)
-        class_string = wrapper().OMERO_CLASS
-        # E.g. AnnotationWrappers have no OMERO_CLASS
-        if class_string is None and "annotation" in parent_type.lower():
-            class_string = "Annotation"
+        link_name = ann_link_name(parent_type)
 
-        query = ("select annLink from %sAnnotationLink as annLink "
+        query = ("select annLink from %s as annLink "
                  "join fetch annLink.details.owner as owner "
                  "join fetch annLink.details.creationEvent "
                  "join fetch annLink.child as ann "
                  "join fetch ann.details.owner "
                  "join fetch ann.details.creationEvent "
-                 "join fetch annLink.parent as parent" % class_string)
+                 "join fetch annLink.parent as parent" % link_name)
 
         q = self.getQueryService()
         if params is None:
@@ -3629,12 +3644,12 @@ class _BlitzGateway (object):
                sum( case when an.class != LongAnnotation
                         then 1 else 0 end ), type(an.class)
                from Annotation an where an.id in
-                    (select distinct(ann.id) from %sAnnotationLink ial
+                    (select distinct(ann.id) from %s ial
                         join ial.child as ann
                         join ial.parent as i
                 where i.id in (:ids))
                     group by an.class
-            """ % obj_type
+            """ % ann_link_name(obj_type)
 
         queryResult = self.getQueryService().projection(q, params, ctx)
 
@@ -3695,22 +3710,23 @@ class _BlitzGateway (object):
 
         q = self.getQueryService()
         wheres = []
+        ann_link_name = ann_link_name(parent_type)
 
         if len(parent_ids) == 1:
             # We can use a single query to exclude links to a single parent
             p.map["oid"] = rlong(parent_ids[0])
             wheres.append(
-                "not exists ( select link from %sAnnotationLink as link "
+                "not exists ( select link from %s as link "
                 "where link.child=an.id and link.parent.id=:oid%s)"
-                % (parent_type, filterlink))
+                % (ann_link_name, filterlink))
         else:
             # for multiple parents, we first need to find annotations linked to
             # ALL of them, then exclude those from query
             p.map["oids"] = omero.rtypes.wrap([rlong(id) for id in parent_ids])
             query = ("select link.child.id, count(link.id) "
-                     "from %sAnnotationLink link where link.parent.id in "
+                     "from %s link where link.parent.id in "
                      "(:oids)%s group by link.child.id"
-                     % (parent_type, filterlink))
+                     % (ann_link_name, filterlink))
             # count annLinks and check if count == number of parents (all
             # parents linked to annotation)
             usedAnnIds = [e[0].getValue() for e in
@@ -4215,10 +4231,6 @@ class _BlitzGateway (object):
         :rtype:             :class:`BlitzObjectWrapper` generator
         """
 
-        wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
-        if not wrapper:
-            raise AttributeError("Don't know how to handle '%s'" % obj_type)
-
         params = omero.sys.ParametersI()
         clauses = []
 
@@ -4252,10 +4264,10 @@ class _BlitzGateway (object):
         # Using projection since can't seem to fetch objects AND filter by mapValue
         query = """
             select distinct obj.id from
-            %sAnnotationLink ial
+            %s ial
             join ial.child ann
             join ann.mapValue mv
-            join ial.parent obj""" % wrapper().OMERO_CLASS
+            join ial.parent obj""" % ann_link_name(obj_type)
         if len(clauses) > 0:
             query += " where " + " and ".join(clauses)
         result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
@@ -5134,6 +5146,12 @@ class AnnotationWrapper (BlitzObjectWrapper):
     # E.g. DoubleAnnotationI : DoubleAnnotationWrapper
     registry = {}
     OMERO_TYPE = None
+    OMERO_CLASS = "Annotation"
+
+    @classmethod
+    def ann_link_name(cls):
+        # avoid TagAnnotationAnnotationLink etc.
+        return "AnnotationAnnotationLink"
 
     def __init__(self, *args, **kwargs):
         """
@@ -5164,13 +5182,42 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
+                            parent_type: (optional) "Project", "Dataset", "Image" etc
+                            parent_ids: (optional) list of IDs for the parent type
+                            ns: (optional) namespace string to filter by
         :return:            Tuple of string, list, ParametersI
         """
-        query = ("select obj from Annotation obj "
+
+        query, clauses, params = super(
+            AnnotationWrapper, cls)._getQueryString(opts)
+        if opts is None:
+            opts = {}
+
+        fetch_file = ""
+        if cls.OMERO_CLASS in ("Annotation", "FileAnnotation"):
+            fetch_file = "left outer join fetch obj.file as file"
+
+        query = (f"select obj from {cls.OMERO_CLASS} obj "
+                 f"{fetch_file} "
                  "join fetch obj.details.owner as owner "
                  "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+
+        # We want to make parent_type case-insensitive...
+        if 'parent_type' in opts:
+            ids_clause = ""
+            if 'parent_ids' in opts:
+                ids_clause = f"and link.parent.id in (:parent_ids)"
+                params.add("parent_ids", rlist([rlong(i) for i in opts['parent_ids']]))
+
+            clause = f"""exists (from {ann_link_name(opts['parent_type'])} as link
+                        where link.child.id = obj.id {ids_clause})"""
+            clauses.append(clause)
+
+        if 'ns' in opts:
+            clauses.append("obj.ns=:ns")
+            params.add("ns", rstring(opts['ns']))
+
+        return (query, clauses, params)
 
     @classmethod
     def _register(cls, regklass):
@@ -5261,19 +5308,13 @@ class AnnotationWrapper (BlitzObjectWrapper):
         raise NotImplementedError
 
     def getParentLinks(self, ptype, pids=None):
-        ptype = ptype.title().replace("Plateacquisition", "PlateAcquisition")
-        objs = ('Project', 'Dataset', 'Image', 'Screen',
-                'Plate', 'Well', 'PlateAcquisition')
-        if ptype not in objs:
-            raise AttributeError(
-                "getParentLinks(): ptype '%s' not supported" % ptype)
         p = omero.sys.Parameters()
         p.map = {}
         p.map["aid"] = rlong(self.id)
-        sql = ("select oal from %sAnnotationLink as oal "
+        sql = ("select oal from %s as oal "
                "left outer join fetch oal.child as ch "
                "left outer join fetch oal.parent as pa "
-               "where ch.id=:aid " % (ptype))
+               "where ch.id=:aid " % (ann_link_name(ptype)))
         if pids is not None:
             p.map["pids"] = rlist([rlong(ob) for ob in pids])
             sql += " and pa.id in (:pids)"
@@ -5315,28 +5356,13 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
     """
 
     OMERO_TYPE = FileAnnotationI
+    OMERO_CLASS = "FileAnnotation"
 
     def __init__(self, *args, **kwargs):
         super(FileAnnotationWrapper, self).__init__(*args, **kwargs)
         self._file = None
 
     _attrs = ('file|OriginalFileWrapper',)
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("FileAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from FileAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent join fetch obj.file")
-        return query, [], omero.sys.ParametersI()
 
     def getValue(self):
         """ Not implemented """
@@ -5519,22 +5545,7 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
     """
 
     OMERO_TYPE = TimestampAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("TimestampAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from TimestampAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "TimestampAnnotation"
 
     def getValue(self):
         """
@@ -5574,22 +5585,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
     """
 
     OMERO_TYPE = BooleanAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("BooleanAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from BooleanAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "BooleanAnnotation"
 
     def getValue(self):
         """
@@ -5621,6 +5617,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
     """
 
     OMERO_TYPE = TagAnnotationI
+    OMERO_CLASS = "TagAnnotation"
 
     def countTagsInTagset(self):
         # temp solution waiting for #5785
@@ -5667,22 +5664,6 @@ class TagAnnotationWrapper (AnnotationWrapper):
                         self._conn, l.parent, l))
         return rv
 
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("TagAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from TagAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
-
     def getValue(self):
         """
         Gets the value of the Tag
@@ -5714,22 +5695,7 @@ class CommentAnnotationWrapper (AnnotationWrapper):
     """
 
     OMERO_TYPE = CommentAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("CommentAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from CommentAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "CommentAnnotation"
 
     def getValue(self):
         """
@@ -5760,22 +5726,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
     omero_model_LongAnnotationI class wrapper extends AnnotationWrapper.
     """
     OMERO_TYPE = LongAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("LongAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from LongAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "LongAnnotation"
 
     def getValue(self):
         """
@@ -5807,22 +5758,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
     omero_model_DoubleAnnotationI class wrapper extends AnnotationWrapper.
     """
     OMERO_TYPE = DoubleAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("DoubleAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from DoubleAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "DoubleAnnotation"
 
     def getValue(self):
         """
@@ -5855,22 +5791,7 @@ class TermAnnotationWrapper (AnnotationWrapper):
     only in 4.2+
     """
     OMERO_TYPE = TermAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("TermAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-        query = ("select obj from TermAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "TermAnnotation"
 
     def getValue(self):
         """
@@ -5902,6 +5823,7 @@ class XmlAnnotationWrapper (CommentAnnotationWrapper):
     omero_model_XmlAnnotationI class wrapper extends CommentAnnotationWrapper.
     """
     OMERO_TYPE = XmlAnnotationI
+    OMERO_CLASS = "XmlAnnotation"
 
 AnnotationWrapper._register(XmlAnnotationWrapper)
 
@@ -5914,23 +5836,7 @@ class MapAnnotationWrapper (AnnotationWrapper):
     omero_model_MapAnnotationI class wrapper.
     """
     OMERO_TYPE = MapAnnotationI
-
-    @classmethod
-    def _getQueryString(cls, opts=None):
-        """
-        Used for building queries in generic methods such as
-        getObjects("MapAnnotation").
-        Returns a tuple of (query, clauses, params).
-
-        :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
-        :return:            Tuple of string, list, ParametersI
-        """
-
-        query = ("select obj from MapAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
+    OMERO_CLASS = "MapAnnotation"
 
     def getValue(self):
         """
@@ -10850,6 +10756,10 @@ class _LightSourceWrapper (BlitzObjectWrapper):
               '#type;lightSourceType',
               'version')
 
+    @classmethod
+    def ann_link_name(klass):
+        return "LightSourceAnnotationLink"
+
     def getLightSourceType(self):
         """
         Gets the Light Source type for this light source (enum value)
@@ -11140,6 +11050,15 @@ def refreshWrappers():
                            "termannotation": TermAnnotationWrapper,
                            "timestampannotation": TimestampAnnotationWrapper,
                            "mapannotation": MapAnnotationWrapper,
+                           "xmlannotation": XmlAnnotationWrapper,
+                           "channel": ChannelWrapper,
+                           "detector": DetectorWrapper,
+                           "dichroic": DichroicWrapper,
+                           "filter": FilterWrapper,
+                           "instrument": InstrumentWrapper,
+                           "lightpath": LightPathWrapper,
+                           "objective": ObjectiveWrapper,
+                           "planeinfo": PlaneInfoWrapper,
                            # allows for getObjects("Annotation", ids)
                            "annotation": AnnotationWrapper._wrap})
 
