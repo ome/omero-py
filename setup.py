@@ -198,6 +198,7 @@ setup(
     package_dir={"": "target"},
     packages=packages,
     package_data={
+        'omero': ['py.typed'],
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
     py_modules=packageless,
