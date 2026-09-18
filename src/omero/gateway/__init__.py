@@ -914,6 +914,8 @@ class BlitzObjectWrapper (object):
         ctx = self._conn.SERVICE_OPTS.copy()
         if isinstance(self, ExperimenterGroupWrapper):
             ctx.setOmeroGroup(self.id)
+        elif isinstance(self, ExperimenterWrapper):
+            ctx.setOmeroGroup("-1")
         else:
             ctx.setOmeroGroup(self.details.group.id.val)
         if not self._obj.isAnnotationLinksLoaded():
@@ -1056,6 +1058,9 @@ class BlitzObjectWrapper (object):
         ctx = self._conn.SERVICE_OPTS.copy()
         if isinstance(self, ExperimenterGroupWrapper):
             ctx.setOmeroGroup(self.id)
+        elif isinstance(self, ExperimenterWrapper):
+            default_group_id = self._conn.getEventContext().groupId
+            ctx.setOmeroGroup(default_group_id)
         else:
             ctx.setOmeroGroup(self.details.group.id.val)
         if not obj.getId():
