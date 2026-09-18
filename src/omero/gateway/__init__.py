@@ -5187,7 +5187,8 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
-                            parent_type: (optional) "Project", "Dataset", "Image" etc
+                            parent_type: (optional) "Project" etc. (case-insensitive)
+                                         Only return anns linked to the parent type.
                             parent_ids: (optional) list of IDs for the parent type
                             ns: (optional) namespace string to filter by
         :return:            Tuple of string, list, ParametersI
@@ -10762,6 +10763,7 @@ class _LightSourceWrapper (BlitzObjectWrapper):
 
     @classmethod
     def ann_link_name(klass):
+        # All subclasses use this link, NOT ArcAnnotationLink etc.
         return "LightSourceAnnotationLink"
 
     def getLightSourceType(self):
