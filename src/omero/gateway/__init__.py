@@ -11062,14 +11062,6 @@ def refreshWrappers():
                            "timestampannotation": TimestampAnnotationWrapper,
                            "mapannotation": MapAnnotationWrapper,
                            "xmlannotation": XmlAnnotationWrapper,
-                           "channel": ChannelWrapper,
-                           "detector": DetectorWrapper,
-                           "dichroic": DichroicWrapper,
-                           "filter": FilterWrapper,
-                           "instrument": InstrumentWrapper,
-                           "lightpath": LightPathWrapper,
-                           "objective": ObjectiveWrapper,
-                           "planeinfo": PlaneInfoWrapper,
                            # allows for getObjects("Annotation", ids)
                            "annotation": AnnotationWrapper._wrap})
 
