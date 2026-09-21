@@ -1059,12 +1059,7 @@ class BlitzObjectWrapper (object):
         if isinstance(self, ExperimenterGroupWrapper):
             ctx.setOmeroGroup(self.id)
         elif isinstance(self, ExperimenterWrapper):
-            # If user is me, save to default group
-            if self._conn.getUserId() == self.id:
-                group_id = self._conn.getEventContext().groupId
-            else:
-                # save link to a group that the user is in
-                group_id = [g.id.val for g in self.copyGroupExperimenterMap()][0]
+            group_id = self._conn.getDefaultGroup(self.id).id
             ctx.setOmeroGroup(group_id)
         else:
             ctx.setOmeroGroup(self.details.group.id.val)
