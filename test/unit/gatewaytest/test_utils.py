@@ -12,6 +12,7 @@
 from omero.gateway.utils import ServiceOptsDict
 from omero.gateway.utils import toBoolean
 from omero.gateway.utils import propertiesToDict
+from omero.gateway import ann_link_name
 import pytest
 
 
@@ -302,3 +303,24 @@ class TestHelpers (object):
 
         assert dictprop['str']['1']['enabled'] == 't'
         assert dictprop['str']['2']['enabled'] == 'f'
+
+    def test_ann_link_name(self):
+
+        link_names = {
+            "experimenterGroup": "ExperimenterGroupAnnotationLink",
+            "Experimentergroup": "ExperimenterGroupAnnotationLink",
+            "experimenter": "ExperimenterAnnotationLink",
+            "Image": "ImageAnnotationLink",
+            "dataset": "DatasetAnnotationLink",
+            "project": "ProjectAnnotationLink",
+            "screen": "ScreenAnnotationLink",
+            "plate": "PlateAnnotationLink",
+            "well": "WellAnnotationLink",
+            "plateacquisition": "PlateAcquisitionAnnotationLink",
+            "originalfile": "OriginalFileAnnotationLink",
+            "TagAnnotation": "AnnotationAnnotationLink",
+            "annotation": "AnnotationAnnotationLink",
+            "roi": "RoiAnnotationLink"
+        }
+        for key, value in link_names.items():
+            assert ann_link_name(key) == value
