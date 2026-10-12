@@ -29,7 +29,7 @@
 from omero.cli import BaseControl
 from omero.cli import CLI
 
-from argparse import FileType, SUPPRESS
+from argparse import SUPPRESS
 
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
@@ -56,13 +56,8 @@ class DatabaseControl(BaseControl):
         script = sub.add_parser(
             "script", help="Generates a DB creation script")
         script.set_defaults(func=self.script)
-        try:
-            # Python 3
-            ft = FileType(mode="w", encoding='utf-8')
-        except TypeError:
-            ft = FileType(mode="w")
         script.add_argument(
-            "-f", "--file", type=ft,
+            "-f", "--file",
             help="Optional file to save to. Use '-' for stdout.")
 
         script.add_argument("posversion", nargs="?", help=SUPPRESS)
@@ -202,16 +197,11 @@ class DatabaseControl(BaseControl):
                          " exist" % sql_directory)
 
         if args and args.file:
-            output = args.file
-            script = "<filename here>"
+            location = args.file
         else:
-            script = "%s__%s.sql" % (db_vers, db_patch)
-            location = path.getcwd() / script
-            try:
-                output = open(location, 'w', encoding='utf-8')
-            except TypeError:
-                output = open(location, 'w')
-            self.ctx.out("Saving to " + location)
+            location = path.getcwd() / "%s__%s.sql" % (db_vers, db_patch)
+        output = open(location, 'wt', encoding='utf-8')
+        self.ctx.out("Saving to " + location)
 
         try:
             dbprofile = self._db_profile()
@@ -222,7 +212,7 @@ class DatabaseControl(BaseControl):
                 cfg = {
                     "TIME": time.ctime(time.time()),
                     "DIR": sql_directory,
-                    "SCRIPT": script}
+                    "SCRIPT": os.path.basename(location)}
                 self._copy(header, output, str, cfg)
                 self._copy(sql_directory / "schema.sql", output, str)
                 self._copy(sql_directory / "views.sql", output, str)
@@ -246,7 +236,7 @@ class DatabaseControl(BaseControl):
 --
 
 BEGIN;
-                """ % (time.ctime(time.time()), sql_directory, script))
+                """ % (time.ctime(time.time()), sql_directory, location))
                 self._copy(sql_directory / "schema.sql", output, str)
                 self._copy(
                     sql_directory / "data.sql", output,
