@@ -74,6 +74,8 @@ def tmpadmindir(tmpdir, monkeypatch):
 
 
 @pytest.mark.skipif(OMERODIR is False, reason="We need $OMERODIR")
+@pytest.mark.skipif(sys.platform.startswith("win"),
+    reason="omero admin is only supported on Linux environments")
 class TestAdmin(object):
 
     @pytest.fixture(autouse=True)
