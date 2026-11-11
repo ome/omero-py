@@ -11,6 +11,7 @@
 
 import pytest
 import os
+import sys
 from omero_ext.path import path
 from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
@@ -30,6 +31,8 @@ hash_map = {
 }
 
 
+@pytest.mark.skipif(sys.platform.startswith("win"),
+    reason="omero admin is only supported on Linux environments")
 class TestDatabase(object):
 
     def setup_method(self, method):
