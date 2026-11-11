@@ -38,14 +38,18 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Download the latest OMERO.server
-        if: matrix.os == 'ubuntu-latest'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release download -R ome/openmicroscopy --pattern "OMERO.server*zip"
           unzip OMERO.server*.zip && rm OMERO.server*.zip
-          ln -s OMERO.server* OMERO.current
-          echo "OMERODIR=${{ github.workspace }}/OMERO.current" >> $GITHUB_ENV
+          mv OMERO.server* OMERO.current
+      - name: Set OMERODIR (Linux && macOS)
+        if: matrix.os != 'windows-latest'
+        run: echo "OMERODIR=${{ github.workspace }}/OMERO.current" >> $GITHUB_ENV
+      - name: Set OMERODIR (Windows)
+        if: matrix.os == 'windows-latest'
+        run: echo "OMERODIR=${{ github.workspace }}/OMERO.current" >> $env:GITHUB_ENV
       - name: Install dependencies
         run: python -mpip install --upgrade wheel pytest tox virtualenv
       - name: Run tests
