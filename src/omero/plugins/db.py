@@ -204,7 +204,6 @@ class DatabaseControl(BaseControl):
         if location == '-':
             output = sys.stdout
             script = "<filename here>"
-            self.ctx.out("Saving to stdout")
         else:
             output = open(location, 'wt', encoding='utf-8')
             script = os.path.basename(location)
