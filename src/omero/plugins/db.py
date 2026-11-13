@@ -29,13 +29,14 @@
 from omero.cli import BaseControl
 from omero.cli import CLI
 
-from argparse import FileType, SUPPRESS
+from argparse import SUPPRESS
 
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 from omero_ext.path import path
 
 import omero.java
+import os
 import platform
 import sys
 import time
@@ -56,13 +57,8 @@ class DatabaseControl(BaseControl):
         script = sub.add_parser(
             "script", help="Generates a DB creation script")
         script.set_defaults(func=self.script)
-        try:
-            # Python 3
-            ft = FileType(mode="w", encoding='utf-8')
-        except TypeError:
-            ft = FileType(mode="w")
         script.add_argument(
-            "-f", "--file", type=ft,
+            "-f", "--file",
             help="Optional file to save to. Use '-' for stdout.")
 
         script.add_argument("posversion", nargs="?", help=SUPPRESS)
@@ -202,15 +198,15 @@ class DatabaseControl(BaseControl):
                          " exist" % sql_directory)
 
         if args and args.file:
-            output = args.file
+            location = args.file
+        else:
+            location = path.getcwd() / "%s__%s.sql" % (db_vers, db_patch)
+        if location == '-':
+            output = sys.stdout
             script = "<filename here>"
         else:
-            script = "%s__%s.sql" % (db_vers, db_patch)
-            location = path.getcwd() / script
-            try:
-                output = open(location, 'w', encoding='utf-8')
-            except TypeError:
-                output = open(location, 'w')
+            output = open(location, 'wt', encoding='utf-8')
+            script = os.path.basename(location)
             self.ctx.out("Saving to " + location)
 
         try:
