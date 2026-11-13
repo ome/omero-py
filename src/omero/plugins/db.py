@@ -201,8 +201,14 @@ class DatabaseControl(BaseControl):
             location = args.file
         else:
             location = path.getcwd() / "%s__%s.sql" % (db_vers, db_patch)
-        output = open(location, 'wt', encoding='utf-8')
-        self.ctx.out("Saving to " + location)
+        if location == '-':
+            output = sys.stdout
+            script = "<filename here>"
+            self.ctx.out("Saving to stdout")
+        else:
+            output = open(location, 'wt', encoding='utf-8')
+            script = os.path.basename(location)
+            self.ctx.out("Saving to " + location)
 
         try:
             dbprofile = self._db_profile()
@@ -213,7 +219,7 @@ class DatabaseControl(BaseControl):
                 cfg = {
                     "TIME": time.ctime(time.time()),
                     "DIR": sql_directory,
-                    "SCRIPT": os.path.basename(location)}
+                    "SCRIPT": script}
                 self._copy(header, output, str, cfg)
                 self._copy(sql_directory / "schema.sql", output, str)
                 self._copy(sql_directory / "views.sql", output, str)
@@ -237,7 +243,7 @@ class DatabaseControl(BaseControl):
 --
 
 BEGIN;
-                """ % (time.ctime(time.time()), sql_directory, location))
+                """ % (time.ctime(time.time()), sql_directory, script))
                 self._copy(sql_directory / "schema.sql", output, str)
                 self._copy(
                     sql_directory / "data.sql", output,
