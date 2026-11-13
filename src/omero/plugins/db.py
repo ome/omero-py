@@ -36,6 +36,7 @@ from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 from omero_ext.path import path
 
 import omero.java
+import os
 import platform
 import sys
 import time
