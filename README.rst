@@ -16,7 +16,7 @@ as well as a pluggable command-line interface.
 Requirements
 ------------
 
-- Python 3.10+
+- Python 3.11+
 
 Dependencies
 ------------
@@ -33,9 +33,12 @@ Installation
 We recommend installing omero-py in a Python virtual environment.
 You can create one using for example ``venv``, ``conda`` or ``mamba``.
 
-Before installing ``omero-py``, we recommend to install the `ZeroC IcePy 3.6`_ Python bindings.
-Our commercial partner `Glencoe Software <https://www.glencoesoftware.com/blog/2023/12/08/ice-binaries-for-omero.html>`_ has produced several Python wheels to install the Ice-Python bindings depending on the desired Python version and the operating system. Please visit `OMERO.py`_ for a list of supported platforms and Python versions.
-
+Before installing ``omero-py``, we recommend to install the `ZeroC IcePy 3.6`_
+Python bindings. Our commercial partner Glencoe Software  has produced several
+`wheel packages <https://www.glencoesoftware.com/documentation/>`_ to install
+the Ice Python bindings depending on the desired Python version and the
+operating system. Please visit `OMERO.py`_ for a list of supported platforms
+and Python versions.
 
 When the wheel is installed, activate the virtual environment and install ``omero-py`` from `PyPI <https://pypi.org/>`_::
 

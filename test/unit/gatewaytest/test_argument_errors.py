@@ -24,35 +24,36 @@
 
 """
 
-from omero.gateway import _BlitzGateway
+from omero.gateway import BlitzGateway
 import pytest
 
 
-class TestArgumentErrors(object):
+@pytest.fixture(autouse=True)
+def setup_ice_config(tmpdir, monkeypatch):
+    ice_config = tmpdir / "ice.config"
+    ice_config.write("omero.host=localhost\nomero.port=4064")
+    monkeypatch.setenv("ICE_CONFIG", "%s" % ice_config)
 
-    @classmethod
-    @pytest.fixture(autouse=True)
-    def setup_class(cls, tmpdir, monkeypatch):
-        ice_config = tmpdir / "ice.config"
-        ice_config.write("omero.host=localhost\nomero.port=4064")
-        monkeypatch.setenv("ICE_CONFIG", "%s" % ice_config)
-        cls.g = _BlitzGateway()
+
+class TestArgumentErrors(object):
 
     def test_graphspec_with_plus(self):
         """
         The graph_spec Name+Qualifier is no longer supported.
         """
+        conn = BlitzGateway()
         with pytest.raises(AttributeError):
-            self.g.deleteObjects("Image+Only", ["1"])
+            conn.deleteObjects("Image+Only", ["1"])
         with pytest.raises(AttributeError):
-            self.g.chgrpObjects("Image+Only", ["1"], 1)
+            conn.chgrpObjects("Image+Only", ["1"], 1)
 
     @pytest.mark.parametrize("object_ids", ["1", [], None])
     def test_bad_object_ids(self, object_ids):
         """
         object_ids must be a non-zero length list
         """
+        conn = BlitzGateway()
         with pytest.raises(AttributeError):
-            self.g.deleteObjects("Image", object_ids)
+            conn.deleteObjects("Image", object_ids)
         with pytest.raises(AttributeError):
-            self.g.chgrpObjects("Image", object_ids, 1)
+            conn.chgrpObjects("Image", object_ids, 1)
