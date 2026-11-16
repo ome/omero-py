@@ -817,7 +817,7 @@ def get_user(default=None):
         rv = getpass.getuser()  # Uses environment variable or pwd
     except KeyError:  # 6307, probably system
         pass
-    except ImportError:  # No pwd on Windows
+    except (ImportError, OSError):  # No pwd on Windows
         import win32api
         rv = win32api.GetUserName()
 
