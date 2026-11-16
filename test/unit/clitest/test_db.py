@@ -32,7 +32,7 @@ hash_map = {
 
 
 @pytest.mark.skipif(sys.platform.startswith("win"),
-    reason="omero admin is only supported on Linux environments")
+    reason="omero db is not supported in Windows")
 class TestDatabase(object):
 
     def setup_method(self, method):
