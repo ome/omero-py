@@ -26,6 +26,7 @@ Automatic configuration of memory settings for Java servers.
 from shlex import split
 
 import logging
+import omero.java
 
 LOGGER = logging.getLogger("omero.install.jvmcfg")
 
@@ -200,7 +201,6 @@ class Strategy(object):
 
     def _system_memory_mb_java(self):
         import omero.cli
-        import omero.java
 
         # Copied from db.py. Needs better dir detection
         cwd = omero.cli.CLI().dir
@@ -264,8 +264,7 @@ class Strategy(object):
 
     def _get_extra_args(self):
         # See https://github.com/ome/openmicroscopy/issues/6383
-        import omero.java
-        add_opens = ["--add-opens","java.base/java.lang=ALL-UNNAMED"]
+        add_opens = ["--add-opens", "java.base/java.lang=ALL-UNNAMED"]
         p = omero.java.popen(add_opens + ["-version"])
         p.communicate()
         if p.poll() != 0:
