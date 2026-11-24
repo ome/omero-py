@@ -262,12 +262,27 @@ class Strategy(object):
         elif hd in ("on", "cwd", "tmp"):
             return "-XX:+HeapDumpOnOutOfMemoryError"
 
+    def _get_extra_args(self):
+        # See https://github.com/ome/openmicroscopy/issues/6383
+        import omero.java
+        add_opens = ["--add-opens","java.base/java.lang=ALL-UNNAMED"]
+        p = omero.java.popen(add_opens + ["-version"])
+        p.communicate()
+        if p.poll() != 0:
+            LOGGER.warn(
+                "The Java Virtual Machine does not recognize the --add-opens"
+                " option. OMERO.server 5.7.0 will drop Java 8 support.")
+            return []
+        else:
+            return add_opens
+
     def get_append(self):
         values = []
         if self.settings.heap_dump == "tmp":
             import tempfile
             tmp = tempfile.gettempdir()
             values.append("-XX:HeapDumpPath=%s" % tmp)
+        values.extend(self._get_extra_args())
         return values + split(self.settings.append)
 
     def get_memory_settings(self):
