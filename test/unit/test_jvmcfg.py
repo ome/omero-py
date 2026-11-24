@@ -153,7 +153,9 @@ class TestStrategy(object):
         strategy = ManualStrategy("blitz")
         settings = strategy.get_memory_settings()
         assert settings == [
-            "-Xmx512m"
+            "-Xmx512m",
+            "--add-opens",
+            "java.base/java.lang=ALL-UNNAMED"
         ]
 
     def test_percent_usage(self):
@@ -169,7 +171,7 @@ class TestStrategy(object):
         append = strategy.get_append()
         assert " " not in hd
         assert "HeapDumpPath" not in hd
-        assert not append
+        assert append == ["--add-opens", "java.base/java.lang=ALL-UNNAMED"]
 
     def test_heap_dump_tmp(self):
         settings = Settings({"heap_dump": "tmp"})

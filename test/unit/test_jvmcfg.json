@@ -8,6 +8,8 @@
         "output": {
             "blitz" : [
                 "-Xmx512m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED",
                 "foo",
                 "bar"
             ]
@@ -20,7 +22,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx512m"
+                "-Xmx512m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -32,7 +36,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx1G"
+                "-Xmx1G",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -45,7 +51,9 @@
         "output": {
             "blitz" : [
                 "-Xmx512m",
-                "-XX:+HeapDumpOnOutOfMemoryError"
+                "-XX:+HeapDumpOnOutOfMemoryError",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -57,7 +65,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx512m"
+                "-Xmx512m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -69,7 +79,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx512m"
+                "-Xmx512m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -82,7 +94,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx150m"
+                "-Xmx150m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -94,7 +108,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx600m"
+                "-Xmx600m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -106,7 +122,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx1200m"
+                "-Xmx1200m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -118,7 +136,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx3600m"
+                "-Xmx3600m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -130,7 +150,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx7200m"
+                "-Xmx7200m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -142,7 +164,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx7200m"
+                "-Xmx7200m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -155,7 +179,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx9600m"
+                "-Xmx9600m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -168,6 +194,8 @@
         "output": {
             "blitz" : [
                 "-Xmx512m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED",
                 "foo"
             ]
         }
@@ -181,7 +209,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx4000m"
+                "-Xmx4000m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -193,13 +223,19 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx1200m"
+                "-Xmx1200m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ],
             "pixeldata" : [
-                "-Xmx1200m"
+                "-Xmx1200m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ],
             "indexer" : [
-                "-Xmx800m"
+                "-Xmx800m",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     },
@@ -211,7 +247,9 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx4g"
+                "-Xmx4g",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED"
             ]
         }
     }
