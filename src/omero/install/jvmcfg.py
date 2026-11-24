@@ -272,8 +272,7 @@ class Strategy(object):
                 "The Java Virtual Machine does not recognize the --add-opens"
                 " option. OMERO.server 5.7.0 will drop Java 8 support.")
             return []
-        else:
-            return add_opens
+        return add_opens
 
     def get_append(self):
         values = []
